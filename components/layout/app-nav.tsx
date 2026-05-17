@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Code2, Moon, PenLine, Sun } from "lucide-react";
+import { BookOpen, Brain, Code2, Map, Moon, PenLine, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/visualizer", label: "Visualizer", icon: Code2 },
-  { href: "/learn", label: "Learn", icon: BookOpen },
+  { href: "/patterns", label: "Patterns", icon: BookOpen },
+  { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Practice", icon: PenLine },
+  { href: "/train", label: "Train", icon: Brain },
 ];
 
 export function AppNav() {

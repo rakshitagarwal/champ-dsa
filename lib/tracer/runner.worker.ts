@@ -41,6 +41,7 @@ ${tail}
       var __events = [];
       var __step = 0;
       var __callStack = [];
+      var __frameSeq = 0;
       var __stdout = "";
       function __safeClone(v) {
         if (v === null || v === undefined) return v;
@@ -64,6 +65,28 @@ ${tail}
         }
         return undefined;
       }
+      function __cloneArgs(a) {
+        if (!a || typeof a !== "object") return a;
+        var out = {};
+        for (var k in a) {
+          if (Object.prototype.hasOwnProperty.call(a, k)) {
+            out[k] = __safeClone(a[k]);
+          }
+        }
+        return out;
+      }
+      function __snapshotStack() {
+        return __callStack.map(function (f) {
+          return {
+            id: f.id,
+            name: f.name,
+            line: f.line,
+            args: f.args,
+            returnValue: f.returnValue,
+            status: f.status
+          };
+        });
+      }
       function __trace(evt) {
         if (__step >= ${MAX_STEPS}) throw new Error("Max steps exceeded");
         var vars = {};
@@ -73,17 +96,35 @@ ${tail}
           }
         }
         var hi = __detectHighlights(vars);
+        var frameId;
+        if (evt.type === "enter") {
+          frameId = ++__frameSeq;
+          __callStack.push({
+            id: frameId,
+            name: evt.name || "fn",
+            line: evt.line,
+            args: __cloneArgs(evt.args),
+            status: "active"
+          });
+        }
+        if (evt.type === "return" && __callStack.length) {
+          var top = __callStack[__callStack.length - 1];
+          top.returnValue = __safeClone(evt.returnValue);
+          top.status = "returned";
+        }
+        var stackSnap = __snapshotStack();
         __events.push({
           step: __step++,
           line: evt.line,
           type: evt.type,
           variables: vars,
-          callStack: __callStack.slice(),
-          highlights: hi
+          callStack: stackSnap,
+          highlights: hi,
+          frameName: evt.name,
+          frameId: frameId,
+          returnValue: evt.type === "return" ? __safeClone(evt.returnValue) : undefined
         });
-        if (evt.type === "enter") {
-          __callStack.push({ name: evt.name || "fn", line: evt.line });
-        } else if (evt.type === "exit" || evt.type === "return") {
+        if (evt.type === "exit" || evt.type === "return") {
           if (__callStack.length) __callStack.pop();
         }
       }

@@ -22,7 +22,7 @@ export default async function PracticeQuestionPage({ params }: Props) {
         </Link>
         <span className="font-medium">{question.title}</span>
         <Link
-          href={`/learn/patterns/${question.patternSlug}`}
+          href={`/patterns/${question.patternSlug}`}
           className="ml-auto text-primary hover:underline"
         >
           Learn: {question.patternName}

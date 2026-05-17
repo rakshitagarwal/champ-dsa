@@ -67,7 +67,7 @@ export function PatternAccordionList() {
                   </AccordionTrigger>
                   <AccordionContent id={pattern.slug}>
                     <Link
-                      href={`/learn/patterns/${pattern.slug}`}
+                      href={`/patterns/${pattern.slug}`}
                         className={cn(
                           "group flex gap-3 rounded-lg border border-border bg-muted/30 p-4 transition-colors",
                           "hover:border-primary/40 hover:bg-primary/5",

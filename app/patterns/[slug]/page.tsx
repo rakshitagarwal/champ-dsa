@@ -4,7 +4,7 @@ import { PatternConceptView } from "@/components/bank/pattern-concept-view";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export default async function LearnPatternPage({ params }: Props) {
+export default async function PatternDetailPage({ params }: Props) {
   const { slug } = await params;
   const pattern = getPatternBySlug(slug);
   if (!pattern) notFound();

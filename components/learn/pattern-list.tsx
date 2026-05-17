@@ -44,7 +44,7 @@ export function PatternList() {
               return (
                 <li key={pattern.slug}>
                   <Link
-                    href={`/learn/patterns/${pattern.slug}`}
+                    href={`/patterns/${pattern.slug}`}
                     className={cn(
                       "group flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors",
                       "hover:border-primary/40 hover:bg-primary/5",

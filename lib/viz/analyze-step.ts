@@ -41,7 +41,7 @@ export function analyzeStepDiff(
 
   const changedVars: StepDiff["changedVars"] = [];
   for (const key of Object.keys(currVars)) {
-    if (key.startsWith("__")) continue;
+    if (key.startsWith("__") || key === "input") continue;
     const before = prevVars[key];
     const after = currVars[key];
     if (JSON.stringify(before) !== JSON.stringify(after)) {

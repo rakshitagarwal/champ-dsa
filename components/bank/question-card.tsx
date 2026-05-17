@@ -15,7 +15,7 @@ export function QuestionCard({ question }: { question: Question }) {
 
   return (
     <Link
-      href={`/bank/${question.patternSlug}/${question.id}`}
+      href={`/practice/${question.id}`}
       className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/5"
     >
       <div className="mb-2 flex items-start justify-between gap-2">

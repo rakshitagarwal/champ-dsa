@@ -18,7 +18,9 @@ export function CodeEditor() {
   const decoRef = useRef<string[]>([]);
   const registerFormatCode = useVisualizerStore((s) => s.registerFormatCode);
 
-  const line = trace?.events[stepIndex]?.line;
+  const evt = trace?.events[stepIndex];
+  const line =
+    evt && evt.type !== "enter" ? evt.line : undefined;
 
   useEffect(() => {
     return () => registerFormatCode(null);
@@ -52,7 +54,7 @@ export function CodeEditor() {
   }, [line, stepIndex]);
 
   return (
-    <div className="h-full min-h-[280px] overflow-hidden rounded-lg border-2 border-border bg-editor shadow-inner">
+    <div className="h-full min-h-[360px] overflow-hidden rounded-lg border border-border bg-editor shadow-inner">
       <Monaco
         height="100%"
         defaultLanguage="javascript"

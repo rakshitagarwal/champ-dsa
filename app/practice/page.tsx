@@ -10,10 +10,10 @@ export default function PracticePage() {
     <div className="w-full space-y-10 px-4 py-8 lg:px-10">
       <header className="max-w-4xl">
         <Link
-          href="/learn"
+          href="/patterns"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Learn patterns
+          ← Patterns
         </Link>
         <div className="mt-4">
           <Badge>DSA Sheet</Badge>

@@ -9,6 +9,7 @@ import {
   isPatternDone,
   togglePatternDone,
 } from "@/lib/storage/pattern-progress";
+import { setLastVisited } from "@/lib/storage/learning-store";
 
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const [done, setDone] = useState(false);
@@ -16,16 +17,17 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
 
   useEffect(() => {
     setDone(isPatternDone(pattern.slug));
+    setLastVisited({ type: "pattern", slugOrId: pattern.slug });
   }, [pattern.slug]);
 
   return (
     <article className="w-full space-y-10 px-4 py-8 lg:px-10">
       <header className="max-w-4xl">
         <Link
-          href="/learn"
+          href="/patterns"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Learn patterns
+          ← All patterns
         </Link>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{pattern.category}</Badge>

@@ -8,18 +8,26 @@ import { CodeEditor } from "./code-editor";
 import { VisualizerToolbar } from "./visualizer-toolbar";
 import { ConsolePanel } from "./console-panel";
 import { AnimationStage } from "./animation-stage";
-import { RecursionTree } from "./recursion-tree";
+import { ProgressiveHints } from "@/components/practice/progressive-hints";
+import type { ProgressiveHint } from "@/types/question";
 
 type Props = {
   mode: "free" | "practice";
   hints?: string[];
+  progressiveHints?: ProgressiveHint;
+  questionId?: string;
   fillParent?: boolean;
 };
 
-export function VizWorkspace({ mode, hints, fillParent }: Props) {
-  const [problemOpen, setProblemOpen] = useState(true);
+export function VizWorkspace({
+  mode,
+  hints,
+  progressiveHints,
+  questionId,
+  fillParent,
+}: Props) {
+  const [problemOpen, setProblemOpen] = useState(false);
   const [hintsOpen, setHintsOpen] = useState(false);
-  const [showRecursion, setShowRecursion] = useState(false);
 
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
@@ -56,10 +64,6 @@ export function VizWorkspace({ mode, hints, fillParent }: Props) {
   const problemTitle = useVisualizerStore((s) => s.problemTitle);
   const problemStatement = useVisualizerStore((s) => s.problemStatement);
   const patternName = useVisualizerStore((s) => s.patternName);
-  const current = useVisualizerStore((s) => s.currentEvent());
-  const hasRecursion =
-    (current?.callStack.length ?? 0) > 1 || current?.type === "enter";
-
   const showProblemBar = mode === "practice" && problemTitle;
 
   return (
@@ -67,11 +71,11 @@ export function VizWorkspace({ mode, hints, fillParent }: Props) {
       className={
         fillParent
           ? "flex h-full min-h-0 flex-col"
-          : "flex h-[calc(100vh-3.5rem)] flex-col"
+          : "flex h-[calc(100vh-3.25rem)] min-h-[640px] flex-col"
       }
     >
       {showProblemBar ? (
-        <div className="border-b border-border bg-panel">
+        <div className="shrink-0 border-b border-border bg-panel">
           <button
             type="button"
             className="flex w-full items-center justify-between px-4 py-2 text-left text-sm font-medium"
@@ -92,7 +96,15 @@ export function VizWorkspace({ mode, hints, fillParent }: Props) {
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {problemStatement}
               </p>
-              {hints && hints.length > 0 && (
+              {progressiveHints && questionId ? (
+                <div className="mt-3">
+                  <ProgressiveHints
+                    questionId={questionId}
+                    hints={progressiveHints}
+                  />
+                </div>
+              ) : null}
+              {!progressiveHints && hints && hints.length > 0 && (
                 <div className="mt-3">
                   <button
                     type="button"
@@ -119,7 +131,7 @@ export function VizWorkspace({ mode, hints, fillParent }: Props) {
           )}
         </div>
       ) : mode === "free" ? (
-        <div className="border-b border-border bg-panel px-4 py-2">
+        <div className="shrink-0 border-b border-border bg-panel px-4 py-2">
           <p className="text-sm font-medium">Code Visualizer</p>
           <p className="text-xs text-muted-foreground">
             Write your own JavaScript. Use{" "}
@@ -132,44 +144,30 @@ export function VizWorkspace({ mode, hints, fillParent }: Props) {
       <VisualizerToolbar mode={mode} />
 
       <Group orientation="horizontal" className="min-h-0 flex-1">
-        <Panel defaultSize={38} minSize={28}>
-          <div className="flex h-full flex-col gap-2 p-2">
-            <p className="px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Code — highlighted line drives the animation →
+        <Panel defaultSize={42} minSize={30}>
+          <div className="flex h-full min-h-0 flex-col gap-1 p-2">
+            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Code
             </p>
-            <CodeEditor />
+            <div className="min-h-0 flex-1">
+              <CodeEditor />
+            </div>
           </div>
         </Panel>
         <Separator className="w-1 bg-border hover:bg-primary/50" />
-        <Panel defaultSize={62} minSize={40}>
-          <div className="flex h-full flex-col gap-2 p-2">
-            <div className="flex items-center justify-between px-1">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                Animation
-              </p>
-              {hasRecursion && trace && (
-                <button
-                  type="button"
-                  onClick={() => setShowRecursion((s) => !s)}
-                  className="text-[10px] text-primary hover:underline"
-                >
-                  {showRecursion ? "Hide" : "Show"} recursion tree
-                </button>
-              )}
-            </div>
-            <div className="min-h-0 flex-1">
+        <Panel defaultSize={58} minSize={38}>
+          <div className="flex h-full min-h-0 flex-col gap-1 p-2">
+            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Step walkthrough
+            </p>
+            <div className="min-h-0 flex-1 overflow-hidden">
               <AnimationStage />
             </div>
-            {showRecursion && trace && (
-              <div className="max-h-32 shrink-0 overflow-auto rounded-lg border border-border bg-card/50 p-2">
-                <RecursionTree />
-              </div>
-            )}
           </div>
         </Panel>
       </Group>
 
-      <div className="h-36 min-h-[100px] max-h-[180px] shrink-0 border-t border-border">
+      <div className="h-24 shrink-0 border-t border-border">
         <ConsolePanel />
       </div>
     </div>

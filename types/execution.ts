@@ -5,9 +5,15 @@ export type ExecutionEventType =
   | "return"
   | "throw";
 
+export type CallFrameStatus = "active" | "returned";
+
 export type CallFrame = {
+  id: number;
   name: string;
   line: number;
+  args?: Record<string, unknown>;
+  returnValue?: unknown;
+  status: CallFrameStatus;
 };
 
 export type ArrayHighlight = {
@@ -24,6 +30,9 @@ export type ExecutionEvent = {
   stdout?: string;
   explanation?: string;
   highlights?: ArrayHighlight;
+  frameName?: string;
+  frameId?: number;
+  returnValue?: unknown;
 };
 
 export type ExecutionTrace = {

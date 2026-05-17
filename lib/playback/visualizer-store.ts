@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import type { ExecutionEvent, ExecutionTrace } from "@/types/execution";
 import { runCode } from "@/lib/tracer/run";
+import { recordQuestionAttempt } from "@/lib/storage/learning-store";
 
 export const DEFAULT_CODE = `function solve(nums, target) {
   let left = 0;
@@ -132,12 +133,16 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     }),
 
   run: async () => {
-    const { code, stdin } = get();
+    const { code, stdin, questionContext } = get();
+    const started = Date.now();
     set({ isRunning: true, error: null, isPlaying: false });
     const result = await runCode(code, stdin);
     if (!result.ok) {
       set({ isRunning: false, error: result.error, trace: null });
       return;
+    }
+    if (questionContext) {
+      recordQuestionAttempt(questionContext.questionId, Date.now() - started);
     }
     set({
       isRunning: false,

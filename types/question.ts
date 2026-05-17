@@ -1,5 +1,13 @@
 export type Difficulty = "easy" | "medium" | "hard";
 
+export type ProgressiveHint = {
+  observation: string;
+  direction: string;
+  pattern: string;
+  pseudocode: string;
+  solution: string;
+};
+
 export type MiniVizFrame = {
   label: string;
   indices: number[];
@@ -19,6 +27,7 @@ export type Question = {
   difficulty: Difficulty;
   statement: string;
   patternHints: string[];
+  progressiveHints?: ProgressiveHint;
   starterCode: string;
   /** Full solution shown in visualizer when opened from practice. */
   solutionCode: string;

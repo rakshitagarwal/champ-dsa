@@ -7,7 +7,7 @@ export function explainStep(
 ): string {
   if (curr.type === "enter") {
     const frame = curr.callStack[curr.callStack.length - 1];
-    return `Entering ${frame?.name ?? "function"} — a new stack frame is pushed.`;
+    return `Starting ${frame?.name ?? "solve"}(). Press Next to run the first line.`;
   }
   if (curr.type === "exit" || curr.type === "return") {
     return `Leaving function — stack frame popped; control returns to the caller.`;

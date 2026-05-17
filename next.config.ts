@@ -6,11 +6,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/bank", destination: "/learn", permanent: false },
+      { source: "/bank", destination: "/patterns", permanent: false },
+      { source: "/learn", destination: "/patterns", permanent: false },
+      { source: "/learn/roadmap", destination: "/roadmap", permanent: false },
+      {
+        source: "/learn/patterns/:slug",
+        destination: "/patterns/:slug",
+        permanent: false,
+      },
       { source: "/bank/bosscoder", destination: "/practice", permanent: false },
       {
         source: "/bank/patterns/:slug/concept",
-        destination: "/learn/patterns/:slug",
+        destination: "/patterns/:slug",
         permanent: false,
       },
       {

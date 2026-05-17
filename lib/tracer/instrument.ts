@@ -64,6 +64,27 @@ function captureVarsExpr(bindingNames: string[]) {
   return t.objectExpression(props);
 }
 
+function captureArgsExpr(path: NodePath<t.Function>) {
+  const params: string[] = [];
+  for (const param of path.node.params) {
+    if (t.isIdentifier(param)) params.push(param.name);
+    else if (t.isAssignmentPattern(param) && t.isIdentifier(param.left)) {
+      params.push(param.left.name);
+    }
+  }
+  if (params.length === 0) return t.objectExpression([]);
+  const props = params.map((name) =>
+    t.objectProperty(
+      t.identifier(name),
+      t.callExpression(
+        t.memberExpression(t.identifier("__safe"), t.identifier("clone")),
+        [t.identifier(name)],
+      ),
+    ),
+  );
+  return t.objectExpression(props);
+}
+
 function traceCall(
   line: number,
   type: string,
@@ -129,6 +150,7 @@ export function instrumentCode(source: string): InstrumentResult {
         "body",
         traceCall(line, "enter", bindings, {
           name: t.stringLiteral(name),
+          args: captureArgsExpr(path),
         }),
       );
 
@@ -144,7 +166,16 @@ export function instrumentCode(source: string): InstrumentResult {
       if (isTraceStatement(path.node)) return;
       const line = getLine(path.node);
       const bindings = collectBindings(path.getFunctionParent() ?? path);
-      path.insertBefore(traceCall(line, "return", bindings));
+      const arg = path.node.argument;
+      const returnValue = arg
+        ? t.callExpression(
+            t.memberExpression(t.identifier("__safe"), t.identifier("clone")),
+            [arg],
+          )
+        : t.identifier("undefined");
+      path.insertBefore(
+        traceCall(line, "return", bindings, { returnValue }),
+      );
     },
     "ForStatement|WhileStatement|DoWhileStatement|ForOfStatement|ForInStatement"(
       path,

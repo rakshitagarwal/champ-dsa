@@ -9,10 +9,16 @@ export type PatternFundamentals = {
   pitfalls: string[];
 };
 
+export type PatternDifficulty = "beginner" | "intermediate" | "advanced";
+
 export type DsaPattern = {
   slug: string;
   name: string;
   category: string;
   summary: string;
   fundamentals: PatternFundamentals;
+  difficulty?: PatternDifficulty;
+  prerequisites?: string[];
+  estimatedMinutes?: number;
+  roadmapOrder?: number;
 };

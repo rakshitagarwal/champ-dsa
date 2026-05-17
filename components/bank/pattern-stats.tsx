@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAllPatterns } from "@/data/patterns";
 import { getPatternCompletionStats } from "@/lib/storage/pattern-progress";
+import { LEARNING_UPDATED_EVENT } from "@/lib/storage/learning-store";
 
 export function PatternStats() {
   const total = getAllPatterns().length;
@@ -12,8 +13,8 @@ export function PatternStats() {
     const refresh = () =>
       setCompleted(getPatternCompletionStats(total).completed);
     refresh();
-    window.addEventListener("champdsa-pattern-done", refresh);
-    return () => window.removeEventListener("champdsa-pattern-done", refresh);
+    window.addEventListener(LEARNING_UPDATED_EVENT, refresh);
+    return () => window.removeEventListener(LEARNING_UPDATED_EVENT, refresh);
   }, [total]);
 
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;

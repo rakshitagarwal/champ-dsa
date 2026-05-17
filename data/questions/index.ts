@@ -1,5 +1,6 @@
 import type { PatternGroup, Question } from "@/types/question";
 import { stdinToHuman } from "@/lib/io/human-input";
+import { progressiveHintsByQuestionId } from "@/lib/questions/progressive-hints-map";
 import { sheetQuestions } from "./sheet-questions";
 
 function enrich(q: Omit<Question, "solutionCode" | "humanInput">): Question {
@@ -7,6 +8,7 @@ function enrich(q: Omit<Question, "solutionCode" | "humanInput">): Question {
     ...q,
     solutionCode: q.starterCode,
     humanInput: stdinToHuman(q.sampleInput),
+    progressiveHints: progressiveHintsByQuestionId[q.id],
   };
 }
 
