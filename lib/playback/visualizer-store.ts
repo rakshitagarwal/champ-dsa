@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import type { ExecutionEvent, ExecutionTrace } from "@/types/execution";
 import { runCode } from "@/lib/tracer/run";
+import { markVisualizerUsed } from "@/lib/onboarding/checklist";
 import { recordQuestionAttempt } from "@/lib/storage/learning-store";
 
 export const DEFAULT_CODE = `function solve(nums, target) {
@@ -143,6 +144,10 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     }
     if (questionContext) {
       recordQuestionAttempt(questionContext.questionId, Date.now() - started);
+    }
+    markVisualizerUsed();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("champdsa-visualizer-used"));
     }
     set({
       isRunning: false,

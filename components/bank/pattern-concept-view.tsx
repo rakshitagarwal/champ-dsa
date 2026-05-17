@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { DsaPattern } from "@/types/pattern";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getDeveloperFraming } from "@/data/patterns/developer-framing";
 import {
   isPatternDone,
   togglePatternDone,
@@ -14,6 +15,8 @@ import { setLastVisited } from "@/lib/storage/learning-store";
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const [done, setDone] = useState(false);
   const f = pattern.fundamentals;
+  const dev = getDeveloperFraming(pattern.slug);
+  const summary = dev?.summary ?? pattern.summary;
 
   useEffect(() => {
     setDone(isPatternDone(pattern.slug));
@@ -21,8 +24,8 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   }, [pattern.slug]);
 
   return (
-    <article className="w-full space-y-10 px-4 py-8 lg:px-10">
-      <header className="max-w-4xl">
+    <article className="w-full space-y-8 px-4 py-8 lg:px-10 xl:px-12">
+      <header>
         <Link
           href="/patterns"
           className="text-sm text-muted-foreground hover:text-foreground"
@@ -36,20 +39,38 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
         <h1 className="mt-3 text-4xl font-bold tracking-tight">
           {pattern.name}
         </h1>
-        <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          {pattern.summary}
+        <p className="mt-3 max-w-4xl text-lg leading-relaxed text-muted-foreground">
+          {summary}
         </p>
       </header>
 
-      <SimpleCallout title="In simple English, what is this?">
-        {f.overview} Think of it this way: {f.intuition}
+      {dev ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border border-primary/30 bg-primary/5 px-5 py-4">
+            <h2 className="text-sm font-semibold text-primary">
+              Why this matters if you ship code
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/90">
+              {dev.hook}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-muted/30 px-5 py-4">
+            <h2 className="text-sm font-semibold">Problem wording that hints at this</h2>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/90">
+              {dev.recognize}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      <SimpleCallout title="What is this pattern?">
+        {f.overview} In everyday terms: {f.intuition}
       </SimpleCallout>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Section title="When should you use it?">
+        <Section title="When should you reach for it?">
           <p className="mb-3 text-sm text-muted-foreground">
-            If the problem sounds like any of these, this pattern is probably the
-            right tool:
+            You are probably in the right place if the prompt mentions:
           </p>
           <ul className="space-y-2">
             {f.whenToUse.map((item) => (
@@ -64,7 +85,7 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
           </ul>
         </Section>
 
-        <Section title="How to solve it (step by step)">
+        <Section title="How to implement it (step by step)">
           <ol className="space-y-3">
             {f.approach.map((step, i) => (
               <li
@@ -84,16 +105,15 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
       <Section title="Speed & memory">
         <p className="text-base leading-relaxed">{f.complexity}</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          This tells you how fast your solution runs and how much extra memory it
-          needs as input size grows.
+          In interviews, state time and space clearly. In production, the same
+          bounds tell you whether this approach scales with your input size.
         </p>
       </Section>
 
       <Section title="JavaScript example (try in visualizer)">
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          Read the code below, then open the visualizer. Press Run and click Next
-          repeatedly — you will see each line animate on the canvas while the
-          highlighted line in the editor shows what just ran.
+          Read the code, then open the visualizer. Step through with Next to see
+          each line run — the highlighted editor line matches the animation.
         </p>
         <pre className="overflow-x-auto rounded-xl border border-border bg-editor p-5 font-mono text-sm leading-relaxed">
           {f.exampleCode}
@@ -114,7 +134,7 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
         </div>
       </Section>
 
-      <Section title="Common mistakes beginners make">
+      <Section title="Mistakes even experienced devs make here">
         <ul className="space-y-2">
           {f.pitfalls.map((item) => (
             <li

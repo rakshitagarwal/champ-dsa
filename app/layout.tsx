@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppNav } from "@/components/layout/app-nav";
+import { AppShell } from "@/components/layout/app-shell";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "./globals.css";
 
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ChampDSA — Understand algorithms deeply",
   description:
-    "Interactive DSA learning with step-by-step visualization, pattern recognition, and spaced repetition.",
+    "Desktop-first DSA learning with step-by-step visualization. Recap JavaScript fundamentals and DSA patterns when you need a quick refresh.",
 };
 
 export default function RootLayout({
@@ -33,8 +33,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <AppNav />
-          <main className="flex-1">{children}</main>
+          <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
     </html>

@@ -4,10 +4,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   BookOpen,
+  FileText,
   Flame,
   PenLine,
   Target,
-  Brain,
+  Map,
   ArrowRight,
 } from "lucide-react";
 import { getAllPatterns, getPatternBySlug } from "@/data/patterns";
@@ -22,6 +23,7 @@ import {
   LEARNING_UPDATED_EVENT,
 } from "@/lib/storage/learning-store";
 import { getQuestionsByPattern } from "@/lib/learning/pattern-questions";
+import { OnboardingChecklist } from "./onboarding-checklist";
 
 export function LearningHub() {
   const [overall, setOverall] = useState(0);
@@ -73,13 +75,13 @@ export function LearningHub() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-12">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
         <p className="mt-2 text-muted-foreground">
-          Pick up where you left off or follow your roadmap.
+          Continue your DSA path or recap fundamentals when you need them.
         </p>
       </header>
+
+      <OnboardingChecklist />
 
       <section className="grid gap-4 sm:grid-cols-3">
         <StatCard
@@ -100,8 +102,18 @@ export function LearningHub() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-semibold">Continue learning</h2>
+        <h2 className="font-semibold">Continue learning DSA</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Main path: roadmap → patterns → practice → visualizer
+        </p>
         <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/roadmap"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Map className="h-4 w-4" />
+            Learning roadmap
+          </Link>
           {lastLabel && (
             <Link
               href={
@@ -120,43 +132,45 @@ export function LearningHub() {
           {nextPattern && (
             <Link
               href={`/patterns/${nextPattern.slug}`}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
             >
-              Next: {nextPattern.name}
+              Next pattern: {nextPattern.name}
               <ArrowRight className="h-4 w-4" />
             </Link>
           )}
+          <Link
+            href="/practice"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
+          >
+            <PenLine className="h-4 w-4" />
+            Practice sheet
+          </Link>
         </div>
       </section>
 
-      <section className="flex flex-wrap gap-3">
-        <Link
-          href="/roadmap"
-          className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium hover:bg-accent"
-        >
-          <BookOpen className="mr-2 h-4 w-4" />
-          Learning roadmap
-        </Link>
-        <Link
-          href="/practice"
-          className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium hover:bg-accent"
-        >
-          <PenLine className="mr-2 h-4 w-4" />
-          Practice
-        </Link>
-        <Link
-          href="/train"
-          className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm font-medium hover:bg-accent"
-        >
-          <Brain className="mr-2 h-4 w-4" />
-          Pattern trainer
-        </Link>
-        <Link
-          href="/progress"
-          className="inline-flex h-9 items-center rounded-md px-4 text-sm font-medium text-muted-foreground hover:text-foreground"
-        >
-          View analytics
-        </Link>
+      <section className="rounded-xl border border-dashed border-border bg-muted/20 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Quick recap
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Not learning new material — just refreshing what you already know.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/patterns"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <BookOpen className="h-4 w-4" />
+            DSA pattern recap
+          </Link>
+          <Link
+            href="/js-notes"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <FileText className="h-4 w-4" />
+            JavaScript notes
+          </Link>
+        </div>
       </section>
     </div>
   );

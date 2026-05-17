@@ -20,7 +20,11 @@ export default function PracticePage() {
         </div>
         <h1 className="mt-3 text-4xl font-bold">Practice ({count} problems)</h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Solve problems in sheet order. Each opens with an empty{" "}
+          Main learning path — solve problems in roadmap order when possible (
+          <Link href="/roadmap" className="font-medium text-primary hover:underline">
+            see roadmap
+          </Link>
+          ). Each problem uses an empty{" "}
           <code className="rounded bg-muted px-1">solve</code> function — use{" "}
           <strong>Run</strong> and <strong>Next</strong> to animate your code, or
           reveal the <strong>Solution</strong> when you are stuck.

@@ -6,18 +6,25 @@ export default function PatternsPage() {
   return (
     <div className="w-full space-y-8 px-4 py-8 lg:px-10">
       <header className="max-w-4xl">
-        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
-          DSA Patterns
+        <p className="text-sm text-muted-foreground">
+          Recap lane —{" "}
+          <Link href="/roadmap" className="font-medium text-primary hover:underline">
+            Main learning path (roadmap)
+          </Link>
+        </p>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">
+          DSA pattern recap
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Study each technique in plain English — intuition, when to use it, and
-          a small example. When you are ready to solve problems, go to{" "}
-          <Link href="/practice" className="font-medium text-primary hover:underline">
-            Practice
-          </Link>
-          . For a guided path, see the{" "}
+          Quick refresh for working developers — when you forgot what two
+          pointers or sliding window mean. Each topic has plain-English
+          explanations and a runnable example. New to the sheet? Start on the{" "}
           <Link href="/roadmap" className="font-medium text-primary hover:underline">
-            Roadmap
+            roadmap
+          </Link>
+          , then practice on the{" "}
+          <Link href="/practice" className="font-medium text-primary hover:underline">
+            practice sheet
           </Link>
           .
         </p>
