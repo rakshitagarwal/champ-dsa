@@ -1,0 +1,83 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
+import type { editor } from "monaco-editor";
+import { useVisualizerStore } from "@/lib/playback/visualizer-store";
+
+const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+
+export function CodeEditor() {
+  const { theme } = useTheme();
+  const code = useVisualizerStore((s) => s.code);
+  const setCode = useVisualizerStore((s) => s.setCode);
+  const stepIndex = useVisualizerStore((s) => s.stepIndex);
+  const trace = useVisualizerStore((s) => s.trace);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const decoRef = useRef<string[]>([]);
+  const registerFormatCode = useVisualizerStore((s) => s.registerFormatCode);
+
+  const line = trace?.events[stepIndex]?.line;
+
+  useEffect(() => {
+    return () => registerFormatCode(null);
+  }, [registerFormatCode]);
+
+  useEffect(() => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    if (line) {
+      ed.revealLineInCenter(line);
+      decoRef.current = ed.deltaDecorations(decoRef.current, [
+        {
+          range: {
+            startLineNumber: line,
+            startColumn: 1,
+            endLineNumber: line,
+            endColumn: ed.getModel()?.getLineMaxColumn(line) ?? 1,
+          },
+          options: {
+            isWholeLine: true,
+            className: "executing-line-highlight",
+            glyphMarginClassName: "executing-line-glyph",
+            linesDecorationsClassName: "executing-line-margin",
+            inlineClassName: "executing-line-inline",
+          },
+        },
+      ]);
+    } else {
+      decoRef.current = ed.deltaDecorations(decoRef.current, []);
+    }
+  }, [line, stepIndex]);
+
+  return (
+    <div className="h-full min-h-[280px] overflow-hidden rounded-lg border-2 border-border bg-editor shadow-inner">
+      <Monaco
+        height="100%"
+        defaultLanguage="javascript"
+        theme={theme === "light" ? "light" : "vs-dark"}
+        value={code}
+        onChange={(v) => setCode(v ?? "")}
+        onMount={(ed) => {
+          editorRef.current = ed;
+          ed.updateOptions({ glyphMargin: true });
+          registerFormatCode(() => {
+            ed.getAction("editor.action.formatDocument")?.run();
+          });
+        }}
+        options={{
+          minimap: { enabled: false },
+          fontSize: 14,
+          fontFamily: "var(--font-geist-mono), monospace",
+          lineNumbers: "on",
+          glyphMargin: true,
+          scrollBeyondLastLine: false,
+          automaticLayout: true,
+          padding: { top: 12 },
+          renderLineHighlight: "none",
+        }}
+      />
+    </div>
+  );
+}
