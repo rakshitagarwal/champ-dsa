@@ -10,6 +10,7 @@ import {
   Target,
   Map,
   ArrowRight,
+  Table2,
 } from "lucide-react";
 import { getAllPatterns, getPatternBySlug } from "@/data/patterns";
 import { getQuestionById } from "@/data/questions";
@@ -60,7 +61,7 @@ export function LearningHub() {
     } else if (last.type === "question") {
       setLastLabel(getQuestionById(last.slugOrId)?.title ?? last.slugOrId);
     } else {
-      setLastLabel("Pattern trainer");
+      setLastLabel("Cheat sheet");
     }
   };
 
@@ -121,7 +122,7 @@ export function LearningHub() {
                   ? `/practice/${getStore().profile.lastVisited?.slugOrId}`
                   : getStore().profile.lastVisited?.type === "pattern"
                     ? `/patterns/${getStore().profile.lastVisited?.slugOrId}`
-                    : "/train"
+                    : "/cheatsheet"
               }
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
             >
@@ -169,6 +170,13 @@ export function LearningHub() {
           >
             <FileText className="h-4 w-4" />
             JavaScript notes
+          </Link>
+          <Link
+            href="/cheatsheet"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            <Table2 className="h-4 w-4" />
+            Complexity cheat sheet
           </Link>
         </div>
       </section>

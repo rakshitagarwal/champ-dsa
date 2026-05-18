@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  Brain,
+  Table2,
   FileText,
   Map,
   Moon,
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const learnLinks = [
   { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Solve", icon: PenLine },
-  { href: "/train", label: "Train", icon: Brain },
+  { href: "/cheatsheet", label: "Cheat sheet", icon: Table2 },
 ] as const;
 
 const recapLinks = [
