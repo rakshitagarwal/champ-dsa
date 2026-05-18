@@ -4,6 +4,11 @@ export type JsNoteExample = {
   explanation: string;
 };
 
+export type JsNotePracticeLink = {
+  title: string;
+  url: string;
+};
+
 export type JsNoteTopic = {
   slug: string;
   order: number;
@@ -15,5 +20,6 @@ export type JsNoteTopic = {
     deepDive: string[];
     teachBack: string[];
     examples: JsNoteExample[];
+    practiceLinks?: JsNotePracticeLink[];
   };
 };

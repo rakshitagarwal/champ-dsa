@@ -38,16 +38,16 @@ export function PracticeQuestionRow({ question }: { question: Question }) {
             </ul>
           </div>
           <p className="text-sm text-muted-foreground">
-            Open the visualizer to run code step-by-step and watch the animation
-            for each line.
+            Solve in the editor, then run to see a step-by-step walkthrough on
+            the example input.
           </p>
         </div>
         <div className="flex w-full shrink-0 flex-col gap-2 sm:w-48">
           <Link
-            href={`/visualizer?q=${question.id}`}
+            href={`/practice/${question.id}`}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Open in Visualizer
+            Solve
           </Link>
           <Link
             href={`/bank/${question.patternSlug}/${question.id}`}

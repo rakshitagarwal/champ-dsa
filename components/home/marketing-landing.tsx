@@ -23,7 +23,7 @@ export function MarketingLanding() {
           href="/roadmap"
           icon={<Map className="h-5 w-5" />}
           title="Start learning DSA"
-          body="Follow the roadmap, study patterns, practice on the sheet, and step through code in the visualizer."
+          body="Follow the roadmap, solve sheet problems LeetCode-style, and step through your code with visualization."
           cta="Open roadmap"
         />
         <LaneCard
@@ -43,8 +43,8 @@ export function MarketingLanding() {
       </div>
 
       <p className="mt-10 max-w-lg text-xs text-muted-foreground">
-        Practice and the visualizer work best on a desktop screen (1024px or
-        wider). JS notes are available on tablet too.
+        Solving problems works best on a desktop screen (1024px or wider). JS
+        notes are available on tablet too.
       </p>
     </div>
   );

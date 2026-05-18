@@ -1,0 +1,57 @@
+{
+  "matched": 198,
+  "missing": [
+    {
+      "num": 5,
+      "title": "Linked Lists"
+    },
+    {
+      "num": 8,
+      "title": "Inversion of array - 1587115620"
+    },
+    {
+      "num": 22,
+      "title": "Number of Sub-arrays of Size K and Average .."
+    },
+    {
+      "num": 38,
+      "title": "Check if Two Arrays Are Equal or Not"
+    },
+    {
+      "num": 39,
+      "title": "Binary Array Sorting"
+    },
+    {
+      "num": 63,
+      "title": "Palindrome Linked"
+    },
+    {
+      "num": 64,
+      "title": "Remove Linked List"
+    },
+    {
+      "num": 131,
+      "title": "Detect Cycle in an Undirected Graph"
+    },
+    {
+      "num": 132,
+      "title": "Detect Cycle in a Directed Graph"
+    },
+    {
+      "num": 145,
+      "title": "Find the City With the Smallest Number of Neighbors at a..."
+    },
+    {
+      "num": 148,
+      "title": "Minimum Platforms"
+    },
+    {
+      "num": 150,
+      "title": "Assign Mice to Holes"
+    },
+    {
+      "num": 195,
+      "title": "Excel Sheet Column"
+    }
+  ]
+}

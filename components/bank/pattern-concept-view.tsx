@@ -110,20 +110,20 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
         </p>
       </Section>
 
-      <Section title="JavaScript example (try in visualizer)">
+      <Section title="JavaScript example">
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          Read the code, then open the visualizer. Step through with Next to see
-          each line run — the highlighted editor line matches the animation.
+          Study the pattern below, then solve related problems on the practice
+          sheet. Run your solution to see each line execute on the sample input.
         </p>
         <pre className="overflow-x-auto rounded-xl border border-border bg-editor p-5 font-mono text-sm leading-relaxed">
           {f.exampleCode}
         </pre>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
-            href={`/visualizer?demo=${pattern.slug}`}
+            href={`/bank/patterns/${pattern.slug}/practice`}
             className="inline-flex h-11 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Try example in Visualizer
+            Practice this pattern
           </Link>
           <Link
             href="/practice"

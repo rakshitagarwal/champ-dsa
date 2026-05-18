@@ -6,7 +6,6 @@ import {
   AlignLeft,
   ChevronLeft,
   ChevronRight,
-  ExternalLink,
   Lightbulb,
   Pause,
   Play,
@@ -22,10 +21,18 @@ import {
 } from "@/lib/storage/learning-store";
 
 type Props = {
-  mode?: "free" | "practice";
+  hasHints?: boolean;
+  progressiveHints?: boolean;
+  onOpenHints?: () => void;
+  onMarkSolved?: () => void;
 };
 
-export function VisualizerToolbar({ mode = "free" }: Props) {
+export function VisualizerToolbar({
+  hasHints = false,
+  progressiveHints = false,
+  onOpenHints,
+  onMarkSolved,
+}: Props) {
   const [confirmSolution, setConfirmSolution] = useState(false);
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
   const [hintsUnlocked, setHintsUnlocked] = useState(0);
@@ -35,8 +42,6 @@ export function VisualizerToolbar({ mode = "free" }: Props) {
   const speedMs = useVisualizerStore((s) => s.speedMs);
   const isRunning = useVisualizerStore((s) => s.isRunning);
   const questionContext = useVisualizerStore((s) => s.questionContext);
-  const code = useVisualizerStore((s) => s.code);
-  const stdin = useVisualizerStore((s) => s.stdin);
   const stepNext = useVisualizerStore((s) => s.stepNext);
   const stepPrev = useVisualizerStore((s) => s.stepPrev);
   const play = useVisualizerStore((s) => s.play);
@@ -50,7 +55,6 @@ export function VisualizerToolbar({ mode = "free" }: Props) {
 
   const total = trace?.events.length ?? 0;
   const hasTrace = total > 0;
-  const isPractice = mode === "practice" && questionContext;
   const canShowSolution = hintsUnlocked >= 5;
 
   useEffect(() => {
@@ -93,84 +97,9 @@ export function VisualizerToolbar({ mode = "free" }: Props) {
     setConfirmGiveUp(false);
   };
 
-  const copyToVisualizer = () => {
-    sessionStorage.setItem(
-      "champdsa-viz-import",
-      JSON.stringify({ code, stdin }),
-    );
-    window.open("/visualizer", "_blank");
-  };
-
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-border bg-panel px-3 py-2">
-      {isPractice && (
-        <>
-          <Button variant="outline" size="sm" onClick={resetToStarter}>
-            Reset code
-          </Button>
-          <Button
-            variant={confirmSolution ? "default" : "outline"}
-            size="sm"
-            onClick={onSolutionClick}
-            disabled={questionContext?.solutionRevealed || !canShowSolution}
-            className="gap-1.5"
-            title={
-              canShowSolution
-                ? undefined
-                : "Unlock all 5 progressive hints first"
-            }
-          >
-            <Lightbulb className="h-3.5 w-3.5" />
-            {questionContext?.solutionRevealed
-              ? "Solution shown"
-              : confirmSolution
-                ? "Confirm show solution"
-                : canShowSolution
-                  ? "Solution"
-                  : `Solution (${hintsUnlocked}/5 hints)`}
-          </Button>
-          {!canShowSolution && !questionContext?.solutionRevealed && (
-            <>
-              <Button
-                variant={confirmGiveUp ? "destructive" : "ghost"}
-                size="sm"
-                onClick={onGiveUp}
-              >
-                {confirmGiveUp ? "Confirm give up" : "I give up"}
-              </Button>
-              {confirmGiveUp && (
-                <button
-                  type="button"
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => setConfirmGiveUp(false)}
-                >
-                  Cancel
-                </button>
-              )}
-            </>
-          )}
-          {confirmSolution && (
-            <button
-              type="button"
-              className="text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setConfirmSolution(false)}
-            >
-              Cancel
-            </button>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={copyToVisualizer}
-            className="gap-1.5"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Copy to Visualizer
-          </Button>
-          <div className="mx-1 h-6 w-px bg-border" />
-        </>
-      )}
-
+    <div className="shrink-0 border-b border-border bg-panel">
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2">
       <Button
         size="sm"
         onClick={() => run()}
@@ -180,84 +109,172 @@ export function VisualizerToolbar({ mode = "free" }: Props) {
         <Zap className="h-3.5 w-3.5" />
         {isRunning ? "Running…" : "Run"}
       </Button>
-      <Button variant="outline" size="sm" onClick={() => formatCode()} className="gap-1.5">
+
+      {hasHints && onOpenHints && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenHints}
+          disabled={progressiveHints && hintsUnlocked >= 5}
+          className="gap-1.5"
+        >
+          <Lightbulb className="h-3.5 w-3.5" />
+          {progressiveHints
+            ? hintsUnlocked >= 5
+              ? "Hints (5/5)"
+              : `Hint (${hintsUnlocked}/5)`
+            : "Hint"}
+        </Button>
+      )}
+
+      <Button variant="outline" size="sm" onClick={resetToStarter}>
+        Reset code
+      </Button>
+
+      <Button
+        variant={confirmSolution ? "default" : "outline"}
+        size="sm"
+        onClick={onSolutionClick}
+        disabled={questionContext?.solutionRevealed || !canShowSolution}
+        className="gap-1.5"
+        title={
+          canShowSolution ? undefined : "Unlock all 5 progressive hints first"
+        }
+      >
+        <Lightbulb className="h-3.5 w-3.5" />
+        {questionContext?.solutionRevealed
+          ? "Solution shown"
+          : confirmSolution
+            ? "Confirm show solution"
+            : canShowSolution
+              ? "Solution"
+              : `Solution (${hintsUnlocked}/5 hints)`}
+      </Button>
+
+      {!canShowSolution && !questionContext?.solutionRevealed && (
+        <>
+          <Button
+            variant={confirmGiveUp ? "destructive" : "ghost"}
+            size="sm"
+            onClick={onGiveUp}
+          >
+            {confirmGiveUp ? "Confirm give up" : "I give up"}
+          </Button>
+          {confirmGiveUp && (
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setConfirmGiveUp(false)}
+            >
+              Cancel
+            </button>
+          )}
+        </>
+      )}
+
+      {confirmSolution && (
+        <button
+          type="button"
+          className="text-xs text-muted-foreground hover:text-foreground"
+          onClick={() => setConfirmSolution(false)}
+        >
+          Cancel
+        </button>
+      )}
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => formatCode()}
+        className="gap-1.5"
+      >
         <AlignLeft className="h-3.5 w-3.5" />
         Format
       </Button>
 
-      <div className="mx-1 h-6 w-px bg-border" />
+      {onMarkSolved && (
+        <Button size="sm" variant="secondary" onClick={onMarkSolved}>
+          Mark as solved
+        </Button>
+      )}
 
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8"
-        onClick={stepPrev}
-        disabled={!hasTrace || stepIndex === 0}
-        aria-label="Previous step"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8"
-        onClick={isPlaying ? pause : play}
-        disabled={!hasTrace}
-        aria-label={isPlaying ? "Pause" : "Play"}
-      >
-        {isPlaying ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4" />
-        )}
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        className="h-8 w-8"
-        onClick={stepNext}
-        disabled={!hasTrace || stepIndex >= total - 1}
-        aria-label="Next step"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={restart}
-        disabled={!hasTrace}
-        aria-label="Restart playback"
-      >
-        <RotateCcw className="h-4 w-4" />
-      </Button>
-
-      <span className="text-xs text-muted-foreground">
-        Step {hasTrace ? stepIndex + 1 : 0}/{total}
-      </span>
-
-      {isPractice && questionContext && (
+      {questionContext && (
         <Link
           href={`/practice/${questionContext.questionId}/notes`}
-          className="ml-2 text-xs text-primary hover:underline"
+          className="ml-auto text-xs text-primary hover:underline"
         >
           Notes
         </Link>
       )}
+      </div>
 
-      <label className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-        Speed
-        <select
-          className="rounded border border-border bg-background px-2 py-1 text-xs"
-          value={speedMs}
-          onChange={(e) => setSpeed(Number(e.target.value))}
+      {hasTrace && (
+      <div className="flex flex-wrap items-center gap-2 border-t border-border/60 bg-muted/15 px-3 py-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Walkthrough
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={stepPrev}
+          disabled={!hasTrace || stepIndex === 0}
+          aria-label="Previous step"
         >
-          <option value={1200}>0.5×</option>
-          <option value={600}>1×</option>
-          <option value={300}>2×</option>
-          <option value={120}>5×</option>
-        </select>
-      </label>
+          <ChevronLeft className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={isPlaying ? pause : play}
+          disabled={!hasTrace}
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? (
+            <Pause className="h-3.5 w-3.5" />
+          ) : (
+            <Play className="h-3.5 w-3.5" />
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={stepNext}
+          disabled={!hasTrace || stepIndex >= total - 1}
+          aria-label="Next step"
+        >
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={restart}
+          disabled={!hasTrace}
+          aria-label="Restart playback"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
+        <span className="text-xs text-muted-foreground">
+          {hasTrace ? `Step ${stepIndex + 1}/${total}` : "Run to visualize"}
+        </span>
+        <label className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+          Speed
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={speedMs}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+          >
+            <option value={1200}>0.5×</option>
+            <option value={600}>1×</option>
+            <option value={300}>2×</option>
+            <option value={120}>5×</option>
+          </select>
+        </label>
+      </div>
+      )}
     </div>
   );
 }

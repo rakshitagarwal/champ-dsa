@@ -12,6 +12,9 @@ type DialogProps = {
   description?: string;
   children: ReactNode;
   className?: string;
+  /** When false, only the X button closes the dialog. */
+  closeOnEscape?: boolean;
+  closeOnOverlayClick?: boolean;
 };
 
 export function Dialog({
@@ -21,17 +24,19 @@ export function Dialog({
   description,
   children,
   className,
+  closeOnEscape = true,
+  closeOnOverlayClick = true,
 }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !closeOnEscape) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onOpenChange(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onOpenChange]);
+  }, [open, onOpenChange, closeOnEscape]);
 
   useEffect(() => {
     if (!open) return;
@@ -49,12 +54,19 @@ export function Dialog({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="presentation"
     >
-      <button
-        type="button"
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        aria-label="Close dialog"
-        onClick={() => onOpenChange(false)}
-      />
+      {closeOnOverlayClick ? (
+        <button
+          type="button"
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+          aria-label="Close dialog"
+          onClick={() => onOpenChange(false)}
+        />
+      ) : (
+        <div
+          className="pointer-events-none absolute inset-0 bg-background/80 backdrop-blur-sm"
+          aria-hidden
+        />
+      )}
       <div
         ref={panelRef}
         role="dialog"

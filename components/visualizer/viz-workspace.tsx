@@ -1,39 +1,48 @@
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
-import { Group, Panel, Separator } from "react-resizable-panels";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { CodeEditor } from "./code-editor";
 import { VisualizerToolbar } from "./visualizer-toolbar";
-import { ConsolePanel } from "./console-panel";
-import { AnimationStage } from "./animation-stage";
-import { ProgressiveHints } from "@/components/practice/progressive-hints";
+import { HintModal } from "@/components/practice/hint-modal";
+import { ProblemPanel } from "./problem-panel";
+import { VizPanel } from "./viz-panel";
 import type { ProgressiveHint } from "@/types/question";
 
 type Props = {
-  mode: "free" | "practice";
   hints?: string[];
   progressiveHints?: ProgressiveHint;
   questionId?: string;
   fillParent?: boolean;
+  onMarkSolved?: () => void;
 };
 
+/** LeetCode-style solve workspace: 40% problem | 60% code + visualization. */
 export function VizWorkspace({
-  mode,
   hints,
   progressiveHints,
   questionId,
   fillParent,
+  onMarkSolved,
 }: Props) {
-  const [problemOpen, setProblemOpen] = useState(false);
-  const [hintsOpen, setHintsOpen] = useState(false);
+  const [hintModalOpen, setHintModalOpen] = useState(false);
 
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
   const trace = useVisualizerStore((s) => s.trace);
   const stepNext = useVisualizerStore((s) => s.stepNext);
   const pause = useVisualizerStore((s) => s.pause);
+
+  const problemTitle = useVisualizerStore((s) => s.problemTitle);
+  const problemStatement = useVisualizerStore((s) => s.problemStatement);
+  const patternName = useVisualizerStore((s) => s.patternName);
+  const problemDifficulty = useVisualizerStore((s) => s.problemDifficulty);
+  const problemHumanInput = useVisualizerStore((s) => s.problemHumanInput);
+  const problemSampleOutput = useVisualizerStore((s) => s.problemSampleOutput);
+  const problemDescription = useVisualizerStore((s) => s.problemDescription);
+  const problemExamples = useVisualizerStore((s) => s.problemExamples);
+  const problemConstraints = useVisualizerStore((s) => s.problemConstraints);
+  const problemLeetcodeUrl = useVisualizerStore((s) => s.problemLeetcodeUrl);
 
   useEffect(() => {
     if (!isPlaying || !trace) return;
@@ -61,114 +70,81 @@ export function VizWorkspace({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onKeyDown]);
 
-  const problemTitle = useVisualizerStore((s) => s.problemTitle);
-  const problemStatement = useVisualizerStore((s) => s.problemStatement);
-  const patternName = useVisualizerStore((s) => s.patternName);
-  const showProblemBar = mode === "practice" && problemTitle;
+  if (!problemTitle || !problemStatement) {
+    return (
+      <div className="flex h-full items-center justify-center p-8 text-center text-muted-foreground">
+        <p>Pick a problem from Practice to start solving.</p>
+      </div>
+    );
+  }
 
   return (
     <div
       className={
         fillParent
-          ? "flex h-full min-h-0 flex-col"
-          : "flex h-[calc(100vh-3.25rem)] min-h-[640px] flex-col"
+          ? "flex h-full min-h-0 flex-col overflow-hidden"
+          : "flex h-[calc(100vh-3.25rem)] min-h-[640px] flex-col overflow-hidden"
       }
     >
-      {showProblemBar ? (
-        <div className="shrink-0 border-b border-border bg-panel">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between px-4 py-2 text-left text-sm font-medium"
-            onClick={() => setProblemOpen((o) => !o)}
-          >
-            <span>
-              {problemTitle} —{" "}
-              <span className="text-muted-foreground">{patternName}</span>
-            </span>
-            {problemOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-          {problemOpen && (
-            <div className="border-t border-border px-4 py-3">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-                {problemStatement}
-              </p>
-              {progressiveHints && questionId ? (
-                <div className="mt-3">
-                  <ProgressiveHints
-                    questionId={questionId}
-                    hints={progressiveHints}
-                  />
-                </div>
-              ) : null}
-              {!progressiveHints && hints && hints.length > 0 && (
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline"
-                    onClick={() => setHintsOpen((o) => !o)}
-                  >
-                    {hintsOpen ? "Hide" : "Show"} pattern hints
-                  </button>
-                  {hintsOpen && (
-                    <ul className="mt-2 space-y-1.5">
-                      {hints.map((h) => (
-                        <li
-                          key={h}
-                          className="rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
-                        >
-                          → {h}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      ) : mode === "free" ? (
-        <div className="shrink-0 border-b border-border bg-panel px-4 py-2">
-          <p className="text-sm font-medium">Code Visualizer</p>
-          <p className="text-xs text-muted-foreground">
-            Write your own JavaScript. Use{" "}
-            <code className="rounded bg-muted px-1">function solve(...)</code> and
-            human-readable input below.
-          </p>
-        </div>
+      <VisualizerToolbar
+        hasHints={
+          !!questionId &&
+          (!!progressiveHints || !!(hints && hints.length > 0))
+        }
+        progressiveHints={!!progressiveHints}
+        onOpenHints={() => setHintModalOpen(true)}
+        onMarkSolved={onMarkSolved}
+      />
+
+      {questionId && (progressiveHints || (hints && hints.length > 0)) ? (
+        <HintModal
+          open={hintModalOpen}
+          onOpenChange={setHintModalOpen}
+          questionId={questionId}
+          progressiveHints={progressiveHints}
+          patternHints={!progressiveHints ? hints : undefined}
+        />
       ) : null}
 
-      <VisualizerToolbar mode={mode} />
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="min-h-0 min-w-0 overflow-hidden border-r border-border">
+          <ProblemPanel
+            title={problemTitle}
+            patternName={patternName ?? ""}
+            difficulty={problemDifficulty ?? undefined}
+            statement={problemStatement}
+            description={problemDescription ?? undefined}
+            examples={problemExamples ?? undefined}
+            constraints={problemConstraints ?? undefined}
+            leetcodeUrl={problemLeetcodeUrl ?? undefined}
+            humanInput={problemHumanInput ?? ""}
+            sampleOutput={problemSampleOutput ?? undefined}
+          />
+        </div>
 
-      <Group orientation="horizontal" className="min-h-0 flex-1">
-        <Panel defaultSize={42} minSize={30}>
-          <div className="flex h-full min-h-0 flex-col gap-1 p-2">
-            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Code
-            </p>
-            <div className="min-h-0 flex-1">
+        <div className="grid min-h-0 min-w-0 grid-rows-[minmax(0,11fr)_minmax(0,9fr)]">
+          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden border-b border-border bg-editor/30">
+            <div className="shrink-0 border-b border-border px-4 py-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Your solution
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Complete{" "}
+                <code className="rounded bg-muted px-1 font-mono text-[11px]">
+                  solve(...)
+                </code>{" "}
+                — tested on Example 1 below the problem.
+              </p>
+            </div>
+            <div className="min-h-0 flex-1 p-3">
               <CodeEditor />
             </div>
           </div>
-        </Panel>
-        <Separator className="w-1 bg-border hover:bg-primary/50" />
-        <Panel defaultSize={58} minSize={38}>
-          <div className="flex h-full min-h-0 flex-col gap-1 p-2">
-            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Step walkthrough
-            </p>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <AnimationStage />
-            </div>
-          </div>
-        </Panel>
-      </Group>
 
-      <div className="h-24 shrink-0 border-t border-border">
-        <ConsolePanel />
+          <div className="min-h-0 min-w-0 overflow-hidden">
+            <VizPanel expectedOutput={problemSampleOutput ?? undefined} />
+          </div>
+        </div>
       </div>
     </div>
   );

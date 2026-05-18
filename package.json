@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "verify:solutions": "node scripts/verify-solutions.mjs",
-    "generate:sheet": "node scripts/generate-sheet.mjs"
+    "generate:sheet": "node scripts/generate-sheet.mjs",
+    "resolve:leetcode": "node scripts/resolve-leetcode-slugs.mjs",
+    "fetch:leetcode": "node scripts/fetch-leetcode-descriptions.mjs"
   },
   "dependencies": {
     "@babel/core": "^7.29.0",

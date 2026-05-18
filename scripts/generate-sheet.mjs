@@ -1,6 +1,26 @@
 import fs from "fs";
 import * as solutionsModule from "./sheet-solutions-data.mjs";
 
+let sampleOutputsByNum = {};
+try {
+  sampleOutputsByNum = JSON.parse(
+    fs.readFileSync("scripts/sample-outputs.json", "utf8"),
+  );
+} catch {
+  console.warn("scripts/sample-outputs.json missing — run node scripts/compute-sample-outputs.mjs");
+}
+
+let problemBodiesByNum = {};
+try {
+  problemBodiesByNum = JSON.parse(
+    fs.readFileSync("data/questions/problem-bodies.json", "utf8"),
+  );
+} catch {
+  console.warn(
+    "data/questions/problem-bodies.json missing — run npm run resolve:leetcode && npm run fetch:leetcode",
+  );
+}
+
 const SHEET_SOLUTIONS = solutionsModule.SHEET_SOLUTIONS;
 
 const text = fs.readFileSync("scripts/sheet-extracted.txt", "utf8");
@@ -242,23 +262,47 @@ fs.writeFileSync(
 import type { Question } from "@/types/question";
 
 export const sheetQuestions: Question[] = ${JSON.stringify(
-    out.map((q) => ({
-      id: q.id,
-      title: q.title,
-      patternSlug: q.patternSlug,
-      patternName: q.patternName,
-      difficulty: q.difficulty ?? "medium",
-      statement: q.statement,
-      patternHints: q.patternHints,
-      starterCode: q.starterCode,
-      solutionCode: q.solutionCode,
-      sampleInput: q.sampleInput,
-      humanInput: q.humanInput,
-      sheetNumber: q.num,
-      sheetSectionId: q.sheetSectionId,
-      sheetSubsectionId: q.sheetSubsectionId,
-      source: "sheet",
-    })),
+    out.map((q) => {
+      const body = problemBodiesByNum[String(q.num)];
+      const sampleOut = sampleOutputsByNum[String(q.num)];
+      let runExampleOutput = "";
+      if (sampleOut) {
+        try {
+          runExampleOutput = JSON.stringify(JSON.parse(sampleOut));
+        } catch {
+          runExampleOutput = sampleOut.trim();
+        }
+      }
+      return {
+        id: q.id,
+        title: q.title,
+        patternSlug: q.patternSlug,
+        patternName: q.patternName,
+        difficulty: body?.difficulty ?? q.difficulty ?? "medium",
+        statement: q.statement,
+        ...(body?.description ? { description: body.description } : {}),
+        ...(body?.leetcodeSlug ? { leetcodeSlug: body.leetcodeSlug } : {}),
+        ...(body?.leetcodeUrl ? { leetcodeUrl: body.leetcodeUrl } : {}),
+        ...(q.humanInput && runExampleOutput
+          ? {
+              examples: [
+                { input: q.humanInput, output: runExampleOutput },
+              ],
+            }
+          : {}),
+        ...(body?.constraints?.length ? { constraints: body.constraints } : {}),
+        patternHints: q.patternHints,
+        starterCode: q.starterCode,
+        solutionCode: q.solutionCode,
+        sampleInput: q.sampleInput,
+        humanInput: q.humanInput,
+        sampleOutput: sampleOutputsByNum[String(q.num)] ?? undefined,
+        sheetNumber: q.num,
+        sheetSectionId: q.sheetSectionId,
+        sheetSubsectionId: q.sheetSubsectionId,
+        source: "sheet",
+      };
+    }),
     null,
     2,
   )};

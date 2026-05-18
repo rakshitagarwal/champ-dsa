@@ -104,7 +104,7 @@ export function LearningHub() {
       <section className="rounded-xl border border-border bg-card p-5">
         <h2 className="font-semibold">Continue learning DSA</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Main path: roadmap → patterns → practice → visualizer
+          Main path: roadmap → patterns → solve problems with visualization
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

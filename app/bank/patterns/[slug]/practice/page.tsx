@@ -43,9 +43,9 @@ export default async function PatternPracticePage({ params }: Props) {
         <h2 className="text-lg font-semibold">Before you practice</h2>
         <p className="mt-2 max-w-3xl text-base leading-relaxed text-muted-foreground">
           {f.intuition} Each problem below includes plain hints so you know why
-          it fits this pattern. Open the visualizer and step through the code —
-          the animation panel shows what changes, and the yellow line in the
-          editor shows which line caused it.
+          it fits this pattern. Click Solve on any problem — run your code on
+          the fixed example input, then step through the visualization below
+          your editor.
         </p>
         <Link
           href={`/bank/patterns/${slug}/concept`}
@@ -74,10 +74,10 @@ export default async function PatternPracticePage({ params }: Props) {
             For now, animate the teaching example to build intuition.
           </p>
           <Link
-            href={`/visualizer?pattern=${slug}`}
+            href={`/bank/patterns/${slug}/concept`}
             className="mt-6 inline-flex h-11 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Animate pattern example
+            Read pattern lesson
           </Link>
         </section>
       )}

@@ -54,7 +54,7 @@ export function CodeEditor() {
   }, [line, stepIndex]);
 
   return (
-    <div className="h-full min-h-[360px] overflow-hidden rounded-lg border border-border bg-editor shadow-inner">
+    <div className="h-full min-h-0 overflow-hidden rounded-lg border border-border bg-editor shadow-inner">
       <Monaco
         height="100%"
         defaultLanguage="javascript"

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { ExecutionEvent, ExecutionTrace } from "@/types/execution";
+import type { QuestionExample } from "@/types/question";
 import { runCode } from "@/lib/tracer/run";
 import { markVisualizerUsed } from "@/lib/onboarding/checklist";
 import { recordQuestionAttempt } from "@/lib/storage/learning-store";
@@ -41,13 +42,29 @@ type VisualizerState = {
   problemTitle: string | null;
   problemStatement: string | null;
   patternName: string | null;
+  problemDifficulty: "easy" | "medium" | "hard" | null;
+  problemHumanInput: string | null;
+  problemSampleOutput: string | null;
+  problemDescription: string | null;
+  problemExamples: QuestionExample[] | null;
+  problemConstraints: string[] | null;
+  problemLeetcodeUrl: string | null;
   questionContext: QuestionContext | null;
+  /** When true, stdin is the problem example — not user-editable. */
+  stdinLocked: boolean;
   setCode: (code: string) => void;
   setStdin: (stdin: string) => void;
   setProblem: (p: {
     title: string;
     statement: string;
     patternName: string;
+    difficulty?: "easy" | "medium" | "hard";
+    humanInput?: string;
+    sampleOutput?: string;
+    description?: string;
+    examples?: QuestionExample[];
+    constraints?: string[];
+    leetcodeUrl?: string;
   } | null) => void;
   setQuestionContext: (ctx: QuestionContext | null) => void;
   resetToStarter: () => void;
@@ -82,15 +99,35 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   problemTitle: null,
   problemStatement: null,
   patternName: null,
+  problemDifficulty: null,
+  problemHumanInput: null,
+  problemSampleOutput: null,
+  problemDescription: null,
+  problemExamples: null,
+  problemConstraints: null,
+  problemLeetcodeUrl: null,
   questionContext: null,
+  stdinLocked: false,
 
   setCode: (code) => set({ code }),
-  setStdin: (stdin) => set({ stdin }),
+  setStdin: (stdin) => {
+    if (get().stdinLocked) return;
+    set({ stdin });
+  },
   setProblem: (p) =>
     set({
       problemTitle: p?.title ?? null,
       problemStatement: p?.statement ?? null,
       patternName: p?.patternName ?? null,
+      problemDifficulty: p?.difficulty ?? null,
+      problemHumanInput: p?.humanInput ?? null,
+      problemSampleOutput: p?.sampleOutput ?? null,
+      problemDescription: p?.description ?? null,
+      problemExamples: p?.examples ?? null,
+      problemConstraints: p?.constraints ?? null,
+      problemLeetcodeUrl: p?.leetcodeUrl ?? null,
+      stdin: p?.humanInput ?? get().stdin,
+      stdinLocked: !!p?.humanInput,
     }),
   setQuestionContext: (ctx) => set({ questionContext: ctx }),
   resetToStarter: () => {
@@ -130,7 +167,15 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       problemTitle: null,
       problemStatement: null,
       patternName: null,
+      problemDifficulty: null,
+      problemHumanInput: null,
+      problemSampleOutput: null,
+      problemDescription: null,
+      problemExamples: null,
+      problemConstraints: null,
+      problemLeetcodeUrl: null,
       questionContext: null,
+      stdinLocked: false,
     }),
 
   run: async () => {

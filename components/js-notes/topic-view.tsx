@@ -56,6 +56,29 @@ export function JsNoteTopicView({ topic }: { topic: JsNoteTopic }) {
         </ul>
       </Section>
 
+      {content.practiceLinks && content.practiceLinks.length > 0 && (
+        <Section title="Practice problems">
+          <p className="mb-3 text-sm text-muted-foreground">
+            From your notes — try these on paper first, then in practice.
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {content.practiceLinks.map((link) => (
+              <li key={link.url}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-2 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm hover:border-primary/40 hover:bg-primary/5"
+                >
+                  <span className="shrink-0 text-primary">↗</span>
+                  <span>{link.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
       <Section title="Examples">
         <div className="grid gap-6 lg:grid-cols-2">
           {content.examples.map((ex) => (
@@ -77,10 +100,10 @@ export function JsNoteTopicView({ topic }: { topic: JsNoteTopic }) {
 
       <div className="flex flex-wrap gap-3 border-t border-border pt-6">
         <Link
-          href="/visualizer"
+          href="/practice"
           className="inline-flex h-10 items-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Try code in Visualizer
+          Open practice
         </Link>
       </div>
     </article>

@@ -43,8 +43,8 @@ export function getOnboardingChecklist(): ChecklistItem[] {
     },
     {
       id: "visualizer",
-      label: "Run an example in the visualizer",
-      href: "/visualizer",
+      label: "Run a solution and view the walkthrough",
+      href: "/practice",
       done: triedVisualizer,
     },
     {

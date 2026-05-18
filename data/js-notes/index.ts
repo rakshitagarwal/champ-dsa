@@ -1,5 +1,8 @@
-import { jsNoteTopics } from "./catalog";
+import { jsNoteTopics as coreJsNoteTopics } from "./catalog";
+import { dsaJsNoteTopics } from "./dsa-topics";
 import type { JsNoteTopic } from "@/types/js-note";
+
+const jsNoteTopics: JsNoteTopic[] = [...coreJsNoteTopics, ...dsaJsNoteTopics];
 
 export function getAllJsNoteTopics(): JsNoteTopic[] {
   return [...jsNoteTopics].sort((a, b) => a.order - b.order);
@@ -18,6 +21,8 @@ export function getJsNoteCategories(): string[] {
     "Async",
     "Browser",
     "OOP",
+    "DSA Structures",
+    "DSA Algorithms",
   ];
   return order.filter((c) => cats.has(c));
 }

@@ -18,7 +18,7 @@ export function DesktopRequired({ width }: Props) {
         ChampDSA is built for desktop
       </h1>
       <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Practice, the visualizer, and split-panel walkthroughs need a wide screen.
+        Solving problems and the split-panel walkthrough need a wide screen.
         Open this site on a laptop or desktop for the full learning experience.
       </p>
       {showJsNotes ? (

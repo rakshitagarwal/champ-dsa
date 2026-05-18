@@ -54,6 +54,8 @@ user.name = "Grace"; // OK — you changed a property, not the binding
       deepDive: [
         "These methods take a callback `(item, index, array) => ...` and return a new result. Chaining is common: `nums.filter(...).map(...).reduce(...)`.",
         "filter returns elements where the callback returns true. map returns one new value per element. reduce carries an accumulator from left to right.",
+        "`find` returns the first match; `filter` returns all matches. `flat(depth)` flattens nested arrays — useful before map/reduce.",
+        "Interview tip: you can implement map/filter/reduce with a for-loop (polyfill style) to prove you understand them.",
         "For interviews and readability, prefer them when the logic is a straight transformation. A plain for-loop is fine when you need break/continue or complex control flow.",
       ],
       teachBack: [
@@ -72,6 +74,24 @@ const totalPassing = scores
           explanation:
             "Read the chain top to bottom: who stays, how each is changed, then how they combine.",
         },
+        {
+          title: "Polyfill-style map",
+          code: `function myMap(arr, fn) {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    result.push(fn(arr[i], i, arr));
+  }
+  return result;
+}
+myMap([1, 2, 3], (n) => n * 2); // [2, 4, 6]`,
+          explanation:
+            "Same behavior as built-in map — a loop and a callback. Useful in interviews when asked how map works inside.",
+        },
+      ],
+      practiceLinks: [
+        { title: "Two Sum", url: "https://leetcode.com/problems/two-sum/" },
+        { title: "Majority Element", url: "https://leetcode.com/problems/majority-element/" },
+        { title: "Move Zeroes", url: "https://leetcode.com/problems/move-zeroes/" },
       ],
     },
   },
@@ -190,8 +210,11 @@ double(5); // 10`,
       simple:
         "An object groups related data and behavior. Keys are strings (or symbols); values can be anything. Dot notation (`user.name`) and bracket notation (`user['name']`) read properties; bracket notation is required for dynamic keys.",
       deepDive: [
-        "Objects are reference types: assigning `const b = a` copies the reference, not a deep clone.",
+        "Objects are reference types: assigning `const b = a` copies the reference, not a deep clone. Use spread or `Object.assign({}, obj)` for a shallow copy.",
+        "`Object.keys`, `Object.values`, and `Object.entries` turn objects into arrays you can loop with forEach or map.",
+        "`hasOwnProperty` checks own keys (not inherited). `Object.freeze` blocks all changes; `Object.seal` allows updates but not add/delete.",
         "Shorthand: `{ name, age }` when variables match key names. Methods: `{ greet() { ... } }` is sugar for a function property.",
+        "Grouping problems (e.g. anagrams) often use an object as a hash map from signature → list of strings.",
         "Optional chaining `obj?.prop` and nullish coalescing `??` avoid crashes when data might be missing.",
       ],
       teachBack: [
@@ -209,6 +232,24 @@ console.log(book[key]); // "DSA"`,
           explanation:
             "You can add properties anytime. Bracket syntax lets you use variables as key names.",
         },
+        {
+          title: "Group anagrams (pattern)",
+          code: `function groupAnagrams(words) {
+  const groups = {};
+  for (const w of words) {
+    const key = w.split("").sort().join("");
+    groups[key] = groups[key] ? [...groups[key], w] : [w];
+  }
+  return Object.values(groups);
+}`,
+          explanation:
+            "Sorted letters are the signature. All anagrams share one key in the object.",
+        },
+      ],
+      practiceLinks: [
+        { title: "Group Anagrams", url: "https://leetcode.com/problems/group-anagrams/" },
+        { title: "Two Sum", url: "https://leetcode.com/problems/two-sum/" },
+        { title: "Longest Substring Without Repeating Characters", url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" },
       ],
     },
   },
@@ -592,8 +633,10 @@ let b = 2;`,
         "Spread copies or expands: `[...arr]`, `{ ...obj }`, `fn(...args)`. Rest collects the remainder: `function f(first, ...rest) {}`. Context tells JavaScript which role `...` plays.",
       deepDive: [
         "Shallow copy: spread only clones one level; nested objects are still shared.",
+        "Array copies: `[...arr]`, `Array.from(arr)`, or `arr.concat()` — all shallow; nested arrays still alias.",
         "Useful for immutable updates in React: `setState({ ...state, count: state.count + 1 })`.",
         "Rest in destructuring: `const [head, ...tail] = arr`.",
+        "Pair with array methods: concat two arrays with `[...a, ...b]` instead of mutating push loops.",
       ],
       teachBack: [
         "Spread = unpack; rest = pack the leftovers.",

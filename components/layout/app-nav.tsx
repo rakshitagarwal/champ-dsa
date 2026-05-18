@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   Brain,
-  Code2,
   FileText,
   Map,
   Moon,
@@ -19,8 +18,7 @@ import { cn } from "@/lib/utils";
 
 const learnLinks = [
   { href: "/roadmap", label: "Roadmap", icon: Map },
-  { href: "/practice", label: "Practice", icon: PenLine },
-  { href: "/visualizer", label: "Visualizer", icon: Code2 },
+  { href: "/practice", label: "Solve", icon: PenLine },
   { href: "/train", label: "Train", icon: Brain },
 ] as const;
 

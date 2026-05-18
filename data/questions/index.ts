@@ -3,11 +3,14 @@ import { stdinToHuman } from "@/lib/io/human-input";
 import { progressiveHintsByQuestionId } from "@/lib/questions/progressive-hints-map";
 import { sheetQuestions } from "./sheet-questions";
 
-function enrich(q: Omit<Question, "solutionCode" | "humanInput">): Question {
+function enrich(
+  q: Omit<Question, "solutionCode" | "humanInput"> & { sampleOutput?: string },
+): Question {
   return {
     ...q,
     solutionCode: q.starterCode,
     humanInput: stdinToHuman(q.sampleInput),
+    sampleOutput: q.sampleOutput,
     progressiveHints: progressiveHintsByQuestionId[q.id],
   };
 }

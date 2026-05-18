@@ -19,6 +19,12 @@ export type MiniVizPreview = {
   frames: MiniVizFrame[];
 };
 
+export type QuestionExample = {
+  input: string;
+  output: string;
+  explanation?: string;
+};
+
 export type Question = {
   id: string;
   title: string;
@@ -34,6 +40,14 @@ export type Question = {
   sampleInput: string;
   /** Human-readable input for the console (e.g. `nums = [1,2,3]`). */
   humanInput: string;
+  /** Expected return value for the sample input (LeetCode-style example output). */
+  sampleOutput?: string;
+  leetcodeSlug?: string;
+  leetcodeUrl?: string;
+  /** Full problem description (HTML from LeetCode). */
+  description?: string;
+  examples?: QuestionExample[];
+  constraints?: string[];
   sheetNumber?: number;
   sheetSectionId?: string;
   sheetSubsectionId?: string;

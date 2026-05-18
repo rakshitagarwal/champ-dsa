@@ -12,7 +12,6 @@ import {
   setLastVisited,
   LEARNING_UPDATED_EVENT,
 } from "@/lib/storage/learning-store";
-import { Button } from "@/components/ui/button";
 
 export function PracticeWorkspace({ question }: { question: Question }) {
   const setCode = useVisualizerStore((s) => s.setCode);
@@ -22,6 +21,7 @@ export function PracticeWorkspace({ question }: { question: Question }) {
   const clearTrace = useVisualizerStore((s) => s.clearTrace);
   const [showConfidence, setShowConfidence] = useState(false);
   const [solved, setSolved] = useState(false);
+
   useEffect(() => {
     setCode(question.starterCode);
     setStdin(question.humanInput);
@@ -29,6 +29,13 @@ export function PracticeWorkspace({ question }: { question: Question }) {
       title: question.title,
       statement: question.statement,
       patternName: question.patternName,
+      difficulty: question.difficulty,
+      humanInput: question.humanInput,
+      sampleOutput: question.sampleOutput,
+      description: question.description,
+      examples: question.examples,
+      constraints: question.constraints,
+      leetcodeUrl: question.leetcodeUrl,
     });
     setQuestionContext({
       questionId: question.id,
@@ -54,7 +61,8 @@ export function PracticeWorkspace({ question }: { question: Question }) {
   ]);
 
   useEffect(() => {
-    const onSolved = () => setSolved(getProgress(question.id).status === "solved");
+    const onSolved = () =>
+      setSolved(getProgress(question.id).status === "solved");
     window.addEventListener(LEARNING_UPDATED_EVENT, onSolved);
     return () => window.removeEventListener(LEARNING_UPDATED_EVENT, onSolved);
   }, [question.id]);
@@ -71,21 +79,14 @@ export function PracticeWorkspace({ question }: { question: Question }) {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col">
-        {!solved && (
-          <div className="flex shrink-0 items-center justify-end gap-2 border-b border-border bg-panel px-4 py-2">
-            <Button size="sm" onClick={handleMarkSolved}>
-              Mark as solved
-            </Button>
-          </div>
-        )}
-        <div className="min-h-0 flex-1">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-hidden">
           <VizWorkspace
-            mode="practice"
             hints={question.patternHints}
             progressiveHints={question.progressiveHints}
             questionId={question.id}
             fillParent
+            onMarkSolved={!solved ? handleMarkSolved : undefined}
           />
         </div>
       </div>

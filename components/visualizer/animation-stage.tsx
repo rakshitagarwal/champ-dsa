@@ -30,11 +30,12 @@ export function AnimationStage() {
 
   if (!current) {
     return (
-      <div className="flex h-full min-h-[360px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
-        <p className="text-lg font-medium text-foreground">Step walkthrough</p>
+      <div className="flex h-full min-h-0 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
+        <p className="text-lg font-medium text-foreground">Step-by-step walkthrough</p>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          Click <strong>Run</strong>, then use <strong>Next</strong> to walk
-          through each line.
+          Click <strong>Run</strong> on your solution to see how each line
+          executes on the example input. Use the toolbar to step forward and
+          back.
         </p>
       </div>
     );
@@ -61,7 +62,7 @@ export function AnimationStage() {
     (current.type !== "enter" || current.callStack.length > 1);
 
   return (
-    <div className="relative flex h-full min-h-[360px] flex-col overflow-hidden rounded-xl border border-border bg-gradient-to-b from-muted/15 to-background">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-gradient-to-b from-muted/15 to-background">
       <div className="shrink-0 border-b border-border/80 bg-muted/30 px-4 py-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -91,7 +92,7 @@ export function AnimationStage() {
         ) : null}
       </div>
 
-      <div className="relative flex min-h-0 flex-1 gap-3 p-4">
+      <div className="relative flex min-h-0 flex-1 gap-3 overflow-y-auto p-4">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center">
           {primary && primary.values.length > 0 ? (
             <ArrayCanvas
