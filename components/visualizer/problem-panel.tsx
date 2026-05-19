@@ -82,7 +82,7 @@ export function ProblemPanel({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         <div
-          className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-[13px] [&_li]:my-0.5 [&_p]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-border [&_pre]:bg-background [&_pre]:p-3 [&_strong]:font-semibold"
+          className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-[13px] [&_img]:max-h-40 [&_img]:w-auto [&_li]:my-0.5 [&_p]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-border [&_pre]:bg-background [&_pre]:p-3 [&_strong]:font-semibold"
           dangerouslySetInnerHTML={{ __html: body }}
         />
 

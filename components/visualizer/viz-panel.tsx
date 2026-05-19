@@ -2,7 +2,7 @@
 
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
-import { AnimationStage } from "./animation-stage";
+import { StepExplanationPanel } from "./step-explanation-panel";
 import { cn } from "@/lib/utils";
 import { formatSampleOutput } from "@/lib/questions/problem-display";
 
@@ -29,13 +29,13 @@ export function VizPanel({ expectedOutput }: Props) {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-card">
-      <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Visualization
+          Execution walkthrough
         </p>
         {hasTrace && !isRunning && (
-          <span className="text-xs text-muted-foreground">
+          <span className="hidden text-xs text-muted-foreground sm:inline">
             Step through your run
           </span>
         )}
@@ -44,7 +44,7 @@ export function VizPanel({ expectedOutput }: Props) {
       {hasTrace && (
         <div
           className={cn(
-            "shrink-0 border-b border-border px-3 py-2 text-xs",
+            "shrink-0 border-b border-border px-3 py-1.5 text-xs",
             matchesExpected === true &&
               "bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
             matchesExpected === false &&
@@ -81,7 +81,7 @@ export function VizPanel({ expectedOutput }: Props) {
               Fix the error below, then run again
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Visualization starts only after your code runs without errors.
+              Step explanations appear only after your code runs without errors.
             </p>
             <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-destructive">
               {error}
@@ -89,14 +89,14 @@ export function VizPanel({ expectedOutput }: Props) {
           </div>
         </div>
       ) : hasTrace ? (
-        <div className="min-h-0 flex-1 overflow-y-auto p-2">
-          <AnimationStage />
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <StepExplanationPanel />
         </div>
       ) : (
         <div className="flex min-h-0 flex-1 items-center justify-center p-6 text-center">
           <p className="max-w-xs text-sm text-muted-foreground">
             Click <strong className="text-foreground">Run</strong> on your
-            solution to see a step-by-step walkthrough on the example input.
+            solution to see why each line executes and what state changes.
           </p>
         </div>
       )}

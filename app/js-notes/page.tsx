@@ -12,8 +12,9 @@ export default function JsNotesPage() {
           JavaScript notes
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Recap lane for JavaScript fundamentals — pick a topic from the left
-          panel to read explanations and examples. Building interview skills?{" "}
+          Structured lessons with overviews, detailed sections, and examples —
+          written in the spirit of tutorials like javascript.info. Pick a topic
+          from the sidebar. Building interview skills?{" "}
           <Link href="/roadmap" className="font-medium text-primary hover:underline">
             Start with the DSA roadmap
           </Link>

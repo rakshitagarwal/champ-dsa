@@ -2,11 +2,11 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
-import { CodeEditor } from "./code-editor";
+import { EditorVizSplit } from "./editor-viz-split";
+import { VizFullscreenModal } from "./viz-fullscreen-modal";
 import { VisualizerToolbar } from "./visualizer-toolbar";
 import { HintModal } from "@/components/practice/hint-modal";
 import { ProblemPanel } from "./problem-panel";
-import { VizPanel } from "./viz-panel";
 import type { ProgressiveHint } from "@/types/question";
 
 type Props = {
@@ -26,6 +26,7 @@ export function VizWorkspace({
   onMarkSolved,
 }: Props) {
   const [hintModalOpen, setHintModalOpen] = useState(false);
+  const [vizFullscreenOpen, setVizFullscreenOpen] = useState(false);
 
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
@@ -94,6 +95,12 @@ export function VizWorkspace({
         progressiveHints={!!progressiveHints}
         onOpenHints={() => setHintModalOpen(true)}
         onMarkSolved={onMarkSolved}
+        onOpenFullscreen={() => setVizFullscreenOpen(true)}
+      />
+
+      <VizFullscreenModal
+        open={vizFullscreenOpen}
+        onOpenChange={setVizFullscreenOpen}
       />
 
       {questionId && (progressiveHints || (hints && hints.length > 0)) ? (
@@ -122,29 +129,7 @@ export function VizWorkspace({
           />
         </div>
 
-        <div className="grid min-h-0 min-w-0 grid-rows-[minmax(0,11fr)_minmax(0,9fr)]">
-          <div className="flex min-h-0 min-w-0 flex-col overflow-hidden border-b border-border bg-editor/30">
-            <div className="shrink-0 border-b border-border px-4 py-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your solution
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Complete{" "}
-                <code className="rounded bg-muted px-1 font-mono text-[11px]">
-                  solve(...)
-                </code>{" "}
-                — tested on Example 1 below the problem.
-              </p>
-            </div>
-            <div className="min-h-0 flex-1 p-3">
-              <CodeEditor />
-            </div>
-          </div>
-
-          <div className="min-h-0 min-w-0 overflow-hidden">
-            <VizPanel expectedOutput={problemSampleOutput ?? undefined} />
-          </div>
-        </div>
+        <EditorVizSplit expectedOutput={problemSampleOutput ?? undefined} />
       </div>
     </div>
   );

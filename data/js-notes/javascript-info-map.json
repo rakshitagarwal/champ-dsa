@@ -1,0 +1,160 @@
+{
+  "var-let-const": {
+    "articles": [
+      { "path": "1-js/02-first-steps/04-variables/article.md", "url": "https://javascript.info/variables" },
+      { "path": "1-js/06-advanced-functions/04-var/article.md", "url": "https://javascript.info/var" }
+    ]
+  },
+  "map-reduce-filter": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" },
+      { "path": "1-js/05-data-types/05-array-methods/article.md", "url": "https://javascript.info/array-methods" }
+    ]
+  },
+  "functions": {
+    "articles": [
+      { "path": "1-js/02-first-steps/15-function-basics/article.md", "url": "https://javascript.info/function-basics" },
+      { "path": "1-js/02-first-steps/17-arrow-functions-basics/article.md", "url": "https://javascript.info/arrow-functions-basics" },
+      { "path": "1-js/06-advanced-functions/01-recursion/article.md", "url": "https://javascript.info/recursion" }
+    ]
+  },
+  "closures": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/03-closure/article.md", "url": "https://javascript.info/closure" }
+    ]
+  },
+  "currying": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/06-function-object/article.md", "url": "https://javascript.info/function-object" }
+    ]
+  },
+  "objects": {
+    "articles": [
+      { "path": "1-js/04-object-basics/01-object/article.md", "url": "https://javascript.info/object" },
+      { "path": "1-js/04-object-basics/04-object-methods/article.md", "url": "https://javascript.info/object-methods" }
+    ]
+  },
+  "this-keyword": {
+    "articles": [
+      { "path": "1-js/04-object-basics/04-object-methods/article.md", "url": "https://javascript.info/object-methods" },
+      { "path": "1-js/06-advanced-functions/10-bind/article.md", "url": "https://javascript.info/bind" }
+    ]
+  },
+  "call-apply-bind": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/09-call-apply-decorators/article.md", "url": "https://javascript.info/call-apply-decorators" }
+    ]
+  },
+  "promises": {
+    "articles": [
+      { "path": "1-js/11-async/02-promise-basics/article.md", "url": "https://javascript.info/promise-basics" },
+      { "path": "1-js/11-async/03-promise-chaining/article.md", "url": "https://javascript.info/promise-chaining" }
+    ]
+  },
+  "async-await": {
+    "articles": [
+      { "path": "1-js/11-async/08-async-await/article.md", "url": "https://javascript.info/async-await" }
+    ]
+  },
+  "debounce-throttle": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/08-settimeout-setinterval/article.md", "url": "https://javascript.info/settimeout-setinterval" }
+    ]
+  },
+  "event-propagation": {
+    "articles": [
+      { "path": "2-ui/2-events/01-introduction-browser-events/article.md", "url": "https://javascript.info/introduction-browser-events" },
+      { "path": "2-ui/2-events/03-event-delegation/article.md", "url": "https://javascript.info/event-delegation" }
+    ]
+  },
+  "compose-pipe": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/09-call-apply-decorators/article.md", "url": "https://javascript.info/call-apply-decorators" }
+    ]
+  },
+  "prototypes": {
+    "articles": [
+      { "path": "1-js/08-prototypes/01-prototype-inheritance/article.md", "url": "https://javascript.info/prototype-inheritance" }
+    ]
+  },
+  "classes-constructors": {
+    "articles": [
+      { "path": "1-js/09-classes/01-class/article.md", "url": "https://javascript.info/class" },
+      { "path": "1-js/09-classes/03-class-inheritance/article.md", "url": "https://javascript.info/class-inheritance" }
+    ]
+  },
+  "event-loop": {
+    "articles": [
+      { "path": "1-js/11-async/03-promise-chaining/article.md", "url": "https://javascript.info/promise-chaining" },
+      { "path": "1-js/11-async/04-promise-error-handling/article.md", "url": "https://javascript.info/promise-error-handling" }
+    ]
+  },
+  "hoisting": {
+    "articles": [
+      { "path": "1-js/02-first-steps/05-variables/article.md", "url": "https://javascript.info/variables" },
+      { "path": "1-js/02-first-steps/15-function-basics/article.md", "url": "https://javascript.info/function-basics" }
+    ]
+  },
+  "spread-rest": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/02-rest-parameters-spread/article.md", "url": "https://javascript.info/rest-parameters-spread" }
+    ]
+  },
+  "loops-and-math": {
+    "articles": [
+      { "path": "1-js/02-first-steps/13-while-for/article.md", "url": "https://javascript.info/while-for" },
+      { "path": "1-js/05-data-types/02-number/article.md", "url": "https://javascript.info/number" }
+    ]
+  },
+  "array-manipulation": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" },
+      { "path": "1-js/05-data-types/05-array-methods/article.md", "url": "https://javascript.info/array-methods" }
+    ]
+  },
+  "strings-in-js": {
+    "articles": [
+      { "path": "1-js/05-data-types/03-string/article.md", "url": "https://javascript.info/string" }
+    ]
+  },
+  "set-and-map": {
+    "articles": [
+      { "path": "1-js/05-data-types/07-map-set/article.md", "url": "https://javascript.info/map-set" }
+    ]
+  },
+  "stacks": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" }
+    ]
+  },
+  "queues": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" }
+    ]
+  },
+  "linked-lists": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" }
+    ]
+  },
+  "recursion-basics": {
+    "articles": [
+      { "path": "1-js/06-advanced-functions/01-recursion/article.md", "url": "https://javascript.info/recursion" }
+    ]
+  },
+  "sorting-algorithms": {
+    "articles": [
+      { "path": "1-js/05-data-types/05-array-methods/article.md", "url": "https://javascript.info/array-methods" }
+    ]
+  },
+  "searching-algorithms": {
+    "articles": [
+      { "path": "1-js/05-data-types/05-array-methods/article.md", "url": "https://javascript.info/array-methods" }
+    ]
+  },
+  "binary-trees": {
+    "articles": [
+      { "path": "1-js/05-data-types/04-array/article.md", "url": "https://javascript.info/array" }
+    ]
+  }
+}

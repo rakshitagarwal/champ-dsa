@@ -8,7 +8,11 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
-export function CodeEditor() {
+type Props = {
+  readOnly?: boolean;
+};
+
+export function CodeEditor({ readOnly = false }: Props) {
   const { theme } = useTheme();
   const code = useVisualizerStore((s) => s.code);
   const setCode = useVisualizerStore((s) => s.setCode);
@@ -53,6 +57,10 @@ export function CodeEditor() {
     }
   }, [line, stepIndex]);
 
+  useEffect(() => {
+    editorRef.current?.updateOptions({ readOnly });
+  }, [readOnly]);
+
   return (
     <div className="h-full min-h-0 overflow-hidden rounded-lg border border-border bg-editor shadow-inner">
       <Monaco
@@ -60,15 +68,18 @@ export function CodeEditor() {
         defaultLanguage="javascript"
         theme={theme === "light" ? "light" : "vs-dark"}
         value={code}
-        onChange={(v) => setCode(v ?? "")}
+        onChange={readOnly ? undefined : (v) => setCode(v ?? "")}
         onMount={(ed) => {
           editorRef.current = ed;
-          ed.updateOptions({ glyphMargin: true });
-          registerFormatCode(() => {
-            ed.getAction("editor.action.formatDocument")?.run();
-          });
+          ed.updateOptions({ glyphMargin: true, readOnly });
+          if (!readOnly) {
+            registerFormatCode(() => {
+              ed.getAction("editor.action.formatDocument")?.run();
+            });
+          }
         }}
         options={{
+          readOnly,
           minimap: { enabled: false },
           fontSize: 14,
           fontFamily: "var(--font-geist-mono), monospace",

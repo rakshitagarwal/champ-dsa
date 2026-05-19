@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  AlignLeft,
   ChevronLeft,
   ChevronRight,
   Lightbulb,
   Pause,
   Play,
+  Maximize2,
   RotateCcw,
-  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
@@ -25,6 +24,7 @@ type Props = {
   progressiveHints?: boolean;
   onOpenHints?: () => void;
   onMarkSolved?: () => void;
+  onOpenFullscreen?: () => void;
 };
 
 export function VisualizerToolbar({
@@ -32,6 +32,7 @@ export function VisualizerToolbar({
   progressiveHints = false,
   onOpenHints,
   onMarkSolved,
+  onOpenFullscreen,
 }: Props) {
   const [confirmSolution, setConfirmSolution] = useState(false);
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
@@ -40,7 +41,6 @@ export function VisualizerToolbar({
   const trace = useVisualizerStore((s) => s.trace);
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
-  const isRunning = useVisualizerStore((s) => s.isRunning);
   const questionContext = useVisualizerStore((s) => s.questionContext);
   const stepNext = useVisualizerStore((s) => s.stepNext);
   const stepPrev = useVisualizerStore((s) => s.stepPrev);
@@ -48,8 +48,6 @@ export function VisualizerToolbar({
   const pause = useVisualizerStore((s) => s.pause);
   const restart = useVisualizerStore((s) => s.restart);
   const setSpeed = useVisualizerStore((s) => s.setSpeed);
-  const run = useVisualizerStore((s) => s.run);
-  const formatCode = useVisualizerStore((s) => s.formatCode);
   const resetToStarter = useVisualizerStore((s) => s.resetToStarter);
   const revealSolution = useVisualizerStore((s) => s.revealSolution);
 
@@ -100,16 +98,6 @@ export function VisualizerToolbar({
   return (
     <div className="shrink-0 border-b border-border bg-panel">
       <div className="flex flex-wrap items-center gap-2 px-3 py-2">
-      <Button
-        size="sm"
-        onClick={() => run()}
-        disabled={isRunning}
-        className="gap-1.5"
-      >
-        <Zap className="h-3.5 w-3.5" />
-        {isRunning ? "Running…" : "Run"}
-      </Button>
-
       {hasHints && onOpenHints && (
         <Button
           variant="outline"
@@ -182,16 +170,6 @@ export function VisualizerToolbar({
         </button>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => formatCode()}
-        className="gap-1.5"
-      >
-        <AlignLeft className="h-3.5 w-3.5" />
-        Format
-      </Button>
-
       {onMarkSolved && (
         <Button size="sm" variant="secondary" onClick={onMarkSolved}>
           Mark as solved
@@ -210,9 +188,36 @@ export function VisualizerToolbar({
 
       {hasTrace && (
       <div className="flex flex-wrap items-center gap-2 border-t border-border/60 bg-muted/15 px-3 py-1.5">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Walkthrough
         </span>
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Speed
+          <select
+            className="rounded border border-border bg-background px-2 py-1 text-xs"
+            value={speedMs}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+          >
+            <option value={1200}>0.5×</option>
+            <option value={600}>1×</option>
+            <option value={300}>2×</option>
+            <option value={120}>5×</option>
+          </select>
+        </label>
+        <span className="text-xs tabular-nums text-muted-foreground">
+          Step {stepIndex + 1}/{total}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={restart}
+          disabled={!hasTrace}
+          aria-label="Restart playback"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+        </Button>
         <Button
           variant="outline"
           size="icon"
@@ -247,32 +252,18 @@ export function VisualizerToolbar({
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={restart}
-          disabled={!hasTrace}
-          aria-label="Restart playback"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-        </Button>
-        <span className="text-xs text-muted-foreground">
-          {hasTrace ? `Step ${stepIndex + 1}/${total}` : "Run to visualize"}
-        </span>
-        <label className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-          Speed
-          <select
-            className="rounded border border-border bg-background px-2 py-1 text-xs"
-            value={speedMs}
-            onChange={(e) => setSpeed(Number(e.target.value))}
+        {onOpenFullscreen && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 px-2 text-xs"
+            onClick={onOpenFullscreen}
           >
-            <option value={1200}>0.5×</option>
-            <option value={600}>1×</option>
-            <option value={300}>2×</option>
-            <option value={120}>5×</option>
-          </select>
-        </label>
+            <Maximize2 className="h-3.5 w-3.5" />
+            Fullscreen viz
+          </Button>
+        )}
+        </div>
       </div>
       )}
     </div>

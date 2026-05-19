@@ -13,12 +13,12 @@ export default function PatternsPage() {
           </Link>
         </p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">
-          DSA pattern recap
+          Learn DSA patterns
         </h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Quick refresh for working developers — when you forgot what two
-          pointers or sliding window mean. Each topic has plain-English
-          explanations and a runnable example. New to the sheet? Start on the{" "}
+          Structured lessons with clear overviews, when to use each technique,
+          step-by-step approaches, and reference code — similar to visual
+          interview prep guides. New to the sheet? Start on the{" "}
           <Link href="/roadmap" className="font-medium text-primary hover:underline">
             roadmap
           </Link>

@@ -1,144 +1,98 @@
 import Link from "next/link";
 import type { JsNoteTopic } from "@/types/js-note";
 import { Badge } from "@/components/ui/badge";
+import { getJsArticleBody } from "@/lib/js-notes/article-bodies";
+import { cn } from "@/lib/utils";
 
 export function JsNoteTopicView({ topic }: { topic: JsNoteTopic }) {
-  const { content } = topic;
+  const article = getJsArticleBody(topic.slug);
 
   return (
-    <article className="w-full space-y-8 px-4 py-6 lg:px-8 lg:py-8 xl:px-10">
-      <header>
+    <article className="w-full px-4 py-6 lg:px-8 lg:py-8 xl:px-10">
+      <header className="mx-auto max-w-3xl space-y-4 border-b border-border pb-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{topic.category}</Badge>
           <span className="text-xs text-muted-foreground">
             Topic {topic.order}
           </span>
         </div>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
           {topic.title}
         </h1>
-        <p className="mt-2 max-w-4xl text-lg leading-relaxed text-muted-foreground">
+        <p className="text-lg leading-relaxed text-muted-foreground">
           {topic.summary}
         </p>
-      </header>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <SimpleCallout title="In simple English">{content.simple}</SimpleCallout>
-
-        <Section title="Go a bit deeper">
-          <div className="space-y-4">
-            {content.deepDive.map((paragraph) => (
-              <p
-                key={paragraph.slice(0, 40)}
-                className="text-base leading-relaxed text-foreground/90"
-              >
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      <Section title="How to explain this to someone else">
-        <p className="mb-3 text-sm text-muted-foreground">
-          If you can teach it out loud, you own it. Try these talking points:
-        </p>
-        <ul className="grid gap-2 md:grid-cols-2">
-          {content.teachBack.map((tip) => (
-            <li
-              key={tip}
-              className="flex gap-3 rounded-lg bg-muted/40 px-4 py-3 text-sm leading-relaxed"
-            >
-              <span className="mt-0.5 shrink-0 text-primary">→</span>
-              {tip}
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {content.practiceLinks && content.practiceLinks.length > 0 && (
-        <Section title="Practice problems">
-          <p className="mb-3 text-sm text-muted-foreground">
-            From your notes — try these on paper first, then in practice.
-          </p>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {content.practiceLinks.map((link) => (
-              <li key={link.url}>
+        {article?.sourceUrls?.length ? (
+          <p className="text-sm text-muted-foreground">
+            Full lesson from{" "}
+            {article.sourceUrls.map((url, i) => (
+              <span key={url}>
+                {i > 0 ? ", " : null}
                 <a
-                  href={link.url}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex gap-2 rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm hover:border-primary/40 hover:bg-primary/5"
+                  className="font-medium text-primary hover:underline"
                 >
-                  <span className="shrink-0 text-primary">↗</span>
-                  <span>{link.title}</span>
+                  javascript.info
                 </a>
-              </li>
+              </span>
             ))}
-          </ul>
-        </Section>
+            . Content © javascript.info contributors (tutorial license).
+          </p>
+        ) : null}
+      </header>
+
+      {article?.html ? (
+        <div
+          className={cn(
+            "js-note-article mx-auto mt-8 max-w-3xl",
+            "text-base leading-[1.75] text-foreground/90",
+            "[&_h1]:mb-4 [&_h1]:mt-10 [&_h1]:text-2xl [&_h1]:font-bold",
+            "[&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold",
+            "[&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold",
+            "[&_p]:mb-4",
+            "[&_code]:rounded [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm",
+            "[&_pre.js-note-code]:my-4 [&_pre.js-note-code]:overflow-x-auto [&_pre.js-note-code]:rounded-lg [&_pre.js-note-code]:border [&_pre.js-note-code]:border-border [&_pre.js-note-code]:bg-editor [&_pre.js-note-code]:p-4 [&_pre.js-note-code]:font-mono [&_pre.js-note-code]:text-sm",
+            "[&_a]:text-primary [&_a]:underline-offset-2 hover:[&_a]:underline",
+            "[&_blockquote.js-note-callout]:my-4 [&_blockquote.js-note-callout]:border-l-4 [&_blockquote.js-note-callout]:border-primary/50 [&_blockquote.js-note-callout]:bg-primary/5 [&_blockquote.js-note-callout]:px-4 [&_blockquote.js-note-callout]:py-3 [&_blockquote.js-note-callout]:text-sm",
+            "[&_hr.js-note-hr]:my-10 [&_hr.js-note-hr]:border-border",
+          )}
+          dangerouslySetInnerHTML={{ __html: article.html }}
+        />
+      ) : (
+        <div className="mx-auto mt-8 max-w-3xl rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          <p>
+            Full javascript.info content is not cached yet for this topic.
+          </p>
+          <p className="mt-2">
+            Run{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5">
+              npm run fetch:jsinfo
+            </code>{" "}
+            to import the lesson.
+          </p>
+        </div>
       )}
 
-      <Section title="Examples">
-        <div className="grid gap-6 lg:grid-cols-2">
-          {content.examples.map((ex) => (
-            <div
-              key={ex.title}
-              className="rounded-lg border border-border/60 bg-muted/20 p-4"
-            >
-              <h3 className="mb-2 font-medium">{ex.title}</h3>
-              <pre className="overflow-x-auto rounded-lg border border-border bg-editor p-4 font-mono text-sm leading-relaxed">
-                {ex.code}
-              </pre>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {ex.explanation}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <div className="flex flex-wrap gap-3 border-t border-border pt-6">
+      <div className="mx-auto mt-10 flex max-w-3xl flex-wrap gap-3 border-t border-border pt-8">
         <Link
           href="/practice"
           className="inline-flex h-10 items-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           Open practice
         </Link>
+        {article?.sourceUrls?.[0] ? (
+          <a
+            href={article.sourceUrls[0]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-10 items-center rounded-md border border-border px-5 text-sm font-medium hover:bg-accent"
+          >
+            Read on javascript.info ↗
+          </a>
+        ) : null}
       </div>
     </article>
   );
 }
-
-function SimpleCallout({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="h-full rounded-xl border-l-4 border-primary bg-primary/5 px-6 py-5">
-      <h2 className="text-lg font-semibold text-primary">{title}</h2>
-      <p className="mt-2 text-base leading-relaxed text-foreground/90">
-        {children}
-      </p>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-xl border border-border bg-card p-6 lg:p-8">
-      <h2 className="mb-4 text-xl font-semibold">{title}</h2>
-      {children}
-    </section>
-  );
-}
-

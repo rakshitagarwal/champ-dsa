@@ -38,7 +38,7 @@ export function explainStep(
   }
 
   if (parts.length === 0) {
-    return `Line ${curr.line} runs next — watch the animation to see what updates.`;
+    return `Line ${curr.line} runs next — open fullscreen viz or step forward to see updates.`;
   }
 
   return `Because line ${curr.line} ran: ${parts.join(" ")}`;
