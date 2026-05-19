@@ -19,7 +19,12 @@ export function isRouteAllowed(pathname: string, width: number): boolean {
   if (width >= 1024) return true;
 
   if (width >= 768) {
-    return pathname === "/notes" || pathname.startsWith("/notes/");
+    return (
+      pathname === "/notes" ||
+      pathname.startsWith("/notes/") ||
+      pathname === "/js-compiler" ||
+      pathname.startsWith("/js-compiler/")
+    );
   }
 
   return false;

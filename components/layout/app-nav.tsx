@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  Code2,
   Table2,
   FileText,
   Map,
@@ -20,6 +21,7 @@ const learnLinks = [
   { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Solve", icon: PenLine },
   { href: "/cheatsheet", label: "Cheat sheet", icon: Table2 },
+  { href: "/js-compiler", label: "JS compiler", icon: Code2 },
 ] as const;
 
 const recapLinks = [
@@ -56,7 +58,7 @@ export function AppNav() {
           {learnLinks.map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href} className={linkClass(href)}>
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="hidden xl:inline">{label}</span>
+              <span className="hidden sm:inline">{label}</span>
             </Link>
           ))}
 
@@ -68,7 +70,7 @@ export function AppNav() {
           {recapLinks.map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href} className={linkClass(href)}>
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="hidden xl:inline">{label}</span>
+              <span className="hidden sm:inline">{label}</span>
             </Link>
           ))}
 

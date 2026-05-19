@@ -43,8 +43,8 @@ export function MarketingLanding() {
       </div>
 
       <p className="mt-10 max-w-lg text-xs text-muted-foreground">
-        Solving problems works best on a desktop screen (1024px or wider). JS
-        notes are available on tablet too.
+        Solving problems works best on a desktop screen (1024px or wider). Notes
+        and the JS compiler are available on tablet too.
       </p>
     </div>
   );
