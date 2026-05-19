@@ -1,4 +1,6 @@
 export type CheatsheetCategory =
+  | "pattern-recognition"
+  | "interview-checklist"
   | "sorting"
   | "searching"
   | "arrays-strings"
@@ -27,6 +29,209 @@ export type CheatsheetSection = {
 };
 
 export const CHEATSHEET_SECTIONS: CheatsheetSection[] = [
+  {
+    id: "pattern-recognition",
+    title: "Pattern recognition",
+    description:
+      "Problem signals → which technique to try first (quick reference).",
+    entries: [
+      {
+        name: "Sorted array + pair / triplet",
+        time: "Two Pointers",
+        space: "O(n)",
+        notes: "Opposite ends or same direction",
+      },
+      {
+        name: "Subarray max/min with constraint",
+        time: "Sliding Window",
+        space: "O(n)",
+      },
+      {
+        name: "Range sum / count subarrays sum = k",
+        time: "Prefix Sum",
+        space: "O(n)",
+      },
+      {
+        name: "Maximum subarray sum",
+        time: "Kadane's",
+        space: "O(1)",
+      },
+      {
+        name: "Pair / frequency / grouping",
+        time: "Hashing",
+        space: "O(n)",
+      },
+      {
+        name: "Sorted lookup O(log n)",
+        time: "Binary Search",
+        space: "O(1)",
+      },
+      {
+        name: "Rotated sorted / min in range / feasibility",
+        time: "Modified Binary Search",
+        space: "O(log n)",
+      },
+      {
+        name: "Values in 1..n, missing / duplicate",
+        time: "Cyclic Sort",
+        space: "O(1)",
+      },
+      {
+        name: "Linked list cycle / middle",
+        time: "Fast & Slow Pointers",
+        space: "O(1)",
+      },
+      {
+        name: "Overlapping intervals / scheduling",
+        time: "Merge Intervals",
+        space: "O(n log n)",
+      },
+      {
+        name: "Always need min or max while scanning",
+        time: "Heap",
+        space: "O(n)",
+      },
+      {
+        name: "Top K largest / smallest / frequent",
+        time: "Top K Heap",
+        space: "O(k)",
+      },
+      {
+        name: "Running median of stream",
+        time: "Two Heaps",
+        space: "O(n)",
+      },
+      {
+        name: "Matching brackets / next greater",
+        time: "Stack / Monotonic Stack",
+        space: "O(n)",
+      },
+      {
+        name: "Tree level-by-level / unweighted shortest",
+        time: "Tree BFS",
+        space: "O(n)",
+      },
+      {
+        name: "Path sum / depth / validate tree",
+        time: "Tree DFS",
+        space: "O(h)",
+      },
+      {
+        name: "Prefix search / autocomplete",
+        time: "Trie",
+        space: "O(m)",
+      },
+      {
+        name: "All subsets / permutations / combinations",
+        time: "Backtracking",
+        space: "O(2^n)–O(n!)",
+      },
+      {
+        name: "Single number / XOR tricks",
+        time: "Bitwise XOR",
+        space: "O(1)",
+      },
+      {
+        name: "Unweighted graph shortest path",
+        time: "Graph BFS",
+        space: "O(V+E)",
+      },
+      {
+        name: "Components / undirected cycle",
+        time: "Graph DFS / Union-Find",
+        space: "O(V+E)",
+      },
+      {
+        name: "Task ordering with dependencies",
+        time: "Topological Sort",
+        space: "O(V+E)",
+      },
+      {
+        name: "Weighted shortest path (non-negative)",
+        time: "Dijkstra's",
+        space: "O(V)",
+        notes: "Min-heap + distance array",
+      },
+      {
+        name: "Local choice → global optimum (proved)",
+        time: "Greedy",
+        space: "Varies",
+      },
+      {
+        name: "Overlapping subproblems + optimal substructure",
+        time: "Dynamic Programming",
+        space: "O(n)–O(n·m)",
+      },
+    ],
+  },
+  {
+    id: "interview-checklist",
+    title: "Interview checklist",
+    description: "Edge cases and DP anchors to scan before you submit.",
+    entries: [
+      {
+        name: "Arrays",
+        time: "—",
+        space: "—",
+        notes: "[], single element, all same, sorted, reversed",
+      },
+      {
+        name: "Strings",
+        time: "—",
+        space: "—",
+        notes: 'empty "", single char, all same, palindrome',
+      },
+      {
+        name: "Linked list",
+        time: "—",
+        space: "—",
+        notes: "null head, single node, cycle",
+      },
+      {
+        name: "Tree",
+        time: "—",
+        space: "—",
+        notes: "null root, single node, skewed, perfect",
+      },
+      {
+        name: "Graph",
+        time: "—",
+        space: "—",
+        notes: "disconnected, self-loops, no edges",
+      },
+      {
+        name: "DP",
+        time: "—",
+        space: "—",
+        notes: "n = 0/1, amount = 0, define dp[i] before coding",
+      },
+      {
+        name: "Binary search",
+        time: "—",
+        space: "—",
+        notes: "lo > hi exit; mid = lo + ((hi-lo)>>1)",
+      },
+      {
+        name: "Numbers",
+        time: "—",
+        space: "—",
+        notes: "0, negatives, INT bounds, multiply overflow",
+      },
+      {
+        name: "DP decision",
+        time: "—",
+        space: "—",
+        notes:
+          "Min/max/count + overlapping subproblems → DP; 1 index = 1D, (i,j) = 2D",
+      },
+      {
+        name: "Backtracking",
+        time: "—",
+        space: "—",
+        notes: "choose → recurse → undo; sort + skip duplicates",
+      },
+    ],
+  },
   {
     id: "sorting",
     title: "Sorting",
@@ -127,6 +332,11 @@ export const CHEATSHEET_SECTIONS: CheatsheetSection[] = [
         space: "O(1)",
         notes: "Staircase from top-right or bottom-left",
       },
+      {
+        name: "Quick select (kth element)",
+        time: "O(n) avg, O(n²) worst",
+        space: "O(1)",
+      },
     ],
   },
   {
@@ -165,6 +375,12 @@ export const CHEATSHEET_SECTIONS: CheatsheetSection[] = [
         name: "Dutch national flag (3-way partition)",
         time: "O(n)",
         space: "O(1)",
+      },
+      {
+        name: "Cyclic sort (values 1..n)",
+        time: "O(n)",
+        space: "O(1)",
+        notes: "Swap each value to index value-1",
       },
     ],
   },
@@ -502,6 +718,8 @@ export const CHEATSHEET_SECTIONS: CheatsheetSection[] = [
 ];
 
 export const CHEATSHEET_CATEGORY_LABELS: Record<CheatsheetCategory, string> = {
+  "pattern-recognition": "Pattern recognition",
+  "interview-checklist": "Interview checklist",
   sorting: "Sorting",
   searching: "Searching",
   "arrays-strings": "Arrays & Strings",

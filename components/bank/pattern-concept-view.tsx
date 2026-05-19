@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getDeveloperFraming } from "@/data/patterns/developer-framing";
 import {
+  getPatternEnrichment,
+  mergePatternLists,
+} from "@/data/patterns/pattern-enrichment";
+import {
   isPatternDone,
   togglePatternDone,
 } from "@/lib/storage/pattern-progress";
@@ -26,6 +30,10 @@ const SECTIONS = [
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const [done, setDone] = useState(false);
   const f = pattern.fundamentals;
+  const enrich = getPatternEnrichment(pattern.slug);
+  const whenToUse = mergePatternLists(f.whenToUse, enrich?.whenToUse);
+  const approach = mergePatternLists(f.approach, enrich?.approach);
+  const pitfalls = mergePatternLists(f.pitfalls, enrich?.pitfalls);
   const dev = getDeveloperFraming(pattern.slug);
   const summary = dev?.summary ?? pattern.summary;
 
@@ -119,7 +127,7 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             subtitle="If the problem sounds like one of these, this pattern is likely the right tool."
           />
           <ul className="mt-4 space-y-2">
-            {f.whenToUse.map((item) => (
+            {whenToUse.map((item) => (
               <li
                 key={item}
                 className="flex gap-3 rounded-lg border border-border/60 bg-card px-4 py-3.5 text-sm leading-relaxed"
@@ -142,7 +150,7 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             subtitle="Follow these steps in order — each step shrinks the problem or maintains an invariant."
           />
           <ol className="mt-4 space-y-3">
-            {f.approach.map((step, i) => (
+            {approach.map((step, i) => (
               <li
                 key={step}
                 className="flex gap-4 rounded-xl border border-border bg-card px-5 py-4"
@@ -194,7 +202,7 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
         <section id="pitfalls" className="scroll-mt-24">
           <SectionHeading title="Common mistakes" />
           <ul className="mt-4 space-y-2">
-            {f.pitfalls.map((item) => (
+            {pitfalls.map((item) => (
               <li
                 key={item}
                 className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed"
