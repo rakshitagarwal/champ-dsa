@@ -110,6 +110,7 @@ export function VizWorkspace({
     <EditorVizSplit
       expectedOutput={problemSampleOutput ?? undefined}
       layout={layout}
+      onOpenFullscreen={() => setVizFullscreenOpen(true)}
     />
   );
 
@@ -130,7 +131,6 @@ export function VizWorkspace({
         progressiveHints={!!progressiveHints}
         onOpenHints={() => setHintModalOpen(true)}
         onMarkSolved={onMarkSolved}
-        onOpenFullscreen={() => setVizFullscreenOpen(true)}
       />
 
       <VizFullscreenModal

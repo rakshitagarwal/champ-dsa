@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   expectedOutput?: string;
   layout?: "document" | "viewport";
+  onOpenFullscreen?: () => void;
 };
 
 const PANEL_EDITOR = "editor";
@@ -23,20 +24,24 @@ const FALLBACK_LAYOUT = { [PANEL_EDITOR]: 63, [PANEL_VIZ]: 37 };
 
 function DocumentEditorStack({
   expectedOutput,
+  onOpenFullscreen,
 }: {
   expectedOutput?: string;
+  onOpenFullscreen?: () => void;
 }) {
   return (
     <div className="flex w-full flex-col">
-      <section className="border-b border-border bg-editor/30">
+      <section className="bg-editor/30">
         <EditorActionBar />
-        <div
-          className="h-[min(540px,58vh)] min-h-[360px] p-2"
-        >
+        <div className="h-[min(540px,58vh)] min-h-[360px] p-2">
           <CodeEditor />
         </div>
       </section>
-      <VizPanel expectedOutput={expectedOutput} layout="document" />
+      <VizPanel
+        expectedOutput={expectedOutput}
+        layout="document"
+        onOpenFullscreen={onOpenFullscreen}
+      />
     </div>
   );
 }
@@ -44,9 +49,15 @@ function DocumentEditorStack({
 export function EditorVizSplit({
   expectedOutput,
   layout = "viewport",
+  onOpenFullscreen,
 }: Props) {
   if (layout === "document") {
-    return <DocumentEditorStack expectedOutput={expectedOutput} />;
+    return (
+      <DocumentEditorStack
+        expectedOutput={expectedOutput}
+        onOpenFullscreen={onOpenFullscreen}
+      />
+    );
   }
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
@@ -95,7 +106,11 @@ export function EditorVizSplit({
         defaultSize={37}
         className="flex min-h-[160px] min-w-0 flex-col overflow-hidden"
       >
-        <VizPanel expectedOutput={expectedOutput} layout="viewport" />
+        <VizPanel
+          expectedOutput={expectedOutput}
+          layout="viewport"
+          onOpenFullscreen={onOpenFullscreen}
+        />
       </Panel>
     </Group>
   );

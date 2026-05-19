@@ -3,6 +3,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { StepExplanationPanel } from "./step-explanation-panel";
+import { WalkthroughControls } from "./walkthrough-controls";
 import { cn } from "@/lib/utils";
 import { formatSampleOutput } from "@/lib/questions/problem-display";
 
@@ -13,13 +14,17 @@ function normalizeOutput(s: string): string {
 type Props = {
   expectedOutput?: string;
   layout?: "document" | "viewport";
+  onOpenFullscreen?: () => void;
 };
 
-export function VizPanel({ expectedOutput, layout = "viewport" }: Props) {
+export function VizPanel({
+  expectedOutput,
+  layout = "viewport",
+  onOpenFullscreen,
+}: Props) {
   const isDocument = layout === "document";
   const trace = useVisualizerStore((s) => s.trace);
   const error = useVisualizerStore((s) => s.error);
-  const isRunning = useVisualizerStore((s) => s.isRunning);
   const stdout = trace?.stdout?.trim() ?? "";
   const hasTrace = !!trace;
   const hasError = !!error;
@@ -37,16 +42,14 @@ export function VizPanel({ expectedOutput, layout = "viewport" }: Props) {
         isDocument ? "w-full" : "h-full min-h-0 overflow-hidden",
       )}
     >
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Execution walkthrough
-        </p>
-        {hasTrace && !isRunning && (
-          <span className="hidden text-xs text-muted-foreground sm:inline">
-            Step through your run
-          </span>
-        )}
-      </div>
+      <WalkthroughControls
+        onOpenFullscreen={onOpenFullscreen}
+        className={
+          isDocument
+            ? "sticky top-14 z-20 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90"
+            : undefined
+        }
+      />
 
       {hasTrace && (
         <div
@@ -98,10 +101,13 @@ export function VizPanel({ expectedOutput, layout = "viewport" }: Props) {
       ) : hasTrace ? (
         <StepExplanationPanel layout={layout} />
       ) : (
-        <div className="p-6 text-center">
-          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
+        <div className="border-t border-border p-6 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Execution walkthrough
+          </p>
+          <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
             Click <strong className="text-foreground">Run</strong> on your
-            solution to see why each line executes and what state changes.
+            solution to step through each line and see what changes.
           </p>
         </div>
       )}

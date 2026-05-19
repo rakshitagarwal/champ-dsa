@@ -69,9 +69,11 @@ export function StepExplanationPanel({
               {current.type}
             </span>
           </div>
-          <span className="text-[11px] text-muted-foreground">
-            Step {stepIndex + 1} / {totalSteps}
-          </span>
+          {!isDocument ? (
+            <span className="text-[11px] text-muted-foreground">
+              Step {stepIndex + 1} / {totalSteps}
+            </span>
+          ) : null}
         </div>
       </div>
 
