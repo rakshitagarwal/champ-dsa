@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NOTE_SECTIONS } from "@/data/notes/manifest";
+import type { NoteDocumentMeta } from "@/types/notes";
 import { cn } from "@/lib/utils";
 
 type Props = {
+  notes: NoteDocumentMeta[];
   className?: string;
 };
 
-export function NotesSidebar({ className }: Props) {
+export function NotesSidebar({ notes, className }: Props) {
   const pathname = usePathname();
 
   return (
     <aside
       className={cn(
-        "flex w-56 shrink-0 flex-col border-r border-border bg-panel/50",
+        "flex h-full w-56 shrink-0 flex-col overflow-hidden border-r border-border bg-panel/50",
         className,
       )}
     >
@@ -24,7 +25,7 @@ export function NotesSidebar({ className }: Props) {
           href="/notes"
           className={cn(
             "text-sm font-semibold",
-            pathname === "/notes"
+            pathname === "/notes" || pathname.startsWith("/notes/")
               ? "text-primary"
               : "text-foreground hover:text-primary",
           )}
@@ -32,54 +33,27 @@ export function NotesSidebar({ className }: Props) {
           Notes
         </Link>
         <p className="mt-1 text-xs text-muted-foreground">
-          Revision sheets for working devs
+          One page per topic — add a .md file to grow the list
         </p>
       </div>
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
-        <ul className="space-y-1">
-          {NOTE_SECTIONS.map((section) => {
-            const sectionHref = `/notes/${section.id}/${section.pages[0]?.slug ?? ""}`;
-            const sectionActive =
-              pathname === `/notes/${section.id}` ||
-              pathname.startsWith(`/notes/${section.id}/`);
-            const expanded = sectionActive;
-
+      <nav className="shrink-0 px-2 py-3">
+        <ul className="space-y-0.5">
+          {notes.map((note) => {
+            const href = `/notes/${note.slug}`;
+            const active = pathname === href;
             return (
-              <li key={section.id}>
+              <li key={note.slug}>
                 <Link
-                  href={sectionHref}
+                  href={href}
                   className={cn(
                     "block rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    sectionActive
+                    active
                       ? "bg-primary/15 text-primary"
                       : "text-foreground hover:bg-accent/50",
                   )}
                 >
-                  {section.title}
+                  {note.title}
                 </Link>
-                {expanded ? (
-                  <ul className="mb-2 ml-2 mt-0.5 space-y-0.5 border-l border-border pl-2">
-                    {section.pages.map((page) => {
-                      const href = `/notes/${section.id}/${page.slug}`;
-                      const pageActive = pathname === href;
-                      return (
-                        <li key={page.slug}>
-                          <Link
-                            href={href}
-                            className={cn(
-                              "block rounded-md px-2 py-1.5 text-xs transition-colors",
-                              pageActive
-                                ? "font-medium text-primary"
-                                : "text-muted-foreground hover:text-foreground",
-                            )}
-                          >
-                            {page.title}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : null}
               </li>
             );
           })}

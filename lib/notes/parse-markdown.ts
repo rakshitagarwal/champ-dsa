@@ -8,6 +8,14 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+export function slugifyHeading(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
 function inlineFormat(text: string): string {
   let s = escapeHtml(text);
   s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -18,6 +26,36 @@ function inlineFormat(text: string): string {
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
   );
   return s;
+}
+
+function splitTableRow(line: string): string[] {
+  const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+  return trimmed.split("|").map((c) => c.trim());
+}
+
+function isTableSeparator(line: string): boolean {
+  return /^\|?[\s\-:|]+\|?$/.test(line.trim());
+}
+
+function parseTableRowCells(line: string): string[] {
+  return splitTableRow(line);
+}
+
+export function extractH2Headings(md: string): { id: string; title: string }[] {
+  const headings: { id: string; title: string }[] = [];
+  const seen = new Map<string, number>();
+
+  for (const line of md.replace(/\r\n/g, "\n").split("\n")) {
+    if (!line.startsWith("## ")) continue;
+    const title = line.slice(3).trim();
+    let id = slugifyHeading(title);
+    const count = seen.get(id) ?? 0;
+    if (count > 0) id = `${id}-${count}`;
+    seen.set(slugifyHeading(title), count + 1);
+    headings.push({ id, title });
+  }
+
+  return headings;
 }
 
 export function parseMarkdown(md: string): string {
@@ -43,6 +81,34 @@ export function parseMarkdown(md: string): string {
       continue;
     }
 
+    if (
+      line.includes("|") &&
+      i + 1 < lines.length &&
+      isTableSeparator(lines[i + 1]!)
+    ) {
+      const headerCells = parseTableRowCells(line);
+      i += 2;
+      const bodyRows: string[][] = [];
+      while (i < lines.length && lines[i].includes("|") && lines[i].trim() !== "") {
+        bodyRows.push(parseTableRowCells(lines[i]!));
+        i++;
+      }
+      out.push('<div class="note-table-wrap"><table class="note-table"><thead><tr>');
+      for (const cell of headerCells) {
+        out.push(`<th>${inlineFormat(cell)}</th>`);
+      }
+      out.push("</tr></thead><tbody>");
+      for (const row of bodyRows) {
+        out.push("<tr>");
+        for (let c = 0; c < headerCells.length; c++) {
+          out.push(`<td>${inlineFormat(row[c] ?? "")}</td>`);
+        }
+        out.push("</tr>");
+      }
+      out.push("</tbody></table></div>");
+      continue;
+    }
+
     if (/^---+$/.test(line.trim())) {
       out.push("<hr />");
       i++;
@@ -50,12 +116,14 @@ export function parseMarkdown(md: string): string {
     }
 
     if (line.startsWith("### ")) {
-      out.push(`<h3>${inlineFormat(line.slice(4))}</h3>`);
+      const title = line.slice(4);
+      out.push(`<h3 id="${slugifyHeading(title)}">${inlineFormat(title)}</h3>`);
       i++;
       continue;
     }
     if (line.startsWith("## ")) {
-      out.push(`<h2>${inlineFormat(line.slice(3))}</h2>`);
+      const title = line.slice(3);
+      out.push(`<h2 id="${slugifyHeading(title)}">${inlineFormat(title)}</h2>`);
       i++;
       continue;
     }
@@ -101,7 +169,20 @@ export function parseMarkdown(md: string): string {
     }
 
     const para: string[] = [];
-    while (i < lines.length && lines[i].trim() !== "" && !/^#/.test(lines[i]) && !lines[i].startsWith("```") && !/^[-*] /.test(lines[i]) && !/^\d+\. /.test(lines[i]) && !lines[i].startsWith("> ")) {
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !/^#/.test(lines[i]) &&
+      !lines[i].startsWith("```") &&
+      !/^[-*] /.test(lines[i]) &&
+      !/^\d+\. /.test(lines[i]) &&
+      !lines[i].startsWith("> ") &&
+      !(
+        lines[i].includes("|") &&
+        i + 1 < lines.length &&
+        isTableSeparator(lines[i + 1]!)
+      )
+    ) {
       para.push(lines[i]);
       i++;
     }

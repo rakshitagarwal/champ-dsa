@@ -11,7 +11,7 @@ describe("isRouteAllowed", () => {
   });
 
   it("allows notes on tablet", () => {
-    expect(isRouteAllowed("/notes/js-basics/event-loop", 800)).toBe(true);
+    expect(isRouteAllowed("/notes/javascript", 800)).toBe(true);
   });
 
   it("blocks visualizer on tablet", () => {

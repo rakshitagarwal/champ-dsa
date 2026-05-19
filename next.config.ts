@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
         destination: "/practice/:questionId/notes",
         permanent: false,
       },
+      {
+        source: "/notes/:section/:page",
+        destination: "/notes/javascript",
+        permanent: false,
+      },
     ];
   },
 };

@@ -1,41 +1,37 @@
 import fs from "node:fs";
 import path from "node:path";
-import { NOTE_SECTIONS } from "@/data/notes/manifest";
-import type { NotePage, NoteSection } from "@/types/notes";
+import { NOTE_CATALOG } from "@/data/notes/manifest";
+import type { NoteDocument, NoteDocumentMeta } from "@/types/notes";
 
 const CONTENT_ROOT = path.join(process.cwd(), "content", "notes");
 
-export function getNoteSections(): NoteSection[] {
-  return NOTE_SECTIONS;
+function noteFilePath(slug: string): string {
+  return path.join(CONTENT_ROOT, `${slug}.md`);
 }
 
-export function getAllNotePages(): { sectionId: string; slug: string }[] {
-  return NOTE_SECTIONS.flatMap((s) =>
-    s.pages.map((p) => ({ sectionId: s.id, slug: p.slug })),
-  );
+export function noteFileExists(slug: string): boolean {
+  return fs.existsSync(noteFilePath(slug));
 }
 
-export function getNotePage(
-  sectionId: string,
-  pageSlug: string,
-): NotePage | undefined {
-  const section = NOTE_SECTIONS.find((s) => s.id === sectionId);
-  const meta = section?.pages.find((p) => p.slug === pageSlug);
-  if (!section || !meta) return undefined;
-
-  const filePath = path.join(CONTENT_ROOT, sectionId, `${pageSlug}.md`);
-  if (!fs.existsSync(filePath)) return undefined;
-
-  const markdown = fs.readFileSync(filePath, "utf8");
-  return {
-    ...meta,
-    sectionId: section.id,
-    sectionTitle: section.title,
-    markdown,
-  };
+/** Sidebar + routes — only entries with a markdown file on disk. */
+export function getAvailableNotes(): NoteDocumentMeta[] {
+  return NOTE_CATALOG.filter((entry) => noteFileExists(entry.slug));
 }
 
-export function getFirstPageInSection(sectionId: string) {
-  const section = NOTE_SECTIONS.find((s) => s.id === sectionId);
-  return section?.pages[0];
+export function getAllNoteSlugs(): string[] {
+  return getAvailableNotes().map((n) => n.slug);
+}
+
+export function getNoteBySlug(slug: string): NoteDocument | undefined {
+  const meta = NOTE_CATALOG.find((n) => n.slug === slug);
+  if (!meta || !noteFileExists(slug)) return undefined;
+
+  const markdown = fs.readFileSync(noteFilePath(slug), "utf8");
+  return { ...meta, markdown };
+}
+
+export function getFirstNote(): NoteDocument | undefined {
+  const first = getAvailableNotes()[0];
+  if (!first) return undefined;
+  return getNoteBySlug(first.slug);
 }
