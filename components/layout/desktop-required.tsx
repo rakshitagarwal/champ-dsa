@@ -25,8 +25,8 @@ export function DesktopRequired({ width }: Props) {
         <p className="mt-4 flex max-w-md items-center justify-center gap-2 text-sm text-muted-foreground">
           <Tablet className="h-4 w-4 shrink-0 text-primary" />
           On tablet, you can still read{" "}
-          <Link href="/js-notes" className="font-medium text-primary hover:underline">
-            JS notes
+          <Link href="/notes" className="font-medium text-primary hover:underline">
+            Notes
           </Link>
           .
         </p>

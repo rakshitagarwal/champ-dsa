@@ -21,8 +21,8 @@ export default function RoadmapPage() {
             pattern recap
           </Link>{" "}
           or{" "}
-          <Link href="/js-notes" className="text-primary hover:underline">
-            JS notes
+          <Link href="/notes" className="text-primary hover:underline">
+            Notes
           </Link>
           .
         </p>

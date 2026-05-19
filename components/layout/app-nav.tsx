@@ -24,7 +24,7 @@ const learnLinks = [
 
 const recapLinks = [
   { href: "/patterns", label: "Pattern recap", icon: BookOpen },
-  { href: "/js-notes", label: "JS notes", icon: FileText },
+  { href: "/notes", label: "Notes", icon: FileText },
 ] as const;
 
 export function AppNav() {

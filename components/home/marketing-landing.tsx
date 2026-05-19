@@ -34,11 +34,11 @@ export function MarketingLanding() {
           cta="Pattern recap"
         />
         <LaneCard
-          href="/js-notes"
+          href="/notes"
           icon={<FileText className="h-5 w-5" />}
           title="Recap JavaScript"
           body="Closures, promises, this, and more — plain English notes when fundamentals need a refresh."
-          cta="JS notes"
+          cta="Notes"
         />
       </div>
 

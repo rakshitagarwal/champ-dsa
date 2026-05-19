@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
 import { NOTE_SECTIONS } from "@/data/notes/manifest";
 
-type Props = { params: Promise<{ slug: string }> };
-
-export default async function JsNoteLegacyTopicPage({ params }: Props) {
-  const { slug } = await params;
+export default function NotesIndexPage() {
   const first = NOTE_SECTIONS[0];
   const page = first?.pages[0];
-  if (!page) redirect("/notes");
+  if (!first || !page) {
+    return null;
+  }
   redirect(`/notes/${first.id}/${page.slug}`);
 }

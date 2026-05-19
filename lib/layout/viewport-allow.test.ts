@@ -10,8 +10,8 @@ describe("isRouteAllowed", () => {
     expect(isRouteAllowed("/practice", 375)).toBe(false);
   });
 
-  it("allows js-notes on tablet", () => {
-    expect(isRouteAllowed("/js-notes/closures", 800)).toBe(true);
+  it("allows notes on tablet", () => {
+    expect(isRouteAllowed("/notes/js-basics/event-loop", 800)).toBe(true);
   });
 
   it("blocks visualizer on tablet", () => {

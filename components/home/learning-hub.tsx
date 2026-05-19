@@ -165,11 +165,11 @@ export function LearningHub() {
             DSA pattern recap
           </Link>
           <Link
-            href="/js-notes"
+            href="/notes"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
           >
             <FileText className="h-4 w-4" />
-            JavaScript notes
+            Notes
           </Link>
           <Link
             href="/cheatsheet"
