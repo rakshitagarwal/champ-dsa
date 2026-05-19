@@ -13,12 +13,14 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
   {
     slug: "react",
     title: "React js",
-    description: "Add content/notes/react.md to enable.",
+    description:
+      "Interview revision — Virtual DOM, hooks, state, reconciliation, and patterns.",
   },
   {
     slug: "node",
     title: "Node js",
-    description: "Add content/notes/node.md to enable.",
+    description:
+      "Interview revision — event loop, streams, modules, Express, and the Node runtime.",
   },
   {
     slug: "next",
@@ -28,11 +30,13 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
   {
     slug: "sql",
     title: "SQL basics",
-    description: "Add content/notes/sql.md to enable.",
+    description:
+      "Interview revision — joins, indexes, transactions, normalization, and query patterns.",
   },
   {
-    slug: "css",
-    title: "CSS essentials",
-    description: "Add content/notes/css.md to enable.",
+    slug: "html-css",
+    title: "HTML & CSS",
+    description:
+      "Interview revision — HTML5 semantics, layout, Flexbox, Grid, and responsive CSS.",
   },
 ];
