@@ -9,6 +9,7 @@ import {
   formatSampleOutput,
 } from "@/lib/questions/problem-display";
 import type { QuestionExample } from "@/types/question";
+import { cn } from "@/lib/utils";
 
 type Props = {
   title: string;
@@ -21,6 +22,7 @@ type Props = {
   leetcodeUrl?: string;
   humanInput: string;
   sampleOutput?: string;
+  layout?: "document" | "viewport";
 };
 
 export function ProblemPanel({
@@ -34,7 +36,9 @@ export function ProblemPanel({
   leetcodeUrl,
   humanInput,
   sampleOutput,
+  layout = "viewport",
 }: Props) {
+  const isDocument = layout === "document";
   const body = formatProblemBody({ title, statement, description, constraints });
 
   const runExample: QuestionExample = {
@@ -45,8 +49,18 @@ export function ProblemPanel({
     examples && examples.length > 0 ? examples : [runExample];
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-panel">
-      <div className="shrink-0 border-b border-border px-4 py-3">
+    <div
+      className={cn(
+        "bg-panel",
+        !isDocument && "flex h-full min-h-0 flex-col",
+      )}
+    >
+      <div
+        className={cn(
+          "border-b border-border px-4 py-3",
+          !isDocument && "shrink-0",
+        )}
+      >
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           {difficulty ? (
@@ -80,7 +94,13 @@ export function ProblemPanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+      <div
+        className={cn(
+          isDocument
+            ? "px-4 py-5 lg:px-5 lg:py-6"
+            : "min-h-0 flex-1 overflow-y-auto px-4 py-4",
+        )}
+      >
         <div
           className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-[13px] [&_img]:max-h-40 [&_img]:w-auto [&_li]:my-0.5 [&_p]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-border [&_pre]:bg-background [&_pre]:p-3 [&_strong]:font-semibold"
           dangerouslySetInnerHTML={{ __html: body }}
@@ -132,4 +152,3 @@ export function ProblemPanel({
     </div>
   );
 }
-

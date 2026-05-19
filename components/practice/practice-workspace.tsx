@@ -79,17 +79,13 @@ export function PracticeWorkspace({ question }: { question: Question }) {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <VizWorkspace
-            hints={question.patternHints}
-            progressiveHints={question.progressiveHints}
-            questionId={question.id}
-            fillParent
-            onMarkSolved={!solved ? handleMarkSolved : undefined}
-          />
-        </div>
-      </div>
+      <VizWorkspace
+        layout="document"
+        hints={question.patternHints}
+        progressiveHints={question.progressiveHints}
+        questionId={question.id}
+        onMarkSolved={!solved ? handleMarkSolved : undefined}
+      />
       {showConfidence && (
         <ConfidencePrompt
           questionId={question.id}

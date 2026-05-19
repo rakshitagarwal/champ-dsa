@@ -4,7 +4,12 @@ import { useStepAnalysis } from "@/lib/viz/use-step-analysis";
 import { formatDisplayVar } from "@/lib/viz/display-vars";
 import { cn } from "@/lib/utils";
 
-export function StepExplanationPanel() {
+export function StepExplanationPanel({
+  layout = "viewport",
+}: {
+  layout?: "document" | "viewport";
+}) {
+  const isDocument = layout === "document";
   const {
     current,
     stepIndex,
@@ -17,7 +22,12 @@ export function StepExplanationPanel() {
 
   if (!current) {
     return (
-      <div className="flex h-full min-h-0 flex-col items-center justify-center p-6 text-center">
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center p-6 text-center",
+          !isDocument && "h-full min-h-0",
+        )}
+      >
         <p className="text-sm font-medium text-foreground">Step-by-step execution</p>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
           After a successful <strong className="text-foreground">Run</strong>, use
@@ -37,7 +47,12 @@ export function StepExplanationPanel() {
         : `Line ${current.line} executes`;
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-y-auto">
+    <div
+      className={cn(
+        "flex flex-col",
+        isDocument ? "min-h-0" : "h-full min-h-0 overflow-y-auto",
+      )}
+    >
       <div className="shrink-0 border-b border-border/80 bg-muted/20 px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">

@@ -13,15 +13,42 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   expectedOutput?: string;
+  layout?: "document" | "viewport";
 };
 
 const PANEL_EDITOR = "editor";
 const PANEL_VIZ = "viz";
-const LAYOUT_ID = "champdsa-solve-editor-viz";
+const LAYOUT_ID = "champdsa-solve-editor-viz-v2";
+const FALLBACK_LAYOUT = { [PANEL_EDITOR]: 63, [PANEL_VIZ]: 37 };
 
-const FALLBACK_LAYOUT = { [PANEL_EDITOR]: 42, [PANEL_VIZ]: 58 };
+function DocumentEditorStack({
+  expectedOutput,
+}: {
+  expectedOutput?: string;
+}) {
+  return (
+    <div className="flex w-full flex-col">
+      <section className="border-b border-border bg-editor/30">
+        <EditorActionBar />
+        <div
+          className="h-[min(540px,58vh)] min-h-[360px] p-2"
+        >
+          <CodeEditor />
+        </div>
+      </section>
+      <VizPanel expectedOutput={expectedOutput} layout="document" />
+    </div>
+  );
+}
 
-export function EditorVizSplit({ expectedOutput }: Props) {
+export function EditorVizSplit({
+  expectedOutput,
+  layout = "viewport",
+}: Props) {
+  if (layout === "document") {
+    return <DocumentEditorStack expectedOutput={expectedOutput} />;
+  }
+
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: LAYOUT_ID,
     panelIds: [PANEL_EDITOR, PANEL_VIZ],
@@ -36,10 +63,10 @@ export function EditorVizSplit({ expectedOutput }: Props) {
     >
       <Panel
         id={PANEL_EDITOR}
-        minSize={18}
-        maxSize={75}
-        defaultSize={42}
-        className="flex min-h-0 flex-col overflow-hidden bg-editor/30"
+        minSize={28}
+        maxSize={88}
+        defaultSize={63}
+        className="flex min-h-[200px] min-w-0 flex-col overflow-hidden bg-editor/30"
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
           <EditorActionBar />
@@ -63,12 +90,12 @@ export function EditorVizSplit({ expectedOutput }: Props) {
 
       <Panel
         id={PANEL_VIZ}
-        minSize={22}
-        maxSize={82}
-        defaultSize={58}
-        className="flex min-h-0 min-w-0 flex-col overflow-hidden"
+        minSize={12}
+        maxSize={72}
+        defaultSize={37}
+        className="flex min-h-[160px] min-w-0 flex-col overflow-hidden"
       >
-        <VizPanel expectedOutput={expectedOutput} />
+        <VizPanel expectedOutput={expectedOutput} layout="viewport" />
       </Panel>
     </Group>
   );

@@ -12,9 +12,11 @@ function normalizeOutput(s: string): string {
 
 type Props = {
   expectedOutput?: string;
+  layout?: "document" | "viewport";
 };
 
-export function VizPanel({ expectedOutput }: Props) {
+export function VizPanel({ expectedOutput, layout = "viewport" }: Props) {
+  const isDocument = layout === "document";
   const trace = useVisualizerStore((s) => s.trace);
   const error = useVisualizerStore((s) => s.error);
   const isRunning = useVisualizerStore((s) => s.isRunning);
@@ -29,7 +31,12 @@ export function VizPanel({ expectedOutput }: Props) {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
+    <div
+      className={cn(
+        "flex flex-col bg-card",
+        isDocument ? "w-full" : "h-full min-h-0 overflow-hidden",
+      )}
+    >
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Execution walkthrough
@@ -75,7 +82,7 @@ export function VizPanel({ expectedOutput }: Props) {
       )}
 
       {hasError ? (
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
+        <div className="p-3">
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
             <p className="text-sm font-semibold text-destructive">
               Fix the error below, then run again
@@ -89,12 +96,10 @@ export function VizPanel({ expectedOutput }: Props) {
           </div>
         </div>
       ) : hasTrace ? (
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <StepExplanationPanel />
-        </div>
+        <StepExplanationPanel layout={layout} />
       ) : (
-        <div className="flex min-h-0 flex-1 items-center justify-center p-6 text-center">
-          <p className="max-w-xs text-sm text-muted-foreground">
+        <div className="p-6 text-center">
+          <p className="mx-auto max-w-xs text-sm text-muted-foreground">
             Click <strong className="text-foreground">Run</strong> on your
             solution to see why each line executes and what state changes.
           </p>

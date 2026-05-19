@@ -34,7 +34,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   return (
     <>
       {allowed ? <AppNav /> : <MinimalNav />}
-      <main className="flex min-h-0 flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         {allowed ? children : <DesktopRequired width={width} />}
       </main>
     </>
