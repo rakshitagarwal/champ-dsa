@@ -1,5 +1,7 @@
 /** Lightweight markdown → HTML for revision notes (server-only). */
 
+import { highlightCode } from "@/lib/notes/highlight-code";
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -18,7 +20,7 @@ export function slugifyHeading(text: string): string {
 
 function inlineFormat(text: string): string {
   let s = escapeHtml(text);
-  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/`([^`]+)`/g, '<code class="note-inline-code">$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   s = s.replace(/\*([^*]+)\*/g, "<em>$1</em>");
   s = s.replace(
@@ -75,8 +77,9 @@ export function parseMarkdown(md: string): string {
         i++;
       }
       i++;
+      const body = code.join("\n");
       out.push(
-        `<pre class="note-code"><code${lang ? ` data-lang="${escapeHtml(lang)}"` : ""}>${escapeHtml(code.join("\n"))}</code></pre>`,
+        `<pre class="note-code-block"><code class="note-code"${lang ? ` data-lang="${escapeHtml(lang)}"` : ""}>${highlightCode(body, lang)}</code></pre>`,
       );
       continue;
     }

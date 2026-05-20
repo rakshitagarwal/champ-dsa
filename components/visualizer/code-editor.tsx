@@ -5,6 +5,10 @@ import { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 import type { editor } from "monaco-editor";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
+import {
+  defineChampMonacoTheme,
+  getChampEditorTheme,
+} from "@/lib/editor/champ-monaco-theme";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -19,6 +23,7 @@ export function CodeEditor({ readOnly = false }: Props) {
   const stepIndex = useVisualizerStore((s) => s.stepIndex);
   const trace = useVisualizerStore((s) => s.trace);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof import("monaco-editor") | null>(null);
   const decoRef = useRef<string[]>([]);
   const registerFormatCode = useVisualizerStore((s) => s.registerFormatCode);
 
@@ -61,15 +66,24 @@ export function CodeEditor({ readOnly = false }: Props) {
     editorRef.current?.updateOptions({ readOnly });
   }, [readOnly]);
 
+  useEffect(() => {
+    if (!monacoRef.current) return;
+    defineChampMonacoTheme(monacoRef.current);
+    monacoRef.current.editor.setTheme(getChampEditorTheme(theme));
+  }, [theme]);
+
   return (
     <div className="h-full min-h-0 overflow-hidden rounded-lg border border-border bg-editor shadow-inner">
       <Monaco
         height="100%"
         defaultLanguage="javascript"
-        theme={theme === "light" ? "light" : "vs-dark"}
+        theme={getChampEditorTheme(theme)}
         value={code}
         onChange={readOnly ? undefined : (v) => setCode(v ?? "")}
-        onMount={(ed) => {
+        onMount={(ed, monaco) => {
+          monacoRef.current = monaco;
+          defineChampMonacoTheme(monaco);
+          monaco.editor.setTheme(getChampEditorTheme(theme));
           editorRef.current = ed;
           ed.updateOptions({ glyphMargin: true, readOnly });
           if (!readOnly) {

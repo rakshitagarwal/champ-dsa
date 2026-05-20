@@ -17,6 +17,7 @@ import {
 } from "@/lib/storage/pattern-progress";
 import { setLastVisited } from "@/lib/storage/learning-store";
 import { cn } from "@/lib/utils";
+import { highlightCode } from "@/lib/notes/highlight-code";
 
 const SECTIONS = [
   { id: "overview", label: "Overview" },
@@ -180,8 +181,12 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             title="Reference implementation"
             subtitle="Study the skeleton, then solve related problems on the practice sheet."
           />
-          <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-editor p-5 font-mono text-sm leading-relaxed">
-            {f.exampleCode}
+          <pre className="pattern-code-block">
+            <code
+              dangerouslySetInnerHTML={{
+                __html: highlightCode(f.exampleCode, "javascript"),
+              }}
+            />
           </pre>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
