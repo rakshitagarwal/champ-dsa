@@ -63,8 +63,9 @@ export function VizWorkspace({
   useEffect(() => {
     if (!isPlaying || !trace) return;
     const id = setInterval(() => {
-      const { stepIndex: idx, trace: t } = useVisualizerStore.getState();
-      if (!t || idx >= t.events.length - 1) {
+      const { stepIndex: idx, compactedStepCount: count } =
+        useVisualizerStore.getState();
+      if (idx >= count() - 1) {
         pause();
         return;
       }

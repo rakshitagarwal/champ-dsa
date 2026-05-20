@@ -3,7 +3,10 @@ export type ExecutionEventType =
   | "enter"
   | "exit"
   | "return"
-  | "throw";
+  | "throw"
+  | "loop"
+  | "condition"
+  | "branch";
 
 export type CallFrameStatus = "active" | "returned";
 
@@ -21,10 +24,28 @@ export type ArrayHighlight = {
   indices: number[];
 };
 
+export type ListNodeViz = {
+  nodes: { id: string; val: number; nextId: string | null }[];
+};
+
+export type TreeNodeViz = {
+  nodes: { id: string; val: number; leftId: string | null; rightId: string | null }[];
+  rootId: string | null;
+};
+
+export type GraphViz = {
+  nodes: { id: string; label: string }[];
+  edges: { from: string; to: string }[];
+};
+
 export type StepViz = {
   linkedLists?: Record<string, number[]>;
+  structuredLists?: Record<string, ListNodeViz>;
   stacks?: Record<string, unknown[]>;
   trees?: Record<string, (number | null)[]>;
+  structuredTrees?: Record<string, TreeNodeViz>;
+  graphs?: Record<string, GraphViz>;
+  heaps?: Record<string, unknown[]>;
 };
 
 export type ExecutionEvent = {

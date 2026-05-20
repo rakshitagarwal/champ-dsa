@@ -9,13 +9,59 @@ import { detectEntryFunction } from "./detect-entry";
 import { runCodeSync } from "./run-sync";
 
 describe("buildEntryCallExpr", () => {
-  it("passes string param for s", () => {
-    expect(buildSolveCallExpr({ s: "lee(t(c)o)de)" })).toBe("solve(input.s)");
+  it("passes full input for string-only sheet payloads", () => {
+    expect(buildSolveCallExpr({ s: "lee(t(c)o)de)" })).toBe("solve(input)");
   });
 
-  it("passes nums and target separately", () => {
+  it("passes nums and target separately for 1D two-sum style", () => {
     expect(buildSolveCallExpr({ nums: [1, 2], target: 3 })).toBe(
       "solve(input.nums, input.target)",
+    );
+  });
+
+  it("passes full input for 2D nums + target", () => {
+    expect(
+      buildSolveCallExpr({
+        nums: [
+          [1, 3],
+          [10, 11],
+        ],
+        target: 3,
+      }),
+    ).toBe("solve(input)");
+  });
+
+  it("passes multi-field object as input for solve(input)", () => {
+    expect(buildSolveCallExpr({ a: [1, 3], b: [2] })).toBe("solve(input)");
+  });
+
+  it("passes coins and amount as input for coin DP sheet problems", () => {
+    expect(buildSolveCallExpr({ coins: [1, 2, 5], amount: 11 })).toBe(
+      "solve(input)",
+    );
+  });
+
+  it("calls mergeTwoLists with ListNode wrappers for list params", () => {
+    expect(
+      buildEntryCallExpr({ list1: [1, 2], list2: [3] }, "mergeTwoLists"),
+    ).toBe(
+      "mergeTwoLists(arrayToList(Array.isArray(input.list1) ? input.list1 : []), arrayToList(Array.isArray(input.list2) ? input.list2 : []))",
+    );
+  });
+
+  it("passes plain arrays for solve(list1, list2) array merge", () => {
+    expect(
+      buildEntryCallExpr(
+        { list1: [1, 2], list2: [3] },
+        "solve",
+        { paramNames: ["list1", "list2"] },
+      ),
+    ).toBe("solve(input.list1, input.list2)");
+  });
+
+  it("passes full input for sheet l1/l2 merge", () => {
+    expect(buildSolveCallExpr({ l1: [1, 2, 4], l2: [1, 3, 4] })).toBe(
+      "solve(input)",
     );
   });
 

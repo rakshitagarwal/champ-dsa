@@ -26,6 +26,7 @@ const SPEED_OPTIONS = [
 export function WalkthroughPlaybackBar({ className, compact }: Props) {
   const stepIndex = useVisualizerStore((s) => s.stepIndex);
   const trace = useVisualizerStore((s) => s.trace);
+  const compactedScenes = useVisualizerStore((s) => s.compactedScenes);
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
   const stepNext = useVisualizerStore((s) => s.stepNext);
@@ -35,10 +36,11 @@ export function WalkthroughPlaybackBar({ className, compact }: Props) {
   const restart = useVisualizerStore((s) => s.restart);
   const setSpeed = useVisualizerStore((s) => s.setSpeed);
   const setStepIndex = useVisualizerStore((s) => s.setStepIndex);
+  const compactedStepCount = useVisualizerStore((s) => s.compactedStepCount);
 
-  const total = trace?.events.length ?? 0;
+  const total = compactedStepCount();
   const maxIndex = Math.max(0, total - 1);
-  const hasTrace = total > 0;
+  const hasTrace = (trace?.events.length ?? 0) > 0;
 
   if (!hasTrace) {
     return (
@@ -110,7 +112,10 @@ export function WalkthroughPlaybackBar({ className, compact }: Props) {
           className="pointer-events-none absolute inset-x-1 top-1/2 flex h-2 -translate-y-1/2 items-center"
           aria-hidden
         >
-          {trace!.events.map((_, i) => (
+          {(compactedScenes.length > 0
+            ? compactedScenes
+            : trace!.events
+          ).map((_, i) => (
             <span
               key={i}
               className={cn(
@@ -145,7 +150,7 @@ export function WalkthroughPlaybackBar({ className, compact }: Props) {
 
       <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
         <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          {stepIndex} / {maxIndex}
+          {stepIndex + 1} / {total}
         </span>
         <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <select

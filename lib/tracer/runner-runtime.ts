@@ -7,33 +7,80 @@ ${LEETCODE_PRELUDE}
 function __safeClone(v) {
   if (v === null || v === undefined) return v;
   if (typeof v === "number" || typeof v === "boolean" || typeof v === "string") return v;
-  if (__isListNode(v)) return { __list: listToArray(v) };
-  if (__isTreeNode(v)) return { __tree: treeToLevelArray(v) };
+  if (__isListNode(v)) return { __list: listToArray(v), __listStructured: listToStructured(v) };
+  if (__isTreeNode(v)) return { __tree: treeToLevelArray(v), __treeStructured: treeToStructured(v) };
   try { return JSON.parse(JSON.stringify(v)); } catch (e) { return String(v); }
 }
 var __safe = { clone: __safeClone };
 function __buildViz(vars) {
   var linkedLists = {};
+  var structuredLists = {};
   var stacks = {};
   var trees = {};
+  var structuredTrees = {};
+  var graphs = {};
+  var heaps = {};
   for (var k in vars) {
     if (!Object.prototype.hasOwnProperty.call(vars, k)) continue;
     if (k.indexOf("__") === 0 || k === "input") continue;
     var v = vars[k];
     if (__isListNode(v)) {
       linkedLists[k] = listToArray(v);
+      structuredLists[k] = listToStructured(v);
     } else if (Array.isArray(v) && (k === "stack" || /stack/i.test(k))) {
       stacks[k] = v.slice();
     } else if (__isTreeNode(v)) {
       trees[k] = treeToLevelArray(v);
+      structuredTrees[k] = treeToStructured(v);
+    } else if (Array.isArray(v) && (k === "heap" || /heap/i.test(k))) {
+      heaps[k] = v.slice();
+    } else if (Array.isArray(v) && (k === "edges" || k === "edgeList")) {
+      var n = vars.n || vars.numNodes || vars.nodes;
+      graphs[k] = __buildGraphFromEdges(v, typeof n === "number" ? n : v.length + 1);
+    } else if (Array.isArray(v) && v.length && Array.isArray(v[0]) && (k === "graph" || k === "adjList" || k === "adjacency")) {
+      var gn = v.length;
+      var gnodes = [];
+      var gedges = [];
+      for (var gi = 0; gi < gn; gi++) {
+        gnodes.push({ id: "g" + gi, label: String(gi) });
+        var neigh = v[gi];
+        if (Array.isArray(neigh)) {
+          for (var gj = 0; gj < neigh.length; gj++) {
+            gedges.push({ from: "g" + gi, to: "g" + neigh[gj] });
+          }
+        }
+      }
+      graphs[k] = { nodes: gnodes, edges: gedges };
+    } else if (Array.isArray(v) && v.length && Array.isArray(v[0]) && k === "grid") {
+      var rows = v.length, cols = v[0] ? v[0].length : 0;
+      var gridNodes = [];
+      var gridEdges = [];
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var gid = "g" + r + "_" + c;
+          gridNodes.push({ id: gid, label: r + "," + c });
+          if (c + 1 < cols) gridEdges.push({ from: gid, to: "g" + r + "_" + (c + 1) });
+          if (r + 1 < rows) gridEdges.push({ from: gid, to: "g" + (r + 1) + "_" + c });
+        }
+      }
+      graphs[k] = { nodes: gridNodes, edges: gridEdges };
     } else if (Array.isArray(v) && (k === "list1" || k === "list2" || k === "l1" || k === "l2" || k === "head")) {
       linkedLists[k] = v.slice();
     }
   }
-  if (Object.keys(linkedLists).length || Object.keys(stacks).length || Object.keys(trees).length) {
-    return { linkedLists: linkedLists, stacks: stacks, trees: trees };
-  }
-  return undefined;
+  var has = Object.keys(linkedLists).length || Object.keys(structuredLists).length ||
+    Object.keys(stacks).length || Object.keys(trees).length || Object.keys(structuredTrees).length ||
+    Object.keys(graphs).length || Object.keys(heaps).length;
+  if (!has) return undefined;
+  return {
+    linkedLists: linkedLists,
+    structuredLists: structuredLists,
+    stacks: stacks,
+    trees: trees,
+    structuredTrees: structuredTrees,
+    graphs: graphs,
+    heaps: heaps
+  };
 }
 function __detectHighlights(vars) {
   var pointerNames = ["i","j","left","right","low","high","mid","start","end"];

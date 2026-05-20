@@ -2,7 +2,7 @@
 
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
-import { StepExplanationPanel } from "./step-explanation-panel";
+import { AnimationCanvas } from "./animation-canvas";
 import { WalkthroughControls } from "./walkthrough-controls";
 import { cn } from "@/lib/utils";
 
@@ -15,13 +15,9 @@ export function VizPanel({ layout = "viewport" }: Props) {
   const trace = useVisualizerStore((s) => s.trace);
   const error = useVisualizerStore((s) => s.error);
   const exampleResults = useVisualizerStore((s) => s.exampleResults);
-  const allExamplesPass = useVisualizerStore((s) => s.allExamplesPass);
-  const hasTwoExamples = useVisualizerStore((s) => s.hasTwoExamples);
+  const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
   const hasTrace = !!trace;
   const hasError = !!error;
-  const canVisualize =
-    hasTrace &&
-    (exampleResults == null || exampleResults.length === 0 || allExamplesPass);
 
   return (
     <div
@@ -64,22 +60,10 @@ export function VizPanel({ layout = "viewport" }: Props) {
                   <p className="mt-1 font-mono text-[11px] opacity-90">
                     Expected: {r.expected} · Got: {r.actual || "(error)"}
                   </p>
-                  {r.error ? (
-                    <p className="mt-1 text-[11px] opacity-80">{r.error}</p>
-                  ) : null}
                 </div>
               </div>
             </div>
           ))}
-          {hasTwoExamples && allExamplesPass ? (
-            <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-              Example 1 and 2 passed — use Visualize or AI Explain.
-            </p>
-          ) : hasTwoExamples ? (
-            <p className="text-[11px] text-muted-foreground">
-              Fix your solution until Example 1 and Example 2 pass.
-            </p>
-          ) : null}
         </div>
       ) : null}
 
@@ -94,18 +78,19 @@ export function VizPanel({ layout = "viewport" }: Props) {
             </pre>
           </div>
         </div>
-      ) : hasTrace && canVisualize ? (
-        <StepExplanationPanel layout={layout} />
-      ) : hasTrace ? null : (
+      ) : solutionFilled && hasTrace ? (
+        <div className="min-h-[180px] flex-1 border-t border-border">
+          <AnimationCanvas />
+        </div>
+      ) : (
         <div className="border-t border-border p-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Execution walkthrough
+            Visualization
           </p>
           <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
-            Click <strong className="text-foreground">Run</strong> to test Example
-            1 and 2. Use <strong className="text-foreground">Visualize</strong> for
-            animation or <strong className="text-foreground">AI Explain</strong> after
-            both pass.
+            Click <strong className="text-foreground">Fill Solution</strong>, then{" "}
+            <strong className="text-foreground">Visualize</strong> for the full
+            walkthrough animation.
           </p>
         </div>
       )}

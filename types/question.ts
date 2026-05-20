@@ -35,6 +35,8 @@ export type Question = {
   patternHints: string[];
   progressiveHints?: ProgressiveHint;
   starterCode: string;
+  /** LeetCode-style entry function name (e.g. twoSum, mergeTwoLists). */
+  entryFunction?: string;
   /** Full solution shown in visualizer when opened from practice. */
   solutionCode: string;
   sampleInput: string;

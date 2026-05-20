@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { CodeEditor } from "./code-editor";
 import { AnimationCanvas } from "./animation-canvas";
-import { StepExplanationPanel } from "./step-explanation-panel";
 import { WalkthroughPlaybackBar } from "./walkthrough-playback-bar";
 import { cn } from "@/lib/utils";
 
@@ -15,9 +14,14 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-/** Visualize: code (left) + step explanation & animation (right). */
+/** Hello Interview–style: code left, animation right, synced playback. */
 export function VizFullscreenModal({ open, onOpenChange }: Props) {
   const pause = useVisualizerStore((s) => s.pause);
+  const rebuildCompactedTimeline = useVisualizerStore(
+    (s) => s.rebuildCompactedTimeline,
+  );
+  const trace = useVisualizerStore((s) => s.trace);
+  const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
 
   useEffect(() => {
     if (!open) return;
@@ -38,19 +42,24 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) pause();
-  }, [open, pause]);
+    if (!open) {
+      pause();
+      return;
+    }
+    pause();
+    if (trace && solutionFilled) rebuildCompactedTimeline();
+  }, [open, trace, solutionFilled, rebuildCompactedTimeline, pause]);
 
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-[3vh_2vw]"
       role="presentation"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-background/85 backdrop-blur-sm"
+        className="absolute inset-0 bg-background/90 backdrop-blur-sm"
         aria-label="Close visualization"
         onClick={() => onOpenChange(false)}
       />
@@ -59,16 +68,17 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
         aria-modal="true"
         aria-label="Visualize execution"
         className={cn(
-          "relative z-10 flex h-[min(92vh,920px)] w-[min(98vw,1600px)] flex-col overflow-hidden",
+          "relative z-10 flex flex-col overflow-hidden",
+          "h-[min(94vh,920px)] w-[min(96vw,1600px)]",
           "rounded-xl border border-border bg-card shadow-2xl",
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-2.5">
           <div>
             <h2 className="text-base font-semibold">Visualize</h2>
             <p className="text-xs text-muted-foreground">
-              Your code, step-by-step explanation, and structure animation
+              Reference solution — code and animation stay in sync
             </p>
           </div>
           <Button
@@ -85,24 +95,19 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
         <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
           <div className="flex min-h-0 flex-col overflow-hidden border-b border-border md:border-b-0 md:border-r">
             <p className="shrink-0 border-b border-border bg-muted/30 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Your code
+              Code
             </p>
             <div className="min-h-0 flex-1 p-2">
-              <CodeEditor readOnly />
+              <CodeEditor readOnly useCompactedLine />
             </div>
           </div>
 
           <div className="flex min-h-0 flex-col overflow-hidden">
             <p className="shrink-0 border-b border-border bg-muted/30 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Step explanation &amp; animation
+              Animation
             </p>
-            <div className="grid min-h-0 flex-1 grid-rows-2">
-              <div className="min-h-0 overflow-hidden border-b border-border">
-                <AnimationCanvas />
-              </div>
-              <div className="min-h-0 overflow-y-auto bg-muted/10">
-                <StepExplanationPanel layout="viewport" />
-              </div>
+            <div className="relative min-h-0 flex-1">
+              <AnimationCanvas />
             </div>
           </div>
         </div>

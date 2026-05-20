@@ -9,6 +9,7 @@ type WorkerIn = {
   instrumented: string;
   stdin: string;
   entryName: string;
+  paramNames?: string[];
 };
 
 type WorkerOut =
@@ -16,9 +17,9 @@ type WorkerOut =
   | { ok: false; error: string };
 
 self.onmessage = (e: MessageEvent<WorkerIn>) => {
-  const { instrumented, stdin, entryName } = e.data;
+  const { instrumented, stdin, entryName, paramNames } = e.data;
   const input = parseStdin(stdin);
-  const tail = buildRunnerTail(input, entryName);
+  const tail = buildRunnerTail(input, entryName, { paramNames });
   const sandbox = buildRunnerSandbox(MAX_STEPS);
   const wrapped = `${sandbox}\n${instrumented}\n${tail}`;
 

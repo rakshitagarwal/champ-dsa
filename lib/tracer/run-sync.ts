@@ -3,20 +3,25 @@ import { MAX_STEPS } from "./safety";
 import { instrumentCode } from "./instrument";
 import { parseStdin, buildRunnerTail } from "./parse-stdin";
 import { detectEntryFunction } from "./detect-entry";
+import { getEntryFunctionParams } from "./parse-entry-params";
 import { buildRunnerSandbox } from "./runner-runtime";
 
 /** Synchronous runner for Vitest (no Web Worker). */
 export function runCodeSync(
   code: string,
   stdin: string,
-  options?: { entryName?: string },
+  options?: { entryName?: string; leetcodeFunctionName?: string },
 ): { ok: true; trace: ExecutionTrace } | { ok: false; error: string } {
   const inst = instrumentCode(code);
   if (!inst.ok) return { ok: false, error: inst.error };
 
   const input = parseStdin(stdin);
-  const entryName = options?.entryName ?? detectEntryFunction(code);
-  const tail = buildRunnerTail(input, entryName);
+  const entryName = detectEntryFunction(
+    code,
+    options?.leetcodeFunctionName ?? options?.entryName,
+  );
+  const paramNames = getEntryFunctionParams(code, entryName);
+  const tail = buildRunnerTail(input, entryName, { paramNames });
   const sandbox = buildRunnerSandbox(MAX_STEPS);
   const wrapped = `${sandbox}\n${inst.code}\n${tail}`;
   let stdout = "";

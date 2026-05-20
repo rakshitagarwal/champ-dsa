@@ -8,5 +8,5 @@ export function validateCodeSafety(code: string): string | null {
   return null;
 }
 
-export const MAX_STEPS = 5000;
+export const MAX_STEPS = 30000;
 export const RUN_TIMEOUT_MS = 3000;

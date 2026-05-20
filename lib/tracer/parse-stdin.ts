@@ -1,13 +1,7 @@
 import { parseHumanInput } from "@/lib/io/human-input";
 
-const LIST_PARAM_KEYS = new Set([
-  "list1",
-  "list2",
-  "l1",
-  "l2",
-  "head",
-  "list",
-]);
+/** LeetCode ListNode params only — sheet uses plain arrays on input.l1/l2/head */
+const LIST_PARAM_KEYS = new Set(["list1", "list2", "list"]);
 
 export function parseStdin(stdin: string): unknown {
   const trimmed = stdin.trim();
@@ -59,49 +53,93 @@ function argExpr(key: string): string {
   return v;
 }
 
+/** Map LeetCode param names to keys present in parsed stdin. */
+function inputKeyForParam(
+  param: string,
+  obj: Record<string, unknown>,
+): string | null {
+  if (obj[param] !== undefined) return param;
+  if (param === "list1" && obj.l1 !== undefined) return "l1";
+  if (param === "list2" && obj.l2 !== undefined) return "l2";
+  if (param === "accounts" && obj.nums !== undefined) return "nums";
+  if (param === "grid" && obj.nums !== undefined) return "nums";
+  if (param === "mat" && obj.nums !== undefined) return "nums";
+  if (param === "head" && obj.head !== undefined) return "head";
+  return null;
+}
+
 /** Build entry function call from parsed stdin. */
 export function buildEntryCallExpr(
   input: unknown,
   entryName: string = "solve",
+  options?: { paramNames?: string[] },
 ): string {
   if (input === null || typeof input !== "object" || Array.isArray(input)) {
     return `${entryName}(input)`;
   }
   const obj = input as Record<string, unknown>;
+  const keys = Object.keys(obj).filter((k) => k !== "raw" && k !== "lines");
 
-  if (obj.tree !== undefined) {
-    return `${entryName}(input.tree)`;
+  if (
+    options?.paramNames?.length &&
+    !(options.paramNames.length === 1 && options.paramNames[0] === "input")
+  ) {
+    const args = options.paramNames.map((param) => {
+      const key = inputKeyForParam(param, obj);
+      if (!key) return "undefined";
+      const useListNode =
+        entryName === "mergeTwoLists" ||
+        entryName === "mergeKLists" ||
+        entryName === "addTwoNumbers";
+      if (useListNode && (LIST_PARAM_KEYS.has(param) || LIST_PARAM_KEYS.has(key))) {
+        return argExpr(key);
+      }
+      return `input.${key}`;
+    });
+    return `${entryName}(${args.join(", ")})`;
   }
-  if (obj.graph !== undefined) {
-    return obj.start !== undefined
-      ? `${entryName}(input.graph, input.start)`
-      : `${entryName}(input.graph)`;
-  }
-  if (Array.isArray(obj.coins) && typeof obj.amount === "number") {
-    return `${entryName}(input.coins, input.amount)`;
-  }
-  if (Array.isArray(obj.nums) && typeof obj.target === "number") {
+
+  const nums1d =
+    Array.isArray(obj.nums) &&
+    obj.nums.length > 0 &&
+    !Array.isArray(obj.nums[0]);
+  if (
+    keys.length === 2 &&
+    nums1d &&
+    keys.includes("nums") &&
+    keys.includes("target") &&
+    typeof obj.target === "number"
+  ) {
     return `${entryName}(input.nums, input.target)`;
   }
-  if (Array.isArray(obj.nums) && typeof obj.k === "number") {
-    return `${entryName}(input.nums, input.k)`;
+  if (keys.length === 1 && Array.isArray(obj.nums)) {
+    return `${entryName}(input.nums)`;
   }
-  if (Array.isArray(obj.nums)) return `${entryName}(input.nums)`;
-  if (typeof obj.n === "number") return `${entryName}(input.n)`;
-  if (typeof obj.s === "string") return `${entryName}(input.s)`;
-  if (typeof obj.str === "string") return `${entryName}(input.str)`;
+  if (keys.length === 1 && typeof obj.n === "number") {
+    return `${entryName}(input.n)`;
+  }
 
-  const keys = Object.keys(obj).filter((k) => k !== "raw" && k !== "lines");
   if (keys.length === 1) {
     const k = keys[0]!;
-    if (isPassableArg(obj[k])) return `${entryName}(${argExpr(k)})`;
+    if (
+      isPassableArg(obj[k]) &&
+      (k === "nums" ||
+        k === "n" ||
+        k === "numRows" ||
+        LIST_PARAM_KEYS.has(k))
+    ) {
+      return `${entryName}(${argExpr(k)})`;
+    }
   }
   if (
-    keys.length > 0 &&
-    keys.length <= 6 &&
-    keys.every((k) => isPassableArg(obj[k]))
+    obj.list1 !== undefined &&
+    obj.list2 !== undefined &&
+    entryName === "mergeTwoLists"
   ) {
-    return `${entryName}(${keys.map((k) => argExpr(k)).join(", ")})`;
+    return `${entryName}(${argExpr("list1")}, ${argExpr("list2")})`;
+  }
+  if (keys.length > 1) {
+    return `${entryName}(input)`;
   }
 
   return `${entryName}(input)`;
@@ -115,9 +153,10 @@ export function buildSolveCallExpr(input: unknown): string {
 export function buildRunnerTail(
   input: unknown,
   entryName: string = "solve",
+  options?: { paramNames?: string[] },
 ): string {
-  const call = buildEntryCallExpr(input, entryName);
-  const solveFallback = buildEntryCallExpr(input, "solve");
+  const call = buildEntryCallExpr(input, entryName, options);
+  const solveFallback = buildEntryCallExpr(input, "solve", options);
   return `
 try {
   var input = ${JSON.stringify(input)};

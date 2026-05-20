@@ -1,0 +1,1269 @@
+{
+  "migrated": [
+    {
+      "num": 1,
+      "slug": "richest-customer-wealth",
+      "fn": "maximumWealth",
+      "params": "accounts"
+    },
+    {
+      "num": 2,
+      "slug": "two-sum",
+      "fn": "twoSum",
+      "params": "nums, target"
+    },
+    {
+      "num": 3,
+      "slug": "count-negative-numbers-in-a-sorted-matrix",
+      "fn": "countNegatives",
+      "params": "grid"
+    },
+    {
+      "num": 4,
+      "slug": "next-permutation",
+      "fn": "nextPermutation",
+      "params": "nums"
+    },
+    {
+      "num": 6,
+      "slug": "find-greatest-common-divisor-of-array",
+      "fn": "findGCD",
+      "params": "nums"
+    },
+    {
+      "num": 7,
+      "slug": "self-dividing-numbers",
+      "fn": "selfDividingNumbers",
+      "params": "left, right"
+    },
+    {
+      "num": 9,
+      "slug": "reverse-pairs",
+      "fn": "reversePairs",
+      "params": "nums"
+    },
+    {
+      "num": 10,
+      "slug": "special-positions-in-a-binary-matrix",
+      "fn": "numSpecial",
+      "params": "mat"
+    },
+    {
+      "num": 11,
+      "slug": "transpose-matrix",
+      "fn": "transpose",
+      "params": "matrix"
+    },
+    {
+      "num": 12,
+      "slug": "01-matrix",
+      "fn": "updateMatrix",
+      "params": "mat"
+    },
+    {
+      "num": 13,
+      "slug": "spiral-matrix",
+      "fn": "spiralOrder",
+      "params": "matrix"
+    },
+    {
+      "num": 14,
+      "slug": "pascals-triangle",
+      "fn": "generate",
+      "params": "numRows"
+    },
+    {
+      "num": 16,
+      "slug": "running-sum-of-1d-array",
+      "fn": "runningSum",
+      "params": "nums"
+    },
+    {
+      "num": 18,
+      "slug": "maximum-subarray",
+      "fn": "maxSubArray",
+      "params": "nums"
+    },
+    {
+      "num": 19,
+      "slug": "maximum-sum-circular-subarray",
+      "fn": "maxSubarraySumCircular",
+      "params": "nums"
+    },
+    {
+      "num": 20,
+      "slug": "longest-turbulent-subarray",
+      "fn": "maxTurbulenceSize",
+      "params": "arr"
+    },
+    {
+      "num": 21,
+      "slug": "contains-duplicate-ii",
+      "fn": "containsNearbyDuplicate",
+      "params": "nums, k"
+    },
+    {
+      "num": 23,
+      "slug": "minimum-size-subarray-sum",
+      "fn": "minSubArrayLen",
+      "params": "target, nums"
+    },
+    {
+      "num": 24,
+      "slug": "longest-substring-without-repeating-characters",
+      "fn": "lengthOfLongestSubstring",
+      "params": "s"
+    },
+    {
+      "num": 25,
+      "slug": "longest-repeating-character-replacement",
+      "fn": "characterReplacement",
+      "params": "s, k"
+    },
+    {
+      "num": 26,
+      "slug": "container-with-most-water",
+      "fn": "maxArea",
+      "params": "height"
+    },
+    {
+      "num": 27,
+      "slug": "trapping-rain-water",
+      "fn": "trap",
+      "params": "height"
+    },
+    {
+      "num": 28,
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "fn": "twoSum",
+      "params": "numbers, target"
+    },
+    {
+      "num": 29,
+      "slug": "k-diff-pairs-in-an-array",
+      "fn": "findPairs",
+      "params": "nums, k"
+    },
+    {
+      "num": 30,
+      "slug": "find-k-closest-elements",
+      "fn": "findClosestElements",
+      "params": "arr, k, x"
+    },
+    {
+      "num": 31,
+      "slug": "search-in-rotated-sorted-array",
+      "fn": "search",
+      "params": "nums, target"
+    },
+    {
+      "num": 32,
+      "slug": "remove-duplicates-from-sorted-array",
+      "fn": "removeDuplicates",
+      "params": "nums"
+    },
+    {
+      "num": 33,
+      "slug": "find-first-and-last-position-of-element-in-sorted-array",
+      "fn": "searchRange",
+      "params": "nums, target"
+    },
+    {
+      "num": 34,
+      "slug": "search-a-2d-matrix",
+      "fn": "searchMatrix",
+      "params": "matrix, target"
+    },
+    {
+      "num": 35,
+      "slug": "find-peak-element",
+      "fn": "findPeakElement",
+      "params": "nums"
+    },
+    {
+      "num": 36,
+      "slug": "single-element-in-a-sorted-array",
+      "fn": "singleNonDuplicate",
+      "params": "nums"
+    },
+    {
+      "num": 37,
+      "slug": "preimage-size-of-factorial-zeroes-function",
+      "fn": "preimageSizeFZF",
+      "params": "k"
+    },
+    {
+      "num": 40,
+      "slug": "sort-colors",
+      "fn": "sortColors",
+      "params": "nums"
+    },
+    {
+      "num": 41,
+      "slug": "kth-largest-element-in-an-array",
+      "fn": "findKthLargest",
+      "params": "nums, k"
+    },
+    {
+      "num": 42,
+      "slug": "minimum-absolute-difference",
+      "fn": "minimumAbsDifference",
+      "params": "arr"
+    },
+    {
+      "num": 43,
+      "slug": "k-closest-points-to-origin",
+      "fn": "kClosest",
+      "params": "points, k"
+    },
+    {
+      "num": 44,
+      "slug": "max-chunks-to-make-sorted",
+      "fn": "maxChunksToSorted",
+      "params": "arr"
+    },
+    {
+      "num": 45,
+      "slug": "contiguous-array",
+      "fn": "findMaxLength",
+      "params": "nums"
+    },
+    {
+      "num": 46,
+      "slug": "longest-consecutive-sequence",
+      "fn": "longestConsecutive",
+      "params": "nums"
+    },
+    {
+      "num": 47,
+      "slug": "subarray-sum-equals-k",
+      "fn": "subarraySum",
+      "params": "nums, k"
+    },
+    {
+      "num": 48,
+      "slug": "valid-anagram",
+      "fn": "isAnagram",
+      "params": "s, t"
+    },
+    {
+      "num": 49,
+      "slug": "valid-sudoku",
+      "fn": "isValidSudoku",
+      "params": "board"
+    },
+    {
+      "num": 50,
+      "slug": "ugly-number-ii",
+      "fn": "nthUglyNumber",
+      "params": "n"
+    },
+    {
+      "num": 51,
+      "slug": "subarray-sum-equals-k",
+      "fn": "subarraySum",
+      "params": "nums, k"
+    },
+    {
+      "num": 52,
+      "slug": "max-points-on-a-line",
+      "fn": "maxPoints",
+      "params": "points"
+    },
+    {
+      "num": 53,
+      "slug": "palindrome-pairs",
+      "fn": "palindromePairs",
+      "params": "words"
+    },
+    {
+      "num": 54,
+      "slug": "middle-of-the-linked-list",
+      "fn": "middleNode",
+      "params": "head"
+    },
+    {
+      "num": 55,
+      "slug": "maximum-twin-sum-of-a-linked-list",
+      "fn": "pairSum",
+      "params": "head"
+    },
+    {
+      "num": 56,
+      "slug": "merge-two-sorted-lists",
+      "fn": "mergeTwoLists",
+      "params": "list1, list2"
+    },
+    {
+      "num": 57,
+      "slug": "linked-list-cycle",
+      "fn": "hasCycle",
+      "params": "head, pos"
+    },
+    {
+      "num": 58,
+      "slug": "reverse-nodes-in-k-group",
+      "fn": "reverseKGroup",
+      "params": "head, k"
+    },
+    {
+      "num": 59,
+      "slug": "remove-nth-node-from-end-of-list",
+      "fn": "removeNthFromEnd",
+      "params": "head, n"
+    },
+    {
+      "num": 60,
+      "slug": "linked-list-cycle-ii",
+      "fn": "detectCycle",
+      "params": "head, pos"
+    },
+    {
+      "num": 61,
+      "slug": "delete-node-in-a-linked-list",
+      "fn": "deleteNode",
+      "params": "head, node"
+    },
+    {
+      "num": 62,
+      "slug": "reverse-linked-list",
+      "fn": "reverseList",
+      "params": "head"
+    },
+    {
+      "num": 65,
+      "slug": "convert-binary-number-in-a-linked-list-to-integer",
+      "fn": "getDecimalValue",
+      "params": "head"
+    },
+    {
+      "num": 66,
+      "slug": "remove-duplicates-from-sorted-list-ii",
+      "fn": "deleteDuplicates",
+      "params": "head"
+    },
+    {
+      "num": 67,
+      "slug": "reverse-linked-list-ii",
+      "fn": "reverseBetween",
+      "params": "head, left, right"
+    },
+    {
+      "num": 68,
+      "slug": "sort-list",
+      "fn": "sortList",
+      "params": "head"
+    },
+    {
+      "num": 71,
+      "slug": "backspace-string-compare",
+      "fn": "backspaceCompare",
+      "params": "s, t"
+    },
+    {
+      "num": 72,
+      "slug": "baseball-game",
+      "fn": "calPoints",
+      "params": "operations"
+    },
+    {
+      "num": 73,
+      "slug": "longest-valid-parentheses",
+      "fn": "longestValidParentheses",
+      "params": "s"
+    },
+    {
+      "num": 74,
+      "slug": "evaluate-reverse-polish-notation",
+      "fn": "evalRPN",
+      "params": "tokens"
+    },
+    {
+      "num": 75,
+      "slug": "daily-temperatures",
+      "fn": "dailyTemperatures",
+      "params": "temperatures"
+    },
+    {
+      "num": 76,
+      "slug": "largest-rectangle-in-histogram",
+      "fn": "largestRectangleArea",
+      "params": "heights"
+    },
+    {
+      "num": 78,
+      "slug": "minimum-remove-to-make-valid-parentheses",
+      "fn": "minRemoveToMakeValid",
+      "params": "s"
+    },
+    {
+      "num": 80,
+      "slug": "merge-k-sorted-lists",
+      "fn": "mergeKLists",
+      "params": "lists"
+    },
+    {
+      "num": 81,
+      "slug": "find-k-pairs-with-smallest-sums",
+      "fn": "kSmallestPairs",
+      "params": "nums1, nums2, k"
+    },
+    {
+      "num": 82,
+      "slug": "meeting-rooms-ii",
+      "fn": "minMeetingRooms",
+      "params": "intervals"
+    },
+    {
+      "num": 83,
+      "slug": "top-k-frequent-elements",
+      "fn": "topKFrequent",
+      "params": "nums, k"
+    },
+    {
+      "num": 84,
+      "slug": "k-closest-points-to-origin",
+      "fn": "kClosest",
+      "params": "points, k"
+    },
+    {
+      "num": 85,
+      "slug": "count-good-numbers",
+      "fn": "countGoodNumbers",
+      "params": "n"
+    },
+    {
+      "num": 86,
+      "slug": "permutations",
+      "fn": "permute",
+      "params": "nums"
+    },
+    {
+      "num": 87,
+      "slug": "permutations-ii",
+      "fn": "permuteUnique",
+      "params": "nums"
+    },
+    {
+      "num": 88,
+      "slug": "subsets",
+      "fn": "subsets",
+      "params": "nums"
+    },
+    {
+      "num": 89,
+      "slug": "basic-calculator",
+      "fn": "calculate",
+      "params": "s"
+    },
+    {
+      "num": 90,
+      "slug": "wildcard-matching",
+      "fn": "isMatch",
+      "params": "s, p"
+    },
+    {
+      "num": 91,
+      "slug": "combinations",
+      "fn": "combine",
+      "params": "n, k"
+    },
+    {
+      "num": 92,
+      "slug": "combination-sum",
+      "fn": "combinationSum",
+      "params": "candidates, target"
+    },
+    {
+      "num": 93,
+      "slug": "combination-sum-iii",
+      "fn": "combinationSum3",
+      "params": "k, n"
+    },
+    {
+      "num": 94,
+      "slug": "letter-combinations-of-a-phone-number",
+      "fn": "letterCombinations",
+      "params": "digits"
+    },
+    {
+      "num": 95,
+      "slug": "gray-code",
+      "fn": "grayCode",
+      "params": "n"
+    },
+    {
+      "num": 96,
+      "slug": "letter-case-permutation",
+      "fn": "letterCasePermutation",
+      "params": "s"
+    },
+    {
+      "num": 97,
+      "slug": "n-queens",
+      "fn": "solveNQueens",
+      "params": "n"
+    },
+    {
+      "num": 98,
+      "slug": "sudoku-solver",
+      "fn": "solveSudoku",
+      "params": "board"
+    },
+    {
+      "num": 99,
+      "slug": "construct-binary-tree-from-inorder-and-postorder-traversal",
+      "fn": "buildTree",
+      "params": "inorder, postorder"
+    },
+    {
+      "num": 100,
+      "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "fn": "buildTree",
+      "params": "preorder, inorder"
+    },
+    {
+      "num": 101,
+      "slug": "path-sum",
+      "fn": "hasPathSum",
+      "params": "root, targetSum"
+    },
+    {
+      "num": 102,
+      "slug": "same-tree",
+      "fn": "isSameTree",
+      "params": "p, q"
+    },
+    {
+      "num": 103,
+      "slug": "binary-tree-level-order-traversal",
+      "fn": "levelOrder",
+      "params": "root"
+    },
+    {
+      "num": 104,
+      "slug": "invert-binary-tree",
+      "fn": "invertTree",
+      "params": "root"
+    },
+    {
+      "num": 105,
+      "slug": "minimum-cost-tree-from-leaf-values",
+      "fn": "mctFromLeafValues",
+      "params": "arr"
+    },
+    {
+      "num": 106,
+      "slug": "binary-tree-zigzag-level-order-traversal",
+      "fn": "zigzagLevelOrder",
+      "params": "root"
+    },
+    {
+      "num": 107,
+      "slug": "maximum-depth-of-binary-tree",
+      "fn": "maxDepth",
+      "params": "root"
+    },
+    {
+      "num": 108,
+      "slug": "sum-of-left-leaves",
+      "fn": "sumOfLeftLeaves",
+      "params": "root"
+    },
+    {
+      "num": 109,
+      "slug": "binary-tree-right-side-view",
+      "fn": "rightSideView",
+      "params": "root"
+    },
+    {
+      "num": 110,
+      "slug": "path-sum-ii",
+      "fn": "pathSum",
+      "params": "root, targetSum"
+    },
+    {
+      "num": 111,
+      "slug": "path-sum-iii",
+      "fn": "pathSum",
+      "params": "root, targetSum"
+    },
+    {
+      "num": 112,
+      "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+      "fn": "lowestCommonAncestor",
+      "params": "root, p, q"
+    },
+    {
+      "num": 113,
+      "slug": "closest-binary-search-tree-value-ii",
+      "fn": "closestKValues",
+      "params": "root, target, k"
+    },
+    {
+      "num": 114,
+      "slug": "trim-a-binary-search-tree",
+      "fn": "trimBST",
+      "params": "root, low, high"
+    },
+    {
+      "num": 115,
+      "slug": "search-in-a-binary-search-tree",
+      "fn": "searchBST",
+      "params": "root, val"
+    },
+    {
+      "num": 116,
+      "slug": "queue-reconstruction-by-height",
+      "fn": "reconstructQueue",
+      "params": "people"
+    },
+    {
+      "num": 117,
+      "slug": "binary-tree-pruning",
+      "fn": "pruneTree",
+      "params": "root"
+    },
+    {
+      "num": 118,
+      "slug": "balance-a-binary-search-tree",
+      "fn": "balanceBST",
+      "params": "root"
+    },
+    {
+      "num": 119,
+      "slug": "balanced-binary-tree",
+      "fn": "isBalanced",
+      "params": "root"
+    },
+    {
+      "num": 122,
+      "slug": "word-search-ii",
+      "fn": "findWords",
+      "params": "board, words"
+    },
+    {
+      "num": 123,
+      "slug": "redundant-connection",
+      "fn": "findRedundantConnection",
+      "params": "edges"
+    },
+    {
+      "num": 124,
+      "slug": "accounts-merge",
+      "fn": "accountsMerge",
+      "params": "accounts"
+    },
+    {
+      "num": 127,
+      "slug": "rotting-oranges",
+      "fn": "orangesRotting",
+      "params": "grid"
+    },
+    {
+      "num": 128,
+      "slug": "word-ladder",
+      "fn": "ladderLength",
+      "params": "beginWord, endWord, wordList"
+    },
+    {
+      "num": 129,
+      "slug": "number-of-provinces",
+      "fn": "findCircleNum",
+      "params": "isConnected"
+    },
+    {
+      "num": 130,
+      "slug": "number-of-enclaves",
+      "fn": "numEnclaves",
+      "params": "grid"
+    },
+    {
+      "num": 133,
+      "slug": "course-schedule",
+      "fn": "canFinish",
+      "params": "numCourses, prerequisites"
+    },
+    {
+      "num": 134,
+      "slug": "course-schedule-ii",
+      "fn": "findOrder",
+      "params": "numCourses, prerequisites"
+    },
+    {
+      "num": 136,
+      "slug": "alien-dictionary",
+      "fn": "alienOrder",
+      "params": "words"
+    },
+    {
+      "num": 137,
+      "slug": "network-delay-time",
+      "fn": "networkDelayTime",
+      "params": "times, n, k"
+    },
+    {
+      "num": 138,
+      "slug": "shortest-path-in-binary-matrix",
+      "fn": "shortestPathBinaryMatrix",
+      "params": "grid"
+    },
+    {
+      "num": 139,
+      "slug": "path-with-minimum-effort",
+      "fn": "minimumEffortPath",
+      "params": "heights"
+    },
+    {
+      "num": 140,
+      "slug": "cheapest-flights-within-k-stops",
+      "fn": "findCheapestPrice",
+      "params": "n, flights, src, dst, k"
+    },
+    {
+      "num": 141,
+      "slug": "min-cost-to-connect-all-points",
+      "fn": "minCostConnectPoints",
+      "params": "points"
+    },
+    {
+      "num": 142,
+      "slug": "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree",
+      "fn": "findCriticalAndPseudoCriticalEdges",
+      "params": "n, edges"
+    },
+    {
+      "num": 143,
+      "slug": "connecting-cities-with-minimum-cost",
+      "fn": "minimumCost",
+      "params": "n, connections"
+    },
+    {
+      "num": 144,
+      "slug": "course-schedule-iv",
+      "fn": "checkIfPrerequisite",
+      "params": "numCourses, prerequisites, queries"
+    },
+    {
+      "num": 146,
+      "slug": "number-of-ways-to-arrive-at-destination",
+      "fn": "countPaths",
+      "params": "n, roads"
+    },
+    {
+      "num": 147,
+      "slug": "non-overlapping-intervals",
+      "fn": "eraseOverlapIntervals",
+      "params": "intervals"
+    },
+    {
+      "num": 149,
+      "slug": "maximize-sum-of-array-after-k-negations",
+      "fn": "largestSumAfterKNegations",
+      "params": "nums, k"
+    },
+    {
+      "num": 151,
+      "slug": "maximum-product-of-three-numbers",
+      "fn": "maximumProduct",
+      "params": "nums"
+    },
+    {
+      "num": 152,
+      "slug": "bulb-switcher",
+      "fn": "bulbSwitch",
+      "params": "n"
+    },
+    {
+      "num": 153,
+      "slug": "candy",
+      "fn": "candy",
+      "params": "ratings"
+    },
+    {
+      "num": 154,
+      "slug": "maximum-swap",
+      "fn": "maximumSwap",
+      "params": "num"
+    },
+    {
+      "num": 155,
+      "slug": "climbing-stairs",
+      "fn": "climbStairs",
+      "params": "n"
+    },
+    {
+      "num": 156,
+      "slug": "decode-ways",
+      "fn": "numDecodings",
+      "params": "s"
+    },
+    {
+      "num": 157,
+      "slug": "frog-jump",
+      "fn": "canCross",
+      "params": "stones"
+    },
+    {
+      "num": 158,
+      "slug": "coin-change",
+      "fn": "coinChange",
+      "params": "coins, amount"
+    },
+    {
+      "num": 159,
+      "slug": "minimum-jumps-to-reach-home",
+      "fn": "minimumJumps",
+      "params": "forbidden, a, b, x"
+    },
+    {
+      "num": 160,
+      "slug": "best-time-to-buy-and-sell-stock",
+      "fn": "maxProfit",
+      "params": "prices"
+    },
+    {
+      "num": 161,
+      "slug": "best-time-to-buy-and-sell-stock-ii",
+      "fn": "maxProfit",
+      "params": "prices"
+    },
+    {
+      "num": 162,
+      "slug": "best-time-to-buy-and-sell-stock-iii",
+      "fn": "maxProfit",
+      "params": "prices"
+    },
+    {
+      "num": 163,
+      "slug": "best-time-to-buy-and-sell-stock-iv",
+      "fn": "maxProfit",
+      "params": "k, prices"
+    },
+    {
+      "num": 164,
+      "slug": "best-time-to-buy-and-sell-stock-with-cooldown",
+      "fn": "maxProfit",
+      "params": "prices"
+    },
+    {
+      "num": 165,
+      "slug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
+      "fn": "maxProfit",
+      "params": "prices, fee"
+    },
+    {
+      "num": 166,
+      "slug": "partition-equal-subset-sum",
+      "fn": "canPartition",
+      "params": "nums"
+    },
+    {
+      "num": 167,
+      "slug": "ones-and-zeroes",
+      "fn": "findMaxForm",
+      "params": "strs, m, n"
+    },
+    {
+      "num": 168,
+      "slug": "coin-change-ii",
+      "fn": "change",
+      "params": "amount, coins"
+    },
+    {
+      "num": 169,
+      "slug": "last-stone-weight-ii",
+      "fn": "lastStoneWeightII",
+      "params": "stones"
+    },
+    {
+      "num": 170,
+      "slug": "longest-common-subsequence",
+      "fn": "longestCommonSubsequence",
+      "params": "text1, text2"
+    },
+    {
+      "num": 171,
+      "slug": "edit-distance",
+      "fn": "minDistance",
+      "params": "word1, word2"
+    },
+    {
+      "num": 172,
+      "slug": "longest-palindromic-subsequence",
+      "fn": "longestPalindromeSubseq",
+      "params": "s"
+    },
+    {
+      "num": 173,
+      "slug": "minimum-insertion-steps-to-make-a-string-palindrome",
+      "fn": "minInsertions",
+      "params": "s"
+    },
+    {
+      "num": 174,
+      "slug": "longest-increasing-subsequence",
+      "fn": "lengthOfLIS",
+      "params": "nums"
+    },
+    {
+      "num": 175,
+      "slug": "largest-divisible-subset",
+      "fn": "largestDivisibleSubset",
+      "params": "nums"
+    },
+    {
+      "num": 176,
+      "slug": "longest-string-chain",
+      "fn": "longestStrChain",
+      "params": "words"
+    },
+    {
+      "num": 177,
+      "slug": "minimum-cost-to-cut-a-stick",
+      "fn": "minCost",
+      "params": "n, cuts"
+    },
+    {
+      "num": 178,
+      "slug": "burst-balloons",
+      "fn": "maxCoins",
+      "params": "nums"
+    },
+    {
+      "num": 179,
+      "slug": "parsing-a-boolean-expression",
+      "fn": "parseBoolExpr",
+      "params": "expression"
+    },
+    {
+      "num": 180,
+      "slug": "palindrome-partitioning-ii",
+      "fn": "minCut",
+      "params": "s"
+    },
+    {
+      "num": 181,
+      "slug": "shortest-path-visiting-all-nodes",
+      "fn": "shortestPathLength",
+      "params": "graph"
+    },
+    {
+      "num": 182,
+      "slug": "unique-paths",
+      "fn": "uniquePaths",
+      "params": "m, n"
+    },
+    {
+      "num": 183,
+      "slug": "unique-paths-ii",
+      "fn": "uniquePathsWithObstacles",
+      "params": "obstacleGrid"
+    },
+    {
+      "num": 184,
+      "slug": "minimum-path-sum",
+      "fn": "minPathSum",
+      "params": "grid"
+    },
+    {
+      "num": 185,
+      "slug": "russian-doll-envelopes",
+      "fn": "maxEnvelopes",
+      "params": "envelopes"
+    },
+    {
+      "num": 186,
+      "slug": "find-greatest-common-divisor-of-array",
+      "fn": "findGCD",
+      "params": "nums"
+    },
+    {
+      "num": 187,
+      "slug": "self-dividing-numbers",
+      "fn": "selfDividingNumbers",
+      "params": "left, right"
+    },
+    {
+      "num": 188,
+      "slug": "number-of-good-pairs",
+      "fn": "numIdenticalPairs",
+      "params": "nums"
+    },
+    {
+      "num": 189,
+      "slug": "four-divisors",
+      "fn": "sumFourDivisors",
+      "params": "nums"
+    },
+    {
+      "num": 190,
+      "slug": "day-of-the-week",
+      "fn": "dayOfTheWeek",
+      "params": "day, month, year"
+    },
+    {
+      "num": 191,
+      "slug": "subtract-the-product-and-sum-of-digits-of-an-integer",
+      "fn": "subtractProductAndSum",
+      "params": "n"
+    },
+    {
+      "num": 192,
+      "slug": "count-of-matches-in-tournament",
+      "fn": "numberOfMatches",
+      "params": "n"
+    },
+    {
+      "num": 193,
+      "slug": "max-consecutive-ones",
+      "fn": "findMaxConsecutiveOnes",
+      "params": "nums"
+    },
+    {
+      "num": 194,
+      "slug": "rectangle-overlap",
+      "fn": "isRectangleOverlap",
+      "params": "rec1, rec2"
+    },
+    {
+      "num": 196,
+      "slug": "unique-paths",
+      "fn": "uniquePaths",
+      "params": "m, n"
+    },
+    {
+      "num": 197,
+      "slug": "rectangle-area",
+      "fn": "computeArea",
+      "params": "ax1, ay1, ax2, ay2, bx1, by1, bx2, by2"
+    },
+    {
+      "num": 198,
+      "slug": "check-if-array-pairs-are-divisible-by-k",
+      "fn": "canArrange",
+      "params": "arr, k"
+    },
+    {
+      "num": 199,
+      "slug": "factorial-trailing-zeroes",
+      "fn": "trailingZeroes",
+      "params": "n"
+    },
+    {
+      "num": 200,
+      "slug": "nth-magical-number",
+      "fn": "nthMagicalNumber",
+      "params": "n, a, b"
+    },
+    {
+      "num": 201,
+      "slug": "permutation-sequence",
+      "fn": "getPermutation",
+      "params": "n, k"
+    },
+    {
+      "num": 202,
+      "slug": "single-number",
+      "fn": "singleNumber",
+      "params": "nums"
+    },
+    {
+      "num": 203,
+      "slug": "reverse-bits",
+      "fn": "reverseBits",
+      "params": "n"
+    },
+    {
+      "num": 204,
+      "slug": "single-number-ii",
+      "fn": "singleNumber",
+      "params": "nums"
+    },
+    {
+      "num": 205,
+      "slug": "number-of-1-bits",
+      "fn": "hammingWeight",
+      "params": "n"
+    },
+    {
+      "num": 206,
+      "slug": "factorial-trailing-zeroes",
+      "fn": "trailingZeroes",
+      "params": "n"
+    },
+    {
+      "num": 207,
+      "slug": "binary-number-with-alternating-bits",
+      "fn": "hasAlternatingBits",
+      "params": "n"
+    },
+    {
+      "num": 208,
+      "slug": "number-of-even-and-odd-bits",
+      "fn": "evenOddBit",
+      "params": "n"
+    },
+    {
+      "num": 209,
+      "slug": "find-the-index-of-the-first-occurrence-in-a-string",
+      "fn": "strStr",
+      "params": "haystack, needle"
+    },
+    {
+      "num": 210,
+      "slug": "repeated-dna-sequences",
+      "fn": "findRepeatedDnaSequences",
+      "params": "s"
+    },
+    {
+      "num": 211,
+      "slug": "longest-duplicate-substring",
+      "fn": "longestDupSubstring",
+      "params": "s"
+    }
+  ],
+  "skipped": [
+    {
+      "num": 5,
+      "reason": "no slug"
+    },
+    {
+      "num": 8,
+      "reason": "no slug"
+    },
+    {
+      "num": 15,
+      "slug": "range-sum-query-immutable",
+      "reason": "could not map params"
+    },
+    {
+      "num": 17,
+      "slug": "range-sum-query-2d-immutable",
+      "reason": "could not map params"
+    },
+    {
+      "num": 22,
+      "reason": "no slug"
+    },
+    {
+      "num": 38,
+      "reason": "no slug"
+    },
+    {
+      "num": 39,
+      "reason": "no slug"
+    },
+    {
+      "num": 63,
+      "reason": "no slug"
+    },
+    {
+      "num": 64,
+      "reason": "no slug"
+    },
+    {
+      "num": 69,
+      "slug": "implement-stack-using-queues",
+      "reason": "could not map params"
+    },
+    {
+      "num": 70,
+      "slug": "implement-queue-using-stacks",
+      "reason": "could not map params"
+    },
+    {
+      "num": 77,
+      "slug": "min-stack",
+      "reason": "could not map params"
+    },
+    {
+      "num": 79,
+      "slug": "find-median-from-data-stream",
+      "reason": "could not map params"
+    },
+    {
+      "num": 120,
+      "slug": "implement-trie-prefix-tree",
+      "reason": "could not map params"
+    },
+    {
+      "num": 121,
+      "slug": "design-add-and-search-words-data-structure",
+      "reason": "could not map params"
+    },
+    {
+      "num": 125,
+      "slug": "range-sum-query-mutable",
+      "reason": "could not map params"
+    },
+    {
+      "num": 126,
+      "slug": "longest-increasing-subsequence-ii",
+      "reason": "could not map params"
+    },
+    {
+      "num": 131,
+      "reason": "no slug"
+    },
+    {
+      "num": 132,
+      "reason": "no slug"
+    },
+    {
+      "num": 135,
+      "slug": "find-eventual-safe-states",
+      "reason": "could not map params"
+    },
+    {
+      "num": 145,
+      "reason": "no slug"
+    },
+    {
+      "num": 148,
+      "reason": "no slug"
+    },
+    {
+      "num": 150,
+      "reason": "no slug"
+    },
+    {
+      "num": 195,
+      "reason": "no slug"
+    }
+  ],
+  "reverted": [
+    10,
+    12,
+    14,
+    34,
+    41,
+    42,
+    47,
+    51,
+    53,
+    58,
+    76,
+    82,
+    83,
+    101,
+    103,
+    105,
+    106,
+    109,
+    110,
+    112,
+    116,
+    127,
+    130,
+    139,
+    146,
+    147,
+    176,
+    177,
+    185,
+    188,
+    197,
+    203
+  ]
+}

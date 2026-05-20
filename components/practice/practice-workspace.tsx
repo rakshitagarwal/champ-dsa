@@ -29,6 +29,9 @@ export function PracticeWorkspace({ question }: { question: Question }) {
       title: question.title,
       statement: question.statement,
       patternName: question.patternName,
+      patternSlug: question.patternSlug,
+      patternHints: question.patternHints,
+      progressiveHints: question.progressiveHints,
       difficulty: question.difficulty,
       humanInput: question.humanInput,
       sampleOutput: question.sampleOutput,
@@ -36,12 +39,14 @@ export function PracticeWorkspace({ question }: { question: Question }) {
       examples: question.examples,
       constraints: question.constraints,
       leetcodeUrl: question.leetcodeUrl,
+      entryFunction: question.entryFunction,
     });
     setQuestionContext({
       questionId: question.id,
       starterCode: question.starterCode,
       solutionCode: question.solutionCode,
       solutionRevealed: false,
+      entryFunction: question.entryFunction,
     });
     clearTrace();
     touchQuestion(question.id);

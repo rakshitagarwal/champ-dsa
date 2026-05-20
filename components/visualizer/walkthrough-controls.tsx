@@ -28,15 +28,12 @@ export function WalkthroughControls({ className }: Props) {
   const restart = useVisualizerStore((s) => s.restart);
   const setSpeed = useVisualizerStore((s) => s.setSpeed);
 
-  const exampleResults = useVisualizerStore((s) => s.exampleResults);
-  const allExamplesPass = useVisualizerStore((s) => s.allExamplesPass);
-  const total = trace?.events.length ?? 0;
-  const hasTrace = total > 0;
-  const canVisualize =
-    hasTrace &&
-    (exampleResults == null || exampleResults.length === 0 || allExamplesPass);
+  const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
+  const compactedStepCount = useVisualizerStore((s) => s.compactedStepCount);
+  const total = compactedStepCount();
+  const hasTrace = (trace?.events.length ?? 0) > 0;
 
-  if (!canVisualize) return null;
+  if (!solutionFilled || !hasTrace) return null;
 
   return (
     <div

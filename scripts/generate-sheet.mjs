@@ -1,5 +1,6 @@
 import fs from "fs";
 import * as solutionsModule from "./sheet-solutions-data.mjs";
+import { wrapLeetCodeEntry } from "./leetcode-entry.mjs";
 
 let sampleOutputsByNum = {};
 try {
@@ -273,6 +274,19 @@ export const sheetQuestions: Question[] = ${JSON.stringify(
           runExampleOutput = sampleOut.trim();
         }
       }
+      const leetWrapped = body?.leetcodeSlug
+        ? wrapLeetCodeEntry(
+            q.starterCode,
+            q.solutionCode,
+            q.sampleInput,
+            body.leetcodeSlug,
+            q.entryFunction,
+          )
+        : {
+            starterCode: q.starterCode,
+            solutionCode: q.solutionCode,
+            entryFunction: q.entryFunction ?? "solve",
+          };
       return {
         id: q.id,
         title: q.title,
@@ -283,6 +297,9 @@ export const sheetQuestions: Question[] = ${JSON.stringify(
         ...(body?.description ? { description: body.description } : {}),
         ...(body?.leetcodeSlug ? { leetcodeSlug: body.leetcodeSlug } : {}),
         ...(body?.leetcodeUrl ? { leetcodeUrl: body.leetcodeUrl } : {}),
+        ...(leetWrapped.entryFunction !== "solve"
+          ? { entryFunction: leetWrapped.entryFunction }
+          : {}),
         ...(q.humanInput && runExampleOutput
           ? {
               examples: [
@@ -292,8 +309,8 @@ export const sheetQuestions: Question[] = ${JSON.stringify(
           : {}),
         ...(body?.constraints?.length ? { constraints: body.constraints } : {}),
         patternHints: q.patternHints,
-        starterCode: q.starterCode,
-        solutionCode: q.solutionCode,
+        starterCode: leetWrapped.starterCode,
+        solutionCode: leetWrapped.solutionCode,
         sampleInput: q.sampleInput,
         humanInput: q.humanInput,
         sampleOutput: sampleOutputsByNum[String(q.num)] ?? undefined,

@@ -14,20 +14,31 @@ const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 type Props = {
   readOnly?: boolean;
+  /** Use compacted timeline index for line highlight (viz modal). */
+  useCompactedLine?: boolean;
 };
 
-export function CodeEditor({ readOnly = false }: Props) {
+export function CodeEditor({
+  readOnly = false,
+  useCompactedLine = false,
+}: Props) {
   const { theme } = useTheme();
   const code = useVisualizerStore((s) => s.code);
   const setCode = useVisualizerStore((s) => s.setCode);
   const stepIndex = useVisualizerStore((s) => s.stepIndex);
   const trace = useVisualizerStore((s) => s.trace);
+  const compactedEventIndices = useVisualizerStore(
+    (s) => s.compactedEventIndices,
+  );
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof import("monaco-editor") | null>(null);
   const decoRef = useRef<string[]>([]);
   const registerFormatCode = useVisualizerStore((s) => s.registerFormatCode);
 
-  const evt = trace?.events[stepIndex];
+  const rawIdx = useCompactedLine
+    ? (compactedEventIndices[stepIndex] ?? stepIndex)
+    : stepIndex;
+  const evt = trace?.events[rawIdx];
   const line =
     evt && evt.type !== "enter" ? evt.line : undefined;
 

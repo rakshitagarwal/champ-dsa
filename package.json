@@ -10,6 +10,7 @@
     "test": "vitest run",
     "verify:solutions": "node scripts/verify-solutions.mjs",
     "generate:sheet": "node scripts/generate-sheet.mjs",
+    "migrate:leetcode": "node scripts/migrate-sheet-leetcode.mjs",
     "resolve:leetcode": "node scripts/resolve-leetcode-slugs.mjs",
     "fetch:leetcode": "node scripts/fetch-leetcode-descriptions.mjs",
     "fetch:jsinfo": "node scripts/fetch-javascript-info.mjs"
