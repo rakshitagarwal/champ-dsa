@@ -38,7 +38,7 @@ export function explainStep(
   }
 
   if (parts.length === 0) {
-    return `Line ${curr.line} runs next — open fullscreen viz or step forward to see updates.`;
+    return `Line ${curr.line} executes as part of the control flow (loop, branch, or setup). Use AI Explain after passing both examples for a full teaching walkthrough.`;
   }
 
   return `Because line ${curr.line} ran: ${parts.join(" ")}`;

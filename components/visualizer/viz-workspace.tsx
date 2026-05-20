@@ -5,6 +5,7 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { EditorVizSplit } from "./editor-viz-split";
 import { DocumentColumns } from "./document-columns";
 import { VizFullscreenModal } from "./viz-fullscreen-modal";
+import { AiExplainModal } from "./ai-explain-modal";
 import { VisualizerToolbar } from "./visualizer-toolbar";
 import { HintModal } from "@/components/practice/hint-modal";
 import { ProblemPanel } from "./problem-panel";
@@ -37,7 +38,10 @@ export function VizWorkspace({
   const isDocumentLayout = layout === "document";
 
   const [hintModalOpen, setHintModalOpen] = useState(false);
-  const [vizFullscreenOpen, setVizFullscreenOpen] = useState(false);
+  const [vizOpen, setVizOpen] = useState(false);
+
+  const aiExplainModalOpen = useVisualizerStore((s) => s.aiExplainModalOpen);
+  const setAiExplainModalOpen = useVisualizerStore((s) => s.setAiExplainModalOpen);
 
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
   const speedMs = useVisualizerStore((s) => s.speedMs);
@@ -108,9 +112,8 @@ export function VizWorkspace({
 
   const codeColumn = (
     <EditorVizSplit
-      expectedOutput={problemSampleOutput ?? undefined}
       layout={layout}
-      onOpenFullscreen={() => setVizFullscreenOpen(true)}
+      onOpenVisualize={() => setVizOpen(true)}
     />
   );
 
@@ -133,9 +136,11 @@ export function VizWorkspace({
         onMarkSolved={onMarkSolved}
       />
 
-      <VizFullscreenModal
-        open={vizFullscreenOpen}
-        onOpenChange={setVizFullscreenOpen}
+      <VizFullscreenModal open={vizOpen} onOpenChange={setVizOpen} />
+
+      <AiExplainModal
+        open={aiExplainModalOpen}
+        onOpenChange={setAiExplainModalOpen}
       />
 
       {questionId && (progressiveHints || (hints && hints.length > 0)) ? (

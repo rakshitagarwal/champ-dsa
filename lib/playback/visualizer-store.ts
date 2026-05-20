@@ -3,7 +3,10 @@
 import { create } from "zustand";
 import type { ExecutionEvent, ExecutionTrace } from "@/types/execution";
 import type { QuestionExample } from "@/types/question";
+import type { AiExplainCommentary, ExampleRunResult } from "@/types/ai-explain";
 import { runCode } from "@/lib/tracer/run";
+import { validateExamples } from "@/lib/run/validate-examples";
+import { getFirstTwoRunExamples } from "@/lib/questions/run-examples";
 import { markVisualizerUsed } from "@/lib/onboarding/checklist";
 import { recordQuestionAttempt } from "@/lib/storage/learning-store";
 
@@ -50,8 +53,14 @@ type VisualizerState = {
   problemConstraints: string[] | null;
   problemLeetcodeUrl: string | null;
   questionContext: QuestionContext | null;
-  /** When true, stdin is the problem example — not user-editable. */
   stdinLocked: boolean;
+  exampleResults: ExampleRunResult[] | null;
+  allExamplesPass: boolean;
+  hasTwoExamples: boolean;
+  aiExplain: AiExplainCommentary | null;
+  aiExplainLoading: boolean;
+  aiExplainError: string | null;
+  aiExplainModalOpen: boolean;
   setCode: (code: string) => void;
   setStdin: (stdin: string) => void;
   setProblem: (p: {
@@ -72,6 +81,9 @@ type VisualizerState = {
   clearTrace: () => void;
   loadFreePlayground: () => void;
   run: () => Promise<void>;
+  fetchAiExplain: () => Promise<void>;
+  clearAiExplain: () => void;
+  setAiExplainModalOpen: (open: boolean) => void;
   setStepIndex: (i: number) => void;
   stepNext: () => void;
   stepPrev: () => void;
@@ -86,6 +98,20 @@ type VisualizerState = {
 };
 
 let formatCodeFn: (() => void) | null = null;
+
+function clearRunState() {
+  return {
+    trace: null,
+    stepIndex: 0,
+    isPlaying: false,
+    error: null,
+    exampleResults: null,
+    allExamplesPass: false,
+    aiExplain: null,
+    aiExplainError: null,
+    aiExplainModalOpen: false,
+  };
+}
 
 export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   code: DEFAULT_CODE,
@@ -108,13 +134,30 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   problemLeetcodeUrl: null,
   questionContext: null,
   stdinLocked: false,
+  exampleResults: null,
+  allExamplesPass: false,
+  hasTwoExamples: false,
+  aiExplain: null,
+  aiExplainLoading: false,
+  aiExplainError: null,
+  aiExplainModalOpen: false,
 
-  setCode: (code) => set({ code }),
+  setCode: (code) =>
+    set({
+      code,
+      ...clearRunState(),
+    }),
   setStdin: (stdin) => {
     if (get().stdinLocked) return;
-    set({ stdin });
+    set({ stdin, ...clearRunState() });
   },
-  setProblem: (p) =>
+  setProblem: (p) => {
+    const runExamples = getFirstTwoRunExamples(
+      p?.examples,
+      p?.description,
+      p?.humanInput,
+      p?.sampleOutput,
+    );
     set({
       problemTitle: p?.title ?? null,
       problemStatement: p?.statement ?? null,
@@ -128,7 +171,10 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       problemLeetcodeUrl: p?.leetcodeUrl ?? null,
       stdin: p?.humanInput ?? get().stdin,
       stdinLocked: !!p?.humanInput,
-    }),
+      hasTwoExamples: runExamples.length >= 2,
+      ...clearRunState(),
+    });
+  },
   setQuestionContext: (ctx) => set({ questionContext: ctx }),
   resetToStarter: () => {
     const { questionContext } = get();
@@ -136,10 +182,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     set({
       code: questionContext.starterCode,
       questionContext: { ...questionContext, solutionRevealed: false },
-      trace: null,
-      stepIndex: 0,
-      isPlaying: false,
-      error: null,
+      ...clearRunState(),
     });
   },
   revealSolution: () => {
@@ -148,14 +191,18 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     set({
       code: questionContext.solutionCode,
       questionContext: { ...questionContext, solutionRevealed: true },
-      trace: null,
-      stepIndex: 0,
-      isPlaying: false,
-      error: null,
+      ...clearRunState(),
     });
   },
-  clearTrace: () =>
-    set({ trace: null, stepIndex: 0, isPlaying: false, error: null }),
+  clearTrace: () => set(clearRunState()),
+  clearAiExplain: () =>
+    set({
+      aiExplain: null,
+      aiExplainError: null,
+      aiExplainLoading: false,
+      aiExplainModalOpen: false,
+    }),
+  setAiExplainModalOpen: (open) => set({ aiExplainModalOpen: open }),
   loadFreePlayground: () =>
     set({
       code: DEFAULT_CODE,
@@ -176,17 +223,57 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       problemLeetcodeUrl: null,
       questionContext: null,
       stdinLocked: false,
+      exampleResults: null,
+      allExamplesPass: false,
+      hasTwoExamples: false,
+      aiExplain: null,
+      aiExplainLoading: false,
+      aiExplainError: null,
+      aiExplainModalOpen: false,
     }),
 
   run: async () => {
-    const { code, stdin, questionContext } = get();
+    const {
+      code,
+      stdin,
+      questionContext,
+      problemExamples,
+      problemDescription,
+      problemHumanInput,
+      problemSampleOutput,
+    } = get();
     const started = Date.now();
-    set({ isRunning: true, error: null, isPlaying: false });
+    set({
+      isRunning: true,
+      error: null,
+      isPlaying: false,
+      aiExplain: null,
+      aiExplainError: null,
+      exampleResults: null,
+      allExamplesPass: false,
+    });
+
     const result = await runCode(code, stdin);
     if (!result.ok) {
       set({ isRunning: false, error: result.error, trace: null });
       return;
     }
+
+    const runExamples = getFirstTwoRunExamples(
+      problemExamples,
+      problemDescription,
+      problemHumanInput,
+      problemSampleOutput,
+    );
+
+    let exampleResults: ExampleRunResult[] | null = null;
+    let allExamplesPass = false;
+
+    if (runExamples.length >= 2) {
+      exampleResults = await validateExamples(code, runExamples);
+      allExamplesPass = exampleResults.every((r) => r.pass);
+    }
+
     if (questionContext) {
       recordQuestionAttempt(questionContext.questionId, Date.now() - started);
     }
@@ -194,12 +281,87 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("champdsa-visualizer-used"));
     }
+
     set({
       isRunning: false,
       trace: result.trace,
       stepIndex: 0,
       error: null,
+      exampleResults,
+      allExamplesPass,
+      hasTwoExamples: runExamples.length >= 2,
     });
+  },
+
+  fetchAiExplain: async () => {
+    const {
+      code,
+      trace,
+      allExamplesPass,
+      hasTwoExamples,
+      problemTitle,
+      problemStatement,
+      patternName,
+      problemConstraints,
+      problemExamples,
+      problemDescription,
+      problemHumanInput,
+      problemSampleOutput,
+    } = get();
+
+    if (!trace || !allExamplesPass || !hasTwoExamples) return;
+    if (!problemTitle || !patternName) {
+      set({ aiExplainError: "Load a practice problem to use AI Explain." });
+      return;
+    }
+
+    const runExamples = getFirstTwoRunExamples(
+      problemExamples,
+      problemDescription,
+      problemHumanInput,
+      problemSampleOutput,
+    );
+    if (runExamples.length < 2) return;
+
+    set({
+      aiExplainLoading: true,
+      aiExplainError: null,
+      aiExplainModalOpen: true,
+    });
+
+    try {
+      const res = await fetch("/api/ai/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: problemTitle,
+          statement: problemStatement ?? "",
+          patternName,
+          constraints: problemConstraints ?? [],
+          examples: runExamples.map((e) => ({
+            input: e.input,
+            output: e.output,
+          })),
+          code,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "AI explanation failed.");
+      }
+
+      set({
+        aiExplain: data as AiExplainCommentary,
+        aiExplainLoading: false,
+      });
+    } catch (err) {
+      set({
+        aiExplainLoading: false,
+        aiExplainError:
+          err instanceof Error ? err.message : "AI explanation failed.",
+      });
+    }
   },
 
   setStepIndex: (i) => {

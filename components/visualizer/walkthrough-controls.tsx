@@ -3,7 +3,6 @@
 import {
   ChevronLeft,
   ChevronRight,
-  Maximize2,
   Pause,
   Play,
   RotateCcw,
@@ -13,12 +12,11 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  onOpenFullscreen?: () => void;
   className?: string;
 };
 
-/** Playback controls — lives directly under the code editor during walkthrough. */
-export function WalkthroughControls({ onOpenFullscreen, className }: Props) {
+/** Inline playback controls under the editor (use Visualize for the full modal). */
+export function WalkthroughControls({ className }: Props) {
   const stepIndex = useVisualizerStore((s) => s.stepIndex);
   const trace = useVisualizerStore((s) => s.trace);
   const isPlaying = useVisualizerStore((s) => s.isPlaying);
@@ -105,17 +103,6 @@ export function WalkthroughControls({ onOpenFullscreen, className }: Props) {
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
-        {onOpenFullscreen ? (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 gap-1.5 px-2 text-xs"
-            onClick={onOpenFullscreen}
-          >
-            <Maximize2 className="h-3.5 w-3.5" />
-            Fullscreen viz
-          </Button>
-        ) : null}
       </div>
     </div>
   );

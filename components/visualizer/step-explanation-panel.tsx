@@ -30,10 +30,8 @@ export function StepExplanationPanel({
       >
         <p className="text-sm font-medium text-foreground">Step-by-step execution</p>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          After a successful <strong className="text-foreground">Run</strong>, use
-          the walkthrough controls to see why each line runs and what changes.
-          Open <strong className="text-foreground">Fullscreen viz</strong> for the
-          array animation.
+          Run your code, then open <strong className="text-foreground">Visualize</strong>{" "}
+          to step through execution with animation.
         </p>
       </div>
     );

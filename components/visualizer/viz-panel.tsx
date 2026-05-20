@@ -5,35 +5,20 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { StepExplanationPanel } from "./step-explanation-panel";
 import { WalkthroughControls } from "./walkthrough-controls";
 import { cn } from "@/lib/utils";
-import { formatSampleOutput } from "@/lib/questions/problem-display";
-
-function normalizeOutput(s: string): string {
-  return s.trim().replace(/\s+/g, "");
-}
 
 type Props = {
-  expectedOutput?: string;
   layout?: "document" | "viewport";
-  onOpenFullscreen?: () => void;
 };
 
-export function VizPanel({
-  expectedOutput,
-  layout = "viewport",
-  onOpenFullscreen,
-}: Props) {
+export function VizPanel({ layout = "viewport" }: Props) {
   const isDocument = layout === "document";
   const trace = useVisualizerStore((s) => s.trace);
   const error = useVisualizerStore((s) => s.error);
-  const stdout = trace?.stdout?.trim() ?? "";
+  const exampleResults = useVisualizerStore((s) => s.exampleResults);
+  const allExamplesPass = useVisualizerStore((s) => s.allExamplesPass);
+  const hasTwoExamples = useVisualizerStore((s) => s.hasTwoExamples);
   const hasTrace = !!trace;
   const hasError = !!error;
-
-  let matchesExpected: boolean | null = null;
-  if (hasTrace && expectedOutput && stdout) {
-    matchesExpected =
-      normalizeOutput(stdout) === normalizeOutput(expectedOutput);
-  }
 
   return (
     <div
@@ -43,7 +28,6 @@ export function VizPanel({
       )}
     >
       <WalkthroughControls
-        onOpenFullscreen={onOpenFullscreen}
         className={
           isDocument
             ? "sticky top-14 z-20 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90"
@@ -51,47 +35,56 @@ export function VizPanel({
         }
       />
 
-      {hasTrace && (
-        <div
-          className={cn(
-            "shrink-0 border-b border-border px-3 py-1.5 text-xs",
-            matchesExpected === true &&
-              "bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
-            matchesExpected === false &&
-              "bg-amber-500/10 text-amber-900 dark:text-amber-100",
-            matchesExpected === null && "bg-muted/30 text-muted-foreground",
-          )}
-        >
-          <div className="flex items-start gap-2">
-            {matchesExpected === true ? (
-              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            ) : matchesExpected === false ? (
-              <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            ) : null}
-            <div className="min-w-0 flex-1">
-              <p className="font-medium">
-                {matchesExpected === true
-                  ? "Output matches the example"
-                  : matchesExpected === false
-                    ? "Output differs from expected — keep debugging"
-                    : "Your output"}
-              </p>
-              <pre className="mt-1 overflow-x-auto whitespace-nowrap font-mono text-sm leading-normal opacity-90">
-                {stdout ? formatSampleOutput(stdout) : "(empty)"}
-              </pre>
+      {hasTrace && exampleResults && exampleResults.length > 0 ? (
+        <div className="shrink-0 space-y-2 border-b border-border px-3 py-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Test results
+          </p>
+          {exampleResults.map((r) => (
+            <div
+              key={r.index}
+              className={cn(
+                "rounded-md border px-2.5 py-2 text-xs",
+                r.pass
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100"
+                  : "border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-100",
+              )}
+            >
+              <div className="flex items-start gap-2">
+                {r.pass ? (
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                ) : (
+                  <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{r.label}</p>
+                  <p className="mt-1 font-mono text-[11px] opacity-90">
+                    Expected: {r.expected} · Got: {r.actual || "(error)"}
+                  </p>
+                  {r.error ? (
+                    <p className="mt-1 text-[11px] opacity-80">{r.error}</p>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
+          {hasTwoExamples && allExamplesPass ? (
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
+              Example 1 and 2 passed — use Visualize or AI Explain.
+            </p>
+          ) : hasTwoExamples ? (
+            <p className="text-[11px] text-muted-foreground">
+              Fix your solution until Example 1 and Example 2 pass.
+            </p>
+          ) : null}
         </div>
-      )}
+      ) : null}
 
       {hasError ? (
         <div className="p-3">
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4">
             <p className="text-sm font-semibold text-destructive">
               Fix the error below, then run again
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Step explanations appear only after your code runs without errors.
             </p>
             <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-destructive">
               {error}
@@ -106,8 +99,10 @@ export function VizPanel({
             Execution walkthrough
           </p>
           <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
-            Click <strong className="text-foreground">Run</strong> on your
-            solution to step through each line and see what changes.
+            Click <strong className="text-foreground">Run</strong> to test Example
+            1 and 2. Use <strong className="text-foreground">Visualize</strong> for
+            animation or <strong className="text-foreground">AI Explain</strong> after
+            both pass.
           </p>
         </div>
       )}

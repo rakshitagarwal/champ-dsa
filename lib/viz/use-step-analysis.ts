@@ -77,14 +77,7 @@ export function useStepAnalysis() {
       lineSnippet,
       showCallStack,
     };
-  }, [
-    current,
-    previous,
-    stepIndex,
-    trace,
-    patternName,
-    code,
-  ]);
+  }, [current, previous, stepIndex, trace, patternName, code]);
 }
 
 function stringAsArray(

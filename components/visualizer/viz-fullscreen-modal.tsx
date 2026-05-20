@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { CodeEditor } from "./code-editor";
 import { AnimationCanvas } from "./animation-canvas";
+import { StepExplanationPanel } from "./step-explanation-panel";
 import { WalkthroughPlaybackBar } from "./walkthrough-playback-bar";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
+/** Visualize: code (left) + step explanation & animation (right). */
 export function VizFullscreenModal({ open, onOpenChange }: Props) {
   const pause = useVisualizerStore((s) => s.pause);
 
@@ -55,7 +57,7 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Fullscreen visualization"
+        aria-label="Visualize execution"
         className={cn(
           "relative z-10 flex h-[min(92vh,920px)] w-[min(98vw,1600px)] flex-col overflow-hidden",
           "rounded-xl border border-border bg-card shadow-2xl",
@@ -64,9 +66,9 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
       >
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
           <div>
-            <h2 className="text-base font-semibold">Visualization</h2>
+            <h2 className="text-base font-semibold">Visualize</h2>
             <p className="text-xs text-muted-foreground">
-              Drag the slider or use play controls to step through execution
+              Your code, step-by-step explanation, and array animation
             </p>
           </div>
           <Button
@@ -89,12 +91,18 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
               <CodeEditor readOnly />
             </div>
           </div>
+
           <div className="flex min-h-0 flex-col overflow-hidden">
             <p className="shrink-0 border-b border-border bg-muted/30 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Animation
+              Step explanation &amp; animation
             </p>
-            <div className="min-h-0 flex-1">
-              <AnimationCanvas />
+            <div className="grid min-h-0 flex-1 grid-rows-2">
+              <div className="min-h-0 overflow-hidden border-b border-border">
+                <AnimationCanvas />
+              </div>
+              <div className="min-h-0 overflow-y-auto bg-muted/10">
+                <StepExplanationPanel layout="viewport" />
+              </div>
             </div>
           </div>
         </div>

@@ -12,9 +12,8 @@ import { VizPanel } from "./viz-panel";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  expectedOutput?: string;
   layout?: "document" | "viewport";
-  onOpenFullscreen?: () => void;
+  onOpenVisualize?: () => void;
 };
 
 const PANEL_EDITOR = "editor";
@@ -23,41 +22,29 @@ const LAYOUT_ID = "champdsa-solve-editor-viz-v2";
 const FALLBACK_LAYOUT = { [PANEL_EDITOR]: 63, [PANEL_VIZ]: 37 };
 
 function DocumentEditorStack({
-  expectedOutput,
-  onOpenFullscreen,
+  onOpenVisualize,
 }: {
-  expectedOutput?: string;
-  onOpenFullscreen?: () => void;
+  onOpenVisualize?: () => void;
 }) {
   return (
     <div className="flex w-full flex-col">
       <section className="bg-editor/30">
-        <EditorActionBar />
+        <EditorActionBar onOpenVisualize={onOpenVisualize} />
         <div className="h-[min(540px,58vh)] min-h-[360px] p-2">
           <CodeEditor />
         </div>
       </section>
-      <VizPanel
-        expectedOutput={expectedOutput}
-        layout="document"
-        onOpenFullscreen={onOpenFullscreen}
-      />
+      <VizPanel layout="document" />
     </div>
   );
 }
 
 export function EditorVizSplit({
-  expectedOutput,
   layout = "viewport",
-  onOpenFullscreen,
+  onOpenVisualize,
 }: Props) {
   if (layout === "document") {
-    return (
-      <DocumentEditorStack
-        expectedOutput={expectedOutput}
-        onOpenFullscreen={onOpenFullscreen}
-      />
-    );
+    return <DocumentEditorStack onOpenVisualize={onOpenVisualize} />;
   }
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
@@ -80,7 +67,7 @@ export function EditorVizSplit({
         className="flex min-h-[200px] min-w-0 flex-col overflow-hidden bg-editor/30"
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <EditorActionBar />
+          <EditorActionBar onOpenVisualize={onOpenVisualize} />
           <div className="min-h-0 flex-1 p-2">
             <CodeEditor />
           </div>
@@ -106,11 +93,7 @@ export function EditorVizSplit({
         defaultSize={37}
         className="flex min-h-[160px] min-w-0 flex-col overflow-hidden"
       >
-        <VizPanel
-          expectedOutput={expectedOutput}
-          layout="viewport"
-          onOpenFullscreen={onOpenFullscreen}
-        />
+        <VizPanel layout="viewport" />
       </Panel>
     </Group>
   );
