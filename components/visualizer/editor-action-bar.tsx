@@ -15,11 +15,11 @@ export function EditorActionBar({ onOpenVisualize }: Props) {
   const run = useVisualizerStore((s) => s.run);
   const fillSolution = useVisualizerStore((s) => s.fillSolution);
   const formatCode = useVisualizerStore((s) => s.formatCode);
-  const trace = useVisualizerStore((s) => s.trace);
   const questionContext = useVisualizerStore((s) => s.questionContext);
   const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
+  const canOpenVisualize = useVisualizerStore((s) => s.canOpenVisualize);
 
-  const canVisualize = solutionFilled && !!trace;
+  const canVisualize = canOpenVisualize();
   const showFill = !!questionContext?.solutionCode;
 
   return (

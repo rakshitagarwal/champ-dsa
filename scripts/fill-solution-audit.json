@@ -1,0 +1,2127 @@
+{
+  "generatedAt": "2026-05-20T22:45:43.244Z",
+  "total": 211,
+  "ok": 208,
+  "error": 0,
+  "heavy": 3,
+  "uiSteps": {
+    "min": 2,
+    "max": 963,
+    "avg": 20
+  },
+  "rows": [
+    {
+      "num": 1,
+      "id": "bc-001-richest-customer-wealth",
+      "title": "Richest customer wealth",
+      "entryFunction": "maximumWealth",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 2,
+      "id": "bc-002-two-sum",
+      "title": "Two Sum",
+      "entryFunction": "twoSum",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 11,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 3,
+      "id": "bc-003-count-negative-numbers-in-a-sorted-matrix",
+      "title": "Count negative numbers in a sorted matrix",
+      "entryFunction": "countNegatives",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 8,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 4,
+      "id": "bc-004-next-permutation",
+      "title": "Next permutation",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 9,
+      "uiSteps": 8,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 5,
+      "id": "bc-005-linked-lists",
+      "title": "Linked Lists",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 60,
+      "uiSteps": 54,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 6,
+      "id": "bc-006-find-greatest-common-divisor-of-array",
+      "title": "Find greatest common divisor of array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 7,
+      "id": "bc-007-self-dividing-numbers",
+      "title": "Self dividing numbers",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 49,
+      "uiSteps": 49,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 8,
+      "id": "bc-008-inversion-of-array-1587115620",
+      "title": "Inversion of array - 1587115620",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 9,
+      "id": "bc-009-reverse-pairs",
+      "title": "Reverse pairs",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 10,
+      "id": "bc-010-special-positions-in-a-binary-matrix",
+      "title": "Special positions in a binary matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 45,
+      "uiSteps": 45,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 11,
+      "id": "bc-011-transpose-matrix",
+      "title": "Transpose Matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 12,
+      "id": "bc-012-01-matrix",
+      "title": "01 Matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 115,
+      "uiSteps": 115,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 13,
+      "id": "bc-013-spiral-matrix",
+      "title": "Spiral Matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 11,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 14,
+      "id": "bc-014-pascal-s-triangle",
+      "title": "Pascal's Triangle",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 15,
+      "id": "bc-015-minimum-size-subarray-sum",
+      "title": "Minimum Size Subarray Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Prefix Sum"
+    },
+    {
+      "num": 16,
+      "id": "bc-016-running-sum-of-1d-array",
+      "title": "Running Sum of 1d Array",
+      "entryFunction": "runningSum",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Prefix Sum"
+    },
+    {
+      "num": 17,
+      "id": "bc-017-range-sum-query-2d-immutable",
+      "title": "Range Sum Query 2D Immutable",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Prefix Sum"
+    },
+    {
+      "num": 18,
+      "id": "bc-018-maximum-subarray",
+      "title": "Maximum Subarray",
+      "entryFunction": "maxSubArray",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Kadane's Algorithm"
+    },
+    {
+      "num": 19,
+      "id": "bc-019-maximum-sum-circular-subarray",
+      "title": "Maximum Sum Circular Subarray",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Kadane's Algorithm"
+    },
+    {
+      "num": 20,
+      "id": "bc-020-longest-turbulent-subarray",
+      "title": "Longest Turbulent Subarray",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 9,
+      "patternName": "Kadane's Algorithm"
+    },
+    {
+      "num": 21,
+      "id": "bc-021-contains-duplicate-ii",
+      "title": "Contains Duplicate II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Sliding Window"
+    },
+    {
+      "num": 22,
+      "id": "bc-022-number-of-sub-arrays-of-size-k-and-average",
+      "title": "Number of Sub-arrays of Size K and Average ..",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 21,
+      "uiSteps": 21,
+      "patternName": "Sliding Window"
+    },
+    {
+      "num": 23,
+      "id": "bc-023-minimum-size-subarray-sum",
+      "title": "Minimum Size Subarray Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Sliding Window"
+    },
+    {
+      "num": 24,
+      "id": "bc-024-longest-substring-without-repeating-characters",
+      "title": "Longest Substring Without Repeating Characters",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Sliding Window"
+    },
+    {
+      "num": 25,
+      "id": "bc-025-longest-repeating-character-replacement",
+      "title": "Longest Repeating Character Replacement",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Sliding Window"
+    },
+    {
+      "num": 26,
+      "id": "bc-026-container-with-most-water",
+      "title": "Container With Most Water",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 12,
+      "uiSteps": 12,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 27,
+      "id": "bc-027-trapping-rain-water",
+      "title": "Trapping Rain Water",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 26,
+      "uiSteps": 26,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 28,
+      "id": "bc-028-two-sum-ii-input-array-is-sorted",
+      "title": "Two Sum II - Input Array Is Sorted",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 13,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 29,
+      "id": "bc-029-k-diff-pairs-in-an-array",
+      "title": "K-diff Pairs in an Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 13,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 30,
+      "id": "bc-030-find-k-closest-elements",
+      "title": "Find K Closest Elements",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 5,
+      "patternName": "Two Pointers"
+    },
+    {
+      "num": 31,
+      "id": "bc-031-search-in-rotated-sorted-array",
+      "title": "Search in Rotated Sorted Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 18,
+      "uiSteps": 17,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 32,
+      "id": "bc-032-remove-duplicates-from-sorted-array",
+      "title": "Remove Duplicates from Sorted Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 9,
+      "uiSteps": 8,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 33,
+      "id": "bc-033-find-first-and-last-position-of-element-in-sorte",
+      "title": "Find First and Last Position of Element in Sorted Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 34,
+      "id": "bc-034-search-a-2d-matrix",
+      "title": "Search a 2D Matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 23,
+      "uiSteps": 22,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 35,
+      "id": "bc-035-find-peak-element",
+      "title": "Find Peak Element",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 7,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 36,
+      "id": "bc-036-single-element-in-a-sorted-array",
+      "title": "Single Element in a Sorted Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 12,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 37,
+      "id": "bc-037-preimage-size-of-factorial-zeroes-function",
+      "title": "Preimage Size of Factorial Zeroes Function",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Binary Search"
+    },
+    {
+      "num": 38,
+      "id": "bc-038-check-if-two-arrays-are-equal-or-not",
+      "title": "Check if Two Arrays Are Equal or Not",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 39,
+      "id": "bc-039-binary-array-sorting",
+      "title": "Binary Array Sorting",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 15,
+      "uiSteps": 15,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 40,
+      "id": "bc-040-sort-colors",
+      "title": "Sort Colors",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 30,
+      "uiSteps": 26,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 41,
+      "id": "bc-041-kth-largest-element-in-an-array",
+      "title": "Kth Largest Element in an Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 42,
+      "id": "bc-042-minimum-absolute-difference",
+      "title": "Minimum Absolute Difference",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 18,
+      "uiSteps": 18,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 43,
+      "id": "bc-043-k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 44,
+      "id": "bc-044-max-chunks-to-make-sorted",
+      "title": "Max Chunks To Make Sorted",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 9,
+      "uiSteps": 9,
+      "patternName": "Sorting"
+    },
+    {
+      "num": 45,
+      "id": "bc-045-contiguous-array",
+      "title": "Contiguous Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 8,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 46,
+      "id": "bc-046-longest-consecutive-sequence",
+      "title": "Longest Consecutive Sequence",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 19,
+      "uiSteps": 16,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 47,
+      "id": "bc-047-subarray-sum-equals-k",
+      "title": "Subarray Sum Equals K",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 48,
+      "id": "bc-048-valid-anagram",
+      "title": "Valid Anagram",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 25,
+      "uiSteps": 17,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 49,
+      "id": "bc-049-valid-sudoku",
+      "title": "Valid Sudoku",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 228,
+      "uiSteps": 198,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 50,
+      "id": "bc-050-ugly-number-ii",
+      "title": "Ugly Number II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 41,
+      "uiSteps": 40,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 51,
+      "id": "bc-051-subarray-sum-equals-k",
+      "title": "Subarray Sum Equals K",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 52,
+      "id": "bc-052-max-points-on-a-line",
+      "title": "Max Points on a Line",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 23,
+      "uiSteps": 20,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 53,
+      "id": "bc-053-palindrome-pairs",
+      "title": "Palindrome Pairs",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Hashing"
+    },
+    {
+      "num": 54,
+      "id": "bc-054-middle-of-the-linked-list",
+      "title": "Middle of the Linked List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 55,
+      "id": "bc-055-maximum-twin-sum-of-a-linked-list",
+      "title": "Maximum Twin Sum of a Linked List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 7,
+      "uiSteps": 7,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 56,
+      "id": "bc-056-merge-two-sorted-lists",
+      "title": "Merge Two Sorted Lists",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 57,
+      "id": "bc-057-linked-list-cycle",
+      "title": "Linked List Cycle",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 58,
+      "id": "bc-058-reverse-nodes-in-k-group",
+      "title": "Reverse Nodes in k- Group",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 59,
+      "id": "bc-059-remove-nth-node-from-end-of-list",
+      "title": "Remove Nth Node From End of List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 60,
+      "id": "bc-060-linked-list-cycle-ii",
+      "title": "Linked List Cycle II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 61,
+      "id": "bc-061-delete-node-in-a-linked-list",
+      "title": "Delete Node in a Linked List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 62,
+      "id": "bc-062-reverse-linked-list",
+      "title": "Reverse Linked List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 63,
+      "id": "bc-063-palindrome-linked",
+      "title": "Palindrome Linked",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 64,
+      "id": "bc-064-remove-linked-list",
+      "title": "Remove Linked List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 65,
+      "id": "bc-065-convert-binary-number-in-a-linked-list-to-intege",
+      "title": "Convert Binary Number in a Linked List to Integer",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 66,
+      "id": "bc-066-remove-duplicates-from-sorted-list-ii",
+      "title": "Remove Duplicates from Sorted List II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 14,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 67,
+      "id": "bc-067-reverse-linked-list-ii",
+      "title": "Reverse Linked List II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 68,
+      "id": "bc-068-sort-list",
+      "title": "Sort List",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Linked Lists"
+    },
+    {
+      "num": 69,
+      "id": "bc-069-implement-stack-using-queues",
+      "title": "Implement Stack using Queues",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 16,
+      "uiSteps": 16,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 70,
+      "id": "bc-070-implement-queue-using-stacks",
+      "title": "Implement Queue using Stacks",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 17,
+      "uiSteps": 17,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 71,
+      "id": "bc-071-backspace-string-compare",
+      "title": "Backspace String Compare",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 72,
+      "id": "bc-072-baseball-game",
+      "title": "Baseball Game",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 29,
+      "uiSteps": 29,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 73,
+      "id": "bc-073-longest-valid-parentheses",
+      "title": "Longest Valid Parentheses",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 19,
+      "uiSteps": 19,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 74,
+      "id": "bc-074-evaluate-reverse-polish-notation",
+      "title": "Evaluate Reverse Polish Notation",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 12,
+      "uiSteps": 12,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 75,
+      "id": "bc-075-daily-temperatures",
+      "title": "Daily Temperatures",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 76,
+      "id": "bc-076-largest-rectangle-in-histogram",
+      "title": "Largest Rectangle in Histogram",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 16,
+      "uiSteps": 16,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 77,
+      "id": "bc-077-min-stack",
+      "title": "Min Stack",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 18,
+      "uiSteps": 18,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 78,
+      "id": "bc-078-minimum-remove-to-make-valid-parentheses",
+      "title": "Minimum Remove to Make Valid Parentheses",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 55,
+      "uiSteps": 55,
+      "patternName": "Stack & Queue"
+    },
+    {
+      "num": 79,
+      "id": "bc-079-find-median-from-data-stream",
+      "title": "Find Median from Data Stream",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 7,
+      "patternName": "Heap"
+    },
+    {
+      "num": 80,
+      "id": "bc-080-merge-k-sorted-lists",
+      "title": "Merge k Sorted Lists",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Heap"
+    },
+    {
+      "num": 81,
+      "id": "bc-081-find-k-pairs-with-smallest-sums",
+      "title": "Find K Pairs with Smallest Sums",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Heap"
+    },
+    {
+      "num": 82,
+      "id": "bc-082-meeting-rooms-ii",
+      "title": "Meeting Rooms II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 7,
+      "uiSteps": 7,
+      "patternName": "Heap"
+    },
+    {
+      "num": 83,
+      "id": "bc-083-top-k-frequent-elements",
+      "title": "Top K Frequent Elements",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Heap"
+    },
+    {
+      "num": 84,
+      "id": "bc-084-k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Heap"
+    },
+    {
+      "num": 85,
+      "id": "bc-085-count-good-numbers",
+      "title": "Count Good Numbers",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 86,
+      "id": "bc-086-permutations",
+      "title": "Permutations",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 87,
+      "id": "bc-087-permutations-ii",
+      "title": "Permutations II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 88,
+      "id": "bc-088-subsets",
+      "title": "Subsets",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 89,
+      "id": "bc-089-basic-calculator",
+      "title": "Basic Calculator",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 35,
+      "uiSteps": 35,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 90,
+      "id": "bc-090-wildcard-matching",
+      "title": "Wildcard Matching",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 15,
+      "uiSteps": 15,
+      "patternName": "Recursion"
+    },
+    {
+      "num": 91,
+      "id": "bc-091-combinations",
+      "title": "Combinations",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 92,
+      "id": "bc-092-combination-sum",
+      "title": "Combination Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 93,
+      "id": "bc-093-combination-sum-iii",
+      "title": "Combination Sum III",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 94,
+      "id": "bc-094-letter-combinations-of-a-phone-number",
+      "title": "Letter Combinations of a Phone Number",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 95,
+      "id": "bc-095-gray-code",
+      "title": "Gray Code",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 96,
+      "id": "bc-096-letter-case-permutation",
+      "title": "Letter Case Permutation",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 97,
+      "id": "bc-097-n-queens",
+      "title": "N-Queens",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 98,
+      "id": "bc-098-sudoku-solver",
+      "title": "Sudoku Solver",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Backtracking"
+    },
+    {
+      "num": 99,
+      "id": "bc-099-construct-binary-tree-from-inorder-and-postorder",
+      "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+      "entryFunction": "solve",
+      "status": "heavy",
+      "error": "Maximum call stack size exceeded",
+      "rawTraceSteps": 0,
+      "uiSteps": 0,
+      "patternName": "Trees"
+    },
+    {
+      "num": 100,
+      "id": "bc-100-construct-binary-tree-from-preorder-and-inorder-",
+      "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+      "entryFunction": "solve",
+      "status": "heavy",
+      "error": "Maximum call stack size exceeded",
+      "rawTraceSteps": 0,
+      "uiSteps": 0,
+      "patternName": "Trees"
+    },
+    {
+      "num": 101,
+      "id": "bc-101-path-sum",
+      "title": "Path Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Trees"
+    },
+    {
+      "num": 102,
+      "id": "bc-102-same-tree",
+      "title": "Same Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Trees"
+    },
+    {
+      "num": 103,
+      "id": "bc-103-binary-tree-level-order-traversal",
+      "title": "Binary Tree Level Order Traversal",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 23,
+      "uiSteps": 22,
+      "patternName": "Trees"
+    },
+    {
+      "num": 104,
+      "id": "bc-104-invert-binary-tree",
+      "title": "Invert Binary Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Trees"
+    },
+    {
+      "num": 105,
+      "id": "bc-105-minimum-cost-tree-from-leaf-values",
+      "title": "Minimum Cost Tree From Leaf Values",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Trees"
+    },
+    {
+      "num": 106,
+      "id": "bc-106-binary-tree-zigzag-level-order-traversal",
+      "title": "Binary Tree Zigzag Level Order Traversal",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 24,
+      "uiSteps": 23,
+      "patternName": "Trees"
+    },
+    {
+      "num": 107,
+      "id": "bc-107-maximum-depth-of-binary-tree",
+      "title": "Maximum Depth of Binary Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Trees"
+    },
+    {
+      "num": 108,
+      "id": "bc-108-sum-of-left-leaves",
+      "title": "Sum of Left Leaves",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Trees"
+    },
+    {
+      "num": 109,
+      "id": "bc-109-binary-tree-right-side-view",
+      "title": "Binary Tree Right Side View",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 28,
+      "uiSteps": 27,
+      "patternName": "Trees"
+    },
+    {
+      "num": 110,
+      "id": "bc-110-path-sum-ii",
+      "title": "Path Sum II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Trees"
+    },
+    {
+      "num": 111,
+      "id": "bc-111-path-sum-iii",
+      "title": "Path Sum III",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Trees"
+    },
+    {
+      "num": 112,
+      "id": "bc-112-lowest-common-ancestor-of-a-binary-search-tree",
+      "title": "Lowest Common Ancestor of a Binary Search Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 11,
+      "patternName": "Trees"
+    },
+    {
+      "num": 113,
+      "id": "bc-113-closest-binary-search-tree-value-ii",
+      "title": "Closest Binary Search Tree Value II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Trees"
+    },
+    {
+      "num": 114,
+      "id": "bc-114-trim-a-binary-search-tree",
+      "title": "Trim a Binary Search Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Trees"
+    },
+    {
+      "num": 115,
+      "id": "bc-115-search-in-a-binary-search-tree",
+      "title": "Search in a Binary Search Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Trees"
+    },
+    {
+      "num": 116,
+      "id": "bc-116-queue-reconstruction-by-height",
+      "title": "Queue Reconstruction by Height",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 117,
+      "id": "bc-117-binary-tree-pruning",
+      "title": "Binary Tree Pruning",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 118,
+      "id": "bc-118-balance-a-binary-search-tree",
+      "title": "Balance a Binary Search Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 119,
+      "id": "bc-119-balanced-binary-tree",
+      "title": "Balanced Binary Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 120,
+      "id": "bc-120-implement-trie-prefix-tree",
+      "title": "Implement Trie (Prefix Tree)",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 24,
+      "uiSteps": 21,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 121,
+      "id": "bc-121-design-add-and-search-words-data-structure",
+      "title": "Design Add and Search Words Data Structure",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 10,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 122,
+      "id": "bc-122-word-search-ii",
+      "title": "Word Search II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 123,
+      "id": "bc-123-redundant-connection",
+      "title": "Redundant Connection",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 15,
+      "uiSteps": 15,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 124,
+      "id": "bc-124-accounts-merge",
+      "title": "Accounts Merge",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 20,
+      "uiSteps": 20,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 125,
+      "id": "bc-125-range-sum-query-mutable",
+      "title": "Range Sum Query Mutable",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 126,
+      "id": "bc-126-longest-increasing-subsequence-ii",
+      "title": "Longest Increasing Subsequence II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 31,
+      "uiSteps": 26,
+      "patternName": "Trees II"
+    },
+    {
+      "num": 127,
+      "id": "bc-127-rotting-oranges",
+      "title": "Rotting Oranges",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 101,
+      "uiSteps": 101,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 128,
+      "id": "bc-128-word-ladder",
+      "title": "Word Ladder",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 964,
+      "uiSteps": 963,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 129,
+      "id": "bc-129-number-of-provinces",
+      "title": "Number of Provinces",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 12,
+      "uiSteps": 12,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 130,
+      "id": "bc-130-number-of-enclaves",
+      "title": "Number of Enclaves",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 41,
+      "uiSteps": 40,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 131,
+      "id": "bc-131-detect-cycle-in-an-undirected-graph",
+      "title": "Detect Cycle in an Undirected Graph",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 9,
+      "uiSteps": 9,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 132,
+      "id": "bc-132-detect-cycle-in-a-directed-graph",
+      "title": "Detect Cycle in a Directed Graph",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 133,
+      "id": "bc-133-course-schedule",
+      "title": "Course Schedule",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 134,
+      "id": "bc-134-course-schedule-ii",
+      "title": "Course Schedule II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 19,
+      "uiSteps": 19,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 135,
+      "id": "bc-135-find-eventual-safe-states",
+      "title": "Find Eventual Safe States",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 24,
+      "uiSteps": 24,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 136,
+      "id": "bc-136-alien-dictionary",
+      "title": "Alien Dictionary",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 37,
+      "uiSteps": 37,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 137,
+      "id": "bc-137-network-delay-time",
+      "title": "Network Delay Time",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 29,
+      "uiSteps": 29,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 138,
+      "id": "bc-138-shortest-path-in-binary-matrix",
+      "title": "Shortest Path in Binary Matrix",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 38,
+      "uiSteps": 29,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 139,
+      "id": "bc-139-path-with-minimum-effort",
+      "title": "Path With Minimum Effort",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 135,
+      "uiSteps": 117,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 140,
+      "id": "bc-140-cheapest-flights-within-k-stops",
+      "title": "Cheapest Flights Within K Stops",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 18,
+      "uiSteps": 18,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 141,
+      "id": "bc-141-min-cost-to-connect-all-points",
+      "title": "Min Cost to Connect All Points",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 114,
+      "uiSteps": 114,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 142,
+      "id": "bc-142-find-critical-and-pseudo-critical-edges-in-minim",
+      "title": "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 22,
+      "uiSteps": 22,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 143,
+      "id": "bc-143-connecting-cities-with-minimum-cost",
+      "title": "Connecting Cities With Minimum Cost",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 144,
+      "id": "bc-144-course-schedule-iv",
+      "title": "Course Schedule IV",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 145,
+      "id": "bc-145-find-the-city-with-the-smallest-number-of-neighb",
+      "title": "Find the City With the Smallest Number of Neighbors at a...",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 19,
+      "uiSteps": 19,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 146,
+      "id": "bc-146-number-of-ways-to-arrive-at-destination",
+      "title": "Number of Ways to Arrive at Destination",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 80,
+      "uiSteps": 80,
+      "patternName": "Graphs"
+    },
+    {
+      "num": 147,
+      "id": "bc-147-non-overlapping-intervals",
+      "title": "Non-overlapping Intervals",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 8,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 148,
+      "id": "bc-148-minimum-platforms",
+      "title": "Minimum Platforms",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 14,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 149,
+      "id": "bc-149-maximize-sum-of-array-after-k-negations",
+      "title": "Maximize Sum Of Array After K Negations",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 11,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 150,
+      "id": "bc-150-assign-mice-to-holes",
+      "title": "Assign Mice to Holes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 151,
+      "id": "bc-151-maximum-product-of-three-numbers",
+      "title": "Maximum Product of Three Numbers",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 152,
+      "id": "bc-152-bulb-switcher",
+      "title": "Bulb Switcher",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 153,
+      "id": "bc-153-candy",
+      "title": "Candy",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 154,
+      "id": "bc-154-maximum-swap",
+      "title": "Maximum Swap",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Greedy"
+    },
+    {
+      "num": 155,
+      "id": "bc-155-climbing-stairs",
+      "title": "Climbing Stairs",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 156,
+      "id": "bc-156-decode-ways",
+      "title": "Decode Ways",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 157,
+      "id": "bc-157-frog-jump",
+      "title": "Frog Jump",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 158,
+      "id": "bc-158-coin-change",
+      "title": "Coin Change",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 70,
+      "uiSteps": 70,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 159,
+      "id": "bc-159-minimum-jumps-to-reach-home",
+      "title": "Minimum Jumps to Reach Home",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 19,
+      "uiSteps": 18,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 160,
+      "id": "bc-160-best-time-to-buy-and-sell-stock",
+      "title": "Best Time to Buy and Sell Stock",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 161,
+      "id": "bc-161-best-time-to-buy-and-sell-stock-ii",
+      "title": "Best Time to Buy and Sell Stock II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 14,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 162,
+      "id": "bc-162-best-time-to-buy-and-sell-stock-iii",
+      "title": "Best Time to Buy and Sell Stock III",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 163,
+      "id": "bc-163-best-time-to-buy-and-sell-stock-iv",
+      "title": "Best Time to Buy and Sell Stock IV",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 9,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 164,
+      "id": "bc-164-best-time-to-buy-and-sell-stock-with-cooldown",
+      "title": "Best Time to Buy and Sell Stock with Cooldown",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 8,
+      "uiSteps": 8,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 165,
+      "id": "bc-165-best-time-to-buy-and-sell-stock-with-transaction",
+      "title": "Best Time to Buy and Sell Stock with Transaction Fee",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 166,
+      "id": "bc-166-partition-equal-subset-sum",
+      "title": "Partition Equal Subset Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 13,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 167,
+      "id": "bc-167-ones-and-zeroes",
+      "title": "Ones and Zeroes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 11,
+      "uiSteps": 11,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 168,
+      "id": "bc-168-coin-change-ii",
+      "title": "Coin Change II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 9,
+      "uiSteps": 9,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 169,
+      "id": "bc-169-last-stone-weight-ii",
+      "title": "Last Stone Weight II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 21,
+      "uiSteps": 21,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 170,
+      "id": "bc-170-longest-common-subsequence",
+      "title": "Longest Common Subsequence",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 171,
+      "id": "bc-171-edit-distance",
+      "title": "Edit Distance",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 172,
+      "id": "bc-172-longest-palindromic-subsequence",
+      "title": "Longest Palindromic Subsequence",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 173,
+      "id": "bc-173-minimum-insertion-steps-to-make-a-string-palindr",
+      "title": "Minimum Insertion Steps to Make a String Palindrome",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 174,
+      "id": "bc-174-longest-increasing-subsequence",
+      "title": "Longest Increasing Subsequence",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 39,
+      "uiSteps": 32,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 175,
+      "id": "bc-175-largest-divisible-subset",
+      "title": "Largest Divisible Subset",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 176,
+      "id": "bc-176-longest-string-chain",
+      "title": "Longest String Chain",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 36,
+      "uiSteps": 36,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 177,
+      "id": "bc-177-minimum-cost-to-cut-a-stick",
+      "title": "Minimum Cost to Cut a Stick",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 16,
+      "uiSteps": 16,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 178,
+      "id": "bc-178-burst-balloons",
+      "title": "Burst Balloons",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 15,
+      "uiSteps": 15,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 179,
+      "id": "bc-179-parsing-a-boolean-expression",
+      "title": "Parsing a Boolean Expression",
+      "entryFunction": "solve",
+      "status": "heavy",
+      "error": "Maximum call stack size exceeded",
+      "rawTraceSteps": 0,
+      "uiSteps": 0,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 180,
+      "id": "bc-180-palindrome-partitioning-ii",
+      "title": "Palindrome Partitioning II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 14,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 181,
+      "id": "bc-181-shortest-path-visiting-all-nodes",
+      "title": "Shortest Path Visiting All Nodes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 74,
+      "uiSteps": 74,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 182,
+      "id": "bc-182-unique-paths",
+      "title": "Unique Paths",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 183,
+      "id": "bc-183-unique-paths-ii",
+      "title": "Unique Paths II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 40,
+      "uiSteps": 39,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 184,
+      "id": "bc-184-minimum-path-sum",
+      "title": "Minimum Path Sum",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 6,
+      "uiSteps": 6,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 185,
+      "id": "bc-185-russian-doll-envelopes",
+      "title": "Russian Doll Envelopes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 20,
+      "uiSteps": 17,
+      "patternName": "Dynamic Programming"
+    },
+    {
+      "num": 186,
+      "id": "bc-186-find-greatest-common-divisor-of-array",
+      "title": "Find Greatest Common Divisor of Array",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Math"
+    },
+    {
+      "num": 187,
+      "id": "bc-187-self-dividing-numbers",
+      "title": "Self Dividing Numbers",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 49,
+      "uiSteps": 49,
+      "patternName": "Math"
+    },
+    {
+      "num": 188,
+      "id": "bc-188-number-of-good-pairs",
+      "title": "Number of Good Pairs",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Math"
+    },
+    {
+      "num": 189,
+      "id": "bc-189-four-divisors",
+      "title": "Four Divisors",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Math"
+    },
+    {
+      "num": 190,
+      "id": "bc-190-day-of-the-week",
+      "title": "Day of the Week",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Math"
+    },
+    {
+      "num": 191,
+      "id": "bc-191-subtract-the-product-and-sum-of-digits-of-an-int",
+      "title": "Subtract the Product and Sum of Digits of an Integer",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 7,
+      "uiSteps": 7,
+      "patternName": "Math"
+    },
+    {
+      "num": 192,
+      "id": "bc-192-count-of-matches-in-tournament",
+      "title": "Count of Matches in Tournament",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 2,
+      "uiSteps": 2,
+      "patternName": "Math"
+    },
+    {
+      "num": 193,
+      "id": "bc-193-max-consecutive-ones",
+      "title": "Max Consecutive Ones",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 14,
+      "uiSteps": 14,
+      "patternName": "Math"
+    },
+    {
+      "num": 194,
+      "id": "bc-194-rectangle-overlap",
+      "title": "Rectangle Overlap",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Math"
+    },
+    {
+      "num": 195,
+      "id": "bc-195-excel-sheet-column",
+      "title": "Excel Sheet Column",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Math"
+    },
+    {
+      "num": 196,
+      "id": "bc-196-unique-paths",
+      "title": "Unique Paths",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Math"
+    },
+    {
+      "num": 197,
+      "id": "bc-197-rectangle-area",
+      "title": "Rectangle Area",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 7,
+      "uiSteps": 7,
+      "patternName": "Math"
+    },
+    {
+      "num": 198,
+      "id": "bc-198-check-if-array-pairs-are-divisible-by-k",
+      "title": "Check If Array Pairs Are Divisible by k",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 13,
+      "uiSteps": 13,
+      "patternName": "Math"
+    },
+    {
+      "num": 199,
+      "id": "bc-199-factorial-trailing-zeroes",
+      "title": "Factorial Trailing Zeroes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Math"
+    },
+    {
+      "num": 200,
+      "id": "bc-200-nth-magical-number",
+      "title": "Nth Magical Number",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 73,
+      "uiSteps": 72,
+      "patternName": "Math"
+    },
+    {
+      "num": 201,
+      "id": "bc-201-permutation-sequence",
+      "title": "Permutation Sequence",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 10,
+      "uiSteps": 10,
+      "patternName": "Math"
+    },
+    {
+      "num": 202,
+      "id": "bc-202-single-number",
+      "title": "Single Number",
+      "entryFunction": "singleNumber",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 203,
+      "id": "bc-203-reverse-bits",
+      "title": "Reverse Bits",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 204,
+      "id": "bc-204-single-number-ii",
+      "title": "Single Number II",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 205,
+      "id": "bc-205-number-of-1-bits",
+      "title": "Number of 1 Bits",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 206,
+      "id": "bc-206-factorial-trailing-zeroes",
+      "title": "Factorial Trailing Zeroes",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 207,
+      "id": "bc-207-binary-number-with-alternating-bits",
+      "title": "Binary Number with Alternating Bits",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 208,
+      "id": "bc-208-number-of-even-and-odd-bits",
+      "title": "Number of Even and Odd Bits",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 209,
+      "id": "bc-209-find-the-index-of-the-first-occurrence-in-a-stri",
+      "title": "Find the Index of the First Occurrence in a String",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 210,
+      "id": "bc-210-repeated-dna-sequences",
+      "title": "Repeated DNA Sequences",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 50,
+      "uiSteps": 50,
+      "patternName": "Miscellaneous"
+    },
+    {
+      "num": 211,
+      "id": "bc-211-longest-duplicate-substring",
+      "title": "Longest Duplicate Substring",
+      "entryFunction": "solve",
+      "status": "ok",
+      "rawTraceSteps": 17,
+      "uiSteps": 16,
+      "patternName": "Miscellaneous"
+    }
+  ]
+}

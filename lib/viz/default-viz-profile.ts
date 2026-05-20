@@ -67,7 +67,7 @@ function inferStructureKind(
 
   if (Array.isArray(value)) {
     if (lower === "heap" || /heap/i.test(name)) return "heap";
-    if (lower === "stack" || /stack/i.test(name)) return "stack";
+    if (lower === "stack" || lower === "st" || /stack/i.test(name)) return "stack";
     if (
       lower === "graph" ||
       lower === "adjlist" ||

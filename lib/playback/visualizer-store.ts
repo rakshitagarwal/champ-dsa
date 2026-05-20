@@ -1,14 +1,24 @@
 "use client";
 
 import { create } from "zustand";
-import type { ExecutionEvent, ExecutionTrace } from "@/types/execution";
+import type {
+  ExecutionEvent,
+  ExecutionTrace,
+} from "@/types/execution";
 import type { ProgressiveHint, QuestionExample } from "@/types/question";
 import type { AiExplainCommentary, ExampleRunResult } from "@/types/ai-explain";
 import type { VizProfile } from "@/types/viz-profile";
 import type { VizScene } from "@/types/viz-scene";
+import type { TraceStep } from "@/lib/tracer/types";
 import { buildDefaultVizProfile } from "@/lib/viz/default-viz-profile";
 import { compactTimeline } from "@/lib/viz/scene/compact-steps";
+import { getManualTracerMeta } from "@/lib/tracer/manual/registry";
 import { runCode } from "@/lib/tracer/run";
+import { executionToTraceSteps } from "@/lib/viz/trace/execution-to-trace-steps";
+import {
+  canUseTracePlayer,
+  isTraceVizEnabled,
+} from "@/lib/viz/trace/can-use-trace-player";
 import { validateExamples } from "@/lib/run/validate-examples";
 import { getFirstTwoRunExamples } from "@/lib/questions/run-examples";
 import { markVisualizerUsed } from "@/lib/onboarding/checklist";
@@ -80,6 +90,12 @@ type VisualizerState = {
   compactedScenes: VizScene[];
   compactedEventIndices: number[];
   solutionFilled: boolean;
+  traceSteps: TraceStep[];
+  traceCode: string;
+  traceStepIndex: number;
+  isTracePlaying: boolean;
+  traceSpeed: number;
+  playerMode: "trace" | "scene";
   aiHintLevel: 0 | 1 | 2 | 3;
   fillSolution: () => Promise<void>;
   advanceAiHint: () => void;
@@ -123,6 +139,13 @@ type VisualizerState = {
   pause: () => void;
   restart: () => void;
   setSpeed: (ms: number) => void;
+  setTraceStep: (n: number) => void;
+  traceStepNext: () => void;
+  traceStepPrev: () => void;
+  traceTogglePlay: () => void;
+  setTraceSpeed: (s: number) => void;
+  pauseTrace: () => void;
+  canOpenVisualize: () => boolean;
   formatCode: () => void;
   registerFormatCode: (fn: (() => void) | null) => void;
   currentEvent: () => ExecutionEvent | null;
@@ -152,8 +175,71 @@ function clearRunState() {
     compactedScenes: [],
     compactedEventIndices: [],
     solutionFilled: false,
+    traceSteps: [],
+    traceCode: "",
+    traceStepIndex: 0,
+    isTracePlaying: false,
+    traceSpeed: 1,
+    playerMode: "scene" as const,
     aiHintLevel: 0 as 0 | 1 | 2 | 3,
   };
+}
+
+function buildTraceTimeline(opts: {
+  questionId: string | null;
+  solutionCode: string;
+  trace: ExecutionTrace | null;
+  profile: VizProfile | null;
+  scenes: VizScene[];
+  sampleRaw: string | null;
+}): {
+  traceSteps: TraceStep[];
+  traceCode: string;
+  playerMode: "trace" | "scene";
+} {
+  const fallback = {
+    traceSteps: [] as TraceStep[],
+    traceCode: opts.solutionCode,
+    playerMode: "scene" as const,
+  };
+
+  if (!isTraceVizEnabled()) return fallback;
+
+  const manual = opts.questionId
+    ? getManualTracerMeta(opts.questionId)
+    : null;
+  if (manual) {
+    const input = manual.parseInput(
+      opts.sampleRaw ? opts.sampleRaw : { nums: [] },
+    );
+    return {
+      traceSteps: manual.tracer(input),
+      traceCode: manual.traceCode,
+      playerMode: "trace",
+    };
+  }
+
+  if (!opts.trace || !opts.profile) return fallback;
+
+  const steps = executionToTraceSteps(opts.trace, opts.profile, true);
+  if (
+    steps &&
+    steps.length > 0 &&
+    canUseTracePlayer({
+      questionId: opts.questionId,
+      trace: opts.trace,
+      scenes: opts.scenes,
+      profile: opts.profile,
+    })
+  ) {
+    return {
+      traceSteps: steps,
+      traceCode: opts.solutionCode,
+      playerMode: "trace",
+    };
+  }
+
+  return fallback;
 }
 
 function rebuildTimeline(
@@ -214,6 +300,12 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   compactedScenes: [],
   compactedEventIndices: [],
   solutionFilled: false,
+  traceSteps: [],
+  traceCode: "",
+  traceStepIndex: 0,
+  isTracePlaying: false,
+  traceSpeed: 1,
+  playerMode: "scene",
   aiHintLevel: 0,
 
   setCode: (code) =>
@@ -295,12 +387,23 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
     const profile = buildDefaultVizProfile(trace, patternName);
     const timeline = rebuildTimeline(trace, profile, true);
+    const traceTimeline = buildTraceTimeline({
+      questionId: questionContext.questionId,
+      solutionCode: questionContext.solutionCode,
+      trace,
+      profile,
+      scenes: timeline.compactedScenes,
+      sampleRaw: problemHumanInput ?? stdin,
+    });
     set({
       vizProfile: profile,
       vizProfileSource: "fallback",
       vizSetupLoading: false,
       stepIndex: 0,
+      traceStepIndex: 0,
+      isTracePlaying: false,
       ...timeline,
+      ...traceTimeline,
     });
   },
   advanceAiHint: () => {
@@ -361,6 +464,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       code,
       stdin,
       questionContext,
+      solutionFilled,
       problemExamples,
       problemDescription,
       problemHumanInput,
@@ -414,17 +518,33 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       window.dispatchEvent(new Event("champdsa-visualizer-used"));
     }
 
-    const { solutionFilled } = get();
     const profile = buildDefaultVizProfile(
       result.trace,
       get().patternName,
     );
     const timeline = rebuildTimeline(result.trace, profile, solutionFilled);
+    const traceTimeline =
+      solutionFilled && questionContext
+        ? buildTraceTimeline({
+            questionId: questionContext.questionId,
+            solutionCode: questionContext.solutionCode,
+            trace: result.trace,
+            profile,
+            scenes: timeline.compactedScenes,
+            sampleRaw: problemHumanInput ?? stdin,
+          })
+        : {
+            traceSteps: [] as TraceStep[],
+            traceCode: questionContext?.solutionCode ?? "",
+            playerMode: "scene" as const,
+          };
 
     set({
       isRunning: false,
       trace: result.trace,
       stepIndex: 0,
+      traceStepIndex: 0,
+      isTracePlaying: false,
       error: null,
       exampleResults,
       allExamplesPass,
@@ -433,6 +553,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       vizProfileSource: "fallback",
       vizSetupError: null,
       ...timeline,
+      ...traceTimeline,
     });
   },
 
@@ -464,12 +585,41 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   },
 
   rebuildCompactedTimeline: () => {
-    const { trace, vizProfile, solutionFilled, patternName } = get();
+    const {
+      trace,
+      vizProfile,
+      solutionFilled,
+      patternName,
+      questionContext,
+      problemHumanInput,
+      stdin,
+    } = get();
     const profile =
       vizProfile ?? (trace ? buildDefaultVizProfile(trace, patternName) : null);
     if (!profile) return;
     const timeline = rebuildTimeline(trace, profile, solutionFilled);
-    set({ vizProfile: profile, stepIndex: 0, ...timeline });
+    const traceTimeline =
+      solutionFilled && questionContext
+        ? buildTraceTimeline({
+            questionId: questionContext.questionId,
+            solutionCode: questionContext.solutionCode,
+            trace,
+            profile,
+            scenes: timeline.compactedScenes,
+            sampleRaw: problemHumanInput ?? stdin,
+          })
+        : {
+            traceSteps: [] as TraceStep[],
+            traceCode: questionContext?.solutionCode ?? "",
+            playerMode: "scene" as const,
+          };
+    set({
+      vizProfile: profile,
+      stepIndex: 0,
+      traceStepIndex: 0,
+      ...timeline,
+      ...traceTimeline,
+    });
   },
 
   fetchAiExplain: async () => {
@@ -567,6 +717,50 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   restart: () => set({ stepIndex: 0, isPlaying: false }),
 
   setSpeed: (speedMs) => set({ speedMs }),
+
+  setTraceStep: (n) => {
+    const max = Math.max(0, get().traceSteps.length - 1);
+    set({
+      traceStepIndex: Math.min(Math.max(0, n), max),
+      isTracePlaying: false,
+    });
+  },
+
+  traceStepNext: () => {
+    const { traceStepIndex, traceSteps } = get();
+    if (traceStepIndex >= traceSteps.length - 1) {
+      set({ isTracePlaying: false });
+      return;
+    }
+    set({ traceStepIndex: traceStepIndex + 1 });
+  },
+
+  traceStepPrev: () =>
+    set((s) => ({
+      traceStepIndex: Math.max(0, s.traceStepIndex - 1),
+      isTracePlaying: false,
+    })),
+
+  traceTogglePlay: () => {
+    const { traceStepIndex, traceSteps, isTracePlaying } = get();
+    if (traceStepIndex >= traceSteps.length - 1) {
+      set({ isTracePlaying: true, traceStepIndex: 0 });
+      return;
+    }
+    set({ isTracePlaying: !isTracePlaying });
+  },
+
+  setTraceSpeed: (traceSpeed) => set({ traceSpeed }),
+
+  pauseTrace: () => set({ isTracePlaying: false }),
+
+  canOpenVisualize: () => {
+    const { solutionFilled, traceSteps, compactedScenes } = get();
+    return (
+      solutionFilled &&
+      (traceSteps.length > 0 || compactedScenes.length > 0)
+    );
+  },
 
   registerFormatCode: (fn) => {
     formatCodeFn = fn;

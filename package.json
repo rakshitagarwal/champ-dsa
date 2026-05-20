@@ -11,6 +11,7 @@
     "verify:solutions": "node scripts/verify-solutions.mjs",
     "generate:sheet": "node scripts/generate-sheet.mjs",
     "migrate:leetcode": "node scripts/migrate-sheet-leetcode.mjs",
+    "audit:fill-solution": "vitest run lib/tracer/audit-fill-solution.test.ts --maxWorkers 1",
     "resolve:leetcode": "node scripts/resolve-leetcode-slugs.mjs",
     "fetch:leetcode": "node scripts/fetch-leetcode-descriptions.mjs",
     "fetch:jsinfo": "node scripts/fetch-javascript-info.mjs"

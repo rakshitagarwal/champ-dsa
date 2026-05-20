@@ -7,6 +7,7 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { CodeEditor } from "./code-editor";
 import { AnimationCanvas } from "./animation-canvas";
 import { WalkthroughPlaybackBar } from "./walkthrough-playback-bar";
+import { VizCaseBanner } from "./viz-case-banner";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -91,6 +92,8 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
             <X className="h-4 w-4" />
           </Button>
         </header>
+
+        <VizCaseBanner variant="light" />
 
         <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
           <div className="flex min-h-0 flex-col overflow-hidden border-b border-border md:border-b-0 md:border-r">
