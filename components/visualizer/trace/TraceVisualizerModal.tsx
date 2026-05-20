@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
+import { diffScenes } from "@/lib/viz/scene/step-diff";
 import { CodePanel } from "./CodePanel";
-import { AnimationPanel } from "./AnimationPanel";
 import { TraceControlBar } from "./ControlBar";
 import { VizCaseBanner } from "../viz-case-banner";
+import { VizStage } from "../scene/viz-stage";
 
 type Props = {
   open: boolean;
@@ -13,15 +14,35 @@ type Props = {
 };
 
 export function TraceVisualizerModal({ open, onOpenChange }: Props) {
-  const {
-    traceSteps,
-    traceStepIndex,
-    traceCode,
-    isTracePlaying,
-    traceSpeed,
-    traceStepNext,
-    pauseTrace,
-  } = useVisualizerStore();
+  const playbackSteps = useVisualizerStore((s) => s.playbackSteps);
+  const traceStepIndex = useVisualizerStore((s) => s.traceStepIndex);
+  const traceCode = useVisualizerStore((s) => s.traceCode);
+  const isTracePlaying = useVisualizerStore((s) => s.isTracePlaying);
+  const traceSpeed = useVisualizerStore((s) => s.traceSpeed);
+  const trace = useVisualizerStore((s) => s.trace);
+  const traceStepNext = useVisualizerStore((s) => s.traceStepNext);
+  const pauseTrace = useVisualizerStore((s) => s.pauseTrace);
+
+  const step = playbackSteps[traceStepIndex];
+
+  const stepDiff = useMemo(() => {
+    if (!step) return null;
+    const prev = playbackSteps[traceStepIndex - 1];
+    const prevEvent =
+      prev?.eventIndex !== undefined && trace
+        ? trace.events[prev.eventIndex]
+        : null;
+    const currEvent =
+      step.eventIndex !== undefined && trace
+        ? trace.events[step.eventIndex]
+        : null;
+    return diffScenes(
+      prev?.scene ?? null,
+      step.scene,
+      prevEvent ?? null,
+      currEvent ?? null,
+    );
+  }, [playbackSteps, traceStepIndex, step, trace]);
 
   useEffect(() => {
     if (!open || !isTracePlaying) return;
@@ -50,10 +71,7 @@ export function TraceVisualizerModal({ open, onOpenChange }: Props) {
     };
   }, [open]);
 
-  if (!open || traceSteps.length === 0) return null;
-
-  const step = traceSteps[traceStepIndex];
-  if (!step) return null;
+  if (!open || playbackSteps.length === 0 || !step) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#0d1117]">
@@ -86,7 +104,7 @@ export function TraceVisualizerModal({ open, onOpenChange }: Props) {
           />
         </div>
         <div className="w-1/2 overflow-auto">
-          <AnimationPanel snapshot={step.ds} />
+          <VizStage scene={step.scene} stepDiff={stepDiff} darkStage />
         </div>
       </div>
       <TraceControlBar />

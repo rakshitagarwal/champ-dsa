@@ -6,9 +6,10 @@ import type { VizStructure } from "@/types/viz-scene";
 
 type Props = {
   structure: Extract<VizStructure, { kind: "stack" }>;
+  lastAction?: "push" | "pop" | null;
 };
 
-export function StackView({ structure }: Props) {
+export function StackView({ structure, lastAction }: Props) {
   const values = structure.values;
 
   return (
@@ -36,7 +37,10 @@ export function StackView({ structure }: Props) {
                 <motion.div
                   key={`${idx}-${String(val)}`}
                   layout
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{
+                    opacity: 0,
+                    y: lastAction === "push" && idx === values.length - 1 ? -16 : 16,
+                  }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   className={cn(

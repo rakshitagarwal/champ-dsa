@@ -13,7 +13,11 @@ export type CompactedTimeline = {
 export type CompactOptions = {
   /** Curated solution run — keep pointer/stack/list pedagogical steps */
   curated?: boolean;
+  /** Cap UI steps to avoid overwhelming timelines (e.g. Word Ladder) */
+  maxSteps?: number;
 };
+
+const DEFAULT_MAX_STEPS = 200;
 
 const ALWAYS_KEEP_TYPES = new Set([
   "enter",
@@ -34,7 +38,7 @@ function pointerKey(scene: VizScene): string {
 function stackSignature(scene: VizScene): string {
   const stack = scene.structures.find((s) => s.kind === "stack");
   if (!stack || stack.kind !== "stack") return "";
-  return `stack:${stack.values.length}`;
+  return `stack:${stack.values.length}:${JSON.stringify(stack.values)}`;
 }
 
 function variablesSignature(vars: Record<string, unknown>): string {
@@ -127,6 +131,19 @@ export function compactTimeline(
     const last = events.length - 1;
     scenes.push(compileScene(events[last]!, profile, last));
     eventIndices.push(last);
+  }
+
+  const maxSteps = options?.maxSteps ?? DEFAULT_MAX_STEPS;
+  if (scenes.length > maxSteps) {
+    const sampled: VizScene[] = [];
+    const sampledIdx: number[] = [];
+    const last = scenes.length - 1;
+    for (let i = 0; i < maxSteps; i++) {
+      const src = Math.round((i / (maxSteps - 1)) * last);
+      sampled.push(scenes[src]!);
+      sampledIdx.push(eventIndices[src]!);
+    }
+    return { scenes: sampled, eventIndices: sampledIdx };
   }
 
   return { scenes, eventIndices };

@@ -52,20 +52,21 @@ export function ArrayVisualizer({ snapshot, pointers }: Props) {
       {pointers.length > 0 ? (
         <div className="relative mt-1 flex gap-1">
           {snapshot.values.map((_, idx) => {
-            const ptr = pointers.find((p) => p.index === idx);
+            const atIdx = pointers.filter((p) => p.index === idx);
             return (
-              <div key={idx} className="w-12 text-center">
-                {ptr ? (
+              <div key={idx} className="flex w-12 flex-col items-center gap-0.5">
+                {atIdx.map((ptr) => (
                   <motion.span
+                    key={ptr.name}
                     layout
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="font-mono text-xs font-bold"
+                    className="font-mono text-[10px] font-bold leading-tight"
                     style={{ color: ptr.color }}
                   >
-                    ▲ {ptr.name}
+                    ▲{ptr.name}
                   </motion.span>
-                ) : null}
+                ))}
               </div>
             );
           })}

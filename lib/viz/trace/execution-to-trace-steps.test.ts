@@ -60,15 +60,50 @@ describe("executionToTraceSteps", () => {
     const profile = buildDefaultVizProfile(r.trace, "Recursion");
     const steps = executionToTraceSteps(r.trace, profile, true);
     expect(steps).not.toBeNull();
-    const s = steps![10]!;
-    expect(s.ds.hashmaps).toBeUndefined();
-    const hasAnim =
-      (s.ds.stacks?.length ?? 0) > 0 || (s.ds.arrays?.length ?? 0) > 0;
-    expect(hasAnim).toBe(true);
+    const withStack = steps!.find((st) => (st.ds.stacks?.length ?? 0) > 0);
+    expect(withStack).toBeDefined();
+    const withString = steps!.find((st) =>
+      st.ds.arrays?.some((a) => a.id.startsWith("string:")),
+    );
+    expect(withString).toBeDefined();
+    const s = withStack!;
+    expect(s.ds.hashmaps?.[0]?.entries.some((e) => e.key === "num")).toBe(true);
+    for (const hm of s.ds.hashmaps ?? []) {
+      for (const e of hm.entries) {
+        expect(String(e.value)).not.toContain("__trace");
+        expect(String(e.value).length).toBeLessThan(200);
+      }
+    }
     for (const arr of s.ds.arrays ?? []) {
       for (const v of arr.values) {
         expect(String(v)).not.toContain("__trace");
       }
     }
+  });
+
+  it("shows l/r pointers and best for maxArea", () => {
+    const code = `var maxArea = function (height) {
+  let l = 0, r = height.length - 1, best = 0;
+  while (l < r) {
+    best = Math.max(best, Math.min(height[l], height[r]) * (r - l));
+    if (height[l] < height[r]) l++; else r--;
+  }
+  return best;
+};`;
+    const r = runCodeSync(code, "height = [1,8,6,2,5,4,8,3,7]", {
+      leetcodeFunctionName: "maxArea",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const profile = buildDefaultVizProfile(r.trace, "Two Pointers");
+    const steps = executionToTraceSteps(r.trace, profile, true);
+    const mid = steps!.find((st) => (st.ds.pointers?.length ?? 0) >= 2);
+    expect(mid).toBeDefined();
+    const names = mid!.ds.pointers!.map((p) => p.name);
+    expect(names).toContain("l");
+    expect(names).toContain("r");
+    expect(mid!.ds.hashmaps?.[0]?.entries.some((e) => e.key === "best")).toBe(
+      true,
+    );
   });
 });

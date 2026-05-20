@@ -12,13 +12,22 @@ import { LinkedListView } from "./linked-list-view";
 import { StackView } from "./stack-view";
 import { TreeView } from "./tree-view";
 import { StringStackView } from "./string-stack-view";
+import { QueueView, isQueueVariable } from "./queue-view";
+import type { SceneStepDiff } from "@/lib/viz/scene/step-diff";
 
 type Props = {
   scene: VizScene | null;
   changedIndices?: Set<number>;
+  stepDiff?: SceneStepDiff | null;
+  darkStage?: boolean;
 };
 
-export function VizStage({ scene, changedIndices }: Props) {
+export function VizStage({
+  scene,
+  changedIndices,
+  stepDiff,
+  darkStage = false,
+}: Props) {
   const isRunning = useVisualizerStore((s) => s.isRunning);
   const vizSetupError = useVisualizerStore((s) => s.vizSetupError);
   const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
@@ -46,8 +55,12 @@ export function VizStage({ scene, changedIndices }: Props) {
   );
   const useStringStack = scene.stringWalk && stackStruct;
 
+  const stageBg = darkStage
+    ? "bg-[#161b22]"
+    : "bg-gradient-to-b from-slate-950/40 via-background to-background";
+
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-gradient-to-b from-slate-950/40 via-background to-background">
+    <div className={`relative flex h-full min-h-0 flex-col overflow-hidden ${stageBg}`}>
       <div className="relative flex min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain p-4 md:p-6">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-8">
           {useStringStack ? (
@@ -61,13 +74,29 @@ export function VizStage({ scene, changedIndices }: Props) {
             if (useStringStack && s.kind === "stack") return null;
             switch (s.kind) {
               case "array":
+                if (isQueueVariable(s.variable)) {
+                  return (
+                    <QueueView
+                      key={s.id}
+                      structure={s}
+                      pointers={scene.pointers}
+                      highlights={scene.highlights}
+                      changedIndices={
+                        stepDiff?.changedArrayCells.get(s.id) ??
+                        changedIndices
+                      }
+                    />
+                  );
+                }
                 return (
                   <ArrayView
                     key={s.id}
                     structure={s}
                     pointers={scene.pointers}
                     highlights={scene.highlights}
-                    changedIndices={changedIndices}
+                    changedIndices={
+                      stepDiff?.changedArrayCells.get(s.id) ?? changedIndices
+                    }
                   />
                 );
               case "linkedList":
@@ -77,10 +106,17 @@ export function VizStage({ scene, changedIndices }: Props) {
                     structure={s}
                     pointers={scene.pointers}
                     highlights={scene.highlights}
+                    changedNodeIds={stepDiff?.changedListNodeIds}
                   />
                 );
               case "stack":
-                return <StackView key={s.id} structure={s} />;
+                return (
+                  <StackView
+                    key={s.id}
+                    structure={s}
+                    lastAction={stepDiff?.stackAction ?? undefined}
+                  />
+                );
               case "tree":
                 return (
                   <TreeView

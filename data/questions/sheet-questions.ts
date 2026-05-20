@@ -286,7 +286,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "numSpecial",
     "examples": [
       {
-        "input": "mat = [[1,0,0],[0,1,0],[0,0,1]]",
+        "input": "nums = [[1,0,0],[0,1,0],[0,0,1]]",
         "output": "3"
       }
     ],
@@ -294,10 +294,10 @@ export const sheetQuestions: Question[] = [
       "Row/col counts",
       "Check special cells"
     ],
-    "starterCode": "var numSpecial = function (mat) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var numSpecial = function (mat) {\n\n\n  const m = mat.length, n = mat[0].length, row = Array(m).fill(0), col = Array(n).fill(0);\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (mat[i][j]) { row[i]++; col[j]++; }\n  let c = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (mat[i][j] && row[i] === 1 && col[j] === 1) c++;\n  return c;\n\n\n};",
-    "sampleInput": "{\"mat\":[[1,0,0],[0,1,0],[0,0,1]]}",
-    "humanInput": "mat = [[1,0,0],[0,1,0],[0,0,1]]",
+    "starterCode": "var numSpecial = function (mat) {\n\n  // TODO\n\n};",
+    "solutionCode": "var numSpecial = function (mat) {\n\n  const m = mat.length, n = mat[0].length, row = Array(m).fill(0), col = Array(n).fill(0);\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (mat[i][j]) { row[i]++; col[j]++; }\n  let c = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (mat[i][j] && row[i] === 1 && col[j] === 1) c++;\n  return c;\n\n};",
+    "sampleInput": "{\"nums\":[[1,0,0],[0,1,0],[0,0,1]]}",
+    "humanInput": "nums = [[1,0,0],[0,1,0],[0,0,1]]",
     "sampleOutput": "3",
     "sheetNumber": 10,
     "sheetSectionId": "arrays",
@@ -348,7 +348,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "updateMatrix",
     "examples": [
       {
-        "input": "mat = [[0,0,0],[0,1,0],[0,0,0]]",
+        "input": "nums = [[0,0,0],[0,1,0],[0,0,0]]",
         "output": "[[0,0,0],[0,1,0],[0,0,0]]"
       }
     ],
@@ -356,10 +356,10 @@ export const sheetQuestions: Question[] = [
       "Multi-source BFS",
       "Layer expansion"
     ],
-    "starterCode": "var updateMatrix = function (mat) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var updateMatrix = function (mat) {\n\n\n  const m = mat.length, n = mat[0].length;\n  const dist = Array.from({ length: m }, () => Array(n).fill(Infinity));\n  const q = [];\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (!mat[i][j]) { dist[i][j] = 0; q.push([i, j]); }\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j] = q[qi];\n    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < m && nj >= 0 && nj < n && dist[ni][nj] === Infinity) { dist[ni][nj] = dist[i][j] + 1; q.push([ni, nj]); }\n    }\n  }\n  return dist;\n\n\n};",
-    "sampleInput": "{\"mat\":[[0,0,0],[0,1,0],[0,0,0]]}",
-    "humanInput": "mat = [[0,0,0],[0,1,0],[0,0,0]]",
+    "starterCode": "var updateMatrix = function (mat) {\n\n  // TODO\n\n};",
+    "solutionCode": "var updateMatrix = function (mat) {\n\n  const m = mat.length, n = mat[0].length;\n  const dist = Array.from({ length: m }, () => Array(n).fill(Infinity));\n  const q = [];\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (!mat[i][j]) { dist[i][j] = 0; q.push([i, j]); }\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j] = q[qi];\n    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < m && nj >= 0 && nj < n && dist[ni][nj] === Infinity) { dist[ni][nj] = dist[i][j] + 1; q.push([ni, nj]); }\n    }\n  }\n  return dist;\n\n};",
+    "sampleInput": "{\"nums\":[[0,0,0],[0,1,0],[0,0,0]]}",
+    "humanInput": "nums = [[0,0,0],[0,1,0],[0,0,0]]",
     "sampleOutput": "[\n  [\n    0,\n    0,\n    0\n  ],\n  [\n    0,\n    1,\n    0\n  ],\n  [\n    0,\n    0,\n    0\n  ]\n]",
     "sheetNumber": 12,
     "sheetSectionId": "arrays",
@@ -418,8 +418,8 @@ export const sheetQuestions: Question[] = [
       "Previous row sums",
       "Edge ones"
     ],
-    "starterCode": "var generate = function (numRows) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var generate = function (numRows) {\n\n\n  const numRows = numRows ?? input.n;\n  const tri = [];\n  for (let i = 0; i < numRows; i++) {\n    const row = Array(i + 1).fill(1);\n    for (let j = 1; j < i; j++) row[j] = tri[i - 1][j - 1] + tri[i - 1][j];\n    tri.push(row);\n  }\n  return tri;\n\n\n};",
+    "starterCode": "var generate = function (numRows) {\n\n  // TODO\n\n};",
+    "solutionCode": "var generate = function (numRows) {\n\n  ?? input.n;\n  const tri = [];\n  for (let i = 0; i < numRows; i++) {\n    const row = Array(i + 1).fill(1);\n    for (let j = 1; j < i; j++) row[j] = tri[i - 1][j - 1] + tri[i - 1][j];\n    tri.push(row);\n  }\n  return tri;\n\n};",
     "sampleInput": "{\"numRows\":5}",
     "humanInput": "numRows = 5",
     "sampleOutput": "[\n  [\n    1\n  ],\n  [\n    1,\n    1\n  ],\n  [\n    1,\n    2,\n    1\n  ],\n  [\n    1,\n    3,\n    3,\n    1\n  ],\n  [\n    1,\n    4,\n    6,\n    4,\n    1\n  ]\n]",
@@ -634,7 +634,7 @@ export const sheetQuestions: Question[] = [
       "Check distance"
     ],
     "starterCode": "var containsNearbyDuplicate = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var containsNearbyDuplicate = function (nums, k) {\n\n\n  const k = k, m = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    if (m.has(nums[i]) && i - m.get(nums[i]) <= k) return true;\n    m.set(nums[i], i);\n  }\n  return false;\n\n\n};",
+    "solutionCode": "var containsNearbyDuplicate = function (nums, k) {\n\n\n  const m = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    if (m.has(nums[i]) && i - m.get(nums[i]) <= k) return true;\n    m.set(nums[i], i);\n  }\n  return false;\n\n\n};",
     "sampleInput": "{\"nums\":[1,2,3,1],\"k\":3}",
     "humanInput": "nums = [1,2,3,1]\nk = 3",
     "sampleOutput": "true",
@@ -723,7 +723,7 @@ export const sheetQuestions: Question[] = [
       "Set of chars"
     ],
     "starterCode": "var lengthOfLongestSubstring = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var lengthOfLongestSubstring = function (s) {\n\n\n  const s = s, seen = new Set();\n  let left = 0, best = 0;\n  for (let right = 0; right < s.length; right++) {\n    while (seen.has(s[right])) seen.delete(s[left++]);\n    seen.add(s[right]);\n    best = Math.max(best, right - left + 1);\n  }\n  return best;\n\n\n};",
+    "solutionCode": "var lengthOfLongestSubstring = function (s) {\n\n\n  const seen = new Set();\n  let left = 0, best = 0;\n  for (let right = 0; right < s.length; right++) {\n    while (seen.has(s[right])) seen.delete(s[left++]);\n    seen.add(s[right]);\n    best = Math.max(best, right - left + 1);\n  }\n  return best;\n\n\n};",
     "sampleInput": "{\"s\":\"abcabcbb\"}",
     "humanInput": "s = \"abcabcbb\"",
     "sampleOutput": "3",
@@ -754,7 +754,7 @@ export const sheetQuestions: Question[] = [
       "maxFreq + k"
     ],
     "starterCode": "var characterReplacement = function (s, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var characterReplacement = function (s, k) {\n\n\n  const s = s, k = k, cnt = new Map();\n  let left = 0, best = 0, maxF = 0;\n  for (let right = 0; right < s.length; right++) {\n    cnt.set(s[right], (cnt.get(s[right]) || 0) + 1);\n    maxF = Math.max(maxF, cnt.get(s[right]));\n    while (right - left + 1 - maxF > k) { cnt.set(s[left], cnt.get(s[left]) - 1); left++; }\n    best = Math.max(best, right - left + 1);\n  }\n  return best;\n\n\n};",
+    "solutionCode": "var characterReplacement = function (s, k) {\n\n\n  const cnt = new Map();\n  let left = 0, best = 0, maxF = 0;\n  for (let right = 0; right < s.length; right++) {\n    cnt.set(s[right], (cnt.get(s[right]) || 0) + 1);\n    maxF = Math.max(maxF, cnt.get(s[right]));\n    while (right - left + 1 - maxF > k) { cnt.set(s[left], cnt.get(s[left]) - 1); left++; }\n    best = Math.max(best, right - left + 1);\n  }\n  return best;\n\n\n};",
     "sampleInput": "{\"s\":\"AABABBA\",\"k\":1}",
     "humanInput": "s = \"AABABBA\"\nk = 1",
     "sampleOutput": "4",
@@ -1024,7 +1024,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "searchMatrix",
     "examples": [
       {
-        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]]\ntarget = 3",
+        "input": "nums = [[1,3,5,7],[10,11,16,20],[23,30,34,60]]\ntarget = 3",
         "output": "true"
       }
     ],
@@ -1032,10 +1032,10 @@ export const sheetQuestions: Question[] = [
       "Binary search flat",
       "Index to cell"
     ],
-    "starterCode": "var searchMatrix = function (matrix, target) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var searchMatrix = function (matrix, target) {\n\n\n  const mat = matrix, target = target;\n  let lo = 0, hi = mat.length * mat[0].length - 1;\n  const get = (i) => mat[Math.floor(i / mat[0].length)][i % mat[0].length];\n  while (lo <= hi) { const m = (lo + hi) >> 1; const v = get(m); if (v === target) return true; if (v < target) lo = m + 1; else hi = m - 1; }\n  return false;\n\n\n};",
-    "sampleInput": "{\"matrix\":[[1,3,5,7],[10,11,16,20],[23,30,34,60]],\"target\":3}",
-    "humanInput": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]]\ntarget = 3",
+    "starterCode": "var searchMatrix = function (matrix, target) {\n\n  // TODO\n\n};",
+    "solutionCode": "var searchMatrix = function (matrix, target) {\n\n  const mat = matrix;\n  let lo = 0, hi = mat.length * mat[0].length - 1;\n  const get = (i) => mat[Math.floor(i / mat[0].length)][i % mat[0].length];\n  while (lo <= hi) { const m = (lo + hi) >> 1; const v = get(m); if (v === target) return true; if (v < target) lo = m + 1; else hi = m - 1; }\n  return false;\n\n};",
+    "sampleInput": "{\"nums\":[[1,3,5,7],[10,11,16,20],[23,30,34,60]],\"target\":3}",
+    "humanInput": "nums = [[1,3,5,7],[10,11,16,20],[23,30,34,60]]\ntarget = 3",
     "sampleOutput": "true",
     "sheetNumber": 34,
     "sheetSectionId": "binary-search",
@@ -1126,7 +1126,7 @@ export const sheetQuestions: Question[] = [
       "Count plateau"
     ],
     "starterCode": "var preimageSizeFZF = function (k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var preimageSizeFZF = function (k) {\n\n\n  const k = k;\n  const z = (x) => { let c = 0; while (x) { x = Math.floor(x / 5); c += x; } return c; };\n  const lb = (t) => { let lo = 0, hi = 5e12; while (lo < hi) { const m = (lo + hi) >> 1; if (z(m) < t) lo = m + 1; else hi = m; } return lo; };\n  return lb(k + 1) - lb(k);\n\n\n};",
+    "solutionCode": "var preimageSizeFZF = function (k) {\n\n\n  const z = (x) => { let c = 0; while (x) { x = Math.floor(x / 5); c += x; } return c; };\n  const lb = (t) => { let lo = 0, hi = 5e12; while (lo < hi) { const m = (lo + hi) >> 1; if (z(m) < t) lo = m + 1; else hi = m; } return lo; };\n  return lb(k + 1) - lb(k);\n\n\n};",
     "sampleInput": "{\"k\":5}",
     "humanInput": "k = 5",
     "sampleOutput": "0",
@@ -1233,7 +1233,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "findKthLargest",
     "examples": [
       {
-        "input": "nums = [3,2,1,5,6,4]\nk = 2",
+        "input": "nums = [3,2,1,5,6,4]\ntarget = 2",
         "output": "6"
       }
     ],
@@ -1241,10 +1241,10 @@ export const sheetQuestions: Question[] = [
       "Quickselect",
       "Partition"
     ],
-    "starterCode": "var findKthLargest = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var findKthLargest = function (nums, k) {\n\n\n  const k = k, a = nums.slice();\n  const part = (l, r) => {\n    const p = a[r]; let i = l;\n    for (let j = l; j < r; j++) if (a[j] >= p) [a[j], a[i]] = [a[i], a[j]];\n    [a[i], a[r]] = [a[r], a[i]];\n    return i;\n  };\n  let l = 0, r = a.length - 1;\n  while (true) {\n    const p = part(l, r);\n    if (p === k - 1) return a[p];\n    if (p < k - 1) l = p + 1; else r = p - 1;\n  }\n\n\n};",
-    "sampleInput": "{\"nums\":[3,2,1,5,6,4],\"k\":2}",
-    "humanInput": "nums = [3,2,1,5,6,4]\nk = 2",
+    "starterCode": "var findKthLargest = function (nums, k) {\n\n  // TODO\n\n};",
+    "solutionCode": "var findKthLargest = function (nums, k) {\n\n  const a = nums.slice();\n  const part = (l, r) => {\n    const p = a[r]; let i = l;\n    for (let j = l; j < r; j++) if (a[j] >= p) [a[j], a[i]] = [a[i], a[j]];\n    [a[i], a[r]] = [a[r], a[i]];\n    return i;\n  };\n  let l = 0, r = a.length - 1;\n  while (true) {\n    const p = part(l, r);\n    if (p === k - 1) return a[p];\n    if (p < k - 1) l = p + 1; else r = p - 1;\n  }\n\n};",
+    "sampleInput": "{\"nums\":[3,2,1,5,6,4],\"target\":2}",
+    "humanInput": "nums = [3,2,1,5,6,4]\ntarget = 2",
     "sampleOutput": "6",
     "sheetNumber": 41,
     "sheetSectionId": "sorting",
@@ -1264,7 +1264,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "minimumAbsDifference",
     "examples": [
       {
-        "input": "arr = [4,2,1,3]",
+        "input": "nums = [4,2,1,3]",
         "output": "[[1,2],[2,3],[3,4]]"
       }
     ],
@@ -1272,10 +1272,10 @@ export const sheetQuestions: Question[] = [
       "Sort adjacent",
       "Track min diff"
     ],
-    "starterCode": "var minimumAbsDifference = function (arr) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minimumAbsDifference = function (arr) {\n\n\n  const a = arr.slice().sort((x, y) => x - y);\n  let best = Infinity, pairs = [];\n  for (let i = 1; i < a.length; i++) {\n    const d = a[i] - a[i - 1];\n    if (d < best) { best = d; pairs = [[a[i - 1], a[i]]]; }\n    else if (d === best) pairs.push([a[i - 1], a[i]]);\n  }\n  return pairs;\n\n\n};",
-    "sampleInput": "{\"arr\":[4,2,1,3]}",
-    "humanInput": "arr = [4,2,1,3]",
+    "starterCode": "var minimumAbsDifference = function (arr) {\n\n  // TODO\n\n};",
+    "solutionCode": "var minimumAbsDifference = function (arr) {\n\n  const a = arr.slice().sort((x, y) => x - y);\n  let best = Infinity, pairs = [];\n  for (let i = 1; i < a.length; i++) {\n    const d = a[i] - a[i - 1];\n    if (d < best) { best = d; pairs = [[a[i - 1], a[i]]]; }\n    else if (d === best) pairs.push([a[i - 1], a[i]]);\n  }\n  return pairs;\n\n};",
+    "sampleInput": "{\"nums\":[4,2,1,3]}",
+    "humanInput": "nums = [4,2,1,3]",
     "sampleOutput": "[\n  [\n    1,\n    2\n  ],\n  [\n    2,\n    3\n  ],\n  [\n    3,\n    4\n  ]\n]",
     "sheetNumber": 42,
     "sheetSectionId": "sorting",
@@ -1419,7 +1419,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "subarraySum",
     "examples": [
       {
-        "input": "nums = [1,1,1]\nk = 2",
+        "input": "nums = [1,1,1]\ntarget = 2",
         "output": "2"
       }
     ],
@@ -1427,10 +1427,10 @@ export const sheetQuestions: Question[] = [
       "Prefix sum map",
       "Count complements"
     ],
-    "starterCode": "var subarraySum = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var subarraySum = function (nums, k) {\n\n\n  const k = k, map = new Map([[0, 1]]);\n  let sum = 0, c = 0;\n  for (const x of nums) { sum += x; c += map.get(sum - k) || 0; map.set(sum, (map.get(sum) || 0) + 1); }\n  return c;\n\n\n};",
-    "sampleInput": "{\"nums\":[1,1,1],\"k\":2}",
-    "humanInput": "nums = [1,1,1]\nk = 2",
+    "starterCode": "var subarraySum = function (nums, k) {\n\n  // TODO\n\n};",
+    "solutionCode": "var subarraySum = function (nums, k) {\n\n  const map = new Map([[0, 1]]);\n  let sum = 0, c = 0;\n  for (const x of nums) { sum += x; c += map.get(sum - k) || 0; map.set(sum, (map.get(sum) || 0) + 1); }\n  return c;\n\n};",
+    "sampleInput": "{\"nums\":[1,1,1],\"target\":2}",
+    "humanInput": "nums = [1,1,1]\ntarget = 2",
     "sampleOutput": "2",
     "sheetNumber": 47,
     "sheetSectionId": "hashing",
@@ -1490,7 +1490,7 @@ export const sheetQuestions: Question[] = [
       "Skip dots"
     ],
     "starterCode": "var isValidSudoku = function (board) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var isValidSudoku = function (board) {\n\n\n  const board = board;\n  const rows = Array.from({ length: 9 }, () => new Set());\n  const cols = Array.from({ length: 9 }, () => new Set());\n  const boxes = Array.from({ length: 9 }, () => new Set());\n  for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) {\n    const v = board[i][j]; if (v === '.') continue;\n    const b = Math.floor(i / 3) * 3 + Math.floor(j / 3);\n    if (rows[i].has(v) || cols[j].has(v) || boxes[b].has(v)) return false;\n    rows[i].add(v); cols[j].add(v); boxes[b].add(v);\n  }\n  return true;\n\n\n};",
+    "solutionCode": "var isValidSudoku = function (board) {\n\n\n  const rows = Array.from({ length: 9 }, () => new Set());\n  const cols = Array.from({ length: 9 }, () => new Set());\n  const boxes = Array.from({ length: 9 }, () => new Set());\n  for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) {\n    const v = board[i][j]; if (v === '.') continue;\n    const b = Math.floor(i / 3) * 3 + Math.floor(j / 3);\n    if (rows[i].has(v) || cols[j].has(v) || boxes[b].has(v)) return false;\n    rows[i].add(v); cols[j].add(v); boxes[b].add(v);\n  }\n  return true;\n\n\n};",
     "sampleInput": "{\"board\":[[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]}",
     "humanInput": "board = [[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]",
     "sampleOutput": "true",
@@ -1543,7 +1543,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "subarraySum",
     "examples": [
       {
-        "input": "nums = [1,-1,0]\nk = 0",
+        "input": "nums = [1,-1,0]\ntarget = 0",
         "output": "3"
       }
     ],
@@ -1551,10 +1551,10 @@ export const sheetQuestions: Question[] = [
       "Prefix sum map",
       "Add counts"
     ],
-    "starterCode": "var subarraySum = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var subarraySum = function (nums, k) {\n\n\n  const k = k, map = new Map([[0, 1]]);\n  let sum = 0, c = 0;\n  for (const x of nums) { sum += x; c += map.get(sum - k) || 0; map.set(sum, (map.get(sum) || 0) + 1); }\n  return c;\n\n\n};",
-    "sampleInput": "{\"nums\":[1,-1,0],\"k\":0}",
-    "humanInput": "nums = [1,-1,0]\nk = 0",
+    "starterCode": "var subarraySum = function (nums, k) {\n\n  // TODO\n\n};",
+    "solutionCode": "var subarraySum = function (nums, k) {\n\n  const map = new Map([[0, 1]]);\n  let sum = 0, c = 0;\n  for (const x of nums) { sum += x; c += map.get(sum - k) || 0; map.set(sum, (map.get(sum) || 0) + 1); }\n  return c;\n\n};",
+    "sampleInput": "{\"nums\":[1,-1,0],\"target\":0}",
+    "humanInput": "nums = [1,-1,0]\ntarget = 0",
     "sampleOutput": "3",
     "sheetNumber": 51,
     "sheetSectionId": "hashing",
@@ -1583,7 +1583,7 @@ export const sheetQuestions: Question[] = [
       "Handle duplicates"
     ],
     "starterCode": "var maxPoints = function (points) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var maxPoints = function (points) {\n\n\n  const points = points;\n  const g = (a, b) => { if (!b) return a ? 'inf' : '0'; return `${a}/${b}`; };\n  let best = 0;\n  for (let i = 0; i < points.length; i++) {\n    const map = new Map(); let same = 1, local = 0;\n    for (let j = i + 1; j < points.length; j++) {\n      const dx = points[j][0] - points[i][0], dy = points[j][1] - points[i][1];\n      if (!dx && !dy) same++;\n      else { const key = g(dy, dx); map.set(key, (map.get(key) || 0) + 1); local = Math.max(local, map.get(key)); }\n    }\n    best = Math.max(best, local + same);\n  }\n  return best;\n\n\n};",
+    "solutionCode": "var maxPoints = function (points) {\n\n\n  const g = (a, b) => { if (!b) return a ? 'inf' : '0'; return `${a}/${b}`; };\n  let best = 0;\n  for (let i = 0; i < points.length; i++) {\n    const map = new Map(); let same = 1, local = 0;\n    for (let j = i + 1; j < points.length; j++) {\n      const dx = points[j][0] - points[i][0], dy = points[j][1] - points[i][1];\n      if (!dx && !dy) same++;\n      else { const key = g(dy, dx); map.set(key, (map.get(key) || 0) + 1); local = Math.max(local, map.get(key)); }\n    }\n    best = Math.max(best, local + same);\n  }\n  return best;\n\n\n};",
     "sampleInput": "{\"points\":[[1,1],[2,2],[3,3]]}",
     "humanInput": "points = [[1,1],[2,2],[3,3]]",
     "sampleOutput": "2",
@@ -1613,8 +1613,8 @@ export const sheetQuestions: Question[] = [
       "Hash reverse",
       "Check pairs"
     ],
-    "starterCode": "var palindromePairs = function (words) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var palindromePairs = function (words) {\n\n\n  const words = words;\n  const rev = (s) => s.split('').reverse().join('');\n  const idx = new Map(words.map((w, i) => [w, i]));\n  const out = [];\n  for (let i = 0; i < words.length; i++) {\n    const r = rev(words[i]);\n    if (idx.has(r) && idx.get(r) !== i) out.push([i, idx.get(r)]);\n  }\n  return out;\n\n\n};",
+    "starterCode": "var palindromePairs = function (words) {\n\n  // TODO\n\n};",
+    "solutionCode": "var palindromePairs = function (words) {\n\n  const rev = (s) => s.split('').reverse().join('');\n  const idx = new Map(words.map((w, i) => [w, i]));\n  const out = [];\n  for (let i = 0; i < words.length; i++) {\n    const r = rev(words[i]);\n    if (idx.has(r) && idx.get(r) !== i) out.push([i, idx.get(r)]);\n  }\n  return out;\n\n};",
     "sampleInput": "{\"words\":[\"bat\",\"tab\",\"cat\"]}",
     "humanInput": "words = [\"bat\",\"tab\",\"cat\"]",
     "sampleOutput": "[\n  [\n    0,\n    1\n  ],\n  [\n    1,\n    0\n  ]\n]",
@@ -1645,7 +1645,7 @@ export const sheetQuestions: Question[] = [
       "Half length"
     ],
     "starterCode": "var middleNode = function (head) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var middleNode = function (head) {\n\n\n  const head = head;\n  return head[Math.floor(head.length / 2)];\n\n\n};",
+    "solutionCode": "var middleNode = function (head) {\n\n\n  return head[Math.floor(head.length / 2)];\n\n\n};",
     "sampleInput": "{\"head\":[1,2,3,4,5]}",
     "humanInput": "head = [1,2,3,4,5]",
     "sampleOutput": "3",
@@ -1768,8 +1768,8 @@ export const sheetQuestions: Question[] = [
       "Reverse chunks",
       "Handle remainder"
     ],
-    "starterCode": "var reverseKGroup = function (head, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var reverseKGroup = function (head, k) {\n\n\n  const a = head.slice(), k = k;\n  for (let i = 0; i + k <= a.length; i += k) {\n    let l = i, r = i + k - 1;\n    while (l < r) [a[l++], a[r--]] = [a[r], a[l - 1]];\n  }\n  return a;\n\n\n};",
+    "starterCode": "var reverseKGroup = function (head, k) {\n\n  // TODO\n\n};",
+    "solutionCode": "var reverseKGroup = function (head, k) {\n\n  const a = head.slice();\n  for (let i = 0; i + k <= a.length; i += k) {\n    let l = i, r = i + k - 1;\n    while (l < r) [a[l++], a[r--]] = [a[r], a[l - 1]];\n  }\n  return a;\n\n};",
     "sampleInput": "{\"head\":[1,2,3,4,5],\"k\":2}",
     "humanInput": "head = [1,2,3,4,5]\nk = 2",
     "sampleOutput": "[\n  2,\n  null,\n  4,\n  null,\n  5\n]",
@@ -2224,7 +2224,7 @@ export const sheetQuestions: Question[] = [
       "Track gaps"
     ],
     "starterCode": "var longestValidParentheses = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var longestValidParentheses = function (s) {\n\n\n  const s = s, st = [-1];\n  let best = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (s[i] === '(') st.push(i);\n    else {\n      st.pop();\n      if (!st.length) st.push(i);\n      else best = Math.max(best, i - st[st.length - 1]);\n    }\n  }\n  return best;\n\n\n};",
+    "solutionCode": "var longestValidParentheses = function (s) {\n\n\n  const st = [-1];\n  let best = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (s[i] === '(') st.push(i);\n    else {\n      st.pop();\n      if (!st.length) st.push(i);\n      else best = Math.max(best, i - st[st.length - 1]);\n    }\n  }\n  return best;\n\n\n};",
     "sampleInput": "{\"s\":\")()())\"}",
     "humanInput": "s = \")()())\"",
     "sampleOutput": "4",
@@ -2308,7 +2308,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "largestRectangleArea",
     "examples": [
       {
-        "input": "heights = [2,1,5,6,2,3]",
+        "input": "nums = [2,1,5,6,2,3]",
         "output": "10"
       }
     ],
@@ -2316,10 +2316,10 @@ export const sheetQuestions: Question[] = [
       "Monotonic stack",
       "Expand bars"
     ],
-    "starterCode": "var largestRectangleArea = function (heights) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var largestRectangleArea = function (heights) {\n\n\n  const st = [], ans = [];\n  heights.push(0);\n  for (let i = 0; i < heights.length; i++) {\n    while (st.length && heights[i] < heights[st[st.length - 1]]) {\n      const h = heights[st.pop()];\n      const w = st.length ? i - st[st.length - 1] - 1 : i;\n      ans.push(h * w);\n    }\n    st.push(i);\n  }\n  return Math.max(...ans);\n\n\n};",
-    "sampleInput": "{\"heights\":[2,1,5,6,2,3]}",
-    "humanInput": "heights = [2,1,5,6,2,3]",
+    "starterCode": "var largestRectangleArea = function (heights) {\n\n  // TODO\n\n};",
+    "solutionCode": "var largestRectangleArea = function (heights) {\n\n  const st = [], ans = [];\n  heights.push(0);\n  for (let i = 0; i < heights.length; i++) {\n    while (st.length && heights[i] < heights[st[st.length - 1]]) {\n      const h = heights[st.pop()];\n      const w = st.length ? i - st[st.length - 1] - 1 : i;\n      ans.push(h * w);\n    }\n    st.push(i);\n  }\n  return Math.max(...ans);\n\n};",
+    "sampleInput": "{\"nums\":[2,1,5,6,2,3]}",
+    "humanInput": "nums = [2,1,5,6,2,3]",
     "sampleOutput": "10",
     "sheetNumber": 76,
     "sheetSectionId": "stack-and-queue",
@@ -2378,7 +2378,7 @@ export const sheetQuestions: Question[] = [
       "Count unmatched"
     ],
     "starterCode": "var minRemoveToMakeValid = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minRemoveToMakeValid = function (s) {\n\n\n  const s = s;\n  let removes = 0, open = 0;\n  for (const ch of s) {\n    if (ch === '(') open++;\n    else if (ch === ')') { if (open) open--; else removes++; }\n  }\n  return removes + open;\n\n\n};",
+    "solutionCode": "var minRemoveToMakeValid = function (s) {\n\n\n  let removes = 0, open = 0;\n  for (const ch of s) {\n    if (ch === '(') open++;\n    else if (ch === ')') { if (open) open--; else removes++; }\n  }\n  return removes + open;\n\n\n};",
     "sampleInput": "{\"s\":\"lee(t(c)o)de)\"}",
     "humanInput": "s = \"lee(t(c)o)de)\"",
     "sampleOutput": "1",
@@ -2499,8 +2499,8 @@ export const sheetQuestions: Question[] = [
       "Sort by start",
       "Heap of ends"
     ],
-    "starterCode": "var minMeetingRooms = function (intervals) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minMeetingRooms = function (intervals) {\n\n\n  const intervals = intervals.slice().sort((a, b) => a[0] - b[0]);\n  const ends = [];\n  for (const [s, e] of intervals) {\n    ends.sort((a, b) => a - b);\n    if (ends.length && ends[0] <= s) ends.shift();\n    ends.push(e);\n  }\n  return ends.length;\n\n\n};",
+    "starterCode": "var minMeetingRooms = function (intervals) {\n\n  // TODO\n\n};",
+    "solutionCode": "var minMeetingRooms = function (intervals) {\n\n  .slice().sort((a, b) => a[0] - b[0]);\n  const ends = [];\n  for (const [s, e] of intervals) {\n    ends.sort((a, b) => a - b);\n    if (ends.length && ends[0] <= s) ends.shift();\n    ends.push(e);\n  }\n  return ends.length;\n\n};",
     "sampleInput": "{\"intervals\":[[0,30],[5,10],[15,20]]}",
     "humanInput": "intervals = [[0,30],[5,10],[15,20]]",
     "sampleOutput": "2",
@@ -2522,7 +2522,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "topKFrequent",
     "examples": [
       {
-        "input": "nums = [1,1,1,2,2,3]\nk = 2",
+        "input": "nums = [1,1,1,2,2,3]\ntarget = 2",
         "output": "[1,2]"
       }
     ],
@@ -2530,10 +2530,10 @@ export const sheetQuestions: Question[] = [
       "Frequency map",
       "Bucket or heap"
     ],
-    "starterCode": "var topKFrequent = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var topKFrequent = function (nums, k) {\n\n\n  const k = k, cnt = new Map();\n  for (const x of nums) cnt.set(x, (cnt.get(x) || 0) + 1);\n  return [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([x]) => x);\n\n\n};",
-    "sampleInput": "{\"nums\":[1,1,1,2,2,3],\"k\":2}",
-    "humanInput": "nums = [1,1,1,2,2,3]\nk = 2",
+    "starterCode": "var topKFrequent = function (nums, k) {\n\n  // TODO\n\n};",
+    "solutionCode": "var topKFrequent = function (nums, k) {\n\n  const cnt = new Map();\n  for (const x of nums) cnt.set(x, (cnt.get(x) || 0) + 1);\n  return [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([x]) => x);\n\n};",
+    "sampleInput": "{\"nums\":[1,1,1,2,2,3],\"target\":2}",
+    "humanInput": "nums = [1,1,1,2,2,3]\ntarget = 2",
     "sampleOutput": "[\n  1,\n  2\n]",
     "sheetNumber": 83,
     "sheetSectionId": "heap",
@@ -2593,7 +2593,7 @@ export const sheetQuestions: Question[] = [
       "Alternate 5 and 4"
     ],
     "starterCode": "var countGoodNumbers = function (n) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var countGoodNumbers = function (n) {\n\n\n  const n = n;\n  const mod = 1e9 + 7;\n  const pow = (a, e) => { let r = 1n; a = BigInt(a); while (e) { if (e & 1) r = r * a % BigInt(mod); a = a * a % BigInt(mod); e >>= 1; } return Number(r); };\n  return (pow(5, Math.ceil(n / 2)) * pow(4, Math.floor(n / 2))) % mod;\n\n\n};",
+    "solutionCode": "var countGoodNumbers = function (n) {\n\n\n  const mod = 1e9 + 7;\n  const pow = (a, e) => { let r = 1n; a = BigInt(a); while (e) { if (e & 1) r = r * a % BigInt(mod); a = a * a % BigInt(mod); e >>= 1; } return Number(r); };\n  return (pow(5, Math.ceil(n / 2)) * pow(4, Math.floor(n / 2))) % mod;\n\n\n};",
     "sampleInput": "{\"n\":4}",
     "humanInput": "n = 4",
     "sampleOutput": "400",
@@ -2779,7 +2779,7 @@ export const sheetQuestions: Question[] = [
       "Build combo"
     ],
     "starterCode": "var combine = function (n, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var combine = function (n, k) {\n\n\n  , out = [];\n  const dfs = (start, path) => {\n    if (path.length === k) { out.push(path.slice()); return; }\n    for (let i = start; i <= n; i++) { path.push(i); dfs(i + 1, path); path.pop(); }\n  };\n  dfs(1, []);\n  return out;\n\n\n};",
+    "solutionCode": "var combine = function (n, k) {\n\n\n  const out = [];\n  const dfs = (start, path) => {\n    if (path.length === k) { out.push(path.slice()); return; }\n    for (let i = start; i <= n; i++) { path.push(i); dfs(i + 1, path); path.pop(); }\n  };\n  dfs(1, []);\n  return out;\n\n\n};",
     "sampleInput": "{\"n\":4,\"k\":2}",
     "humanInput": "n = 4\nk = 2",
     "sampleOutput": "[\n  [\n    1,\n    2\n  ],\n  [\n    1,\n    3\n  ],\n  [\n    1,\n    4\n  ],\n  [\n    2,\n    3\n  ],\n  [\n    2,\n    4\n  ],\n  [\n    3,\n    4\n  ]\n]",
@@ -2810,7 +2810,7 @@ export const sheetQuestions: Question[] = [
       "Subtract target"
     ],
     "starterCode": "var combinationSum = function (candidates, target) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var combinationSum = function (candidates, target) {\n\n\n  , out = [];\n  const dfs = (i, rem, path) => {\n    if (rem === 0) { out.push(path.slice()); return; }\n    if (rem < 0 || i === candidates.length) return;\n    path.push(candidates[i]); dfs(i, rem - candidates[i], path); path.pop();\n    dfs(i + 1, rem, path);\n  };\n  dfs(0, target, []);\n  return out;\n\n\n};",
+    "solutionCode": "var combinationSum = function (candidates, target) {\n\n\n  const out = [];\n  const dfs = (i, rem, path) => {\n    if (rem === 0) { out.push(path.slice()); return; }\n    if (rem < 0 || i === candidates.length) return;\n    path.push(candidates[i]); dfs(i, rem - candidates[i], path); path.pop();\n    dfs(i + 1, rem, path);\n  };\n  dfs(0, target, []);\n  return out;\n\n\n};",
     "sampleInput": "{\"candidates\":[2,3,6,7],\"target\":7}",
     "humanInput": "candidates = [2,3,6,7]\ntarget = 7",
     "sampleOutput": "[\n  [\n    2,\n    2,\n    3\n  ],\n  [\n    7\n  ]\n]",
@@ -2841,7 +2841,7 @@ export const sheetQuestions: Question[] = [
       "No reuse"
     ],
     "starterCode": "var combinationSum3 = function (k, n) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var combinationSum3 = function (k, n) {\n\n\n  , out = [];\n  const dfs = (start, rem, path) => {\n    if (path.length === k && rem === 0) { out.push(path.slice()); return; }\n    if (rem < 0 || path.length > k) return;\n    for (let i = start; i <= 9; i++) { path.push(i); dfs(i + 1, rem - i, path); path.pop(); }\n  };\n  dfs(1, n, []);\n  return out;\n\n\n};",
+    "solutionCode": "var combinationSum3 = function (k, n) {\n\n\n  const out = [];\n  const dfs = (start, rem, path) => {\n    if (path.length === k && rem === 0) { out.push(path.slice()); return; }\n    if (rem < 0 || path.length > k) return;\n    for (let i = start; i <= 9; i++) { path.push(i); dfs(i + 1, rem - i, path); path.pop(); }\n  };\n  dfs(1, n, []);\n  return out;\n\n\n};",
     "sampleInput": "{\"k\":3,\"n\":7}",
     "humanInput": "k = 3\nn = 7",
     "sampleOutput": "[\n  [\n    1,\n    2,\n    4\n  ]\n]",
@@ -2996,7 +2996,7 @@ export const sheetQuestions: Question[] = [
       "Check box"
     ],
     "starterCode": "var solveSudoku = function (board) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var solveSudoku = function (board) {\n\n\n  const board = board;\n  const ok = (r, c, ch) => {\n    for (let i = 0; i < 9; i++) if (board[r][i] === ch || board[i][c] === ch) return false;\n    const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;\n    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (board[br + i][bc + j] === ch) return false;\n    return true;\n  };\n  const solve = () => {\n    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {\n      if (board[r][c] !== '.') continue;\n      for (let d = 1; d <= 9; d++) {\n        const ch = String(d);\n        if (!ok(r, c, ch)) continue;\n        board[r][c] = ch;\n        if (solveSudoku()) return true;\n        board[r][c] = '.';\n      }\n      return false;\n    }\n    return true;\n  };\n  solveSudoku();\n  return board;\n\n\n};",
+    "solutionCode": "var solveSudoku = function (board) {\n\n\n  const ok = (r, c, ch) => {\n    for (let i = 0; i < 9; i++) if (board[r][i] === ch || board[i][c] === ch) return false;\n    const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;\n    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (board[br + i][bc + j] === ch) return false;\n    return true;\n  };\n  const solve = () => {\n    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {\n      if (board[r][c] !== '.') continue;\n      for (let d = 1; d <= 9; d++) {\n        const ch = String(d);\n        if (!ok(r, c, ch)) continue;\n        board[r][c] = ch;\n        if (solve()) return true;\n        board[r][c] = '.';\n      }\n      return false;\n    }\n    return true;\n  };\n  solve();\n  return board;\n\n\n};",
     "sampleInput": "{\"board\":[[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]}",
     "humanInput": "board = [[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]",
     "sampleOutput": "[\n  [\n    \"5\",\n    \"3\",\n    \"4\",\n    \"6\",\n    \"7\",\n    \"8\",\n    \"9\",\n    \"1\",\n    \"2\"\n  ],\n  [\n    \"6\",\n    \"7\",\n    \"2\",\n    \"1\",\n    \"9\",\n    \"5\",\n    \"3\",\n    \"4\",\n    \"8\"\n  ],\n  [\n    \"1\",\n    \"9\",\n    \"8\",\n    \"3\",\n    \"4\",\n    \"2\",\n    \"5\",\n    \"6\",\n    \"7\"\n  ],\n  [\n    \"8\",\n    \"5\",\n    \"9\",\n    \"7\",\n    \"6\",\n    \"1\",\n    \"4\",\n    \"2\",\n    \"3\"\n  ],\n  [\n    \"4\",\n    \"2\",\n    \"6\",\n    \"8\",\n    \"5\",\n    \"3\",\n    \"7\",\n    \"9\",\n    \"1\"\n  ],\n  [\n    \"7\",\n    \"1\",\n    \"3\",\n    \"9\",\n    \"2\",\n    \"4\",\n    \"8\",\n    \"5\",\n    \"6\"\n  ],\n  [\n    \"9\",\n    \"6\",\n    \"1\",\n    \"5\",\n    \"3\",\n    \"7\",\n    \"2\",\n    \"8\",\n    \"4\"\n  ],\n  [\n    \"2\",\n    \"8\",\n    \"7\",\n    \"4\",\n    \"1\",\n    \"9\",\n    \"6\",\n    \"3\",\n    \"5\"\n  ],\n  [\n    \"3\",\n    \"4\",\n    \"5\",\n    \"2\",\n    \"8\",\n    \"6\",\n    \"1\",\n    \"7\",\n    \"9\"\n  ]\n]",
@@ -3073,7 +3073,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "hasPathSum",
     "examples": [
       {
-        "input": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
+        "input": "tree = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
         "output": "true"
       }
     ],
@@ -3081,10 +3081,10 @@ export const sheetQuestions: Question[] = [
       "DFS subtract",
       "Leaf check"
     ],
-    "starterCode": "var hasPathSum = function (root, targetSum) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var hasPathSum = function (root, targetSum) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root);\n  const dfs = (n, rem) => {\n    if (!n) return false;\n    if (!n.left && !n.right) return rem === n.val;\n    return dfs(n.left, rem - n.val) || dfs(n.right, rem - n.val);\n  };\n  return dfs(root, targetSum);\n\n\n};",
-    "sampleInput": "{\"root\":[5,4,8,11,null,13,4,7,2,null,null,null,1],\"targetSum\":22}",
-    "humanInput": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
+    "starterCode": "var hasPathSum = function (root, targetSum) {\n\n  // TODO\n\n};",
+    "solutionCode": "var hasPathSum = function (root, targetSum) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root);\n  const dfs = (n, rem) => {\n    if (!n) return false;\n    if (!n.left && !n.right) return rem === n.val;\n    return dfs(n.left, rem - n.val) || dfs(n.right, rem - n.val);\n  };\n  return dfs(root, targetSum);\n\n};",
+    "sampleInput": "{\"tree\":[5,4,8,11,null,13,4,7,2,null,null,null,1],\"targetSum\":22}",
+    "humanInput": "tree = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
     "sampleOutput": "true",
     "sheetNumber": 101,
     "sheetSectionId": "trees",
@@ -3135,7 +3135,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "levelOrder",
     "examples": [
       {
-        "input": "root = [3,9,20,null,null,15,7]",
+        "input": "tree = [3,9,20,null,null,15,7]",
         "output": "[[3],[9,20],[15,7]]"
       }
     ],
@@ -3143,10 +3143,10 @@ export const sheetQuestions: Question[] = [
       "BFS queue",
       "Level by level"
     ],
-    "starterCode": "var levelOrder = function (root) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var levelOrder = function (root) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  while (q.length) {\n    const level = [], size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      level.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n    out.push(level);\n  }\n  return out;\n\n\n};",
-    "sampleInput": "{\"root\":[3,9,20,null,null,15,7]}",
-    "humanInput": "root = [3,9,20,null,null,15,7]",
+    "starterCode": "var levelOrder = function (root) {\n\n  // TODO\n\n};",
+    "solutionCode": "var levelOrder = function (root) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  while (q.length) {\n    const level = [], size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      level.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n    out.push(level);\n  }\n  return out;\n\n};",
+    "sampleInput": "{\"tree\":[3,9,20,null,null,15,7]}",
+    "humanInput": "tree = [3,9,20,null,null,15,7]",
     "sampleOutput": "[\n  [\n    3\n  ],\n  [\n    9,\n    20\n  ],\n  [\n    15,\n    7\n  ]\n]",
     "sheetNumber": 103,
     "sheetSectionId": "trees",
@@ -3197,7 +3197,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "mctFromLeafValues",
     "examples": [
       {
-        "input": "arr = [6,2,4]",
+        "input": "tree = [6,2,4]",
         "output": "12"
       }
     ],
@@ -3205,10 +3205,10 @@ export const sheetQuestions: Question[] = [
       "Monotonic stack",
       "Multiply peaks"
     ],
-    "starterCode": "var mctFromLeafValues = function (arr) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var mctFromLeafValues = function (arr) {\n\n\n  const arr = arr.filter((x) => x != null);\n  const st = [];\n  let sum = 0;\n  for (const x of arr) {\n    while (st.length && st[st.length - 1] < x) {\n      const mid = st.pop();\n      const left = st.length ? st[st.length - 1] : 0;\n      sum += mid * Math.max(left, x);\n    }\n    st.push(x);\n  }\n  return sum;\n\n\n};",
-    "sampleInput": "{\"arr\":[6,2,4]}",
-    "humanInput": "arr = [6,2,4]",
+    "starterCode": "var mctFromLeafValues = function (arr) {\n\n  // TODO\n\n};",
+    "solutionCode": "var mctFromLeafValues = function (arr) {\n\n  .filter((x) => x != null);\n  const st = [];\n  let sum = 0;\n  for (const x of arr) {\n    while (st.length && st[st.length - 1] < x) {\n      const mid = st.pop();\n      const left = st.length ? st[st.length - 1] : 0;\n      sum += mid * Math.max(left, x);\n    }\n    st.push(x);\n  }\n  return sum;\n\n};",
+    "sampleInput": "{\"tree\":[6,2,4]}",
+    "humanInput": "tree = [6,2,4]",
     "sampleOutput": "12",
     "sheetNumber": 105,
     "sheetSectionId": "trees",
@@ -3228,7 +3228,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "zigzagLevelOrder",
     "examples": [
       {
-        "input": "root = [3,9,20,null,null,15,7]",
+        "input": "tree = [3,9,20,null,null,15,7]",
         "output": "[[3],[20,9],[15,7]]"
       }
     ],
@@ -3236,10 +3236,10 @@ export const sheetQuestions: Question[] = [
       "BFS alternate",
       "Reverse every other"
     ],
-    "starterCode": "var zigzagLevelOrder = function (root) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var zigzagLevelOrder = function (root) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  let rev = false;\n  while (q.length) {\n    const level = [], size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      level.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n    out.push(rev ? level.reverse() : level);\n    rev = !rev;\n  }\n  return out;\n\n\n};",
-    "sampleInput": "{\"root\":[3,9,20,null,null,15,7]}",
-    "humanInput": "root = [3,9,20,null,null,15,7]",
+    "starterCode": "var zigzagLevelOrder = function (root) {\n\n  // TODO\n\n};",
+    "solutionCode": "var zigzagLevelOrder = function (root) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  let rev = false;\n  while (q.length) {\n    const level = [], size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      level.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n    out.push(rev ? level.reverse() : level);\n    rev = !rev;\n  }\n  return out;\n\n};",
+    "sampleInput": "{\"tree\":[3,9,20,null,null,15,7]}",
+    "humanInput": "tree = [3,9,20,null,null,15,7]",
     "sampleOutput": "[\n  [\n    3\n  ],\n  [\n    20,\n    9\n  ],\n  [\n    15,\n    7\n  ]\n]",
     "sheetNumber": 106,
     "sheetSectionId": "trees",
@@ -3321,7 +3321,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "rightSideView",
     "examples": [
       {
-        "input": "root = [1,2,3,null,5,null,4]",
+        "input": "tree = [1,2,3,null,5,null,4]",
         "output": "[1,3,4]"
       }
     ],
@@ -3329,10 +3329,10 @@ export const sheetQuestions: Question[] = [
       "BFS last per level",
       "Or DFS right first"
     ],
-    "starterCode": "var rightSideView = function (root) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var rightSideView = function (root) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  while (q.length) {\n    const size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      if (i === size - 1) out.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n  }\n  return out;\n\n\n};",
-    "sampleInput": "{\"root\":[1,2,3,null,5,null,4]}",
-    "humanInput": "root = [1,2,3,null,5,null,4]",
+    "starterCode": "var rightSideView = function (root) {\n\n  // TODO\n\n};",
+    "solutionCode": "var rightSideView = function (root) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [], q = root ? [root] : [];\n  while (q.length) {\n    const size = q.length;\n    for (let i = 0; i < size; i++) {\n      const n = q.shift();\n      if (i === size - 1) out.push(n.val);\n      if (n.left) q.push(n.left);\n      if (n.right) q.push(n.right);\n    }\n  }\n  return out;\n\n};",
+    "sampleInput": "{\"tree\":[1,2,3,null,5,null,4]}",
+    "humanInput": "tree = [1,2,3,null,5,null,4]",
     "sampleOutput": "[\n  1,\n  3,\n  4\n]",
     "sheetNumber": 109,
     "sheetSectionId": "trees",
@@ -3352,7 +3352,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "pathSum",
     "examples": [
       {
-        "input": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
+        "input": "tree = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
         "output": "[[5,4,11,2]]"
       }
     ],
@@ -3360,10 +3360,10 @@ export const sheetQuestions: Question[] = [
       "DFS path",
       "Collect at leaf"
     ],
-    "starterCode": "var pathSum = function (root, targetSum) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var pathSum = function (root, targetSum) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [];\n  const dfs = (n, rem, path) => {\n    if (!n) return;\n    path.push(n.val);\n    if (!n.left && !n.right && rem === n.val) out.push(path.slice());\n    dfs(n.left, rem - n.val, path); dfs(n.right, rem - n.val, path);\n    path.pop();\n  };\n  dfs(root, targetSum, []);\n  return out;\n\n\n};",
-    "sampleInput": "{\"root\":[5,4,8,11,null,13,4,7,2,null,null,null,1],\"targetSum\":22}",
-    "humanInput": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
+    "starterCode": "var pathSum = function (root, targetSum) {\n\n  // TODO\n\n};",
+    "solutionCode": "var pathSum = function (root, targetSum) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  const root = build(root), out = [];\n  const dfs = (n, rem, path) => {\n    if (!n) return;\n    path.push(n.val);\n    if (!n.left && !n.right && rem === n.val) out.push(path.slice());\n    dfs(n.left, rem - n.val, path); dfs(n.right, rem - n.val, path);\n    path.pop();\n  };\n  dfs(root, targetSum, []);\n  return out;\n\n};",
+    "sampleInput": "{\"tree\":[5,4,8,11,null,13,4,7,2,null,null,null,1],\"targetSum\":22}",
+    "humanInput": "tree = [5,4,8,11,null,13,4,7,2,null,null,null,1]\ntargetSum = 22",
     "sampleOutput": "[\n  [\n    5,\n    4,\n    11,\n    2\n  ]\n]",
     "sheetNumber": 110,
     "sheetSectionId": "trees",
@@ -3414,7 +3414,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "lowestCommonAncestor",
     "examples": [
       {
-        "input": "root = [6,2,8,0,4,7,9,null,null,3,5]\np = 2\nq = 8",
+        "input": "tree = [6,2,8,0,4,7,9,null,null,3,5]\np = 2\nq = 8",
         "output": "6"
       }
     ],
@@ -3422,10 +3422,10 @@ export const sheetQuestions: Question[] = [
       "Compare with p,q",
       "Go left or right"
     ],
-    "starterCode": "var lowestCommonAncestor = function (root, p, q) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var lowestCommonAncestor = function (root, p, q) {\n\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  let root = build(root);\n  while (root) {\n    if (p < root.val && q < root.val) root = root.left;\n    else if (p > root.val && q > root.val) root = root.right;\n    else return root.val;\n  }\n  return null;\n\n\n};",
-    "sampleInput": "{\"root\":[6,2,8,0,4,7,9,null,null,3,5],\"p\":2,\"q\":8}",
-    "humanInput": "root = [6,2,8,0,4,7,9,null,null,3,5]\np = 2\nq = 8",
+    "starterCode": "var lowestCommonAncestor = function (root, p, q) {\n\n  // TODO\n\n};",
+    "solutionCode": "var lowestCommonAncestor = function (root, p, q) {\n\n  const build = (arr, i = 0) => {\n    if (i >= arr.length || arr[i] == null) return null;\n    return { val: arr[i], left: build(arr, 2 * i + 1), right: build(arr, 2 * i + 2) };\n  };\n  let root = build(root);\n  while (root) {\n    if (p < root.val && q < root.val) root = root.left;\n    else if (p > root.val && q > root.val) root = root.right;\n    else return root.val;\n  }\n  return null;\n\n};",
+    "sampleInput": "{\"tree\":[6,2,8,0,4,7,9,null,null,3,5],\"p\":2,\"q\":8}",
+    "humanInput": "tree = [6,2,8,0,4,7,9,null,null,3,5]\np = 2\nq = 8",
     "sampleOutput": "6",
     "sheetNumber": 112,
     "sheetSectionId": "trees",
@@ -3545,8 +3545,8 @@ export const sheetQuestions: Question[] = [
       "Sort h desc p asc",
       "Insert by p"
     ],
-    "starterCode": "var reconstructQueue = function (people) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var reconstructQueue = function (people) {\n\n\n  const people = people.slice().sort((a, b) => b[0] - a[0] || a[1] - b[1]);\n  const out = [];\n  for (const p of people) out.splice(p[1], 0, p);\n  return out;\n\n\n};",
+    "starterCode": "var reconstructQueue = function (people) {\n\n  // TODO\n\n};",
+    "solutionCode": "var reconstructQueue = function (people) {\n\n  .slice().sort((a, b) => b[0] - a[0] || a[1] - b[1]);\n  const out = [];\n  for (const p of people) out.splice(p[1], 0, p);\n  return out;\n\n};",
     "sampleInput": "{\"people\":[[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]}",
     "humanInput": "people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]",
     "sampleOutput": "[\n  [\n    5,\n    0\n  ],\n  [\n    7,\n    0\n  ],\n  [\n    5,\n    2\n  ],\n  [\n    6,\n    1\n  ],\n  [\n    4,\n    4\n  ],\n  [\n    7,\n    1\n  ]\n]",
@@ -3882,8 +3882,8 @@ export const sheetQuestions: Question[] = [
       "Multi-source BFS",
       "Track fresh count"
     ],
-    "starterCode": "var orangesRotting = function (grid) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var orangesRotting = function (grid) {\n\n\n  const grid = grid.map((r) => r.slice());\n  const m = grid.length, n = grid[0].length;\n  let fresh = 0, q = [], mins = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) {\n    if (grid[i][j] === 1) fresh++;\n    if (grid[i][j] === 2) q.push([i, j]);\n  }\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j] = q[qi];\n    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < m && nj >= 0 && nj < n && grid[ni][nj] === 1) {\n        grid[ni][nj] = 2; fresh--; q.push([ni, nj]);\n      }\n    }\n    if (qi === q.length - 1 && fresh && mins < 100) { mins++; }\n  }\n  return fresh ? -1 : mins;\n\n\n};",
+    "starterCode": "var orangesRotting = function (grid) {\n\n  // TODO\n\n};",
+    "solutionCode": "var orangesRotting = function (grid) {\n\n  .map((r) => r.slice());\n  const m = grid.length, n = grid[0].length;\n  let fresh = 0, q = [], mins = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) {\n    if (grid[i][j] === 1) fresh++;\n    if (grid[i][j] === 2) q.push([i, j]);\n  }\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j] = q[qi];\n    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < m && nj >= 0 && nj < n && grid[ni][nj] === 1) {\n        grid[ni][nj] = 2; fresh--; q.push([ni, nj]);\n      }\n    }\n    if (qi === q.length - 1 && fresh && mins < 100) { mins++; }\n  }\n  return fresh ? -1 : mins;\n\n};",
     "sampleInput": "{\"grid\":[[2,1,1],[1,1,0],[0,1,1]]}",
     "humanInput": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
     "sampleOutput": "0",
@@ -3975,8 +3975,8 @@ export const sheetQuestions: Question[] = [
       "DFS from borders",
       "Mark reachable"
     ],
-    "starterCode": "var numEnclaves = function (grid) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var numEnclaves = function (grid) {\n\n\n  const grid = grid.map((r) => r.slice());\n  const m = grid.length, n = grid[0].length;\n  const dfs = (i, j) => {\n    if (i < 0 || j < 0 || i >= m || j >= n || grid[i][j] !== 0) return;\n    grid[i][j] = 2;\n    dfs(i + 1, j); dfs(i - 1, j); dfs(i, j + 1); dfs(i, j - 1);\n  };\n  for (let i = 0; i < m; i++) { dfs(i, 0); dfs(i, n - 1); }\n  for (let j = 0; j < n; j++) { dfs(0, j); dfs(m - 1, j); }\n  let c = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (grid[i][j] === 0) c++;\n  return c;\n\n\n};",
+    "starterCode": "var numEnclaves = function (grid) {\n\n  // TODO\n\n};",
+    "solutionCode": "var numEnclaves = function (grid) {\n\n  .map((r) => r.slice());\n  const m = grid.length, n = grid[0].length;\n  const dfs = (i, j) => {\n    if (i < 0 || j < 0 || i >= m || j >= n || grid[i][j] !== 0) return;\n    grid[i][j] = 2;\n    dfs(i + 1, j); dfs(i - 1, j); dfs(i, j + 1); dfs(i, j - 1);\n  };\n  for (let i = 0; i < m; i++) { dfs(i, 0); dfs(i, n - 1); }\n  for (let j = 0; j < n; j++) { dfs(0, j); dfs(m - 1, j); }\n  let c = 0;\n  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) if (grid[i][j] === 0) c++;\n  return c;\n\n};",
     "sampleInput": "{\"grid\":[[0,0,0,0],[1,0,0,1],[0,1,1,0],[0,1,0,0]]}",
     "humanInput": "grid = [[0,0,0,0],[1,0,0,1],[0,1,1,0],[0,1,0,0]]",
     "sampleOutput": "0",
@@ -4111,10 +4111,9 @@ export const sheetQuestions: Question[] = [
     "description": "<p>There is a directed graph of <code>n</code> nodes with each node labeled from <code>0</code> to <code>n - 1</code>. The graph is represented by a <strong>0-indexed</strong> 2D integer array <code>graph</code> where <code>graph[i]</code> is an integer array of nodes adjacent to node <code>i</code>, meaning there is an edge from node <code>i</code> to each node in <code>graph[i]</code>.</p>\n\n<p>A node is a <strong>terminal node</strong> if there are no outgoing edges. A node is a <strong>safe node</strong> if every possible path starting from that node leads to a <strong>terminal node</strong> (or another safe node).</p>\n\n<p>Return <em>an array containing all the <strong>safe nodes</strong> of the graph</em>. The answer should be sorted in <strong>ascending</strong> order.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n<img alt=\"Illustration of graph\" src=\"https://s3-lc-upload.s3.amazonaws.com/uploads/2018/03/17/picture1.png\" style=\"height: 171px; width: 600px;\" />\n<pre>\n<strong>Input:</strong> graph = [[1,2],[2,3],[5],[0],[5],[],[]]\n<strong>Output:</strong> [2,4,5,6]\n<strong>Explanation:</strong> The given graph is shown above.\nNodes 5 and 6 are terminal nodes as there are no outgoing edges from either of them.\nEvery path starting at nodes 2, 4, 5, and 6 all lead to either node 5 or 6.</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> graph = [[1,2,3,4],[1,2],[3,4],[0,4],[]]\n<strong>Output:</strong> [4]\n<strong>Explanation:</strong>\nOnly node 4 is a terminal node, and every path starting at node 4 leads to node 4.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>n == graph.length</code></li>\n\t<li><code>1 &lt;= n &lt;= 10<sup>4</sup></code></li>\n\t<li><code>0 &lt;= graph[i].length &lt;= n</code></li>\n\t<li><code>0 &lt;= graph[i][j] &lt;= n - 1</code></li>\n\t<li><code>graph[i]</code> is sorted in a strictly increasing order.</li>\n\t<li>The graph may contain self-loops.</li>\n\t<li>The number of edges in the graph will be in the range <code>[1, 4 * 10<sup>4</sup>]</code>.</li>\n</ul>\n",
     "leetcodeSlug": "find-eventual-safe-states",
     "leetcodeUrl": "https://leetcode.com/problems/find-eventual-safe-states/",
-    "entryFunction": "eventualSafeNodes",
     "examples": [
       {
-        "input": "graph = 7",
+        "input": "n = 7\nedges = [[1,2],[2,3],[5,4],[4,3],[0,1],[3,0],[6,5]]",
         "output": "[]"
       }
     ],
@@ -4122,10 +4121,10 @@ export const sheetQuestions: Question[] = [
       "Reverse graph",
       "Nodes with outdegree 0"
     ],
-    "starterCode": "var eventualSafeNodes = function (graph) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var eventualSafeNodes = function (graph) {\n\n\n  const adj = Array.from({ length: graph }, () => []);\n  for (const [a, b] of edges) adj[b].push(a);\n  const indeg = Array(graph).fill(0);\n  for (let u = 0; u < graph; u++) for (const v of adj[u]) indeg[v]++;\n  const q = [];\n  for (let i = 0; i < graph; i++) if (!indeg[i]) q.push(i);\n  const safe = [];\n  while (q.length) { const u = q.shift(); safe.push(u); for (const v of adj[u]) if (--indeg[v] === 0) q.push(v); }\n  return safe.sort((a, b) => a - b);\n\n\n};",
-    "sampleInput": "{\"graph\":7}",
-    "humanInput": "graph = 7",
+    "starterCode": "function solve(input) {\n  // TODO\n}",
+    "solutionCode": "function solve(input) {\n  const { n, edges } = input;\n  const adj = Array.from({ length: n }, () => []);\n  for (const [a, b] of edges) adj[b].push(a);\n  const indeg = Array(n).fill(0);\n  for (let u = 0; u < n; u++) for (const v of adj[u]) indeg[v]++;\n  const q = [];\n  for (let i = 0; i < n; i++) if (!indeg[i]) q.push(i);\n  const safe = [];\n  while (q.length) { const u = q.shift(); safe.push(u); for (const v of adj[u]) if (--indeg[v] === 0) q.push(v); }\n  return safe.sort((a, b) => a - b);\n}",
+    "sampleInput": "{\"n\":7,\"edges\":[[1,2],[2,3],[5,4],[4,3],[0,1],[3,0],[6,5]]}",
+    "humanInput": "n = 7\nedges = [[1,2],[2,3],[5,4],[4,3],[0,1],[3,0],[6,5]]",
     "sampleOutput": "[]",
     "sheetNumber": 135,
     "sheetSectionId": "graphs",
@@ -4147,7 +4146,7 @@ export const sheetQuestions: Question[] = [
       "Build graph from words"
     ],
     "starterCode": "var alienOrder = function (words) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var alienOrder = function (words) {\n\n\n  const words = words;\n  const adj = new Map();\n  const indeg = new Map();\n  const add = (c) => { if (!adj.has(c)) { adj.set(c, new Set()); indeg.set(c, 0); } };\n  for (const w of words) for (const c of w) add(c);\n  for (let i = 0; i < words.length - 1; i++) {\n    const a = words[i], b = words[i + 1];\n    for (let j = 0; j < Math.min(a.length, b.length); j++) {\n      if (a[j] !== b[j]) { adj.get(a[j]).add(b[j]); indeg.set(b[j], indeg.get(b[j]) + 1); break; }\n    }\n  }\n  const q = [...indeg.entries()].filter(([, d]) => !d).map(([c]) => c);\n  let order = '';\n  while (q.length) {\n    const c = q.shift();\n    order += c;\n    for (const nxt of adj.get(c)) {\n      const d = indeg.get(nxt) - 1;\n      indeg.set(nxt, d);\n      if (d === 0) q.push(nxt);\n    }\n  }\n  return order.length === indeg.size ? order : '';\n\n\n};",
+    "solutionCode": "var alienOrder = function (words) {\n\n\n  const adj = new Map();\n  const indeg = new Map();\n  const add = (c) => { if (!adj.has(c)) { adj.set(c, new Set()); indeg.set(c, 0); } };\n  for (const w of words) for (const c of w) add(c);\n  for (let i = 0; i < words.length - 1; i++) {\n    const a = words[i], b = words[i + 1];\n    for (let j = 0; j < Math.min(a.length, b.length); j++) {\n      if (a[j] !== b[j]) { adj.get(a[j]).add(b[j]); indeg.set(b[j], indeg.get(b[j]) + 1); break; }\n    }\n  }\n  const q = [...indeg.entries()].filter(([, d]) => !d).map(([c]) => c);\n  let order = '';\n  while (q.length) {\n    const c = q.shift();\n    order += c;\n    for (const nxt of adj.get(c)) {\n      const d = indeg.get(nxt) - 1;\n      indeg.set(nxt, d);\n      if (d === 0) q.push(nxt);\n    }\n  }\n  return order.length === indeg.size ? order : '';\n\n\n};",
     "sampleInput": "{\"words\":[\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]}",
     "humanInput": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
     "sheetNumber": 136,
@@ -4208,7 +4207,7 @@ export const sheetQuestions: Question[] = [
       "Avoid 1 cells"
     ],
     "starterCode": "var shortestPathBinaryMatrix = function (grid) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var shortestPathBinaryMatrix = function (grid) {\n\n\n  const grid = grid;\n  const n = grid.length;\n  if (grid[0][0] || grid[n - 1][n - 1]) return -1;\n  const q = [[0, 0, 1]];\n  grid[0][0] = 1;\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j, d] = q[qi];\n    if (i === n - 1 && j === n - 1) return d;\n    for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) {\n      if (!di && !dj) continue;\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < n && nj >= 0 && nj < n && !grid[ni][nj]) { grid[ni][nj] = 1; q.push([ni, nj, d + 1]); }\n    }\n  }\n  return -1;\n\n\n};",
+    "solutionCode": "var shortestPathBinaryMatrix = function (grid) {\n\n\n  const n = grid.length;\n  if (grid[0][0] || grid[n - 1][n - 1]) return -1;\n  const q = [[0, 0, 1]];\n  grid[0][0] = 1;\n  for (let qi = 0; qi < q.length; qi++) {\n    const [i, j, d] = q[qi];\n    if (i === n - 1 && j === n - 1) return d;\n    for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) {\n      if (!di && !dj) continue;\n      const ni = i + di, nj = j + dj;\n      if (ni >= 0 && ni < n && nj >= 0 && nj < n && !grid[ni][nj]) { grid[ni][nj] = 1; q.push([ni, nj, d + 1]); }\n    }\n  }\n  return -1;\n\n\n};",
     "sampleInput": "{\"grid\":[[0,1],[1,0]]}",
     "humanInput": "grid = [[0,1],[1,0]]",
     "sampleOutput": "2",
@@ -4238,8 +4237,8 @@ export const sheetQuestions: Question[] = [
       "Dijkstra on effort",
       "Max step diff"
     ],
-    "starterCode": "var minimumEffortPath = function (heights) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minimumEffortPath = function (heights) {\n\n\n  const h = heights;\n  const m = h.length, n = h[0].length;\n  const dist = Array.from({ length: m }, () => Array(n).fill(Infinity));\n  dist[0][0] = 0;\n  const pq = [[0, 0, 0]];\n  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];\n  while (pq.length) {\n    pq.sort((a, b) => a[0] - b[0]);\n    const [eff, i, j] = pq.shift();\n    if (i === m - 1 && j === n - 1) return eff;\n    if (eff > dist[i][j]) continue;\n    for (const [di, dj] of dirs) {\n      const ni = i + di, nj = j + dj;\n      if (ni < 0 || nj < 0 || ni >= m || nj >= n) continue;\n      const ne = Math.max(eff, Math.abs(h[ni][nj] - h[i][j]));\n      if (ne < dist[ni][nj]) { dist[ni][nj] = ne; pq.push([ne, ni, nj]); }\n    }\n  }\n  return dist[m - 1][n - 1];\n\n\n};",
+    "starterCode": "var minimumEffortPath = function (heights) {\n\n  // TODO\n\n};",
+    "solutionCode": "var minimumEffortPath = function (heights) {\n\n  const h = heights;\n  const m = h.length, n = h[0].length;\n  const dist = Array.from({ length: m }, () => Array(n).fill(Infinity));\n  dist[0][0] = 0;\n  const pq = [[0, 0, 0]];\n  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];\n  while (pq.length) {\n    pq.sort((a, b) => a[0] - b[0]);\n    const [eff, i, j] = pq.shift();\n    if (i === m - 1 && j === n - 1) return eff;\n    if (eff > dist[i][j]) continue;\n    for (const [di, dj] of dirs) {\n      const ni = i + di, nj = j + dj;\n      if (ni < 0 || nj < 0 || ni >= m || nj >= n) continue;\n      const ne = Math.max(eff, Math.abs(h[ni][nj] - h[i][j]));\n      if (ne < dist[ni][nj]) { dist[ni][nj] = ne; pq.push([ne, ni, nj]); }\n    }\n  }\n  return dist[m - 1][n - 1];\n\n};",
     "sampleInput": "{\"heights\":[[1,2,2],[3,8,2],[5,3,5]]}",
     "humanInput": "heights = [[1,2,2],[3,8,2],[5,3,5]]",
     "sampleOutput": "2",
@@ -4442,7 +4441,7 @@ export const sheetQuestions: Question[] = [
     "entryFunction": "countPaths",
     "examples": [
       {
-        "input": "n = 7\nroads = [[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]]",
+        "input": "n = 7\nroads = [[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]]\ntime = 7",
         "output": "1"
       }
     ],
@@ -4450,10 +4449,10 @@ export const sheetQuestions: Question[] = [
       "Dijkstra + count paths",
       "Same shortest dist"
     ],
-    "starterCode": "var countPaths = function (n, roads) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var countPaths = function (n, roads) {\n\n\n  const mod = 1e9 + 7;\n  const adj = Array.from({ length: n }, () => []);\n  for (const [u, v, w] of roads) { adj[u].push([v, w]); adj[v].push([u, w]); }\n  const dist = Array(n).fill(Infinity), ways = Array(n).fill(0);\n  dist[0] = 0; ways[0] = 1;\n  const pq = [[0, 0]];\n  while (pq.length) {\n    pq.sort((a, b) => a[0] - b[0]);\n    const [d, u] = pq.shift();\n    if (d > dist[u]) continue;\n    for (const [v, w] of adj[u]) {\n      const nd = d + w;\n      if (nd < dist[v]) { dist[v] = nd; ways[v] = ways[u]; pq.push([nd, v]); }\n      else if (nd === dist[v]) ways[v] = (ways[v] + ways[u]) % mod;\n    }\n  }\n  return dist[n - 1] === time ? ways[n - 1] : 0;\n\n\n};",
-    "sampleInput": "{\"n\":7,\"roads\":[[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]]}",
-    "humanInput": "n = 7\nroads = [[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]]",
+    "starterCode": "var countPaths = function (n, roads) {\n\n  // TODO\n\n};",
+    "solutionCode": "var countPaths = function (n, roads) {\n\n  const mod = 1e9 + 7;\n  const adj = Array.from({ length: n }, () => []);\n  for (const [u, v, w] of roads) { adj[u].push([v, w]); adj[v].push([u, w]); }\n  const dist = Array(n).fill(Infinity), ways = Array(n).fill(0);\n  dist[0] = 0; ways[0] = 1;\n  const pq = [[0, 0]];\n  while (pq.length) {\n    pq.sort((a, b) => a[0] - b[0]);\n    const [d, u] = pq.shift();\n    if (d > dist[u]) continue;\n    for (const [v, w] of adj[u]) {\n      const nd = d + w;\n      if (nd < dist[v]) { dist[v] = nd; ways[v] = ways[u]; pq.push([nd, v]); }\n      else if (nd === dist[v]) ways[v] = (ways[v] + ways[u]) % mod;\n    }\n  }\n  return dist[n - 1] === time ? ways[n - 1] : 0;\n\n};",
+    "sampleInput": "{\"n\":7,\"roads\":[[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]],\"time\":7}",
+    "humanInput": "n = 7\nroads = [[0,6,7],[0,1,2],[1,2,3],[2,3,3],[3,4,2],[4,5,2],[5,6,3]]\ntime = 7",
     "sampleOutput": "1",
     "sheetNumber": 146,
     "sheetSectionId": "graphs",
@@ -4481,8 +4480,8 @@ export const sheetQuestions: Question[] = [
       "Sort by end",
       "Greedy keep"
     ],
-    "starterCode": "var eraseOverlapIntervals = function (intervals) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var eraseOverlapIntervals = function (intervals) {\n\n\n  const intervals = intervals.slice().sort((a, b) => a[1] - b[1]);\n  let end = -Infinity, removed = 0;\n  for (const [s, e] of intervals) {\n    if (s >= end) end = e;\n    else removed++;\n  }\n  return removed;\n\n\n};",
+    "starterCode": "var eraseOverlapIntervals = function (intervals) {\n\n  // TODO\n\n};",
+    "solutionCode": "var eraseOverlapIntervals = function (intervals) {\n\n  .slice().sort((a, b) => a[1] - b[1]);\n  let end = -Infinity, removed = 0;\n  for (const [s, e] of intervals) {\n    if (s >= end) end = e;\n    else removed++;\n  }\n  return removed;\n\n};",
     "sampleInput": "{\"intervals\":[[1,2],[2,3],[3,4],[1,3]]}",
     "humanInput": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
     "sampleOutput": "1",
@@ -4540,7 +4539,7 @@ export const sheetQuestions: Question[] = [
       "Flip smallest"
     ],
     "starterCode": "var largestSumAfterKNegations = function (nums, k) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var largestSumAfterKNegations = function (nums, k) {\n\n\n  const a = nums.slice().sort((x, y) => x - y);\n  let k = k;\n  for (let i = 0; i < a.length && k; i++) if (a[i] < 0) { a[i] = -a[i]; k--; }\n  if (k % 2) a.sort((x, y) => x - y), a[0] = -a[0];\n  return a.reduce((s, x) => s + x, 0);\n\n\n};",
+    "solutionCode": "var largestSumAfterKNegations = function (nums, k) {\n\n\n  const a = nums.slice().sort((x, y) => x - y);\n  for (let i = 0; i < a.length && k; i++) if (a[i] < 0) { a[i] = -a[i]; k--; }\n  if (k % 2) a.sort((x, y) => x - y), a[0] = -a[0];\n  return a.reduce((s, x) => s + x, 0);\n\n\n};",
     "sampleInput": "{\"nums\":[4,2,3],\"k\":1}",
     "humanInput": "nums = [4,2,3]\nk = 1",
     "sampleOutput": "5",
@@ -4746,7 +4745,7 @@ export const sheetQuestions: Question[] = [
       "Handle 0 and 10-26"
     ],
     "starterCode": "var numDecodings = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var numDecodings = function (s) {\n\n\n  const s = s;\n  let a = 0, b = 1;\n  for (let i = 0; i < s.length; i++) {\n    let c = 0;\n    if (s[i] !== '0') c += b;\n    if (i && s.slice(i - 1, i + 1) >= '10' && s.slice(i - 1, i + 1) <= '26') c += a;\n    [a, b] = [b, c];\n  }\n  return b;\n\n\n};",
+    "solutionCode": "var numDecodings = function (s) {\n\n\n  let a = 0, b = 1;\n  for (let i = 0; i < s.length; i++) {\n    let c = 0;\n    if (s[i] !== '0') c += b;\n    if (i && s.slice(i - 1, i + 1) >= '10' && s.slice(i - 1, i + 1) <= '26') c += a;\n    [a, b] = [b, c];\n  }\n  return b;\n\n\n};",
     "sampleInput": "{\"s\":\"12\"}",
     "humanInput": "s = \"12\"",
     "sampleOutput": "2",
@@ -4777,7 +4776,7 @@ export const sheetQuestions: Question[] = [
       "Set positions"
     ],
     "starterCode": "var canCross = function (stones) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var canCross = function (stones) {\n\n\n  const stones = stones;\n  const set = new Set(stones);\n  const target = stones[stones.length - 1];\n  const seen = new Set(['0,1']);\n  const dfs = (pos, jump) => {\n    if (pos === target) return true;\n    const key = pos + ',' + jump;\n    if (seen.has(key)) return false;\n    seen.add(key);\n    for (const nj of [jump - 1, jump, jump + 1]) {\n      if (nj > 0 && set.has(pos + nj) && dfs(pos + nj, nj)) return true;\n    }\n    return false;\n  };\n  return dfs(0, 1);\n\n\n};",
+    "solutionCode": "var canCross = function (stones) {\n\n\n  const set = new Set(stones);\n  const target = stones[stones.length - 1];\n  const seen = new Set(['0,1']);\n  const dfs = (pos, jump) => {\n    if (pos === target) return true;\n    const key = pos + ',' + jump;\n    if (seen.has(key)) return false;\n    seen.add(key);\n    for (const nj of [jump - 1, jump, jump + 1]) {\n      if (nj > 0 && set.has(pos + nj) && dfs(pos + nj, nj)) return true;\n    }\n    return false;\n  };\n  return dfs(0, 1);\n\n\n};",
     "sampleInput": "{\"stones\":[0,1,3,5,6,8,12,17,21,22,26,34]}",
     "humanInput": "stones = [0,1,3,5,6,8,12,17,21,22,26,34]",
     "sampleOutput": "false",
@@ -5242,7 +5241,7 @@ export const sheetQuestions: Question[] = [
       "Match ends"
     ],
     "starterCode": "var longestPalindromeSubseq = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var longestPalindromeSubseq = function (s) {\n\n\n  const s = s;\n  const dp = Array.from({ length: s.length }, () => Array(s.length).fill(0));\n  for (let i = s.length - 1; i >= 0; i--) {\n    dp[i][i] = 1;\n    for (let j = i + 1; j < s.length; j++)\n      dp[i][j] = s[i] === s[j] ? 2 + (dp[i + 1][j - 1] || 0) : Math.max(dp[i + 1][j], dp[i][j - 1]);\n  }\n  return dp[0][s.length - 1];\n\n\n};",
+    "solutionCode": "var longestPalindromeSubseq = function (s) {\n\n\n  const dp = Array.from({ length: s.length }, () => Array(s.length).fill(0));\n  for (let i = s.length - 1; i >= 0; i--) {\n    dp[i][i] = 1;\n    for (let j = i + 1; j < s.length; j++)\n      dp[i][j] = s[i] === s[j] ? 2 + (dp[i + 1][j - 1] || 0) : Math.max(dp[i + 1][j], dp[i][j - 1]);\n  }\n  return dp[0][s.length - 1];\n\n\n};",
     "sampleInput": "{\"s\":\"bbbab\"}",
     "humanInput": "s = \"bbbab\"",
     "sampleOutput": "4",
@@ -5273,7 +5272,7 @@ export const sheetQuestions: Question[] = [
       "Complement LCS"
     ],
     "starterCode": "var minInsertions = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minInsertions = function (s) {\n\n\n  const s = s;\n  const rev = s.split('').reverse().join('');\n  const dp = Array(s.length + 1).fill(0).map(() => Array(s.length + 1).fill(0));\n  for (let i = 1; i <= s.length; i++) for (let j = 1; j <= s.length; j++)\n    dp[i][j] = s[i - 1] === rev[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);\n  return s.length - dp[s.length][s.length];\n\n\n};",
+    "solutionCode": "var minInsertions = function (s) {\n\n\n  const rev = s.split('').reverse().join('');\n  const dp = Array(s.length + 1).fill(0).map(() => Array(s.length + 1).fill(0));\n  for (let i = 1; i <= s.length; i++) for (let j = 1; j <= s.length; j++)\n    dp[i][j] = s[i - 1] === rev[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);\n  return s.length - dp[s.length][s.length];\n\n\n};",
     "sampleInput": "{\"s\":\"zzazz\"}",
     "humanInput": "s = \"zzazz\"",
     "sampleOutput": "0",
@@ -5365,8 +5364,8 @@ export const sheetQuestions: Question[] = [
       "Sort by length",
       "DP predecessor"
     ],
-    "starterCode": "var longestStrChain = function (words) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var longestStrChain = function (words) {\n\n\n  const words = words.slice().sort((a, b) => a.length - b.length);\n  const dp = Array(words.length).fill(1);\n  const pred = (a, b) => {\n    if (a.length + 1 !== b.length) return false;\n    let i = 0, j = 0, diff = 0;\n    while (i < a.length && j < b.length) {\n      if (a[i] === b[j]) { i++; j++; }\n      else { diff++; j++; if (diff > 1) return false; }\n    }\n    return true;\n  };\n  for (let i = 0; i < words.length; i++) for (let j = 0; j < i; j++) if (pred(words[j], words[i])) dp[i] = Math.max(dp[i], dp[j] + 1);\n  return Math.max(...dp);\n\n\n};",
+    "starterCode": "var longestStrChain = function (words) {\n\n  // TODO\n\n};",
+    "solutionCode": "var longestStrChain = function (words) {\n\n  .slice().sort((a, b) => a.length - b.length);\n  const dp = Array(words.length).fill(1);\n  const pred = (a, b) => {\n    if (a.length + 1 !== b.length) return false;\n    let i = 0, j = 0, diff = 0;\n    while (i < a.length && j < b.length) {\n      if (a[i] === b[j]) { i++; j++; }\n      else { diff++; j++; if (diff > 1) return false; }\n    }\n    return true;\n  };\n  for (let i = 0; i < words.length; i++) for (let j = 0; j < i; j++) if (pred(words[j], words[i])) dp[i] = Math.max(dp[i], dp[j] + 1);\n  return Math.max(...dp);\n\n};",
     "sampleInput": "{\"words\":[\"a\",\"b\",\"ba\",\"bca\",\"bda\",\"bdca\"]}",
     "humanInput": "words = [\"a\",\"b\",\"ba\",\"bca\",\"bda\",\"bdca\"]",
     "sampleOutput": "4",
@@ -5396,8 +5395,8 @@ export const sheetQuestions: Question[] = [
       "Interval DP",
       "Try cut positions"
     ],
-    "starterCode": "var minCost = function (n, cuts) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minCost = function (n, cuts) {\n\n\n  const cuts = [0, ...cuts.slice().sort((a, b) => a - b), n];\n  const m = cuts.length;\n  const dp = Array.from({ length: m }, () => Array(m).fill(0));\n  for (let len = 2; len < m; len++) for (let i = 0; i + len < m; i++) {\n    const j = i + len;\n    dp[i][j] = Infinity;\n    for (let k = i + 1; k < j; k++) dp[i][j] = Math.min(dp[i][j], dp[i][k] + dp[k][j] + cuts[j] - cuts[i]);\n  }\n  return dp[0][m - 1];\n\n\n};",
+    "starterCode": "var minCost = function (n, cuts) {\n\n  // TODO\n\n};",
+    "solutionCode": "var minCost = function (n, cuts) {\n\n  const cuts = [0, ...cuts.slice().sort((a, b) => a - b), n];\n  const m = cuts.length;\n  const dp = Array.from({ length: m }, () => Array(m).fill(0));\n  for (let len = 2; len < m; len++) for (let i = 0; i + len < m; i++) {\n    const j = i + len;\n    dp[i][j] = Infinity;\n    for (let k = i + 1; k < j; k++) dp[i][j] = Math.min(dp[i][j], dp[i][k] + dp[k][j] + cuts[j] - cuts[i]);\n  }\n  return dp[0][m - 1];\n\n};",
     "sampleInput": "{\"n\":7,\"cuts\":[1,3,4,5]}",
     "humanInput": "n = 7\ncuts = [1,3,4,5]",
     "sampleOutput": "16",
@@ -5483,7 +5482,7 @@ export const sheetQuestions: Question[] = [
       "Check substrings"
     ],
     "starterCode": "var minCut = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minCut = function (s) {\n\n\n  const s = s, n = s.length;\n  const isPal = Array.from({ length: n }, () => Array(n).fill(false));\n  for (let i = n - 1; i >= 0; i--) for (let j = i; j < n; j++) isPal[i][j] = s[i] === s[j] && (j - i < 2 || isPal[i + 1][j - 1]);\n  const dp = Array(n).fill(Infinity);\n  for (let i = 0; i < n; i++) {\n    if (isPal[0][i]) dp[i] = 0;\n    else for (let j = 1; j <= i; j++) if (isPal[j][i]) dp[i] = Math.min(dp[i], dp[j - 1] + 1);\n  }\n  return dp[n - 1];\n\n\n};",
+    "solutionCode": "var minCut = function (s) {\n\n\n  const n = s.length;\n  const isPal = Array.from({ length: n }, () => Array(n).fill(false));\n  for (let i = n - 1; i >= 0; i--) for (let j = i; j < n; j++) isPal[i][j] = s[i] === s[j] && (j - i < 2 || isPal[i + 1][j - 1]);\n  const dp = Array(n).fill(Infinity);\n  for (let i = 0; i < n; i++) {\n    if (isPal[0][i]) dp[i] = 0;\n    else for (let j = 1; j <= i; j++) if (isPal[j][i]) dp[i] = Math.min(dp[i], dp[j - 1] + 1);\n  }\n  return dp[n - 1];\n\n\n};",
     "sampleInput": "{\"s\":\"aab\"}",
     "humanInput": "s = \"aab\"",
     "sampleOutput": "1",
@@ -5514,7 +5513,7 @@ export const sheetQuestions: Question[] = [
       "All nodes visited"
     ],
     "starterCode": "var shortestPathLength = function (graph) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var shortestPathLength = function (graph) {\n\n\n  const graph = graph, n = graph.length, all = (1 << n) - 1;\n  const q = [];\n  for (let i = 0; i < n; i++) q.push([i, 1 << i, 0]);\n  const seen = new Set(q.map(([n, m]) => n + ',' + m));\n  while (q.length) {\n    const [node, mask, dist] = q.shift();\n    if (mask === all) return dist;\n    for (const nxt of graph[node]) {\n      const nm = mask | (1 << nxt), key = nxt + ',' + nm;\n      if (!seen.has(key)) { seen.add(key); q.push([nxt, nm, dist + 1]); }\n    }\n  }\n  return 0;\n\n\n};",
+    "solutionCode": "var shortestPathLength = function (graph) {\n\n\n  const n = graph.length, all = (1 << n) - 1;\n  const q = [];\n  for (let i = 0; i < n; i++) q.push([i, 1 << i, 0]);\n  const seen = new Set(q.map(([n, m]) => n + ',' + m));\n  while (q.length) {\n    const [node, mask, dist] = q.shift();\n    if (mask === all) return dist;\n    for (const nxt of graph[node]) {\n      const nm = mask | (1 << nxt), key = nxt + ',' + nm;\n      if (!seen.has(key)) { seen.add(key); q.push([nxt, nm, dist + 1]); }\n    }\n  }\n  return 0;\n\n\n};",
     "sampleInput": "{\"graph\":[[1,2],[0,2],[0,1]]}",
     "humanInput": "graph = [[1,2],[0,2],[0,1]]",
     "sampleOutput": "2",
@@ -5607,7 +5606,7 @@ export const sheetQuestions: Question[] = [
       "Min from top/left"
     ],
     "starterCode": "var minPathSum = function (grid) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var minPathSum = function (grid) {\n\n\n  const grid = grid;\n  const m = grid.length, n = grid[0].length;\n  for (let i = 1; i < m; i++) grid[i][0] += grid[i - 1][0];\n  for (let j = 1; j < n; j++) grid[0][j] += grid[0][j - 1];\n  for (let i = 1; i < m; i++) for (let j = 1; j < n; j++) grid[i][j] += Math.min(grid[i - 1][j], grid[i][j - 1]);\n  return grid[m - 1][n - 1];\n\n\n};",
+    "solutionCode": "var minPathSum = function (grid) {\n\n\n  const m = grid.length, n = grid[0].length;\n  for (let i = 1; i < m; i++) grid[i][0] += grid[i - 1][0];\n  for (let j = 1; j < n; j++) grid[0][j] += grid[0][j - 1];\n  for (let i = 1; i < m; i++) for (let j = 1; j < n; j++) grid[i][j] += Math.min(grid[i - 1][j], grid[i][j - 1]);\n  return grid[m - 1][n - 1];\n\n\n};",
     "sampleInput": "{\"grid\":[[1,3,1],[1,5,1],[4,2,1]]}",
     "humanInput": "grid = [[1,3,1],[1,5,1],[4,2,1]]",
     "sampleOutput": "7",
@@ -5637,8 +5636,8 @@ export const sheetQuestions: Question[] = [
       "Sort w asc h desc",
       "LIS on heights"
     ],
-    "starterCode": "var maxEnvelopes = function (envelopes) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var maxEnvelopes = function (envelopes) {\n\n\n  const env = envelopes.slice().sort((a, b) => a[0] - b[0] || b[1] - a[1]);\n  const tails = [];\n  for (const [, h] of env) {\n    let lo = 0, hi = tails.length;\n    while (lo < hi) { const m = (lo + hi) >> 1; if (tails[m] < h) lo = m + 1; else hi = m; }\n    tails[lo] = h;\n  }\n  return tails.length;\n\n\n};",
+    "starterCode": "var maxEnvelopes = function (envelopes) {\n\n  // TODO\n\n};",
+    "solutionCode": "var maxEnvelopes = function (envelopes) {\n\n  const env = envelopes.slice().sort((a, b) => a[0] - b[0] || b[1] - a[1]);\n  const tails = [];\n  for (const [, h] of env) {\n    let lo = 0, hi = tails.length;\n    while (lo < hi) { const m = (lo + hi) >> 1; if (tails[m] < h) lo = m + 1; else hi = m; }\n    tails[lo] = h;\n  }\n  return tails.length;\n\n};",
     "sampleInput": "{\"envelopes\":[[5,4],[6,4],[6,7],[2,3]]}",
     "humanInput": "envelopes = [[5,4],[6,4],[6,7],[2,3]]",
     "sampleOutput": "3",
@@ -5730,8 +5729,8 @@ export const sheetQuestions: Question[] = [
       "Frequency map",
       "n choose 2"
     ],
-    "starterCode": "var numIdenticalPairs = function (nums) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var numIdenticalPairs = function (nums) {\n\n\n  const cnt = new Map();\n  let pairs = 0;\n  for (const x of nums) {\n    const c = cnt.get(x) || 0;\n    pairs += c;\n    cnt.set(x, c + 1);\n  }\n  return pairs;\n\n\n};",
+    "starterCode": "var numIdenticalPairs = function (nums) {\n\n  // TODO\n\n};",
+    "solutionCode": "var numIdenticalPairs = function (nums) {\n\n  const cnt = new Map();\n  let pairs = 0;\n  for (const x of nums) {\n    const c = cnt.get(x) || 0;\n    pairs += c;\n    cnt.set(x, c + 1);\n  }\n  return pairs;\n\n};",
     "sampleInput": "{\"nums\":[1,2,3,1,1,3]}",
     "humanInput": "nums = [1,2,3,1,1,3]",
     "sampleOutput": "4",
@@ -6005,8 +6004,8 @@ export const sheetQuestions: Question[] = [
       "Union area formula",
       "Overlap subtract"
     ],
-    "starterCode": "var computeArea = function (ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var computeArea = function (ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {\n\n\n  const area = (x1, y1, x2, y2) => Math.max(0, x2 - x1) * Math.max(0, y2 - y1);\n  const a = area(ax1, ay1, ax2, ay2) + area(bx1, by1, bx2, by2);\n  const ox = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1));\n  const oy = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1));\n  return a - ox * oy;\n\n\n};",
+    "starterCode": "var computeArea = function (ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {\n\n  // TODO\n\n};",
+    "solutionCode": "var computeArea = function (ax1, ay1, ax2, ay2, bx1, by1, bx2, by2) {\n\n  const area = (x1, y1, x2, y2) => Math.max(0, x2 - x1) * Math.max(0, y2 - y1);\n  const a = area(ax1, ay1, ax2, ay2) + area(bx1, by1, bx2, by2);\n  const ox = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1));\n  const oy = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1));\n  return a - ox * oy;\n\n};",
     "sampleInput": "{\"ax1\":-3,\"ay1\":0,\"ax2\":3,\"ay2\":4,\"bx1\":0,\"by1\":-1,\"bx2\":9,\"by2\":2}",
     "humanInput": "ax1 = -3\nay1 = 0\nax2 = 3\nay2 = 4\nbx1 = 0\nby1 = -1\nbx2 = 9\nby2 = 2",
     "sampleOutput": "45",
@@ -6191,8 +6190,8 @@ export const sheetQuestions: Question[] = [
       "Shift and OR",
       "32 iterations"
     ],
-    "starterCode": "var reverseBits = function (n) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var reverseBits = function (n) {\n\n\n  let n = n >>> 0, res = 0;\n  for (let i = 0; i < 32; i++) { res = (res << 1) | (n & 1); n >>= 1; }\n  return res >>> 0;\n\n\n};",
+    "starterCode": "var reverseBits = function (n) {\n\n  // TODO\n\n};",
+    "solutionCode": "var reverseBits = function (n) {\n\n  let n = n >>> 0, res = 0;\n  for (let i = 0; i < 32; i++) { res = (res << 1) | (n & 1); n >>= 1; }\n  return res >>> 0;\n\n};",
     "sampleInput": "{\"n\":43261596}",
     "humanInput": "n = 43261596",
     "sampleOutput": "964176192",
@@ -6409,7 +6408,7 @@ export const sheetQuestions: Question[] = [
       "Slice substrings"
     ],
     "starterCode": "var findRepeatedDnaSequences = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var findRepeatedDnaSequences = function (s) {\n\n\n  const s = s, seen = new Set(), out = new Set();\n  for (let i = 0; i + 10 <= s.length; i++) {\n    const sub = s.slice(i, i + 10);\n    if (seen.has(sub)) out.add(sub);\n    else seen.add(sub);\n  }\n  return [...out];\n\n\n};",
+    "solutionCode": "var findRepeatedDnaSequences = function (s) {\n\n\n  const seen = new Set(), out = new Set();\n  for (let i = 0; i + 10 <= s.length; i++) {\n    const sub = s.slice(i, i + 10);\n    if (seen.has(sub)) out.add(sub);\n    else seen.add(sub);\n  }\n  return [...out];\n\n\n};",
     "sampleInput": "{\"s\":\"AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT\"}",
     "humanInput": "s = \"AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT\"",
     "sampleOutput": "[\n  \"AAAAACCCCC\",\n  \"CCCCCAAAAA\"\n]",
@@ -6440,7 +6439,7 @@ export const sheetQuestions: Question[] = [
       "Hash seen substrings"
     ],
     "starterCode": "var longestDupSubstring = function (s) {\n\n\n  // TODO\n\n\n};",
-    "solutionCode": "var longestDupSubstring = function (s) {\n\n\n  const s = s, n = s.length;\n  const find = (len) => {\n    const seen = new Set();\n    for (let i = 0; i + len <= n; i++) {\n      const sub = s.slice(i, i + len);\n      if (seen.has(sub)) return sub;\n      seen.add(sub);\n    }\n    return '';\n  };\n  let lo = 0, hi = n - 1, best = '';\n  while (lo <= hi) {\n    const mid = (lo + hi) >> 1;\n    const sub = find(mid);\n    if (sub) { best = sub; lo = mid + 1; } else hi = mid - 1;\n  }\n  return best;\n\n\n};",
+    "solutionCode": "var longestDupSubstring = function (s) {\n\n\n  const n = s.length;\n  const find = (len) => {\n    const seen = new Set();\n    for (let i = 0; i + len <= n; i++) {\n      const sub = s.slice(i, i + len);\n      if (seen.has(sub)) return sub;\n      seen.add(sub);\n    }\n    return '';\n  };\n  let lo = 0, hi = n - 1, best = '';\n  while (lo <= hi) {\n    const mid = (lo + hi) >> 1;\n    const sub = find(mid);\n    if (sub) { best = sub; lo = mid + 1; } else hi = mid - 1;\n  }\n  return best;\n\n\n};",
     "sampleInput": "{\"s\":\"banana\"}",
     "humanInput": "s = \"banana\"",
     "sampleOutput": "\"ana\"",

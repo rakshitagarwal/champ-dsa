@@ -4,7 +4,6 @@ import { useEffect, useCallback, useState } from "react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { EditorVizSplit } from "./editor-viz-split";
 import { DocumentColumns } from "./document-columns";
-import { VizFullscreenModal } from "./viz-fullscreen-modal";
 import { TraceVisualizerModal } from "./trace/TraceVisualizerModal";
 import { AiExplainModal } from "./ai-explain-modal";
 import { VisualizerToolbar } from "./visualizer-toolbar";
@@ -40,7 +39,6 @@ export function VizWorkspace({
 
   const [hintModalOpen, setHintModalOpen] = useState(false);
   const [vizOpen, setVizOpen] = useState(false);
-  const playerMode = useVisualizerStore((s) => s.playerMode);
 
   const aiExplainModalOpen = useVisualizerStore((s) => s.aiExplainModalOpen);
   const setAiExplainModalOpen = useVisualizerStore((s) => s.setAiExplainModalOpen);
@@ -139,14 +137,7 @@ export function VizWorkspace({
         onMarkSolved={onMarkSolved}
       />
 
-      <TraceVisualizerModal
-        open={vizOpen && playerMode === "trace"}
-        onOpenChange={setVizOpen}
-      />
-      <VizFullscreenModal
-        open={vizOpen && playerMode === "scene"}
-        onOpenChange={setVizOpen}
-      />
+      <TraceVisualizerModal open={vizOpen} onOpenChange={setVizOpen} />
 
       <AiExplainModal
         open={aiExplainModalOpen}

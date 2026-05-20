@@ -93,10 +93,28 @@ export function transformInputBody(body, input, fnName, lcParams = []) {
 
 function postProcessBody(body, lcParams) {
   let b = body;
+  // Rename target→k before postProcess can turn `const k = target` into shadow `const k = k`.
   b = b.replace(
     /const\s+k\s*=\s*target\s*,\s*a\s*=\s*nums\.slice\(\)\s*;?/g,
     "const a = nums.slice();",
   );
+  b = b.replace(
+    /const\s+k\s*=\s*target\s*,\s*map\s*=/g,
+    "const map =",
+  );
+  b = b.replace(
+    /const\s+k\s*=\s*target\s*,\s*cnt\s*=/g,
+    "const cnt =",
+  );
+  b = b.replace(/const\s+k\s*=\s*target\s*;\s*\n?/g, "");
+  b = b.replace(
+    /const\s+a\s*=\s*head\.slice\(\)\s*,\s*k\s*=\s*k\s*;?/g,
+    "const a = head.slice();",
+  );
+  b = b.replace(/,\s*target\s*=\s*target\b\s*;?/g, ";");
+  b = b.replace(/const\s+target\s*=\s*target\b\s*,\s*/g, "");
+  b = b.replace(/const\s+target\s*=\s*target\b\s*;\s*\n?/g, "");
+  b = b.replace(/,\s*k\s*=\s*k\b\s*;?/g, ";");
   b = b.replace(
     /const\s+(\w+)\s*=\s*build\s*\(\1\)\s*;?/g,
     (match, name) => {
@@ -107,31 +125,33 @@ function postProcessBody(body, lcParams) {
       return match;
     },
   );
-  b = b.replace(
-    /const\s+(\w+)\s*=\s*\1\s*,\s*(\w+)\s*=\s*\2\s*;?\s*\n?/g,
-    "",
-  );
-  b = b.replace(/const\s+(\w+)\s*=\s*\1\s*;?\s*\n?/g, "");
+  // Remove only exact param shadowing: `const p = p` / `let p = p` (not `const m = mat.length`).
   for (const p of lcParams) {
+    const esc = p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     b = b.replace(
-      new RegExp(`const\\s+${p}\\s*=\\s*${p}\\s*,\\s*${p}\\s*=\\s*${p}\\s*;?\\s*\\n?`, "g"),
+      new RegExp(`const\\s+${esc}\\s*=\\s*${esc}\\b\\s*,\\s*`, "g"),
+      "const ",
+    );
+    b = b.replace(
+      new RegExp(`const\\s+${esc}\\s*=\\s*${esc}\\b\\s*;\\s*\\n?`, "g"),
       "",
     );
     b = b.replace(
-      new RegExp(`const\\s+${p}\\s*=\\s*${p}\\b[^\\n;]*[,;]?\\s*\\n?`, "g"),
-      "",
-    );
-    b = b.replace(
-      new RegExp(`let\\s+${p}\\s*=\\s*${p}\\b[^\\n;]*[,;]?\\s*\\n?`, "g"),
+      new RegExp(`let\\s+${esc}\\s*=\\s*${esc}\\b\\s*;\\s*\\n?`, "g"),
       "",
     );
     if (p !== "nums") {
       b = b.replace(
-        new RegExp(`const\\s+${p}\\s*=\\s*nums\\s*;?\\s*\\n?`, "g"),
+        new RegExp(`const\\s+${esc}\\s*=\\s*nums\\s*;\\s*\\n?`, "g"),
         "",
       );
     }
   }
+  b = b.replace(
+    /const\s+(\w+)\s*=\s*\1\b\s*,\s*(\w+)\s*=\s*\2\b\s*;?\s*\n?/g,
+    "",
+  );
+  b = b.replace(/const\s+(\w+)\s*=\s*\1\b\s*;?\s*\n?/g, "");
   b = b.replace(
     /while \(q\.length\) \{ const c = q\.shift\(\); order \+= c; for \(const nxt of adj\.get\(c\)\) if \(--indeg\.get\(nxt\) === 0\) q\.push\(nxt\); \}/,
     `while (q.length) {

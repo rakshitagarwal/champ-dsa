@@ -10,9 +10,15 @@ type Props = {
   structure: Extract<VizStructure, { kind: "linkedList" }>;
   pointers: PointerBinding[];
   highlights: SceneHighlight[];
+  changedNodeIds?: Set<string>;
 };
 
-export function LinkedListView({ structure, pointers, highlights }: Props) {
+export function LinkedListView({
+  structure,
+  pointers,
+  highlights,
+  changedNodeIds,
+}: Props) {
   const layout = layoutStructure(structure);
   const ptrsHere = pointers.filter((p) => p.structureId === structure.id);
   const activeNodes = new Set(
@@ -35,7 +41,10 @@ export function LinkedListView({ structure, pointers, highlights }: Props) {
           const pos = layout.nodes.get(node.id);
           if (!pos) return null;
           const pointerHere = ptrsHere.filter((p) => p.nodeId === node.id);
-          const isActive = activeNodes.has(node.id) || pointerHere.length > 0;
+          const isActive =
+            activeNodes.has(node.id) ||
+            pointerHere.length > 0 ||
+            changedNodeIds?.has(node.id);
 
           return (
             <div

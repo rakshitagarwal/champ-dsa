@@ -4,7 +4,7 @@ import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 
 export function TraceControlBar() {
   const {
-    traceSteps,
+    playbackSteps,
     traceStepIndex,
     isTracePlaying,
     traceSpeed,
@@ -15,7 +15,7 @@ export function TraceControlBar() {
     setTraceSpeed,
   } = useVisualizerStore();
 
-  const isLast = traceStepIndex >= traceSteps.length - 1;
+  const isLast = traceStepIndex >= playbackSteps.length - 1;
 
   return (
     <div className="flex h-14 items-center gap-4 border-t border-gray-800 bg-[#0d1117] px-6">
@@ -45,7 +45,7 @@ export function TraceControlBar() {
       <input
         type="range"
         min={0}
-        max={Math.max(0, traceSteps.length - 1)}
+        max={Math.max(0, playbackSteps.length - 1)}
         value={traceStepIndex}
         onChange={(e) => setTraceStep(Number(e.target.value))}
         className="flex-1 accent-blue-500"
@@ -54,7 +54,7 @@ export function TraceControlBar() {
         {isLast ? (
           <span className="text-green-400">Complete ✓</span>
         ) : (
-          `Step ${traceStepIndex + 1} / ${traceSteps.length}`
+          `Step ${traceStepIndex + 1} / ${playbackSteps.length}`
         )}
       </span>
       <select

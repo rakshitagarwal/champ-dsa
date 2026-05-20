@@ -505,8 +505,8 @@ function buildHighlights(
     }
   }
 
-  const left = vars.left ?? vars.start ?? vars.i;
-  const right = vars.right ?? vars.end ?? vars.j;
+  const left = vars.left ?? vars.start ?? vars.l ?? vars.i;
+  const right = vars.right ?? vars.end ?? vars.r ?? vars.j;
   const arr = structures.find((s) => s.kind === "array");
   if (arr && typeof left === "number" && typeof right === "number" && left <= right) {
     highlights.push({
@@ -546,15 +546,23 @@ function buildStringWalk(
   for (const name of ["s", "str", "chars"]) {
     const v = vars[name];
     if (typeof v !== "string" || v.length === 0) continue;
+    const loopSuffix =
+      name === "s" && typeof vars.ch === "string" ? "+" : "";
+    const chars = [...(v + loopSuffix)];
     let index = 0;
-    for (const idxName of ["i", "j", "idx", "index"]) {
+    for (const idxName of ["i", "j", "idx", "index", "k"]) {
       if (typeof vars[idxName] === "number") {
         index = vars[idxName] as number;
         break;
       }
     }
-    index = Math.max(0, Math.min(index, v.length - 1));
-    return { variable: name, chars: [...v], index };
+    if (typeof vars.ch === "string") {
+      const ch = vars.ch as string;
+      const found = chars.indexOf(ch, index);
+      index = found >= 0 ? found : index;
+    }
+    index = Math.max(0, Math.min(index, chars.length - 1));
+    return { variable: name, chars, index };
   }
   return undefined;
 }

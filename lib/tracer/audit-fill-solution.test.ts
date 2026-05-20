@@ -4,7 +4,7 @@ import path from "path";
 import { runCodeSync } from "./run-sync";
 import { detectEntryFunction } from "./detect-entry";
 import { buildDefaultVizProfile } from "@/lib/viz/default-viz-profile";
-import { compactTimeline } from "@/lib/viz/scene/compact-steps";
+import { buildPlaybackTimeline } from "@/lib/viz/build-playback-timeline";
 import { sheetQuestions } from "@/data/questions/sheet-questions";
 // @ts-expect-error generated mjs module
 import { SHEET_SOLUTIONS } from "../../scripts/sheet-solutions-data.mjs";
@@ -19,6 +19,7 @@ type AuditRow = {
   rawTraceSteps: number;
   uiSteps: number;
   patternName: string;
+  structures: string;
 };
 
 describe("audit fill-solution runs", () => {
@@ -64,14 +65,23 @@ describe("audit fill-solution runs", () => {
           rawTraceSteps: 0,
           uiSteps: 0,
           patternName: q?.patternName ?? "",
+          structures: "",
         });
         continue;
       }
 
       const profile = buildDefaultVizProfile(result.trace, q?.patternName);
-      const { scenes } = compactTimeline(result.trace.events, profile, {
+      const playbackSteps = buildPlaybackTimeline({
+        trace: result.trace,
+        profile,
         curated: true,
       });
+      const kinds = new Set<string>();
+      for (const step of playbackSteps) {
+        for (const s of step.scene.structures) {
+          kinds.add(s.kind);
+        }
+      }
 
       rows.push({
         num,
@@ -80,8 +90,9 @@ describe("audit fill-solution runs", () => {
         entryFunction: entryFn,
         status: "ok",
         rawTraceSteps: result.trace.events.length,
-        uiSteps: scenes.length,
+        uiSteps: playbackSteps.length,
         patternName: q?.patternName ?? "",
+        structures: [...kinds].sort().join(",") || "none",
       });
     }
 
@@ -145,13 +156,13 @@ describe("audit fill-solution runs", () => {
       "",
       "## Working — UI step count",
       "",
-      "| # | Title | Entry | UI steps | Raw trace |",
-      "|---|-------|-------|----------|-----------|",
+      "| # | Title | Entry | UI steps | Raw trace | Structures |",
+      "|---|-------|-------|----------|-----------|------------|",
       ...ok
         .sort((a, b) => a.num - b.num)
         .map(
           (r) =>
-            `| ${r.num} | ${r.title.replace(/\|/g, "/")} | ${r.entryFunction} | ${r.uiSteps} | ${r.rawTraceSteps} |`,
+            `| ${r.num} | ${r.title.replace(/\|/g, "/")} | ${r.entryFunction} | ${r.uiSteps} | ${r.rawTraceSteps} | ${r.structures} |`,
         ),
     ];
     fs.writeFileSync(mdPath, mdLines.join("\n"));

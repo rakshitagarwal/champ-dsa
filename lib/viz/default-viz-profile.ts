@@ -10,6 +10,8 @@ const POINTER_NAMES = [
   "i",
   "j",
   "k",
+  "l",
+  "r",
   "left",
   "right",
   "low",
@@ -28,6 +30,8 @@ const POINTER_NAMES = [
   "dummy",
   "p",
   "q",
+  "front",
+  "rear",
 ];
 
 const LIST_NODE_NAMES = new Set([
@@ -208,7 +212,26 @@ export function buildDefaultVizProfile(
   }
 
   const highlights: VizProfile["highlights"] = [];
-  for (const name of ["sum", "distance", "count", "ans", "result", "target"]) {
+  const scalarNames = [
+    "sum",
+    "distance",
+    "count",
+    "ans",
+    "result",
+    "target",
+    "best",
+    "res",
+    "num",
+    "sign",
+    "cur",
+    "curMax",
+    "curMin",
+    "maxK",
+    "minK",
+    "total",
+    "answer",
+  ];
+  for (const name of scalarNames) {
     if (name in vars && typeof vars[name] !== "object") {
       highlights.push({ variable: name, style: "scalar" });
     }
