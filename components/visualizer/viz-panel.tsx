@@ -19,6 +19,9 @@ export function VizPanel({ layout = "viewport" }: Props) {
   const hasTwoExamples = useVisualizerStore((s) => s.hasTwoExamples);
   const hasTrace = !!trace;
   const hasError = !!error;
+  const canVisualize =
+    hasTrace &&
+    (exampleResults == null || exampleResults.length === 0 || allExamplesPass);
 
   return (
     <div
@@ -91,9 +94,9 @@ export function VizPanel({ layout = "viewport" }: Props) {
             </pre>
           </div>
         </div>
-      ) : hasTrace ? (
+      ) : hasTrace && canVisualize ? (
         <StepExplanationPanel layout={layout} />
-      ) : (
+      ) : hasTrace ? null : (
         <div className="border-t border-border p-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Execution walkthrough

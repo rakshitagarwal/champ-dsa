@@ -68,7 +68,7 @@ export function VizFullscreenModal({ open, onOpenChange }: Props) {
           <div>
             <h2 className="text-base font-semibold">Visualize</h2>
             <p className="text-xs text-muted-foreground">
-              Your code, step-by-step explanation, and array animation
+              Your code, step-by-step explanation, and structure animation
             </p>
           </div>
           <Button

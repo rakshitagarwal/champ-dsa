@@ -1,5 +1,6 @@
 import type { ExecutionTrace, RunResult } from "@/types/execution";
 import { instrumentCode } from "./instrument";
+import { detectEntryFunction } from "./detect-entry";
 
 let worker: Worker | null = null;
 
@@ -13,11 +14,14 @@ function getWorker(): Worker {
 export async function runCode(
   code: string,
   stdin: string,
+  options?: { leetcodeFunctionName?: string },
 ): Promise<RunResult> {
   const inst = instrumentCode(code);
   if (!inst.ok) {
     return { ok: false, error: inst.error };
   }
+
+  const entryName = detectEntryFunction(code, options?.leetcodeFunctionName);
 
   return new Promise((resolve) => {
     const w = getWorker();
@@ -42,6 +46,6 @@ export async function runCode(
       });
     };
     w.addEventListener("message", handler);
-    w.postMessage({ instrumented: inst.code, stdin });
+    w.postMessage({ instrumented: inst.code, stdin, entryName });
   });
 }

@@ -19,8 +19,14 @@ export function EditorActionBar({ onOpenVisualize }: Props) {
   const aiExplainLoading = useVisualizerStore((s) => s.aiExplainLoading);
   const fetchAiExplain = useVisualizerStore((s) => s.fetchAiExplain);
 
+  const exampleResults = useVisualizerStore((s) => s.exampleResults);
   const showAiExplain = !!trace && hasTwoExamples && allExamplesPass;
-  const showVisualize = !!trace;
+  const hasTrace = !!trace;
+  const canVisualize =
+    hasTrace &&
+    (exampleResults == null || exampleResults.length === 0 || allExamplesPass);
+  const visualizeBlocked =
+    hasTrace && exampleResults != null && exampleResults.length > 0 && !allExamplesPass;
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-panel px-3 py-2">
@@ -37,12 +43,17 @@ export function EditorActionBar({ onOpenVisualize }: Props) {
           <Zap className="h-3.5 w-3.5" />
           {isRunning ? "Running…" : "Run"}
         </Button>
-        {showVisualize ? (
+        {hasTrace ? (
           <Button
             size="sm"
             variant="outline"
             onClick={onOpenVisualize}
-            disabled={isRunning || aiExplainLoading}
+            disabled={isRunning || aiExplainLoading || !canVisualize}
+            title={
+              visualizeBlocked
+                ? "Pass all required examples to open Visualize"
+                : "Step through your solution with animation"
+            }
             className="gap-1.5"
           >
             <BarChart3 className="h-3.5 w-3.5" />

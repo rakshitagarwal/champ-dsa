@@ -21,6 +21,12 @@ export type ArrayHighlight = {
   indices: number[];
 };
 
+export type StepViz = {
+  linkedLists?: Record<string, number[]>;
+  stacks?: Record<string, unknown[]>;
+  trees?: Record<string, (number | null)[]>;
+};
+
 export type ExecutionEvent = {
   step: number;
   line: number;
@@ -30,6 +36,7 @@ export type ExecutionEvent = {
   stdout?: string;
   explanation?: string;
   highlights?: ArrayHighlight;
+  viz?: StepViz;
   frameName?: string;
   frameId?: number;
   returnValue?: unknown;

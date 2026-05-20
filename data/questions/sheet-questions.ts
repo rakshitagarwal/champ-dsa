@@ -1643,7 +1643,7 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "fast-slow-pointers",
     "patternName": "Linked Lists",
     "difficulty": "easy",
-    "statement": "Merge two sorted linked lists (arrays).",
+    "statement": "Merge two sorted linked lists.",
     "description": "<p>You are given the heads of two sorted linked lists <code>list1</code> and <code>list2</code>.</p>\n\n<p>Merge the two lists into one <strong>sorted</strong> list. The list should be made by splicing together the nodes of the first two lists.</p>\n\n<p>Return <em>the head of the merged linked list</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n<img alt=\"\" src=\"https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg\" style=\"width: 662px; height: 302px;\" />\n<pre>\n<strong>Input:</strong> list1 = [1,2,4], list2 = [1,3,4]\n<strong>Output:</strong> [1,1,2,3,4,4]\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> list1 = [], list2 = []\n<strong>Output:</strong> []\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> list1 = [], list2 = [0]\n<strong>Output:</strong> [0]\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li>The number of nodes in both lists is in the range <code>[0, 50]</code>.</li>\n\t<li><code>-100 &lt;= Node.val &lt;= 100</code></li>\n\t<li>Both <code>list1</code> and <code>list2</code> are sorted in <strong>non-decreasing</strong> order.</li>\n</ul>\n",
     "leetcodeSlug": "merge-two-sorted-lists",
     "leetcodeUrl": "https://leetcode.com/problems/merge-two-sorted-lists/",
@@ -1651,13 +1651,17 @@ export const sheetQuestions: Question[] = [
       {
         "input": "l1 = [1,2,4]\nl2 = [1,3,4]",
         "output": "[1,1,2,3,4,4]"
+      },
+      {
+        "input": "l1 = []\nl2 = []",
+        "output": "[]"
       }
     ],
     "patternHints": [
       "Two pointers",
       "Append rest"
     ],
-    "starterCode": "function solve(input) {\n  // TODO\n}",
+    "starterCode": "/**\n * @param {ListNode} list1\n * @param {ListNode} list2\n * @return {ListNode}\n */\nfunction mergeTwoLists(list1, list2) {\n  // TODO\n}",
     "solutionCode": "function solve(input) {\n  const out = []; let i = 0, j = 0;\n  while (i < input.l1.length && j < input.l2.length) {\n    if (input.l1[i] <= input.l2[j]) out.push(input.l1[i++]); else out.push(input.l2[j++]);\n  }\n  return out.concat(input.l1.slice(i), input.l2.slice(j));\n}",
     "sampleInput": "{\"l1\":[1,2,4],\"l2\":[1,3,4]}",
     "humanInput": "l1 = [1,2,4]\nl2 = [1,3,4]",

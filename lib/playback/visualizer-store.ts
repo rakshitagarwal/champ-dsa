@@ -61,6 +61,9 @@ type VisualizerState = {
   aiExplainLoading: boolean;
   aiExplainError: string | null;
   aiExplainModalOpen: boolean;
+  stepExplainText: string | null;
+  stepExplainLoading: boolean;
+  stepExplainError: string | null;
   setCode: (code: string) => void;
   setStdin: (stdin: string) => void;
   setProblem: (p: {
@@ -82,7 +85,9 @@ type VisualizerState = {
   loadFreePlayground: () => void;
   run: () => Promise<void>;
   fetchAiExplain: () => Promise<void>;
+  fetchStepExplain: () => Promise<void>;
   clearAiExplain: () => void;
+  clearStepExplain: () => void;
   setAiExplainModalOpen: (open: boolean) => void;
   setStepIndex: (i: number) => void;
   stepNext: () => void;
@@ -110,6 +115,9 @@ function clearRunState() {
     aiExplain: null,
     aiExplainError: null,
     aiExplainModalOpen: false,
+    stepExplainText: null,
+    stepExplainLoading: false,
+    stepExplainError: null,
   };
 }
 
@@ -141,6 +149,9 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   aiExplainLoading: false,
   aiExplainError: null,
   aiExplainModalOpen: false,
+  stepExplainText: null,
+  stepExplainLoading: false,
+  stepExplainError: null,
 
   setCode: (code) =>
     set({
@@ -202,6 +213,12 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       aiExplainLoading: false,
       aiExplainModalOpen: false,
     }),
+  clearStepExplain: () =>
+    set({
+      stepExplainText: null,
+      stepExplainError: null,
+      stepExplainLoading: false,
+    }),
   setAiExplainModalOpen: (open) => set({ aiExplainModalOpen: open }),
   loadFreePlayground: () =>
     set({
@@ -251,6 +268,8 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       aiExplainError: null,
       exampleResults: null,
       allExamplesPass: false,
+      stepExplainText: null,
+      stepExplainError: null,
     });
 
     const result = await runCode(code, stdin);
@@ -269,7 +288,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     let exampleResults: ExampleRunResult[] | null = null;
     let allExamplesPass = false;
 
-    if (runExamples.length >= 2) {
+    if (runExamples.length > 0) {
       exampleResults = await validateExamples(code, runExamples);
       allExamplesPass = exampleResults.every((r) => r.pass);
     }
@@ -364,11 +383,74 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     }
   },
 
+  fetchStepExplain: async () => {
+    const {
+      trace,
+      stepIndex,
+      problemTitle,
+      patternName,
+      allExamplesPass,
+      exampleResults,
+    } = get();
+
+    const canVisualize =
+      !!trace &&
+      (exampleResults == null ||
+        exampleResults.length === 0 ||
+        allExamplesPass);
+    if (!canVisualize || !problemTitle || !patternName) return;
+
+    const curr = trace!.events[stepIndex];
+    if (!curr) return;
+
+    const { explainStep } = await import("@/lib/explain/heuristics");
+    const { getLineSnippet } = await import("@/lib/viz/line-snippet");
+    const prev = stepIndex > 0 ? trace!.events[stepIndex - 1]! : null;
+    const code = get().code;
+    const stepSummary = explainStep(prev, curr, patternName);
+    const lineSnippet = getLineSnippet(code, curr.line);
+
+    set({ stepExplainLoading: true, stepExplainError: null });
+
+    try {
+      const res = await fetch("/api/ai/explain-step", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problemTitle,
+          patternName,
+          line: curr.line,
+          lineSnippet,
+          stepSummary,
+          stepIndex,
+          vizSnapshot: curr.viz,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Step explanation failed.");
+      set({
+        stepExplainText: data.explanation as string,
+        stepExplainLoading: false,
+      });
+    } catch (err) {
+      set({
+        stepExplainLoading: false,
+        stepExplainError:
+          err instanceof Error ? err.message : "Step explanation failed.",
+      });
+    }
+  },
+
   setStepIndex: (i) => {
     const { trace } = get();
     if (!trace) return;
     const max = Math.max(0, trace.events.length - 1);
-    set({ stepIndex: Math.min(Math.max(0, i), max), isPlaying: false });
+    set({
+      stepIndex: Math.min(Math.max(0, i), max),
+      isPlaying: false,
+      stepExplainText: null,
+      stepExplainError: null,
+    });
   },
 
   stepNext: () => {

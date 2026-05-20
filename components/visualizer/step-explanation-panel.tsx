@@ -1,6 +1,9 @@
 "use client";
 
+import { Loader2, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useStepAnalysis } from "@/lib/viz/use-step-analysis";
+import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { formatDisplayVar } from "@/lib/viz/display-vars";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +22,11 @@ export function StepExplanationPanel({
     lineSnippet,
     diff,
   } = useStepAnalysis();
+  const stepExplainText = useVisualizerStore((s) => s.stepExplainText);
+  const stepExplainLoading = useVisualizerStore((s) => s.stepExplainLoading);
+  const stepExplainError = useVisualizerStore((s) => s.stepExplainError);
+  const fetchStepExplain = useVisualizerStore((s) => s.fetchStepExplain);
+  const problemTitle = useVisualizerStore((s) => s.problemTitle);
 
   if (!current) {
     return (
@@ -89,12 +97,34 @@ export function StepExplanationPanel({
         </section>
 
         <section>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            What happens
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              What happens
+            </h3>
+            {problemTitle ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1 text-xs"
+                disabled={stepExplainLoading}
+                onClick={() => fetchStepExplain()}
+              >
+                {stepExplainLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                Explain step
+              </Button>
+            ) : null}
+          </div>
           <p className="mt-1.5 text-sm leading-relaxed text-foreground/95">
-            {explanation}
+            {stepExplainText ?? explanation}
           </p>
+          {stepExplainError ? (
+            <p className="mt-2 text-xs text-destructive">{stepExplainError}</p>
+          ) : null}
         </section>
 
         {visibleChanges.length > 0 ? (

@@ -8,13 +8,16 @@ import {
   findPrimaryArray,
 } from "@/lib/viz/analyze-step";
 import { filterChangedVars } from "@/lib/viz/display-vars";
+import {
+  getPrimaryLinkedLists,
+  getPrimaryStack,
+  getPrimaryTree,
+  pickVizMode,
+} from "@/lib/viz/pick-viz-mode";
+import { getLineSnippet } from "@/lib/viz/line-snippet";
 import type { ExecutionEvent } from "@/types/execution";
 
-export function getLineSnippet(code: string, line: number): string | null {
-  const lines = code.split("\n");
-  if (line < 1 || line > lines.length) return null;
-  return lines[line - 1]?.trim() || null;
-}
+export { getLineSnippet };
 
 export function useStepAnalysis() {
   const current = useVisualizerStore((s) => s.currentEvent());
@@ -40,10 +43,18 @@ export function useStepAnalysis() {
         explanation: "",
         lineSnippet: null as string | null,
         showCallStack: false,
+        vizMode: "none" as const,
+        linkedLists: [] as { name: string; values: number[] }[],
+        stackViz: null as ReturnType<typeof getPrimaryStack>,
+        treeViz: null as ReturnType<typeof getPrimaryTree>,
       };
     }
 
     const diff = analyzeStepDiff(previous, current);
+    const vizMode = pickVizMode(current, patternName);
+    const linkedLists = getPrimaryLinkedLists(current.viz);
+    const stackViz = getPrimaryStack(current.viz);
+    const treeViz = getPrimaryTree(current.viz);
     const visibleChanges = filterChangedVars(diff.changedVars, current.type);
     const primary =
       findPrimaryArray(current.variables) ??
@@ -76,6 +87,10 @@ export function useStepAnalysis() {
       explanation,
       lineSnippet,
       showCallStack,
+      vizMode,
+      linkedLists,
+      stackViz,
+      treeViz,
     };
   }, [current, previous, stepIndex, trace, patternName, code]);
 }

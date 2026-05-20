@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStepAnalysis } from "@/lib/viz/use-step-analysis";
 import { formatDisplayVar } from "@/lib/viz/display-vars";
 import { StackPanel } from "./stack-panel";
+import { LinkedListCanvas } from "./linked-list-canvas";
+import { StackCanvas } from "./stack-canvas";
+import { TreeCanvas } from "./tree-canvas";
 import { cn } from "@/lib/utils";
 import type { ExecutionEvent } from "@/types/execution";
 import type { analyzeStepDiff } from "@/lib/viz/analyze-step";
@@ -11,7 +14,7 @@ import type { analyzeStepDiff } from "@/lib/viz/analyze-step";
 const CELL_W = 48;
 const CELL_GAP = 6;
 
-/** Array / pointer animation only — used in fullscreen modal. */
+/** Routes to array, linked-list, stack, or tree animation. */
 export function AnimationCanvas() {
   const {
     current,
@@ -21,6 +24,10 @@ export function AnimationCanvas() {
     pointers,
     changedIndices,
     showCallStack,
+    vizMode,
+    linkedLists,
+    stackViz,
+    treeViz,
   } = useStepAnalysis();
 
   if (!current || !diff) {
@@ -35,7 +42,16 @@ export function AnimationCanvas() {
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-gradient-to-b from-muted/10 to-background">
       <div className="relative flex min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain p-4">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col items-start justify-start">
-          {primary && primary.values.length > 0 ? (
+          {vizMode === "linkedList" ? (
+            <LinkedListCanvas
+              lists={linkedLists}
+              highlightVars={["tail", "dummy", "head", "list1", "list2"]}
+            />
+          ) : vizMode === "stack" && stackViz ? (
+            <StackCanvas name={stackViz.name} values={stackViz.values} />
+          ) : vizMode === "tree" && treeViz ? (
+            <TreeCanvas name={treeViz.name} values={treeViz.values} />
+          ) : primary && primary.values.length > 0 ? (
             <ArrayCanvas
               primary={primary}
               diff={diff}
