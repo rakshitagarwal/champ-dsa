@@ -1,7 +1,7 @@
 import { parseHumanInput } from "@/lib/io/human-input";
 
-/** LeetCode ListNode params only — sheet uses plain arrays on input.l1/l2/head */
-const LIST_PARAM_KEYS = new Set(["list1", "list2", "list"]);
+/** Params passed as JSON arrays but executed as ListNode chains */
+const LIST_PARAM_KEYS = new Set(["list1", "list2", "list", "head"]);
 
 export function parseStdin(stdin: string): unknown {
   const trimmed = stdin.trim();
@@ -88,10 +88,16 @@ export function buildEntryCallExpr(
       const key = inputKeyForParam(param, obj);
       if (!key) return "undefined";
       const useListNode =
-        entryName === "mergeTwoLists" ||
-        entryName === "mergeKLists" ||
-        entryName === "addTwoNumbers";
-      if (useListNode && (LIST_PARAM_KEYS.has(param) || LIST_PARAM_KEYS.has(key))) {
+        entryName !== "solve" &&
+        (entryName === "mergeTwoLists" ||
+          entryName === "mergeKLists" ||
+          entryName === "addTwoNumbers" ||
+          param === "head" ||
+          key === "head");
+      if (
+        useListNode &&
+        (LIST_PARAM_KEYS.has(param) || (key && LIST_PARAM_KEYS.has(key)))
+      ) {
         return argExpr(key);
       }
       return `input.${key}`;

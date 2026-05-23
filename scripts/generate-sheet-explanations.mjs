@@ -8,6 +8,10 @@
 import fs from "fs";
 import * as solutionsModule from "./sheet-solutions-data.mjs";
 import { USER_EXPLANATIONS_BY_NUM } from "./user-explanations-data.mjs";
+import {
+  buildReadmeExplanation,
+  buildBackspaceCompareExplanation,
+} from "./build-readme-explanation.mjs";
 
 const SHEET_SOLUTIONS = solutionsModule.SHEET_SOLUTIONS;
 const useGroq = process.argv.includes("--groq");
@@ -100,18 +104,30 @@ function questionIdForNum(num) {
 }
 
 function buildOfflineExplanation(q) {
-  const hints = q.patternHints?.length ? q.patternHints : [q.patternName];
-  const sampleOut = sampleOutputsByNum[String(q.num)];
-  const exampleLine = q.humanInput
-    ? `For the sample input (${q.humanInput})${sampleOut ? `, the reference solution returns ${sampleOut.trim()}` : ""}.`
-    : "Walk through the provided examples with the same invariant at each step.";
-
-  return {
-    summary: `${q.title}: ${q.statement}`,
-    whyItWorks: `This solution uses the ${q.patternName} pattern. ${hints.join(". ")}.`,
-    howExamplesAreSatisfied: `${exampleLine} Each step preserves the invariant until the final answer is produced.`,
-    keyIdeas: hints,
-  };
+  const sol = SHEET_SOLUTIONS[q.num];
+  if (!sol?.solutionCode?.trim()) {
+    const hints = q.patternHints?.length ? q.patternHints : [q.patternName];
+    return {
+      summary: `Sheet #${q.num} — ${q.title}\n\nProblem: ${q.statement}`,
+      whyItWorks: `Reference approach: ${q.patternName}. ${hints.join(". ")}.`,
+      howExamplesAreSatisfied: q.humanInput
+        ? `Sample input:\n${q.humanInput}`
+        : "Walk through the problem examples.",
+      keyIdeas: hints,
+    };
+  }
+  if (q.num === 71) return buildBackspaceCompareExplanation();
+  const sampleOut =
+    sampleOutputsByNum[String(q.num)] ?? sol.expectedOutput ?? undefined;
+  return buildReadmeExplanation({
+    num: q.num,
+    title: q.title,
+    statement: q.statement,
+    humanInput: q.humanInput ?? sol.humanInput ?? "",
+    sampleOutput: sampleOut,
+    patternHints: q.patternHints ?? sol.patternHints ?? [],
+    solutionCode: sol.solutionCode.trim(),
+  });
 }
 
 function loadEnvLocal() {

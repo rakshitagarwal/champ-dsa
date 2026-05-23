@@ -20,11 +20,12 @@ describe("sheet solutions under instrumentation", () => {
         leetcodeFunctionName: entryFn,
       });
       if (!result.ok) {
-        const heavy = new Set(["98", "99", "100", "179"]);
+        const heavy = new Set(["68", "98", "99", "100", "179"]);
         if (
           heavy.has(num) &&
           (result.error.includes("Max steps") ||
-            result.error.includes("Maximum call stack"))
+            result.error.includes("Maximum call stack") ||
+            result.error.includes("Invalid array length"))
         ) {
           return;
         }

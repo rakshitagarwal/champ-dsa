@@ -21,11 +21,31 @@ const WRAP_NUM_SUBARRAYS = `function solve(input) {
 
 `;
 
+const WRAP_DELETE_NODE = `function solve(input) {
+  const head = arrayToList(input.head);
+  let cur = head;
+  while (cur && cur.val !== input.node) cur = cur.next;
+  if (cur) deleteNode(cur);
+  return listToArray(head);
+}
+
+`;
+
 const SAMPLE_INPUT_PATCH = {
   5: JSON.stringify({ nums1: [1, 3], nums2: [2] }),
   15: JSON.stringify({ target: 7, arr: [2, 3, 1, 2, 4, 3] }),
+  22: JSON.stringify({ nums: [2, 2, 2, 2, 5, 5, 5, 8], k: 3, threshold: 4 }),
   23: JSON.stringify({ target: 7, arr: [2, 3, 1, 2, 4, 3] }),
   26: JSON.stringify({ heights: [1, 8, 6, 2, 5, 4, 8, 3, 7] }),
+  34: JSON.stringify({
+    matrix: [
+      [1, 3, 5, 7],
+      [10, 11, 16, 20],
+      [23, 30, 34, 60],
+    ],
+    target: 3,
+  }),
+  42: JSON.stringify({ arr: [4, 2, 1, 3] }),
 };
 
 function buildOverride(num, solution) {
@@ -38,6 +58,8 @@ function buildOverride(num, solution) {
     solutionCode = WRAP_NUM_MATRIX + solution;
   } else if (n === 22 && solution.includes("numOfSubarrays")) {
     solutionCode = WRAP_NUM_SUBARRAYS + solution;
+  } else if (n === 61 && solution.includes("deleteNode")) {
+    solutionCode = WRAP_DELETE_NODE + solution;
   }
 
   if (n === 21) {
@@ -51,8 +73,13 @@ function buildOverride(num, solution) {
     solutionCode = "var " + solution.replace(/^function\s+maxArea/, "maxArea = function");
   }
 
-  if (n === 17 || n === 22) {
+  if (n === 17 || n === 22 || n === 61) {
     entryFunction = "solve";
+  } else if (solutionCode.match(/^\s*\/\*\*/)) {
+    const varFnAfterComment = solutionCode.match(
+      /var\s+(\w+)\s*=\s*function\s*\(/,
+    );
+    if (varFnAfterComment) entryFunction = varFnAfterComment[1];
   } else {
     const varFn = solutionCode.match(/var\s+(\w+)\s*=\s*function\s*\(/);
     const fnDecl = solutionCode.match(/function\s+(\w+)\s*\(/);

@@ -25,30 +25,38 @@ function ExplainContent({
     <article className="space-y-5 text-sm leading-relaxed text-foreground/95">
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Why this code works
+          Problem &amp; approach
         </h3>
-        <p className="mt-2 whitespace-pre-wrap">{explanation.whyItWorks}</p>
+        <p className="mt-2 whitespace-pre-wrap">{explanation.summary}</p>
       </section>
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          How {patternLabel} solves this problem
+          Step-by-step walkthrough
         </h3>
-        <p className="mt-2">{explanation.summary}</p>
+        <p className="mt-2 whitespace-pre-wrap font-mono text-[13px] leading-relaxed">
+          {explanation.whyItWorks}
+        </p>
+      </section>
+      <section>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Full dry run
+        </h3>
+        <p className="mt-2 whitespace-pre-wrap">
+          {explanation.howExamplesAreSatisfied}
+        </p>
+      </section>
+      <section>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Complexity &amp; key ideas
+          {patternName ? ` · ${patternLabel}` : null}
+        </h3>
         {explanation.keyIdeas.length > 0 ? (
-          <ul className="mt-3 list-disc space-y-1.5 pl-5">
+          <ul className="mt-2 list-disc space-y-1.5 pl-5">
             {explanation.keyIdeas.map((idea, i) => (
               <li key={i}>{idea}</li>
             ))}
           </ul>
         ) : null}
-      </section>
-      <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          How the examples are satisfied
-        </h3>
-        <p className="mt-2 whitespace-pre-wrap">
-          {explanation.howExamplesAreSatisfied}
-        </p>
       </section>
     </article>
   );

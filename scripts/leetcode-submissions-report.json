@@ -1,0 +1,1581 @@
+{
+  "ok": [
+    {
+      "num": 1,
+      "slug": "richest-customer-wealth",
+      "title": "Richest customer wealth",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 304
+    },
+    {
+      "num": 2,
+      "slug": "two-sum",
+      "title": "Two Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 379
+    },
+    {
+      "num": 3,
+      "slug": "count-negative-numbers-in-a-sorted-matrix",
+      "title": "Count negative numbers in a sorted matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 409
+    },
+    {
+      "num": 4,
+      "slug": "next-permutation",
+      "title": "Next permutation",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 897
+    },
+    {
+      "num": 6,
+      "slug": "find-greatest-common-divisor-of-array",
+      "title": "Find greatest common divisor of array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 342
+    },
+    {
+      "num": 7,
+      "slug": "self-dividing-numbers",
+      "title": "Self dividing numbers",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 543
+    },
+    {
+      "num": 9,
+      "slug": "reverse-pairs",
+      "title": "Reverse pairs",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1217
+    },
+    {
+      "num": 10,
+      "slug": "special-positions-in-a-binary-matrix",
+      "title": "Special positions in a binary matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 656
+    },
+    {
+      "num": 11,
+      "slug": "transpose-matrix",
+      "title": "Transpose Matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 365
+    },
+    {
+      "num": 12,
+      "slug": "01-matrix",
+      "title": "01 Matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1092
+    },
+    {
+      "num": 13,
+      "slug": "spiral-matrix",
+      "title": "Spiral Matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 955
+    },
+    {
+      "num": 14,
+      "slug": "pascals-triangle",
+      "title": "Pascal's Triangle",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 346
+    },
+    {
+      "num": 15,
+      "slug": "range-sum-query-immutable",
+      "title": "Minimum Size Subarray Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 451
+    },
+    {
+      "num": 16,
+      "slug": "running-sum-of-1d-array",
+      "title": "Running Sum of 1d Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 289
+    },
+    {
+      "num": 17,
+      "slug": "range-sum-query-2d-immutable",
+      "title": "Range Sum Query 2D Immutable",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1103
+    },
+    {
+      "num": 18,
+      "slug": "maximum-subarray",
+      "title": "Maximum Subarray",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 322
+    },
+    {
+      "num": 19,
+      "slug": "maximum-sum-circular-subarray",
+      "title": "Maximum Sum Circular Subarray",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 519
+    },
+    {
+      "num": 20,
+      "slug": "longest-turbulent-subarray",
+      "title": "Longest Turbulent Subarray",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 536
+    },
+    {
+      "num": 21,
+      "slug": "contains-duplicate-ii",
+      "title": "Contains Duplicate II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 538
+    },
+    {
+      "num": 23,
+      "slug": "minimum-size-subarray-sum",
+      "title": "Minimum Size Subarray Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 487
+    },
+    {
+      "num": 24,
+      "slug": "longest-substring-without-repeating-characters",
+      "title": "Longest Substring Without Repeating Characters",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 438
+    },
+    {
+      "num": 25,
+      "slug": "longest-repeating-character-replacement",
+      "title": "Longest Repeating Character Replacement",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 558
+    },
+    {
+      "num": 26,
+      "slug": "container-with-most-water",
+      "title": "Container With Most Water",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 477
+    },
+    {
+      "num": 27,
+      "slug": "trapping-rain-water",
+      "title": "Trapping Rain Water",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 695
+    },
+    {
+      "num": 28,
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "title": "Two Sum II - Input Array Is Sorted",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 475
+    },
+    {
+      "num": 29,
+      "slug": "k-diff-pairs-in-an-array",
+      "title": "K-diff Pairs in an Array",
+      "lang": "javascript",
+      "status": "Time Limit Exceeded",
+      "chars": 794
+    },
+    {
+      "num": 30,
+      "slug": "find-k-closest-elements",
+      "title": "Find K Closest Elements",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 455
+    },
+    {
+      "num": 31,
+      "slug": "search-in-rotated-sorted-array",
+      "title": "Search in Rotated Sorted Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 727
+    },
+    {
+      "num": 32,
+      "slug": "remove-duplicates-from-sorted-array",
+      "title": "Remove Duplicates from Sorted Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 330
+    },
+    {
+      "num": 33,
+      "slug": "find-first-and-last-position-of-element-in-sorted-array",
+      "title": "Find First and Last Position of Element in Sorted Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 547
+    },
+    {
+      "num": 34,
+      "slug": "search-a-2d-matrix",
+      "title": "Search a 2D Matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 472
+    },
+    {
+      "num": 35,
+      "slug": "find-peak-element",
+      "title": "Find Peak Element",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 299
+    },
+    {
+      "num": 36,
+      "slug": "single-element-in-a-sorted-array",
+      "title": "Single Element in a Sorted Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 423
+    },
+    {
+      "num": 37,
+      "slug": "preimage-size-of-factorial-zeroes-function",
+      "title": "Preimage Size of Factorial Zeroes Function",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 676
+    },
+    {
+      "num": 40,
+      "slug": "sort-colors",
+      "title": "Sort Colors",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 536
+    },
+    {
+      "num": 41,
+      "slug": "kth-largest-element-in-an-array",
+      "title": "Kth Largest Element in an Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 184
+    },
+    {
+      "num": 42,
+      "slug": "minimum-absolute-difference",
+      "title": "Minimum Absolute Difference",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 438
+    },
+    {
+      "num": 43,
+      "slug": "k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 302
+    },
+    {
+      "num": 44,
+      "slug": "max-chunks-to-make-sorted",
+      "title": "Max Chunks To Make Sorted",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 284
+    },
+    {
+      "num": 45,
+      "slug": "contiguous-array",
+      "title": "Contiguous Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 458
+    },
+    {
+      "num": 46,
+      "slug": "longest-consecutive-sequence",
+      "title": "Longest Consecutive Sequence",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 534
+    },
+    {
+      "num": 47,
+      "slug": "subarray-sum-equals-k",
+      "title": "Subarray Sum Equals K",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 388
+    },
+    {
+      "num": 48,
+      "slug": "valid-anagram",
+      "title": "Valid Anagram",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 469
+    },
+    {
+      "num": 49,
+      "slug": "valid-sudoku",
+      "title": "Valid Sudoku",
+      "lang": "javascript",
+      "status": "Wrong Answer",
+      "chars": 742
+    },
+    {
+      "num": 50,
+      "slug": "ugly-number-ii",
+      "title": "Ugly Number II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 500
+    },
+    {
+      "num": 51,
+      "slug": "subarray-sum-equals-k",
+      "title": "Subarray Sum Equals K",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 388
+    },
+    {
+      "num": 52,
+      "slug": "max-points-on-a-line",
+      "title": "Max Points on a Line",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1021
+    },
+    {
+      "num": 53,
+      "slug": "palindrome-pairs",
+      "title": "Palindrome Pairs",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1923
+    },
+    {
+      "num": 54,
+      "slug": "middle-of-the-linked-list",
+      "title": "Middle of the Linked List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 444
+    },
+    {
+      "num": 55,
+      "slug": "maximum-twin-sum-of-a-linked-list",
+      "title": "Maximum Twin Sum of a Linked List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 848
+    },
+    {
+      "num": 56,
+      "slug": "merge-two-sorted-lists",
+      "title": "Merge Two Sorted Lists",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 777
+    },
+    {
+      "num": 57,
+      "slug": "linked-list-cycle",
+      "title": "Linked List Cycle",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 400
+    },
+    {
+      "num": 58,
+      "slug": "reverse-nodes-in-k-group",
+      "title": "Reverse Nodes in k- Group",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 681
+    },
+    {
+      "num": 59,
+      "slug": "remove-nth-node-from-end-of-list",
+      "title": "Remove Nth Node From End of List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 646
+    },
+    {
+      "num": 60,
+      "slug": "linked-list-cycle-ii",
+      "title": "Linked List Cycle II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 762
+    },
+    {
+      "num": 61,
+      "slug": "delete-node-in-a-linked-list",
+      "title": "Delete Node in a Linked List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 330
+    },
+    {
+      "num": 62,
+      "slug": "reverse-linked-list",
+      "title": "Reverse Linked List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 452
+    },
+    {
+      "num": 65,
+      "slug": "convert-binary-number-in-a-linked-list-to-integer",
+      "title": "Convert Binary Number in a Linked List to Integer",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 393
+    },
+    {
+      "num": 66,
+      "slug": "remove-duplicates-from-sorted-list-ii",
+      "title": "Remove Duplicates from Sorted List II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 873
+    },
+    {
+      "num": 67,
+      "slug": "reverse-linked-list-ii",
+      "title": "Reverse Linked List II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 859
+    },
+    {
+      "num": 68,
+      "slug": "sort-list",
+      "title": "Sort List",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 992
+    },
+    {
+      "num": 69,
+      "slug": "implement-stack-using-queues",
+      "title": "Implement Stack using Queues",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 866
+    },
+    {
+      "num": 70,
+      "slug": "implement-queue-using-stacks",
+      "title": "Implement Queue using Stacks",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1119
+    },
+    {
+      "num": 71,
+      "slug": "backspace-string-compare",
+      "title": "Backspace String Compare",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 580
+    },
+    {
+      "num": 72,
+      "slug": "baseball-game",
+      "title": "Baseball Game",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 587
+    },
+    {
+      "num": 73,
+      "slug": "longest-valid-parentheses",
+      "title": "Longest Valid Parentheses",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 505
+    },
+    {
+      "num": 74,
+      "slug": "evaluate-reverse-polish-notation",
+      "title": "Evaluate Reverse Polish Notation",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 511
+    },
+    {
+      "num": 75,
+      "slug": "daily-temperatures",
+      "title": "Daily Temperatures",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 524
+    },
+    {
+      "num": 76,
+      "slug": "largest-rectangle-in-histogram",
+      "title": "Largest Rectangle in Histogram",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 806
+    },
+    {
+      "num": 77,
+      "slug": "min-stack",
+      "title": "Min Stack",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1018
+    },
+    {
+      "num": 78,
+      "slug": "minimum-remove-to-make-valid-parentheses",
+      "title": "Minimum Remove to Make Valid Parentheses",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 534
+    },
+    {
+      "num": 79,
+      "slug": "find-median-from-data-stream",
+      "title": "Find Median from Data Stream",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2479
+    },
+    {
+      "num": 80,
+      "slug": "merge-k-sorted-lists",
+      "title": "Merge k Sorted Lists",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1887
+    },
+    {
+      "num": 81,
+      "slug": "find-k-pairs-with-smallest-sums",
+      "title": "Find K Pairs with Smallest Sums",
+      "lang": "javascript",
+      "status": "Time Limit Exceeded",
+      "chars": 434
+    },
+    {
+      "num": 83,
+      "slug": "top-k-frequent-elements",
+      "title": "Top K Frequent Elements",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 253
+    },
+    {
+      "num": 84,
+      "slug": "k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 302
+    },
+    {
+      "num": 85,
+      "slug": "count-good-numbers",
+      "title": "Count Good Numbers",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 682
+    },
+    {
+      "num": 86,
+      "slug": "permutations",
+      "title": "Permutations",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 457
+    },
+    {
+      "num": 87,
+      "slug": "permutations-ii",
+      "title": "Permutations II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 684
+    },
+    {
+      "num": 88,
+      "slug": "subsets",
+      "title": "Subsets",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 489
+    },
+    {
+      "num": 89,
+      "slug": "basic-calculator",
+      "title": "Basic Calculator",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 921
+    },
+    {
+      "num": 90,
+      "slug": "wildcard-matching",
+      "title": "Wildcard Matching",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 961
+    },
+    {
+      "num": 91,
+      "slug": "combinations",
+      "title": "Combinations",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 555
+    },
+    {
+      "num": 92,
+      "slug": "combination-sum",
+      "title": "Combination Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 688
+    },
+    {
+      "num": 93,
+      "slug": "combination-sum-iii",
+      "title": "Combination Sum III",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 605
+    },
+    {
+      "num": 94,
+      "slug": "letter-combinations-of-a-phone-number",
+      "title": "Letter Combinations of a Phone Number",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 658
+    },
+    {
+      "num": 95,
+      "slug": "gray-code",
+      "title": "Gray Code",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 671
+    },
+    {
+      "num": 96,
+      "slug": "letter-case-permutation",
+      "title": "Letter Case Permutation",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 654
+    },
+    {
+      "num": 97,
+      "slug": "n-queens",
+      "title": "N-Queens",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1227
+    },
+    {
+      "num": 98,
+      "slug": "sudoku-solver",
+      "title": "Sudoku Solver",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1577
+    },
+    {
+      "num": 99,
+      "slug": "construct-binary-tree-from-inorder-and-postorder-traversal",
+      "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1023
+    },
+    {
+      "num": 100,
+      "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 693
+    },
+    {
+      "num": 101,
+      "slug": "path-sum",
+      "title": "Path Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 656
+    },
+    {
+      "num": 102,
+      "slug": "same-tree",
+      "title": "Same Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 594
+    },
+    {
+      "num": 103,
+      "slug": "binary-tree-level-order-traversal",
+      "title": "Binary Tree Level Order Traversal",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 645
+    },
+    {
+      "num": 104,
+      "slug": "invert-binary-tree",
+      "title": "Invert Binary Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 444
+    },
+    {
+      "num": 105,
+      "slug": "minimum-cost-tree-from-leaf-values",
+      "title": "Minimum Cost Tree From Leaf Values",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 476
+    },
+    {
+      "num": 106,
+      "slug": "binary-tree-zigzag-level-order-traversal",
+      "title": "Binary Tree Zigzag Level Order Traversal",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1396
+    },
+    {
+      "num": 107,
+      "slug": "maximum-depth-of-binary-tree",
+      "title": "Maximum Depth of Binary Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 583
+    },
+    {
+      "num": 108,
+      "slug": "sum-of-left-leaves",
+      "title": "Sum of Left Leaves",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 641
+    },
+    {
+      "num": 109,
+      "slug": "binary-tree-right-side-view",
+      "title": "Binary Tree Right Side View",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 674
+    },
+    {
+      "num": 110,
+      "slug": "path-sum-ii",
+      "title": "Path Sum II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 823
+    },
+    {
+      "num": 111,
+      "slug": "path-sum-iii",
+      "title": "Path Sum III",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1019
+    },
+    {
+      "num": 112,
+      "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+      "title": "Lowest Common Ancestor of a Binary Search Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 711
+    },
+    {
+      "num": 114,
+      "slug": "trim-a-binary-search-tree",
+      "title": "Trim a Binary Search Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 775
+    },
+    {
+      "num": 116,
+      "slug": "queue-reconstruction-by-height",
+      "title": "Queue Reconstruction by Height",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 417
+    },
+    {
+      "num": 117,
+      "slug": "binary-tree-pruning",
+      "title": "Binary Tree Pruning",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 675
+    },
+    {
+      "num": 118,
+      "slug": "balance-a-binary-search-tree",
+      "title": "Balance a Binary Search Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 933
+    },
+    {
+      "num": 119,
+      "slug": "balanced-binary-tree",
+      "title": "Balanced Binary Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 758
+    },
+    {
+      "num": 120,
+      "slug": "implement-trie-prefix-tree",
+      "title": "Implement Trie (Prefix Tree)",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 846
+    },
+    {
+      "num": 121,
+      "slug": "design-add-and-search-words-data-structure",
+      "title": "Design Add and Search Words Data Structure",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 686
+    },
+    {
+      "num": 122,
+      "slug": "word-search-ii",
+      "title": "Word Search II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 796
+    },
+    {
+      "num": 123,
+      "slug": "redundant-connection",
+      "title": "Redundant Connection",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1089
+    },
+    {
+      "num": 124,
+      "slug": "accounts-merge",
+      "title": "Accounts Merge",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2502
+    },
+    {
+      "num": 125,
+      "slug": "range-sum-query-mutable",
+      "title": "Range Sum Query Mutable",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2114
+    },
+    {
+      "num": 126,
+      "slug": "longest-increasing-subsequence-ii",
+      "title": "Longest Increasing Subsequence II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1585
+    },
+    {
+      "num": 127,
+      "slug": "rotting-oranges",
+      "title": "Rotting Oranges",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1430
+    },
+    {
+      "num": 128,
+      "slug": "word-ladder",
+      "title": "Word Ladder",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 872
+    },
+    {
+      "num": 129,
+      "slug": "number-of-provinces",
+      "title": "Number of Provinces",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 708
+    },
+    {
+      "num": 130,
+      "slug": "number-of-enclaves",
+      "title": "Number of Enclaves",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1201
+    },
+    {
+      "num": 133,
+      "slug": "course-schedule",
+      "title": "Course Schedule",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 897
+    },
+    {
+      "num": 134,
+      "slug": "course-schedule-ii",
+      "title": "Course Schedule II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 936
+    },
+    {
+      "num": 135,
+      "slug": "find-eventual-safe-states",
+      "title": "Find Eventual Safe States",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 784
+    },
+    {
+      "num": 137,
+      "slug": "network-delay-time",
+      "title": "Network Delay Time",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2369
+    },
+    {
+      "num": 138,
+      "slug": "shortest-path-in-binary-matrix",
+      "title": "Shortest Path in Binary Matrix",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2478
+    },
+    {
+      "num": 139,
+      "slug": "path-with-minimum-effort",
+      "title": "Path With Minimum Effort",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2479
+    },
+    {
+      "num": 140,
+      "slug": "cheapest-flights-within-k-stops",
+      "title": "Cheapest Flights Within K Stops",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2248
+    },
+    {
+      "num": 141,
+      "slug": "min-cost-to-connect-all-points",
+      "title": "Min Cost to Connect All Points",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1946
+    },
+    {
+      "num": 142,
+      "slug": "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree",
+      "title": "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 2304
+    },
+    {
+      "num": 144,
+      "slug": "course-schedule-iv",
+      "title": "Course Schedule IV",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 959
+    },
+    {
+      "num": 146,
+      "slug": "number-of-ways-to-arrive-at-destination",
+      "title": "Number of Ways to Arrive at Destination",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1882
+    },
+    {
+      "num": 147,
+      "slug": "non-overlapping-intervals",
+      "title": "Non-overlapping Intervals",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 487
+    },
+    {
+      "num": 149,
+      "slug": "maximize-sum-of-array-after-k-negations",
+      "title": "Maximize Sum Of Array After K Negations",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 629
+    },
+    {
+      "num": 151,
+      "slug": "maximum-product-of-three-numbers",
+      "title": "Maximum Product of Three Numbers",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 492
+    },
+    {
+      "num": 152,
+      "slug": "bulb-switcher",
+      "title": "Bulb Switcher",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 207
+    },
+    {
+      "num": 153,
+      "slug": "candy",
+      "title": "Candy",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 678
+    },
+    {
+      "num": 154,
+      "slug": "maximum-swap",
+      "title": "Maximum Swap",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 734
+    },
+    {
+      "num": 155,
+      "slug": "climbing-stairs",
+      "title": "Climbing Stairs",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 352
+    },
+    {
+      "num": 156,
+      "slug": "decode-ways",
+      "title": "Decode Ways",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 524
+    },
+    {
+      "num": 157,
+      "slug": "frog-jump",
+      "title": "Frog Jump",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1173
+    },
+    {
+      "num": 158,
+      "slug": "coin-change",
+      "title": "Coin Change",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 494
+    },
+    {
+      "num": 159,
+      "slug": "minimum-jumps-to-reach-home",
+      "title": "Minimum Jumps to Reach Home",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1376
+    },
+    {
+      "num": 160,
+      "slug": "best-time-to-buy-and-sell-stock",
+      "title": "Best Time to Buy and Sell Stock",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 396
+    },
+    {
+      "num": 161,
+      "slug": "best-time-to-buy-and-sell-stock-ii",
+      "title": "Best Time to Buy and Sell Stock II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 585
+    },
+    {
+      "num": 162,
+      "slug": "best-time-to-buy-and-sell-stock-iii",
+      "title": "Best Time to Buy and Sell Stock III",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 866
+    },
+    {
+      "num": 163,
+      "slug": "best-time-to-buy-and-sell-stock-iv",
+      "title": "Best Time to Buy and Sell Stock IV",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1066
+    },
+    {
+      "num": 164,
+      "slug": "best-time-to-buy-and-sell-stock-with-cooldown",
+      "title": "Best Time to Buy and Sell Stock with Cooldown",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 772
+    },
+    {
+      "num": 165,
+      "slug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
+      "title": "Best Time to Buy and Sell Stock with Transaction Fee",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 663
+    },
+    {
+      "num": 166,
+      "slug": "partition-equal-subset-sum",
+      "title": "Partition Equal Subset Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 616
+    },
+    {
+      "num": 167,
+      "slug": "ones-and-zeroes",
+      "title": "Ones and Zeroes",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 869
+    },
+    {
+      "num": 168,
+      "slug": "coin-change-ii",
+      "title": "Coin Change II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 472
+    },
+    {
+      "num": 169,
+      "slug": "last-stone-weight-ii",
+      "title": "Last Stone Weight II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 734
+    },
+    {
+      "num": 170,
+      "slug": "longest-common-subsequence",
+      "title": "Longest Common Subsequence",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 762
+    },
+    {
+      "num": 171,
+      "slug": "edit-distance",
+      "title": "Edit Distance",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1048
+    },
+    {
+      "num": 172,
+      "slug": "longest-palindromic-subsequence",
+      "title": "Longest Palindromic Subsequence",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 941
+    },
+    {
+      "num": 173,
+      "slug": "minimum-insertion-steps-to-make-a-string-palindrome",
+      "title": "Minimum Insertion Steps to Make a String Palindrome",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 726
+    },
+    {
+      "num": 174,
+      "slug": "longest-increasing-subsequence",
+      "title": "Longest Increasing Subsequence",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 432
+    },
+    {
+      "num": 175,
+      "slug": "largest-divisible-subset",
+      "title": "Largest Divisible Subset",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1004
+    },
+    {
+      "num": 176,
+      "slug": "longest-string-chain",
+      "title": "Longest String Chain",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 829
+    },
+    {
+      "num": 177,
+      "slug": "minimum-cost-to-cut-a-stick",
+      "title": "Minimum Cost to Cut a Stick",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1088
+    },
+    {
+      "num": 178,
+      "slug": "burst-balloons",
+      "title": "Burst Balloons",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 904
+    },
+    {
+      "num": 179,
+      "slug": "parsing-a-boolean-expression",
+      "title": "Parsing a Boolean Expression",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1234
+    },
+    {
+      "num": 180,
+      "slug": "palindrome-partitioning-ii",
+      "title": "Palindrome Partitioning II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1196
+    },
+    {
+      "num": 181,
+      "slug": "shortest-path-visiting-all-nodes",
+      "title": "Shortest Path Visiting All Nodes",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1070
+    },
+    {
+      "num": 182,
+      "slug": "unique-paths",
+      "title": "Unique Paths",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 741
+    },
+    {
+      "num": 183,
+      "slug": "unique-paths-ii",
+      "title": "Unique Paths II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 771
+    },
+    {
+      "num": 184,
+      "slug": "minimum-path-sum",
+      "title": "Minimum Path Sum",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 585
+    },
+    {
+      "num": 185,
+      "slug": "russian-doll-envelopes",
+      "title": "Russian Doll Envelopes",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 706
+    },
+    {
+      "num": 186,
+      "slug": "find-greatest-common-divisor-of-array",
+      "title": "Find Greatest Common Divisor of Array",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 342
+    },
+    {
+      "num": 187,
+      "slug": "self-dividing-numbers",
+      "title": "Self Dividing Numbers",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 543
+    },
+    {
+      "num": 188,
+      "slug": "number-of-good-pairs",
+      "title": "Number of Good Pairs",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 290
+    },
+    {
+      "num": 189,
+      "slug": "four-divisors",
+      "title": "Four Divisors",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 857
+    },
+    {
+      "num": 190,
+      "slug": "day-of-the-week",
+      "title": "Day of the Week",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1052
+    },
+    {
+      "num": 191,
+      "slug": "subtract-the-product-and-sum-of-digits-of-an-integer",
+      "title": "Subtract the Product and Sum of Digits of an Integer",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 339
+    },
+    {
+      "num": 192,
+      "slug": "count-of-matches-in-tournament",
+      "title": "Count of Matches in Tournament",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 105
+    },
+    {
+      "num": 193,
+      "slug": "max-consecutive-ones",
+      "title": "Max Consecutive Ones",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 437
+    },
+    {
+      "num": 194,
+      "slug": "rectangle-overlap",
+      "title": "Rectangle Overlap",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 440
+    },
+    {
+      "num": 196,
+      "slug": "unique-paths",
+      "title": "Unique Paths",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 741
+    },
+    {
+      "num": 197,
+      "slug": "rectangle-area",
+      "title": "Rectangle Area",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 765
+    },
+    {
+      "num": 198,
+      "slug": "check-if-array-pairs-are-divisible-by-k",
+      "title": "Check If Array Pairs Are Divisible by k",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 662
+    },
+    {
+      "num": 199,
+      "slug": "factorial-trailing-zeroes",
+      "title": "Factorial Trailing Zeroes",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 239
+    },
+    {
+      "num": 200,
+      "slug": "nth-magical-number",
+      "title": "Nth Magical Number",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 825
+    },
+    {
+      "num": 201,
+      "slug": "permutation-sequence",
+      "title": "Permutation Sequence",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 626
+    },
+    {
+      "num": 202,
+      "slug": "single-number",
+      "title": "Single Number",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 141
+    },
+    {
+      "num": 203,
+      "slug": "reverse-bits",
+      "title": "Reverse Bits",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 296
+    },
+    {
+      "num": 204,
+      "slug": "single-number-ii",
+      "title": "Single Number II",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 624
+    },
+    {
+      "num": 205,
+      "slug": "number-of-1-bits",
+      "title": "Number of 1 Bits",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 235
+    },
+    {
+      "num": 206,
+      "slug": "factorial-trailing-zeroes",
+      "title": "Factorial Trailing Zeroes",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 239
+    },
+    {
+      "num": 207,
+      "slug": "binary-number-with-alternating-bits",
+      "title": "Binary Number with Alternating Bits",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 269
+    },
+    {
+      "num": 208,
+      "slug": "number-of-even-and-odd-bits",
+      "title": "Number of Even and Odd Bits",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 306
+    },
+    {
+      "num": 209,
+      "slug": "find-the-index-of-the-first-occurrence-in-a-string",
+      "title": "Find the Index of the First Occurrence in a String",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 461
+    },
+    {
+      "num": 210,
+      "slug": "repeated-dna-sequences",
+      "title": "Repeated DNA Sequences",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 420
+    },
+    {
+      "num": 211,
+      "slug": "longest-duplicate-substring",
+      "title": "Longest Duplicate Substring",
+      "lang": "javascript",
+      "status": "Accepted",
+      "chars": 1506
+    }
+  ],
+  "skipped": [
+    {
+      "num": 82,
+      "slug": "meeting-rooms-ii",
+      "title": "Meeting Rooms II",
+      "reason": "no submission"
+    },
+    {
+      "num": 113,
+      "slug": "closest-binary-search-tree-value-ii",
+      "title": "Closest Binary Search Tree Value II",
+      "reason": "no submission"
+    },
+    {
+      "num": 115,
+      "slug": "search-in-a-binary-search-tree",
+      "title": "Search in a Binary Search Tree",
+      "reason": "no submission"
+    },
+    {
+      "num": 136,
+      "slug": "alien-dictionary",
+      "title": "Alien Dictionary",
+      "reason": "no submission"
+    },
+    {
+      "num": 143,
+      "slug": "connecting-cities-with-minimum-cost",
+      "title": "Connecting Cities With Minimum Cost",
+      "reason": "no submission"
+    }
+  ],
+  "failed": []
+}
