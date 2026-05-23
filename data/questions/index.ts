@@ -1,7 +1,15 @@
 import type { PatternGroup, Question } from "@/types/question";
 import { stdinToHuman } from "@/lib/io/human-input";
 import { progressiveHintsByQuestionId } from "@/lib/questions/progressive-hints-map";
+import { sheetAiExplanationsByQuestionId } from "./sheet-ai-explanations";
 import { sheetQuestions } from "./sheet-questions";
+
+function withSheetExplanation(q: Question): Question {
+  return {
+    ...q,
+    aiExplanation: sheetAiExplanationsByQuestionId[q.id],
+  };
+}
 
 function enrich(
   q: Omit<Question, "solutionCode" | "humanInput"> & { sampleOutput?: string },
@@ -553,11 +561,15 @@ export function getQuestionsByPatternSlug(slug: string): Question[] {
 }
 
 export function getSheetQuestions(): Question[] {
-  return sheetQuestions.slice().sort((a, b) => (a.sheetNumber ?? 0) - (b.sheetNumber ?? 0));
+  return sheetQuestions
+    .map(withSheetExplanation)
+    .slice()
+    .sort((a, b) => (a.sheetNumber ?? 0) - (b.sheetNumber ?? 0));
 }
 
 export function getSheetQuestionById(id: string): Question | undefined {
-  return sheetQuestions.find((q) => q.id === id);
+  const q = sheetQuestions.find((item) => item.id === id);
+  return q ? withSheetExplanation(q) : undefined;
 }
 
 

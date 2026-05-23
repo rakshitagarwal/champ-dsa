@@ -2,8 +2,6 @@
 
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
-import { AnimationCanvas } from "./animation-canvas";
-import { WalkthroughControls } from "./walkthrough-controls";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -16,6 +14,7 @@ export function VizPanel({ layout = "viewport" }: Props) {
   const error = useVisualizerStore((s) => s.error);
   const exampleResults = useVisualizerStore((s) => s.exampleResults);
   const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
+  const savedAiExplanation = useVisualizerStore((s) => s.savedAiExplanation);
   const hasTrace = !!trace;
   const hasError = !!error;
 
@@ -26,14 +25,6 @@ export function VizPanel({ layout = "viewport" }: Props) {
         isDocument ? "w-full" : "h-full min-h-0 overflow-hidden",
       )}
     >
-      <WalkthroughControls
-        className={
-          isDocument
-            ? "sticky top-14 z-20 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/90"
-            : undefined
-        }
-      />
-
       {hasTrace && exampleResults && exampleResults.length > 0 ? (
         <div className="shrink-0 space-y-2 border-b border-border px-3 py-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -78,19 +69,26 @@ export function VizPanel({ layout = "viewport" }: Props) {
             </pre>
           </div>
         </div>
-      ) : solutionFilled && hasTrace ? (
-        <div className="min-h-[180px] flex-1 border-t border-border">
-          <AnimationCanvas />
-        </div>
       ) : (
         <div className="border-t border-border p-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Visualization
+            Explanation
           </p>
           <p className="mx-auto mt-3 max-w-xs text-sm text-muted-foreground">
-            Click <strong className="text-foreground">Fill Solution</strong>, then{" "}
-            <strong className="text-foreground">Visualize</strong> for the full
-            walkthrough animation.
+            {solutionFilled && !savedAiExplanation ? (
+              <>No saved explanation for this problem yet.</>
+            ) : solutionFilled ? (
+              <>
+                Click <strong className="text-foreground">Explain</strong> to
+                open a walkthrough of the reference solution and pattern.
+              </>
+            ) : (
+              <>
+                Click <strong className="text-foreground">Fill Solution</strong>,
+                then <strong className="text-foreground">Explain</strong> to see
+                why the reference code works.
+              </>
+            )}
           </p>
         </div>
       )}

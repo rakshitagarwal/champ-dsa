@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   layout?: "document" | "viewport";
-  onOpenVisualize?: () => void;
 };
 
 const PANEL_EDITOR = "editor";
@@ -21,15 +20,11 @@ const PANEL_VIZ = "viz";
 const LAYOUT_ID = "champdsa-solve-editor-viz-v2";
 const FALLBACK_LAYOUT = { [PANEL_EDITOR]: 63, [PANEL_VIZ]: 37 };
 
-function DocumentEditorStack({
-  onOpenVisualize,
-}: {
-  onOpenVisualize?: () => void;
-}) {
+function DocumentEditorStack() {
   return (
     <div className="flex w-full flex-col">
       <section className="bg-editor/30">
-        <EditorActionBar onOpenVisualize={onOpenVisualize} />
+        <EditorActionBar />
         <div className="h-[min(540px,58vh)] min-h-[360px] p-2">
           <CodeEditor />
         </div>
@@ -39,12 +34,9 @@ function DocumentEditorStack({
   );
 }
 
-export function EditorVizSplit({
-  layout = "viewport",
-  onOpenVisualize,
-}: Props) {
+export function EditorVizSplit({ layout = "viewport" }: Props) {
   if (layout === "document") {
-    return <DocumentEditorStack onOpenVisualize={onOpenVisualize} />;
+    return <DocumentEditorStack />;
   }
 
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
@@ -67,7 +59,7 @@ export function EditorVizSplit({
         className="flex min-h-[200px] min-w-0 flex-col overflow-hidden bg-editor/30"
       >
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <EditorActionBar onOpenVisualize={onOpenVisualize} />
+          <EditorActionBar />
           <div className="min-h-0 flex-1 p-2">
             <CodeEditor />
           </div>

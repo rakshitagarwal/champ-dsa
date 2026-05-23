@@ -4,10 +4,9 @@ import { useEffect, useCallback, useState } from "react";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { EditorVizSplit } from "./editor-viz-split";
 import { DocumentColumns } from "./document-columns";
-import { TraceVisualizerModal } from "./trace/TraceVisualizerModal";
-import { AiExplainModal } from "./ai-explain-modal";
 import { VisualizerToolbar } from "./visualizer-toolbar";
 import { HintModal } from "@/components/practice/hint-modal";
+import { SolutionExplainModal } from "./solution-explain-modal";
 import { ProblemPanel } from "./problem-panel";
 import type { ProgressiveHint } from "@/types/question";
 import { cn } from "@/lib/utils";
@@ -24,7 +23,7 @@ type Props = {
   onMarkSolved?: () => void;
 };
 
-/** LeetCode-style solve workspace: problem + code + visualization. */
+/** LeetCode-style solve workspace: problem + code + explanation panel. */
 export function VizWorkspace({
   hints,
   progressiveHints,
@@ -38,16 +37,13 @@ export function VizWorkspace({
   const isDocumentLayout = layout === "document";
 
   const [hintModalOpen, setHintModalOpen] = useState(false);
-  const [vizOpen, setVizOpen] = useState(false);
 
-  const aiExplainModalOpen = useVisualizerStore((s) => s.aiExplainModalOpen);
-  const setAiExplainModalOpen = useVisualizerStore((s) => s.setAiExplainModalOpen);
-
-  const isPlaying = useVisualizerStore((s) => s.isPlaying);
-  const speedMs = useVisualizerStore((s) => s.speedMs);
-  const trace = useVisualizerStore((s) => s.trace);
-  const stepNext = useVisualizerStore((s) => s.stepNext);
-  const pause = useVisualizerStore((s) => s.pause);
+  const solutionExplanationVisible = useVisualizerStore(
+    (s) => s.solutionExplanationVisible,
+  );
+  const hideSolutionExplanation = useVisualizerStore(
+    (s) => s.hideSolutionExplanation,
+  );
 
   const problemTitle = useVisualizerStore((s) => s.problemTitle);
   const problemStatement = useVisualizerStore((s) => s.problemStatement);
@@ -59,20 +55,6 @@ export function VizWorkspace({
   const problemExamples = useVisualizerStore((s) => s.problemExamples);
   const problemConstraints = useVisualizerStore((s) => s.problemConstraints);
   const problemLeetcodeUrl = useVisualizerStore((s) => s.problemLeetcodeUrl);
-
-  useEffect(() => {
-    if (!isPlaying || !trace) return;
-    const id = setInterval(() => {
-      const { stepIndex: idx, compactedStepCount: count } =
-        useVisualizerStore.getState();
-      if (idx >= count() - 1) {
-        pause();
-        return;
-      }
-      stepNext();
-    }, speedMs);
-    return () => clearInterval(id);
-  }, [isPlaying, speedMs, trace, stepNext, pause]);
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === "F10") {
@@ -111,15 +93,7 @@ export function VizWorkspace({
     />
   );
 
-  const codeColumn = (
-    <EditorVizSplit
-      layout={layout}
-      onOpenVisualize={() => {
-        useVisualizerStore.getState().openVisualizeModal();
-        setVizOpen(true);
-      }}
-    />
-  );
+  const codeColumn = <EditorVizSplit layout={layout} />;
 
   return (
     <div
@@ -140,13 +114,6 @@ export function VizWorkspace({
         onMarkSolved={onMarkSolved}
       />
 
-      <TraceVisualizerModal open={vizOpen} onOpenChange={setVizOpen} />
-
-      <AiExplainModal
-        open={aiExplainModalOpen}
-        onOpenChange={setAiExplainModalOpen}
-      />
-
       {questionId && (progressiveHints || (hints && hints.length > 0)) ? (
         <HintModal
           open={hintModalOpen}
@@ -156,6 +123,13 @@ export function VizWorkspace({
           patternHints={!progressiveHints ? hints : undefined}
         />
       ) : null}
+
+      <SolutionExplainModal
+        open={solutionExplanationVisible}
+        onOpenChange={(open) => {
+          if (!open) hideSolutionExplanation();
+        }}
+      />
 
       {isDocumentLayout ? (
         <DocumentColumns problem={problemPanel} code={codeColumn} />

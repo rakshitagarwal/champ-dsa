@@ -40,6 +40,7 @@ export function PracticeWorkspace({ question }: { question: Question }) {
       constraints: question.constraints,
       leetcodeUrl: question.leetcodeUrl,
       entryFunction: question.entryFunction,
+      aiExplanation: question.aiExplanation,
     });
     setQuestionContext({
       questionId: question.id,

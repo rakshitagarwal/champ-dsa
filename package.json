@@ -10,6 +10,8 @@
     "test": "vitest run",
     "verify:solutions": "node scripts/verify-solutions.mjs",
     "generate:sheet": "node scripts/generate-sheet.mjs",
+    "import:user-solutions": "node scripts/import-user-solutions.mjs",
+    "generate:explanations": "node scripts/generate-sheet-explanations.mjs",
     "migrate:leetcode": "node scripts/migrate-sheet-leetcode.mjs",
     "audit:fill-solution": "vitest run lib/tracer/audit-fill-solution.test.ts --maxWorkers 1",
     "resolve:leetcode": "node scripts/resolve-leetcode-slugs.mjs",

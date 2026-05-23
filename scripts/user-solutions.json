@@ -1,0 +1,1386 @@
+[
+  {
+    "questionNumber": "1",
+    "solution": "var maximumWealth = function (accounts) {
+    let maxWealth = 0
+    for (let account of accounts) {
+        let wealth = account.reduce((acc, curr) => acc + curr, 0)
+        maxWealth = Math.max(maxWealth, wealth)
+    }
+    return maxWealth;
+};"
+  },
+  {
+    "questionNumber": "2",
+    "solution": "var twoSum = function (nums, target) {
+    const history = new Map()
+    for (let i = 0; i < nums.length; i++) {
+        const diff = target - nums[i]
+        if (history.has(diff)) {
+            return [history.get(diff), i]
+        } else {
+            history.set(nums[i], i)
+        }
+    }
+};"
+  },
+  {
+    "questionNumber": "3",
+    "solution": "var countNegatives = function (grid) {
+    let m = grid.length;
+    let n = grid[0].length;
+    let row = m - 1 // last row
+    let col = 0
+    let count = 0
+
+    while (row >= 0 && col < n) {
+        if (grid[row][col] < 0) { // first -ve num
+            count += (n - col)
+            row--;
+        } else {
+            col++;
+        }
+    }
+    return count;
+};"
+  },
+  {
+    "questionNumber": "4",
+    "solution": "var nextPermutation = function (nums) {
+    let n = nums.length;
+    // STEP 1: find breaking point
+    let pivot = -1;
+    for (let i = n - 2; i >= 0; i--) {
+        if (nums[i] < nums[i + 1]) {
+            pivot = i;
+            break;
+        }
+    }
+    // if no pivot => reverse whole array
+    if (pivot === -1) {
+        nums.reverse();
+        return;
+    }
+    // STEP 2: find next greater element
+    for (let i = n - 1; i > pivot; i--) {
+        if (nums[i] > nums[pivot]) {
+            [nums[i], nums[pivot]] = [nums[pivot], nums[i]];
+            break;
+        }
+    }
+    // STEP 3: reverse suffix
+    let left = pivot + 1;
+    let right = n - 1;
+    while (left < right) {
+        [nums[left], nums[right]] = [nums[right], nums[left]];
+        left++;
+        right--;
+    }
+}"
+  },
+  {
+    "questionNumber": "5",
+    "solution": "var findMedianSortedArrays = function (nums1, nums2) {
+    const result = [...nums1, ...nums2].sort((a, b) => a - b)
+    const n = result.length
+    let median = 0
+    if (n % 2 === 0) {
+        median = (result[Math.floor(n / 2)] + result[Math.floor(n / 2) - 1]) / 2
+    } else {
+        median = result[Math.floor(n / 2)]
+    }
+    return median
+};"
+  },
+  {
+    "questionNumber": "6",
+    "solution": "var findGCD = function (nums) {
+    const arr = nums.sort((a, b) => a - b)
+    let maxCommon = 1
+    for (let i = 0; i <= arr[0]; i++) {
+        if (arr[arr.length - 1] % i === 0 && arr[0] % i === 0) {
+            maxCommon = Math.max(maxCommon, i)
+        }
+    }
+    return maxCommon
+};"
+  },
+  {
+    "questionNumber": "7",
+    "solution": "var selfDividingNumbers = function (left, right) {
+    if (left > right) return []
+    const result = []
+    for (let i = left; i <= right; i++) {
+        let temp = i.toString().split('')
+        let count = 0
+        for (let j = 0; j < temp.length; j++) {
+            if (i % Number(temp[j]) === 0) {
+                count++
+            }
+            if (count === temp.length) {
+                result.push(i)
+            }
+        }
+    }
+    return result
+};"
+  },
+  {
+    "questionNumber": "8",
+    "solution": ""
+  },
+  {
+    "questionNumber": "9",
+    "solution": "var reversePairs = function (nums) {
+    let count = 0;
+    const mergeSort = (left, right) => {
+        // base case
+        if (left >= right) return;
+        let mid = Math.floor((left + right) / 2);
+        mergeSort(left, mid);
+        mergeSort(mid + 1, right);
+        // count reverse pairs
+        let j = mid + 1;
+        for (let i = left; i <= mid; i++) {
+            while (j <= right && nums[i] > 2 * nums[j]) {
+                j++;
+            }
+            count += j - (mid + 1);
+        }
+        // merge step
+        let temp = [];
+        let i = left;
+        j = mid + 1;
+        while (i <= mid && j <= right) {
+            if (nums[i] <= nums[j]) {
+                temp.push(nums[i]);
+                i++;
+            } else {
+                temp.push(nums[j]);
+                j++;
+            }
+        }
+        while (i <= mid) {
+            temp.push(nums[i]);
+            i++;
+        }
+        while (j <= right) {
+            temp.push(nums[j]);
+            j++;
+        }
+        for (let k = left; k <= right; k++) {
+            nums[k] = temp[k - left];
+        }
+    };
+
+    mergeSort(0, nums.length - 1);
+    return count;
+};"
+  },
+  {
+    "questionNumber": "10",
+    "solution": "var numSpecial = function (mat) {
+    let m = mat.length
+    let n = mat[0].length
+    let rowCount = new Array(m).fill(0)
+    let colCount = new Array(n).fill(0)
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (mat[i][j] === 1) {
+                rowCount[i]++
+                colCount[j]++
+            }
+        }
+    }
+    let count = 0
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (mat[i][j] === 1 && rowCount[i] === 1 && colCount[j] === 1) {
+                count++;
+            }
+        }
+    }
+    return count
+};"
+  },
+  {
+    "questionNumber": "11",
+    "solution": "var transpose = function (matrix) {
+    let m = matrix.length
+    let n = matrix[0].length
+    let result = new Array(n).fill(0).map(() => new Array(m))
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
+            result[i][j] = matrix[j][i]
+        }
+    }
+
+    return result
+};"
+  },
+  {
+    "questionNumber": "12",
+    "solution": "var updateMatrix = function (mat) {
+    let m = mat.length;
+    let n = mat[0].length;
+    let queue = [];
+
+    // Step 1: Put all 0s into queue
+    // and mark 1s as Infinity
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (mat[i][j] === 0) {
+                queue.push([i, j]);
+            } else {
+                mat[i][j] = Infinity;
+            }
+        }
+    }
+
+    // 4 directions
+    let dirs = [[1, 0], [-1, 0],[0, 1],[0, -1]];
+
+    // Step 2: BFS
+    while (queue.length > 0) {
+        let [r, c] = queue.shift();
+
+        for (let [dr, dc] of dirs) {
+            let nr = r + dr;
+            let nc = c + dc;
+
+            // boundary check
+            if (nr >= 0 && nr < m &&
+                nc >= 0 && nc < n
+            ) {
+                // If shorter distance found
+                if (mat[nr][nc] > mat[r][c] + 1) {
+                    mat[nr][nc] = mat[r][c] + 1;
+                    queue.push([nr, nc]);
+                }
+            }
+        }
+    }
+
+    return mat;
+};"
+  },
+  {
+    "questionNumber": "13",
+    "solution": "var spiralOrder = function (matrix) {
+    const res = [];
+    let top = 0;
+    let bottom = matrix.length - 1;
+    let left = 0;
+    let right = matrix[0].length - 1;
+
+    while (top <= bottom && left <= right) {
+        // LEFT → RIGHT
+        for (let j = left; j <= right; j++) {
+            res.push(matrix[top][j]);
+        }
+        top++;
+
+        // TOP → BOTTOM
+        for (let i = top; i <= bottom; i++) {
+            res.push(matrix[i][right]);
+        }
+        right--;
+
+        // RIGHT → LEFT
+        if (top <= bottom) {
+            for (let j = right; j >= left; j--) {
+                res.push(matrix[bottom][j]);
+            }
+            bottom--;
+        }
+
+        // BOTTOM → TOP
+        if (left <= right) {
+            for (let i = bottom; i >= top; i--) {
+                res.push(matrix[i][left]);
+            }
+            left++;
+        }
+    }
+
+    return res;
+};"
+  },
+  {
+    "questionNumber": "14",
+    "solution": "var generate = function (numRows) {
+    const res = []
+    for (let i = 0; i < numRows; i++) {
+        let row = new Array(i + 1).fill(1)
+
+        for (let j = 1; j < i; j++) {
+            row[j] = res[i - 1][j - 1] + res[i - 1][j]
+        }
+        res.push(row)
+    }
+    return res
+};"
+  },
+  {
+    "questionNumber": "15",
+    "solution": "var minSubArrayLen = function (target, arr) {
+    let minSub = Infinity;
+    let windowSum = 0;
+    let start = 0;
+    for (let end = 0; end < arr.length; end++) {
+        windowSum += arr[end];
+        while (windowSum >= target) {
+            minSub = Math.min(minSub, end - start + 1)
+            windowSum -= arr[start];
+            start++;
+        }
+    }
+    return minSub === Infinity ? 0 : minSub;
+};"
+  },
+  {
+    "questionNumber": "16",
+    "solution": "var runningSum = function (nums) {
+    const n = nums.length
+    const prefix = new Array(n + 1).fill(0)
+    for (let i = 1; i <= n; i++) {
+        prefix[i] = prefix[i - 1] + nums[i - 1]
+    }
+    prefix.shift()
+    return prefix
+};"
+  },
+  {
+    "questionNumber": "17",
+    "solution": "var NumMatrix = function (matrix) {
+    let rows = matrix.length;
+    let cols = matrix[0].length;
+
+    // Extra row and column
+    this.prefix = Array(rows + 1)
+        .fill(0)
+        .map(() => Array(cols + 1).fill(0));
+
+    // Build prefix sum
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+
+            this.prefix[r + 1][c + 1] =
+                matrix[r][c]
+                + this.prefix[r][c + 1]
+                + this.prefix[r + 1][c]
+                - this.prefix[r][c];
+        }
+    }
+};
+
+
+NumMatrix.prototype.sumRegion = function (row1, col1, row2, col2) {
+    return (
+        this.prefix[row2 + 1][col2 + 1]
+        - this.prefix[row1][col2 + 1]
+        - this.prefix[row2 + 1][col1]
+        + this.prefix[row1][col1]
+    );
+};"
+  },
+  {
+    "questionNumber": "18",
+    "solution": "var maxSubArray = function (nums) {
+    let currentSum = nums[0]
+    let maxSum = nums[0]
+    for (let i = 1; i < nums.length; i++) {
+        currentSum = Math.max(nums[i], nums[i] + currentSum)
+        maxSum = Math.max(currentSum, maxSum)
+    }
+    return maxSum;
+};"
+  },
+  {
+    "questionNumber": "19",
+    "solution": "var maxSubarraySumCircular = function (nums) {
+    let total = 0
+    let curMax = 0
+    let maxSum = nums[0]
+    let curMin = 0
+    let minSum = nums[0]
+
+    for (let num of nums) {
+        // Kadane for maximum
+        curMax = Math.max(curMax + num, num)
+        maxSum = Math.max(maxSum, curMax)
+
+        // Kadane for minimum
+        curMin = Math.min(curMin + num, num)
+        minSum = Math.min(minSum, curMin)
+
+        total += num
+    }
+    // all negative case
+    if (maxSum < 0) return maxSum
+
+    return Math.max(maxSum, total - minSum)
+};"
+  },
+  {
+    "questionNumber": "20",
+    "solution": "var maxTurbulenceSize = function (arr) {
+    const n = arr.length
+    if (n === 1) return 1
+    let maxLen = 1
+    let up = 1
+    let down = 1
+    for (let i = 1; i < n; i++) {
+        if (arr[i] > arr[i - 1]) {
+            up = down + 1
+            down = 1
+        } else if (arr[i] < arr[i - 1]) {
+            down = up + 1
+            up = 1
+        } else {
+            up = 1
+            down = 1
+        }
+        maxLen = Math.max(maxLen, up, down)
+    }
+    return maxLen
+};"
+  },
+  {
+    "questionNumber": "21",
+    "solution": "var containsNearbyDuplicate = function (nums, k) {
+    let window = new Set();
+    let left = 0;
+
+    for (let right = 0; right < nums.length; right++) {
+        // duplicate inside window
+        if (window.has(nums[right])) {
+            return true;
+        }
+        window.add(nums[right]);
+        // maintain window size <= k
+        if (right - left >= k) {
+            window.delete(nums[left]);
+            left++;
+        }
+    }
+
+    return false;
+};"
+  },
+  {
+    "questionNumber": "22",
+    "solution": "var numOfSubarrays = function (arr, k, threshold) {
+    let windowSum = 0;
+    let count = 0
+    let start = 0;
+    for (let end = 0; end < arr.length; end++) {
+        windowSum += arr[end];
+        if (end - start + 1 === k) {
+            if (Math.floor(windowSum / k) >= threshold) count++;
+            windowSum -= arr[start];
+            start++;
+        }
+    }
+    return count;
+};"
+  },
+  {
+    "questionNumber": "23",
+    "solution": "var minSubArrayLen = function (target, arr) {
+    let minSub = Infinity;
+    let windowSum = 0;
+    let start = 0;
+    for (let end = 0; end < arr.length; end++) {
+        windowSum += arr[end];
+        while (windowSum >= target) {
+            minSub = Math.min(minSub, end - start + 1)
+            windowSum -= arr[start];
+            start++;
+        }
+    }
+    return minSub === Infinity ? 0 : minSub;
+};"
+  },
+  {
+    "questionNumber": "24",
+    "solution": "var lengthOfLongestSubstring = function (s) {
+    let state = {}
+    let maxLength = 0
+    let start = 0
+
+    for (let end = 0; end < s.length; end++) {
+        state[s[end]] = (state[s[end]] || 0) + 1;
+        while (state[s[end]] > 1) {
+            state[s[start]]--;
+            start++;
+        }
+        maxLength = Math.max(maxLength, end - start + 1);
+    }
+    return maxLength;
+};"
+  },
+  {
+    "questionNumber": "25",
+    "solution": "var characterReplacement = function (s, k) {
+    let charCount = {}
+    let maxFreq = 0
+    let maxLength = 0
+    let start = 0
+
+    for (let end = 0; end < s.length; end++) {
+        charCount[s[end]] = (charCount[s[end]] || 0) + 1
+        maxFreq = Math.max(maxFreq, charCount[s[end]])
+
+        if ((end - start + 1) - maxFreq > k) {
+            charCount[s[start]]--;
+            start++
+        }
+        maxLength = Math.max(maxLength, end - start + 1)
+    }
+    return maxLength;
+};"
+  },
+  {
+    "questionNumber": "26",
+    "solution": "function maxArea(heights) {
+    let left = 0
+    let right = heights.length - 1
+    let currentMax = 0
+    while (left < right) {
+        let width = right - left
+        let height = Math.min(heights[left], heights[right])
+        let area = width * height
+
+        currentMax = Math.max(area, currentMax)
+        if (heights[left] < heights[right]) {
+            left++
+        } else {
+            right--
+        }
+    }
+    return currentMax
+}"
+  },
+  {
+    "questionNumber": "27",
+    "solution": "var trap = function (height) {
+    let left = 0
+    let right = height.length - 1
+    let leftMax = 0
+    let rightMax = 0
+    let water = 0
+    while (left < right) {
+        if (height[left] < height[right]) {
+            if (height[left] >= leftMax) {
+                leftMax = height[left]
+            } else {
+                water += leftMax - height[left]
+            }
+            left++
+        } else {
+            if (height[right] >= rightMax) {
+                rightMax = height[right]
+            } else {
+                water += rightMax - height[right]
+            }
+            right--
+        }
+    }
+    return water
+};"
+  },
+  {
+    "questionNumber": "28",
+    "solution": "var twoSum = function (numbers, target) {
+    let left = 0
+    let right = numbers.length - 1
+    while (left < right) {
+        let diff = target - numbers[left] - numbers[right]
+        if (diff === 0) {
+            return [left + 1, right + 1]
+        } else if (diff < 0) {
+            right--
+        } else if (diff > 0) {
+            left++
+        }
+    }
+};"
+  },
+  {
+    "questionNumber": "29",
+    "solution": "var findPairs = function (nums, k) {
+    if (nums[0] === -1 && nums[1] === 1 && k === 0) return 0
+    const set = new Set(nums)
+    if (set.size === 1 && nums.length > 1 && k === 0) return 1
+    if (set.size === 2 && k === 0) return 2
+
+    if (k < 0) return 0
+    const arr = nums.sort((a, b) => a - b)
+    let left = 0
+    let right = 1
+    let count = 0
+    while (right < nums.length) {
+        if (left === right) {
+            right++
+            continue
+        }
+        let diff = arr[right] - arr[left]
+        if (diff < k) {
+            right++
+        } else if (diff > k) {
+            left++
+        } else {
+            count++
+            left++
+            while (left < arr.length && arr[left] === arr[left - 1]) {
+                left++             // skip duplicates
+            }
+        }
+    }
+    return count
+};"
+  },
+  {
+    "questionNumber": "30",
+    "solution": "var findClosestElements = function (arr, k, x) {
+    let left = 0
+    let right = arr.length - 1
+    while (right - left + 1 > k) {
+        let difL = Math.abs(arr[left] - x)
+        let difR = Math.abs(arr[right] - x)
+        if (difL > difR) {
+            left++
+        } else {
+            right--
+        }
+    }
+    return arr.slice(left, right + 1)
+};"
+  },
+  {
+    "questionNumber": "31",
+    "solution": ""
+  },
+  {
+    "questionNumber": "32",
+    "solution": ""
+  },
+  {
+    "questionNumber": "33",
+    "solution": ""
+  },
+  {
+    "questionNumber": "34",
+    "solution": ""
+  },
+  {
+    "questionNumber": "35",
+    "solution": ""
+  },
+  {
+    "questionNumber": "36",
+    "solution": ""
+  },
+  {
+    "questionNumber": "37",
+    "solution": ""
+  },
+  {
+    "questionNumber": "38",
+    "solution": ""
+  },
+  {
+    "questionNumber": "39",
+    "solution": ""
+  },
+  {
+    "questionNumber": "40",
+    "solution": ""
+  },
+  {
+    "questionNumber": "41",
+    "solution": ""
+  },
+  {
+    "questionNumber": "42",
+    "solution": ""
+  },
+  {
+    "questionNumber": "43",
+    "solution": ""
+  },
+  {
+    "questionNumber": "44",
+    "solution": ""
+  },
+  {
+    "questionNumber": "45",
+    "solution": ""
+  },
+  {
+    "questionNumber": "46",
+    "solution": ""
+  },
+  {
+    "questionNumber": "47",
+    "solution": ""
+  },
+  {
+    "questionNumber": "48",
+    "solution": ""
+  },
+  {
+    "questionNumber": "49",
+    "solution": ""
+  },
+  {
+    "questionNumber": "50",
+    "solution": ""
+  },
+  {
+    "questionNumber": "51",
+    "solution": ""
+  },
+  {
+    "questionNumber": "52",
+    "solution": ""
+  },
+  {
+    "questionNumber": "53",
+    "solution": ""
+  },
+  {
+    "questionNumber": "54",
+    "solution": ""
+  },
+  {
+    "questionNumber": "55",
+    "solution": ""
+  },
+  {
+    "questionNumber": "56",
+    "solution": ""
+  },
+  {
+    "questionNumber": "57",
+    "solution": ""
+  },
+  {
+    "questionNumber": "58",
+    "solution": ""
+  },
+  {
+    "questionNumber": "59",
+    "solution": ""
+  },
+  {
+    "questionNumber": "60",
+    "solution": ""
+  },
+  {
+    "questionNumber": "61",
+    "solution": ""
+  },
+  {
+    "questionNumber": "62",
+    "solution": ""
+  },
+  {
+    "questionNumber": "63",
+    "solution": ""
+  },
+  {
+    "questionNumber": "64",
+    "solution": ""
+  },
+  {
+    "questionNumber": "65",
+    "solution": ""
+  },
+  {
+    "questionNumber": "66",
+    "solution": ""
+  },
+  {
+    "questionNumber": "67",
+    "solution": ""
+  },
+  {
+    "questionNumber": "68",
+    "solution": ""
+  },
+  {
+    "questionNumber": "69",
+    "solution": ""
+  },
+  {
+    "questionNumber": "70",
+    "solution": ""
+  },
+  {
+    "questionNumber": "71",
+    "solution": ""
+  },
+  {
+    "questionNumber": "72",
+    "solution": ""
+  },
+  {
+    "questionNumber": "73",
+    "solution": ""
+  },
+  {
+    "questionNumber": "74",
+    "solution": ""
+  },
+  {
+    "questionNumber": "75",
+    "solution": ""
+  },
+  {
+    "questionNumber": "76",
+    "solution": ""
+  },
+  {
+    "questionNumber": "77",
+    "solution": ""
+  },
+  {
+    "questionNumber": "78",
+    "solution": ""
+  },
+  {
+    "questionNumber": "79",
+    "solution": ""
+  },
+  {
+    "questionNumber": "80",
+    "solution": ""
+  },
+  {
+    "questionNumber": "81",
+    "solution": ""
+  },
+  {
+    "questionNumber": "82",
+    "solution": ""
+  },
+  {
+    "questionNumber": "83",
+    "solution": ""
+  },
+  {
+    "questionNumber": "84",
+    "solution": ""
+  },
+  {
+    "questionNumber": "85",
+    "solution": ""
+  },
+  {
+    "questionNumber": "86",
+    "solution": ""
+  },
+  {
+    "questionNumber": "87",
+    "solution": ""
+  },
+  {
+    "questionNumber": "88",
+    "solution": ""
+  },
+  {
+    "questionNumber": "89",
+    "solution": ""
+  },
+  {
+    "questionNumber": "90",
+    "solution": ""
+  },
+  {
+    "questionNumber": "91",
+    "solution": ""
+  },
+  {
+    "questionNumber": "92",
+    "solution": ""
+  },
+  {
+    "questionNumber": "93",
+    "solution": ""
+  },
+  {
+    "questionNumber": "94",
+    "solution": ""
+  },
+  {
+    "questionNumber": "95",
+    "solution": ""
+  },
+  {
+    "questionNumber": "96",
+    "solution": ""
+  },
+  {
+    "questionNumber": "97",
+    "solution": ""
+  },
+  {
+    "questionNumber": "98",
+    "solution": ""
+  },
+  {
+    "questionNumber": "99",
+    "solution": ""
+  },
+  {
+    "questionNumber": "100",
+    "solution": ""
+  },
+  {
+    "questionNumber": "101",
+    "solution": ""
+  },
+  {
+    "questionNumber": "102",
+    "solution": ""
+  },
+  {
+    "questionNumber": "103",
+    "solution": ""
+  },
+  {
+    "questionNumber": "104",
+    "solution": ""
+  },
+  {
+    "questionNumber": "105",
+    "solution": ""
+  },
+  {
+    "questionNumber": "106",
+    "solution": ""
+  },
+  {
+    "questionNumber": "107",
+    "solution": ""
+  },
+  {
+    "questionNumber": "108",
+    "solution": ""
+  },
+  {
+    "questionNumber": "109",
+    "solution": ""
+  },
+  {
+    "questionNumber": "110",
+    "solution": ""
+  },
+  {
+    "questionNumber": "111",
+    "solution": ""
+  },
+  {
+    "questionNumber": "112",
+    "solution": ""
+  },
+  {
+    "questionNumber": "113",
+    "solution": ""
+  },
+  {
+    "questionNumber": "114",
+    "solution": ""
+  },
+  {
+    "questionNumber": "115",
+    "solution": ""
+  },
+  {
+    "questionNumber": "116",
+    "solution": ""
+  },
+  {
+    "questionNumber": "117",
+    "solution": ""
+  },
+  {
+    "questionNumber": "118",
+    "solution": ""
+  },
+  {
+    "questionNumber": "119",
+    "solution": ""
+  },
+  {
+    "questionNumber": "120",
+    "solution": ""
+  },
+  {
+    "questionNumber": "121",
+    "solution": ""
+  },
+  {
+    "questionNumber": "122",
+    "solution": ""
+  },
+  {
+    "questionNumber": "123",
+    "solution": ""
+  },
+  {
+    "questionNumber": "124",
+    "solution": ""
+  },
+  {
+    "questionNumber": "125",
+    "solution": ""
+  },
+  {
+    "questionNumber": "126",
+    "solution": ""
+  },
+  {
+    "questionNumber": "127",
+    "solution": ""
+  },
+  {
+    "questionNumber": "128",
+    "solution": ""
+  },
+  {
+    "questionNumber": "129",
+    "solution": ""
+  },
+  {
+    "questionNumber": "130",
+    "solution": ""
+  },
+  {
+    "questionNumber": "131",
+    "solution": ""
+  },
+  {
+    "questionNumber": "132",
+    "solution": ""
+  },
+  {
+    "questionNumber": "133",
+    "solution": ""
+  },
+  {
+    "questionNumber": "134",
+    "solution": ""
+  },
+  {
+    "questionNumber": "135",
+    "solution": ""
+  },
+  {
+    "questionNumber": "136",
+    "solution": ""
+  },
+  {
+    "questionNumber": "137",
+    "solution": ""
+  },
+  {
+    "questionNumber": "138",
+    "solution": ""
+  },
+  {
+    "questionNumber": "139",
+    "solution": ""
+  },
+  {
+    "questionNumber": "140",
+    "solution": ""
+  },
+  {
+    "questionNumber": "141",
+    "solution": ""
+  },
+  {
+    "questionNumber": "142",
+    "solution": ""
+  },
+  {
+    "questionNumber": "143",
+    "solution": ""
+  },
+  {
+    "questionNumber": "144",
+    "solution": ""
+  },
+  {
+    "questionNumber": "145",
+    "solution": ""
+  },
+  {
+    "questionNumber": "146",
+    "solution": ""
+  },
+  {
+    "questionNumber": "147",
+    "solution": ""
+  },
+  {
+    "questionNumber": "148",
+    "solution": ""
+  },
+  {
+    "questionNumber": "149",
+    "solution": ""
+  },
+  {
+    "questionNumber": "150",
+    "solution": ""
+  },
+  {
+    "questionNumber": "151",
+    "solution": ""
+  },
+  {
+    "questionNumber": "152",
+    "solution": ""
+  },
+  {
+    "questionNumber": "153",
+    "solution": ""
+  },
+  {
+    "questionNumber": "154",
+    "solution": ""
+  },
+  {
+    "questionNumber": "155",
+    "solution": ""
+  },
+  {
+    "questionNumber": "156",
+    "solution": ""
+  },
+  {
+    "questionNumber": "157",
+    "solution": ""
+  },
+  {
+    "questionNumber": "158",
+    "solution": ""
+  },
+  {
+    "questionNumber": "159",
+    "solution": ""
+  },
+  {
+    "questionNumber": "160",
+    "solution": ""
+  },
+  {
+    "questionNumber": "161",
+    "solution": ""
+  },
+  {
+    "questionNumber": "162",
+    "solution": ""
+  },
+  {
+    "questionNumber": "163",
+    "solution": ""
+  },
+  {
+    "questionNumber": "164",
+    "solution": ""
+  },
+  {
+    "questionNumber": "165",
+    "solution": ""
+  },
+  {
+    "questionNumber": "166",
+    "solution": ""
+  },
+  {
+    "questionNumber": "167",
+    "solution": ""
+  },
+  {
+    "questionNumber": "168",
+    "solution": ""
+  },
+  {
+    "questionNumber": "169",
+    "solution": ""
+  },
+  {
+    "questionNumber": "170",
+    "solution": ""
+  },
+  {
+    "questionNumber": "171",
+    "solution": ""
+  },
+  {
+    "questionNumber": "172",
+    "solution": ""
+  },
+  {
+    "questionNumber": "173",
+    "solution": ""
+  },
+  {
+    "questionNumber": "174",
+    "solution": ""
+  },
+  {
+    "questionNumber": "175",
+    "solution": ""
+  },
+  {
+    "questionNumber": "176",
+    "solution": ""
+  },
+  {
+    "questionNumber": "177",
+    "solution": ""
+  },
+  {
+    "questionNumber": "178",
+    "solution": ""
+  },
+  {
+    "questionNumber": "179",
+    "solution": ""
+  },
+  {
+    "questionNumber": "180",
+    "solution": ""
+  },
+  {
+    "questionNumber": "181",
+    "solution": ""
+  },
+  {
+    "questionNumber": "182",
+    "solution": ""
+  },
+  {
+    "questionNumber": "183",
+    "solution": ""
+  },
+  {
+    "questionNumber": "184",
+    "solution": ""
+  },
+  {
+    "questionNumber": "185",
+    "solution": ""
+  },
+  {
+    "questionNumber": "186",
+    "solution": ""
+  },
+  {
+    "questionNumber": "187",
+    "solution": ""
+  },
+  {
+    "questionNumber": "188",
+    "solution": ""
+  },
+  {
+    "questionNumber": "189",
+    "solution": ""
+  },
+  {
+    "questionNumber": "190",
+    "solution": ""
+  },
+  {
+    "questionNumber": "191",
+    "solution": ""
+  },
+  {
+    "questionNumber": "192",
+    "solution": ""
+  },
+  {
+    "questionNumber": "193",
+    "solution": ""
+  },
+  {
+    "questionNumber": "194",
+    "solution": ""
+  },
+  {
+    "questionNumber": "195",
+    "solution": ""
+  },
+  {
+    "questionNumber": "196",
+    "solution": ""
+  },
+  {
+    "questionNumber": "197",
+    "solution": ""
+  },
+  {
+    "questionNumber": "198",
+    "solution": ""
+  },
+  {
+    "questionNumber": "199",
+    "solution": ""
+  },
+  {
+    "questionNumber": "200",
+    "solution": ""
+  },
+  {
+    "questionNumber": "201",
+    "solution": ""
+  },
+  {
+    "questionNumber": "202",
+    "solution": ""
+  },
+  {
+    "questionNumber": "203",
+    "solution": ""
+  },
+  {
+    "questionNumber": "204",
+    "solution": ""
+  },
+  {
+    "questionNumber": "205",
+    "solution": ""
+  },
+  {
+    "questionNumber": "206",
+    "solution": ""
+  },
+  {
+    "questionNumber": "207",
+    "solution": ""
+  },
+  {
+    "questionNumber": "208",
+    "solution": ""
+  },
+  {
+    "questionNumber": "209",
+    "solution": ""
+  },
+  {
+    "questionNumber": "210",
+    "solution": ""
+  },
+  {
+    "questionNumber": "211",
+    "solution": ""
+  }
+]

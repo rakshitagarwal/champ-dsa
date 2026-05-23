@@ -57,7 +57,11 @@ export async function runSimpleJavaScript(
   const realSetInterval = globalThis.setInterval.bind(globalThis);
   const realClearInterval = globalThis.clearInterval.bind(globalThis);
 
-  const wrappedSetTimeout: typeof setTimeout = (handler, delay, ...args) => {
+  const wrappedSetTimeout = (
+    handler: TimerHandler,
+    delay?: number,
+    ...args: unknown[]
+  ): ReturnType<typeof setTimeout> => {
     pendingTimers++;
     const id = realSetTimeout(() => {
       pendingTimers = Math.max(0, pendingTimers - 1);
@@ -70,7 +74,7 @@ export async function runSimpleJavaScript(
     return id;
   };
 
-  const wrappedClearTimeout: typeof clearTimeout = (id) => {
+  const wrappedClearTimeout = (id?: ReturnType<typeof setTimeout>) => {
     if (id !== undefined && trackedTimeouts.delete(id as ReturnType<typeof setTimeout>)) {
       pendingTimers = Math.max(0, pendingTimers - 1);
     }
@@ -87,10 +91,10 @@ export async function runSimpleJavaScript(
       `"use strict";\n${prelude}${code}`,
     ) as (
       console: Console,
-      setTimeout: typeof setTimeout,
-      clearTimeout: typeof clearTimeout,
-      setInterval: typeof setInterval,
-      clearInterval: typeof clearInterval,
+      setTimeout: typeof wrappedSetTimeout,
+      clearTimeout: typeof wrappedClearTimeout,
+      setInterval: typeof realSetInterval,
+      clearInterval: typeof realClearInterval,
     ) => void;
 
     fn(

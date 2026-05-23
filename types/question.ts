@@ -1,3 +1,5 @@
+import type { AiExplainCommentary } from "@/types/ai-explain";
+
 export type Difficulty = "easy" | "medium" | "hard";
 
 export type ProgressiveHint = {
@@ -55,6 +57,8 @@ export type Question = {
   sheetSubsectionId?: string;
   source?: "sheet" | "champdsa";
   miniVizPreview?: MiniVizPreview;
+  /** Pre-saved reference-solution explanation (sheet problems). */
+  aiExplanation?: AiExplainCommentary;
 };
 
 export type PatternGroup = {

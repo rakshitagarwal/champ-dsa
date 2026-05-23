@@ -1,6 +1,6 @@
 # Fill Solution audit (all 211)
 
-Generated: 2026-05-20T23:18:59.603Z
+Generated: 2026-05-23T18:39:35.722Z
 
 | Status | Count |
 |--------|-------|
@@ -8,7 +8,7 @@ Generated: 2026-05-20T23:18:59.603Z
 | Error | 0 |
 | Heavy (max steps / stack) | 3 |
 
-UI steps (curated): min 2, avg 16, max 200
+UI steps (curated): min 2, avg 18, max 200
 
 ## Errors
 
@@ -25,34 +25,34 @@ UI steps (curated): min 2, avg 16, max 200
 |---|-------|-------|----------|-----------|------------|
 | 1 | Richest customer wealth | maximumWealth | 6 | 6 | array |
 | 2 | Two Sum | twoSum | 11 | 11 | array |
-| 3 | Count negative numbers in a sorted matrix | countNegatives | 8 | 8 | graph |
-| 4 | Next permutation | solve | 8 | 9 | array |
-| 5 | Linked Lists | solve | 54 | 60 | array |
-| 6 | Find greatest common divisor of array | solve | 3 | 3 | array |
-| 7 | Self dividing numbers | solve | 49 | 49 | array |
+| 3 | Count negative numbers in a sorted matrix | countNegatives | 19 | 19 | graph |
+| 4 | Next permutation | nextPermutation | 15 | 15 | array |
+| 5 | Linked Lists | findMedianSortedArrays | 8 | 8 | array |
+| 6 | Find greatest common divisor of array | findGCD | 11 | 11 | array |
+| 7 | Self dividing numbers | selfDividingNumbers | 158 | 159 | array |
 | 8 | Inversion of array - 1587115620 | solve | 4 | 4 | array |
-| 9 | Reverse pairs | solve | 4 | 4 | array |
-| 10 | Special positions in a binary matrix | solve | 45 | 45 | array |
-| 11 | Transpose Matrix | solve | 2 | 2 | array |
-| 12 | 01 Matrix | solve | 115 | 115 | array |
-| 13 | Spiral Matrix | solve | 11 | 11 | array |
-| 14 | Pascal's Triangle | solve | 5 | 5 | array |
-| 15 | Minimum Size Subarray Sum | solve | 4 | 4 | array |
-| 16 | Running Sum of 1d Array | runningSum | 4 | 4 | array |
-| 17 | Range Sum Query 2D Immutable | solve | 6 | 6 | array |
-| 18 | Maximum Subarray | maxSubArray | 5 | 5 | array |
-| 19 | Maximum Sum Circular Subarray | solve | 4 | 4 | array |
-| 20 | Longest Turbulent Subarray | solve | 9 | 10 | array |
-| 21 | Contains Duplicate II | solve | 10 | 10 | array |
-| 22 | Number of Sub-arrays of Size K and Average .. | solve | 21 | 21 | array |
-| 23 | Minimum Size Subarray Sum | solve | 4 | 4 | array |
-| 24 | Longest Substring Without Repeating Characters | solve | 5 | 5 | none |
-| 25 | Longest Repeating Character Replacement | solve | 5 | 5 | none |
-| 26 | Container With Most Water | solve | 12 | 12 | array |
-| 27 | Trapping Rain Water | solve | 26 | 26 | array |
-| 28 | Two Sum II - Input Array Is Sorted | solve | 13 | 14 | array |
-| 29 | K-diff Pairs in an Array | solve | 13 | 14 | array |
-| 30 | Find K Closest Elements | solve | 5 | 6 | array |
+| 9 | Reverse pairs | reversePairs | 5 | 5 | array |
+| 10 | Special positions in a binary matrix | numSpecial | 34 | 34 | array |
+| 11 | Transpose Matrix | transpose | 7 | 7 | array |
+| 12 | 01 Matrix | updateMatrix | 193 | 193 | array |
+| 13 | Spiral Matrix | spiralOrder | 15 | 15 | array |
+| 14 | Pascal's Triangle | generate | 10 | 10 | array |
+| 15 | Minimum Size Subarray Sum | minSubArrayLen | 7 | 7 | array |
+| 16 | Running Sum of 1d Array | runningSum | 6 | 6 | array |
+| 17 | Range Sum Query 2D Immutable | solve | 15 | 15 | array |
+| 18 | Maximum Subarray | maxSubArray | 6 | 6 | array |
+| 19 | Maximum Sum Circular Subarray | maxSubarraySumCircular | 9 | 9 | array |
+| 20 | Longest Turbulent Subarray | maxTurbulenceSize | 39 | 40 | array |
+| 21 | Contains Duplicate II | containsNearbyDuplicate | 14 | 14 | array |
+| 22 | Number of Sub-arrays of Size K and Average .. | solve | 55 | 55 | array |
+| 23 | Minimum Size Subarray Sum | minSubArrayLen | 7 | 7 | array |
+| 24 | Longest Substring Without Repeating Characters | lengthOfLongestSubstring | 7 | 7 | none |
+| 25 | Longest Repeating Character Replacement | characterReplacement | 18 | 18 | none |
+| 26 | Container With Most Water | maxArea | 46 | 47 | array |
+| 27 | Trapping Rain Water | trap | 53 | 53 | array |
+| 28 | Two Sum II - Input Array Is Sorted | twoSum | 20 | 21 | array |
+| 29 | K-diff Pairs in an Array | findPairs | 35 | 41 | array |
+| 30 | Find K Closest Elements | findClosestElements | 9 | 10 | array |
 | 31 | Search in Rotated Sorted Array | solve | 17 | 18 | array |
 | 32 | Remove Duplicates from Sorted Array | solve | 8 | 9 | array |
 | 33 | Find First and Last Position of Element in Sorted Array | solve | 5 | 5 | array |

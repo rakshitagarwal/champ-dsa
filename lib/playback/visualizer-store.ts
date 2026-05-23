@@ -80,6 +80,8 @@ type VisualizerState = {
   aiExplainLoading: boolean;
   aiExplainError: string | null;
   aiExplainModalOpen: boolean;
+  savedAiExplanation: AiExplainCommentary | null;
+  solutionExplanationVisible: boolean;
   stepExplainText: string | null;
   stepExplainLoading: boolean;
   stepExplainError: string | null;
@@ -126,6 +128,7 @@ type VisualizerState = {
     constraints?: string[];
     leetcodeUrl?: string;
     entryFunction?: string;
+    aiExplanation?: AiExplainCommentary | null;
   } | null) => void;
   setQuestionContext: (ctx: QuestionContext | null) => void;
   resetToStarter: () => void;
@@ -152,6 +155,9 @@ type VisualizerState = {
   traceTogglePlay: () => void;
   setTraceSpeed: (s: number) => void;
   pauseTrace: () => void;
+  canOpenExplain: () => boolean;
+  showSolutionExplanation: () => void;
+  hideSolutionExplanation: () => void;
   canOpenVisualize: () => boolean;
   openVisualizeModal: () => void;
   fetchAiAnimation: () => Promise<void>;
@@ -183,6 +189,7 @@ function clearRunState() {
     aiExplain: null,
     aiExplainError: null,
     aiExplainModalOpen: false,
+    solutionExplanationVisible: false,
     stepExplainText: null,
     stepExplainLoading: false,
     stepExplainError: null,
@@ -257,6 +264,8 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   aiExplainLoading: false,
   aiExplainError: null,
   aiExplainModalOpen: false,
+  savedAiExplanation: null,
+  solutionExplanationVisible: false,
   stepExplainText: null,
   stepExplainLoading: false,
   stepExplainError: null,
@@ -318,6 +327,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       problemConstraints: p?.constraints ?? null,
       problemLeetcodeUrl: p?.leetcodeUrl ?? null,
       problemEntryFunction: p?.entryFunction ?? null,
+      savedAiExplanation: p?.aiExplanation ?? null,
       stdin: p?.humanInput ?? get().stdin,
       stdinLocked: !!p?.humanInput,
       hasTwoExamples: runExamples.length >= 2,
@@ -390,6 +400,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       traceCode: manualMeta?.traceCode ?? questionContext.solutionCode,
       playerMode: playbackSteps.length > 0 ? "trace" : "scene",
       aiAnimationMode: "trace",
+      solutionExplanationVisible: false,
       ...timeline,
     });
   },
@@ -755,6 +766,19 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   setTraceSpeed: (traceSpeed) => set({ traceSpeed }),
 
   pauseTrace: () => set({ isTracePlaying: false }),
+
+  canOpenExplain: () => {
+    const { solutionFilled, savedAiExplanation } = get();
+    return solutionFilled && !!savedAiExplanation;
+  },
+
+  showSolutionExplanation: () => {
+    const { savedAiExplanation } = get();
+    if (!savedAiExplanation) return;
+    set({ solutionExplanationVisible: true });
+  },
+
+  hideSolutionExplanation: () => set({ solutionExplanationVisible: false }),
 
   canOpenVisualize: () => {
     const { solutionFilled, traceCode, questionContext, playbackSteps } = get();

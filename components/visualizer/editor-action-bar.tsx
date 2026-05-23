@@ -1,26 +1,24 @@
 "use client";
 
-import { AlignLeft, BarChart3, FileCode2, Zap } from "lucide-react";
+import { AlignLeft, FileCode2, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { AiHintButton } from "./ai-hint-button";
 
-type Props = {
-  onOpenVisualize?: () => void;
-};
-
-/** Run / Fill Solution / Visualize / AI Hint / Format — above the Monaco editor. */
-export function EditorActionBar({ onOpenVisualize }: Props) {
+/** Run / Fill Solution / Explain / AI Hint / Format — above the Monaco editor. */
+export function EditorActionBar() {
   const isRunning = useVisualizerStore((s) => s.isRunning);
   const run = useVisualizerStore((s) => s.run);
   const fillSolution = useVisualizerStore((s) => s.fillSolution);
   const formatCode = useVisualizerStore((s) => s.formatCode);
   const questionContext = useVisualizerStore((s) => s.questionContext);
-  const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
-  const canOpenVisualize = useVisualizerStore((s) => s.canOpenVisualize);
+  const canOpenExplain = useVisualizerStore((s) => s.canOpenExplain);
+  const showSolutionExplanation = useVisualizerStore(
+    (s) => s.showSolutionExplanation,
+  );
 
-  const canVisualize = canOpenVisualize();
   const showFill = !!questionContext?.solutionCode;
+  const showExplain = canOpenExplain();
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-panel px-3 py-2">
@@ -49,17 +47,17 @@ export function EditorActionBar({ onOpenVisualize }: Props) {
             {isRunning ? "Loading…" : "Fill Solution"}
           </Button>
         ) : null}
-        {canVisualize ? (
+        {showExplain ? (
           <Button
             size="sm"
             variant="default"
-            onClick={onOpenVisualize}
+            onClick={() => showSolutionExplanation()}
             disabled={isRunning}
-            title="Step through the reference solution with animation"
+            title="Open explanation for the reference solution"
             className="gap-1.5"
           >
-            <BarChart3 className="h-3.5 w-3.5" />
-            Visualize
+            <Sparkles className="h-3.5 w-3.5" />
+            Explain
           </Button>
         ) : null}
         <AiHintButton />
