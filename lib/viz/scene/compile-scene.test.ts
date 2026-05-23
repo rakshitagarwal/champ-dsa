@@ -29,6 +29,16 @@ function ev(
   };
 }
 
+const listProfile: VizProfile = {
+  version: 1,
+  structures: [{ variable: "head", kind: "linkedList", priority: 0 }],
+  pointers: [
+    { variable: "slow", kind: "listNode", attachesTo: "head" },
+    { variable: "fast", kind: "listNode", attachesTo: "head" },
+  ],
+  compaction: "aggressive",
+};
+
 describe("compileScene", () => {
   it("renders array with pointer bindings", () => {
     const scene = compileScene(
@@ -39,6 +49,20 @@ describe("compileScene", () => {
     expect(scene.structures).toHaveLength(1);
     expect(scene.structures[0]?.kind).toBe("array");
     expect(scene.pointers.map((p) => p.name).sort()).toEqual(["left", "right"]);
+  });
+
+  it("renders head array as linkedList chain", () => {
+    const scene = compileScene(
+      ev(0, { head: [1, 2, 3, 4, 5], slow: 0, fast: 0 }),
+      listProfile,
+      0,
+    );
+    const list = scene.structures.find((s) => s.kind === "linkedList");
+    expect(list).toBeDefined();
+    if (list?.kind === "linkedList") {
+      expect(list.nodes).toHaveLength(5);
+      expect(list.edges).toHaveLength(4);
+    }
   });
 });
 

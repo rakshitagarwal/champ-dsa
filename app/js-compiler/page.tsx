@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import { JsCompilerWorkspace } from "@/components/js-compiler/js-compiler-workspace";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "JS Compiler · ChampDSA",
-  description: "Run and format JavaScript with console output.",
-};
-
-export default function JsCompilerPage() {
-  return <JsCompilerWorkspace />;
+export default function JsCompilerRedirectPage() {
+  redirect("/compiler");
 }

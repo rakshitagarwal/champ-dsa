@@ -22,6 +22,8 @@ export function isRouteAllowed(pathname: string, width: number): boolean {
     return (
       pathname === "/notes" ||
       pathname.startsWith("/notes/") ||
+      pathname === "/compiler" ||
+      pathname.startsWith("/compiler/") ||
       pathname === "/js-compiler" ||
       pathname.startsWith("/js-compiler/")
     );

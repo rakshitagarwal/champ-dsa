@@ -83,7 +83,7 @@ export function diffScenes(
     if (!ps || ps.kind !== ns.kind) continue;
     if (structureValuesKey(ps) === structureValuesKey(ns)) continue;
 
-    if (ns.kind === "array") {
+    if (ns.kind === "array" && ps.kind === "array") {
       const set = new Set<number>();
       const max = Math.max(ps.values.length, ns.values.length);
       for (let i = 0; i < max; i++) {
@@ -94,7 +94,7 @@ export function diffScenes(
       if (set.size) empty.changedArrayCells.set(ns.id, set);
     }
 
-    if (ns.kind === "linkedList") {
+    if (ns.kind === "linkedList" && ps.kind === "linkedList") {
       const prevMap = new Map(ps.nodes.map((n) => [n.id, n.val]));
       for (const n of ns.nodes) {
         if (prevMap.get(n.id) !== n.val) empty.changedListNodeIds.add(n.id);
@@ -105,7 +105,10 @@ export function diffScenes(
       }
     }
 
-    if (ns.kind === "tree" || ns.kind === "heap") {
+    if (
+      (ns.kind === "tree" || ns.kind === "heap") &&
+      (ps.kind === "tree" || ps.kind === "heap")
+    ) {
       const prevMap = new Map(ps.nodes.map((n) => [n.id, n.val]));
       for (const n of ns.nodes) {
         if (prevMap.get(n.id) !== n.val) {
@@ -115,7 +118,7 @@ export function diffScenes(
       }
     }
 
-    if (ns.kind === "graph") {
+    if (ns.kind === "graph" && ps.kind === "graph") {
       const prevMap = new Map(ps.nodes.map((n) => [n.id, n.label]));
       for (const n of ns.nodes) {
         if (prevMap.get(n.id) !== n.label) empty.changedGraphNodeIds.add(n.id);

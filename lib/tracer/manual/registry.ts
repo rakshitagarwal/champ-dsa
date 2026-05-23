@@ -7,8 +7,13 @@ import {
   BC019_TRACE_CODE,
   traceMaxSumCircularSubarray,
 } from "@/lib/tracer/manual/max-sum-circular-subarray";
+import {
+  FAST_SLOW_TRACE_CODE,
+  parseHeadInput,
+  traceFastSlowMiddleList,
+} from "@/lib/tracer/manual/fast-slow-linked-list";
 
-export type ManualTracerInput = { nums?: number[]; [key: string]: unknown };
+export type ManualTracerInput = { nums?: number[]; head?: (number | string)[]; [key: string]: unknown };
 
 export type ManualTracer = (input: ManualTracerInput) => TraceStep[];
 
@@ -18,7 +23,7 @@ export type ManualTracerMeta = {
   parseInput: (raw: unknown) => ManualTracerInput;
 };
 
-const MANUAL: Record<string, ManualTracerMeta> = {
+const BY_QUESTION: Record<string, ManualTracerMeta> = {
   "bc-016-running-sum-of-1d-array": {
     tracer: (input) => traceRunningSumOf1DArray(input.nums ?? []),
     traceCode: BC016_TRACE_CODE,
@@ -61,14 +66,40 @@ const MANUAL: Record<string, ManualTracerMeta> = {
       return { nums: [] };
     },
   },
+  "bc-054-middle-of-the-linked-list": {
+    tracer: (input) => traceFastSlowMiddleList(input.head ?? []),
+    traceCode: FAST_SLOW_TRACE_CODE,
+    parseInput: parseHeadInput,
+  },
+};
+
+const BY_PATTERN: Record<string, ManualTracerMeta> = {
+  "fast-slow-pointers": {
+    tracer: (input) =>
+      traceFastSlowMiddleList(
+        input.head ?? (input.nums as (number | string)[] | undefined) ?? [],
+      ),
+    traceCode: FAST_SLOW_TRACE_CODE,
+    parseInput: parseHeadInput,
+  },
 };
 
 export function getManualTracerMeta(
   questionId: string,
+  patternSlug?: string | null,
 ): ManualTracerMeta | null {
-  return MANUAL[questionId] ?? null;
+  if (questionId in BY_QUESTION) {
+    return BY_QUESTION[questionId] ?? null;
+  }
+  if (patternSlug && patternSlug in BY_PATTERN) {
+    return BY_PATTERN[patternSlug] ?? null;
+  }
+  return null;
 }
 
-export function hasManualTracer(questionId: string): boolean {
-  return questionId in MANUAL;
+export function hasManualTracer(
+  questionId: string,
+  patternSlug?: string | null,
+): boolean {
+  return getManualTracerMeta(questionId, patternSlug) !== null;
 }

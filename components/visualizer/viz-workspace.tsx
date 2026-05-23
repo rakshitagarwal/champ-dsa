@@ -114,7 +114,10 @@ export function VizWorkspace({
   const codeColumn = (
     <EditorVizSplit
       layout={layout}
-      onOpenVisualize={() => setVizOpen(true)}
+      onOpenVisualize={() => {
+        useVisualizerStore.getState().openVisualizeModal();
+        setVizOpen(true);
+      }}
     />
   );
 

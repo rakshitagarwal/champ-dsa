@@ -272,6 +272,14 @@ function buildStructures(
     switch (spec.kind) {
       case "array": {
         if (Array.isArray(v)) {
+          const lower = spec.variable.toLowerCase();
+          if (lower === "head" || lower === "list1" || lower === "list2") {
+            const list = buildListStructure(spec.variable, label, undefined, v);
+            if (list) {
+              out.push(list);
+              break;
+            }
+          }
           out.push({
             kind: "array",
             id: structId(spec.variable),

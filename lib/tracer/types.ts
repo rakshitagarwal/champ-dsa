@@ -34,11 +34,53 @@ export interface PointerSnapshot {
   color: string;
 }
 
+export interface LinkedListSnapshot {
+  id: string;
+  label: string;
+  values: (number | string)[];
+  highlightedNodeIndices?: number[];
+}
+
+export interface ListNodePointerSnapshot {
+  listId: string;
+  name: string;
+  nodeIndex: number;
+  color?: string;
+}
+
+export interface TreeSnapshot {
+  id: string;
+  label: string;
+  levelOrder: (number | null)[];
+  highlightedNodeIds?: string[];
+}
+
+export interface TreePointerSnapshot {
+  treeId: string;
+  name: string;
+  nodeId: string;
+  color?: string;
+}
+
+export interface GraphSnapshot {
+  id: string;
+  label: string;
+  nodes: { id: string; label: string; val?: number | string }[];
+  edges: { from: string; to: string }[];
+  visitedNodeIds?: string[];
+  activeNodeId?: string;
+}
+
 export interface DataStructureSnapshot {
   arrays?: ArraySnapshot[];
   stacks?: StackSnapshot[];
   hashmaps?: HashmapSnapshot[];
   pointers?: PointerSnapshot[];
+  linkedLists?: LinkedListSnapshot[];
+  listPointers?: ListNodePointerSnapshot[];
+  trees?: TreeSnapshot[];
+  treePointers?: TreePointerSnapshot[];
+  graphs?: GraphSnapshot[];
 }
 
 export interface TraceStep {

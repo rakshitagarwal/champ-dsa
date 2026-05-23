@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 type Props = {
   code: string;
-  highlightedLine: number;
+  highlightedLine?: number;
   description: string;
 };
 
@@ -13,6 +13,7 @@ export function CodePanel({ code, highlightedLine, description }: Props) {
   const activeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (highlightedLine === undefined) return;
     activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [highlightedLine]);
 
@@ -22,7 +23,8 @@ export function CodePanel({ code, highlightedLine, description }: Props) {
         <pre className="font-mono text-sm">
           {lines.map((line, idx) => {
             const lineNum = idx + 1;
-            const isActive = lineNum === highlightedLine;
+            const isActive =
+              highlightedLine !== undefined && lineNum === highlightedLine;
             return (
               <div
                 key={idx}

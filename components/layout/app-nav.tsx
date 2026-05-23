@@ -21,7 +21,7 @@ const learnLinks = [
   { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Solve", icon: PenLine },
   { href: "/cheatsheet", label: "Cheat sheet", icon: Table2 },
-  { href: "/js-compiler", label: "JS compiler", icon: Code2 },
+  { href: "/compiler", label: "Compiler", icon: Code2 },
 ] as const;
 
 const recapLinks = [

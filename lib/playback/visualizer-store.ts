@@ -6,6 +6,7 @@ import type {
   ExecutionTrace,
 } from "@/types/execution";
 import type { ProgressiveHint, QuestionExample } from "@/types/question";
+import type { AiAnimationResult } from "@/types/ai-animation";
 import type { AiExplainCommentary, ExampleRunResult } from "@/types/ai-explain";
 import type { VizProfile } from "@/types/viz-profile";
 import type { VizScene } from "@/types/viz-scene";
@@ -19,6 +20,7 @@ import { compactTimeline } from "@/lib/viz/scene/compact-steps";
 import { runCode } from "@/lib/tracer/run";
 import { validateExamples } from "@/lib/run/validate-examples";
 import { getFirstTwoRunExamples } from "@/lib/questions/run-examples";
+import { getManualTracerMeta } from "@/lib/tracer/manual/registry";
 import { markVisualizerUsed } from "@/lib/onboarding/checklist";
 import { recordQuestionAttempt } from "@/lib/storage/learning-store";
 
@@ -94,6 +96,12 @@ type VisualizerState = {
   isTracePlaying: boolean;
   traceSpeed: number;
   playerMode: "trace" | "scene";
+  aiAnimation: AiAnimationResult | null;
+  aiAnimationLoading: boolean;
+  aiAnimationError: string | null;
+  aiAnimationMode: "ai" | "trace";
+  aiAnimStepIndex: number;
+  isAiAnimPlaying: boolean;
   currentPlaybackStep: () => PlaybackStep | null;
   aiHintLevel: 0 | 1 | 2 | 3;
   fillSolution: () => Promise<void>;
@@ -145,6 +153,17 @@ type VisualizerState = {
   setTraceSpeed: (s: number) => void;
   pauseTrace: () => void;
   canOpenVisualize: () => boolean;
+  openVisualizeModal: () => void;
+  fetchAiAnimation: () => Promise<void>;
+  fetchAnimationCaptions: () => Promise<void>;
+  animationCaptionsLoading: boolean;
+  clearAiAnimation: () => void;
+  setAiAnimStep: (n: number) => void;
+  aiAnimStepNext: () => void;
+  aiAnimStepPrev: () => void;
+  aiAnimTogglePlay: () => void;
+  pauseAiAnim: () => void;
+  aiAnimStepCount: () => number;
   formatCode: () => void;
   registerFormatCode: (fn: (() => void) | null) => void;
   currentEvent: () => ExecutionEvent | null;
@@ -181,6 +200,12 @@ function clearRunState() {
     traceSpeed: 1,
     playerMode: "scene" as const,
     aiHintLevel: 0 as 0 | 1 | 2 | 3,
+    aiAnimation: null,
+    aiAnimationLoading: false,
+    aiAnimationError: null,
+    aiAnimationMode: "trace" as const,
+    aiAnimStepIndex: 0,
+    isAiAnimPlaying: false,
   };
 }
 
@@ -249,6 +274,13 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   traceSpeed: 1,
   playerMode: "scene",
   aiHintLevel: 0,
+  aiAnimation: null,
+  aiAnimationLoading: false,
+  aiAnimationError: null,
+  aiAnimationMode: "trace",
+  aiAnimStepIndex: 0,
+  isAiAnimPlaying: false,
+  animationCaptionsLoading: false,
 
   currentPlaybackStep: () => {
     const { playbackSteps, traceStepIndex } = get();
@@ -329,16 +361,22 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
     await get().run();
 
-    const { trace, patternName } = get();
-    if (!trace) return;
+    const state = get();
+    const { trace, patternName, patternSlug } = state;
+    const sampleRaw = state.problemHumanInput ?? state.stdin;
+    const manualMeta = getManualTracerMeta(
+      questionContext.questionId,
+      patternSlug,
+    );
 
-    const profile = buildDefaultVizProfile(trace, patternName);
+    const profile = trace ? buildDefaultVizProfile(trace, patternName) : null;
     const playbackSteps = buildPlaybackTimeline({
       trace,
       profile,
       curated: true,
       questionId: questionContext.questionId,
-      sampleRaw: problemHumanInput ?? stdin,
+      patternSlug,
+      sampleRaw,
     });
     const timeline = playbackStepsToCompat(playbackSteps);
     set({
@@ -349,8 +387,9 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       traceStepIndex: 0,
       isTracePlaying: false,
       playbackSteps,
-      traceCode: questionContext.solutionCode,
+      traceCode: manualMeta?.traceCode ?? questionContext.solutionCode,
       playerMode: playbackSteps.length > 0 ? "trace" : "scene",
+      aiAnimationMode: "trace",
       ...timeline,
     });
   },
@@ -639,9 +678,13 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
   setStepIndex: (i) => {
     const max = Math.max(0, get().compactedStepCount() - 1);
+    const idx = Math.min(Math.max(0, i), max);
     set({
-      stepIndex: Math.min(Math.max(0, i), max),
+      stepIndex: idx,
+      traceStepIndex:
+        get().playbackSteps.length > 0 ? idx : get().traceStepIndex,
       isPlaying: false,
+      isTracePlaying: false,
     });
   },
 
@@ -658,15 +701,24 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
   play: () => set({ isPlaying: true }),
   pause: () => set({ isPlaying: false }),
-  restart: () => set({ stepIndex: 0, isPlaying: false }),
+  restart: () =>
+    set({
+      stepIndex: 0,
+      traceStepIndex: 0,
+      isPlaying: false,
+      isTracePlaying: false,
+    }),
 
   setSpeed: (speedMs) => set({ speedMs }),
 
   setTraceStep: (n) => {
     const max = Math.max(0, get().playbackSteps.length - 1);
+    const idx = Math.min(Math.max(0, n), max);
     set({
-      traceStepIndex: Math.min(Math.max(0, n), max),
+      traceStepIndex: idx,
+      stepIndex: idx,
       isTracePlaying: false,
+      isPlaying: false,
     });
   },
 
@@ -676,14 +728,20 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       set({ isTracePlaying: false });
       return;
     }
-    set({ traceStepIndex: traceStepIndex + 1 });
+    const next = traceStepIndex + 1;
+    set({ traceStepIndex: next, stepIndex: next });
   },
 
   traceStepPrev: () =>
-    set((s) => ({
-      traceStepIndex: Math.max(0, s.traceStepIndex - 1),
-      isTracePlaying: false,
-    })),
+    set((s) => {
+      const prev = Math.max(0, s.traceStepIndex - 1);
+      return {
+        traceStepIndex: prev,
+        stepIndex: prev,
+        isTracePlaying: false,
+        isPlaying: false,
+      };
+    }),
 
   traceTogglePlay: () => {
     const { traceStepIndex, playbackSteps, isTracePlaying } = get();
@@ -699,9 +757,129 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   pauseTrace: () => set({ isTracePlaying: false }),
 
   canOpenVisualize: () => {
-    const { solutionFilled, playbackSteps } = get();
-    return solutionFilled && playbackSteps.length > 0;
+    const { solutionFilled, traceCode, questionContext, playbackSteps } = get();
+    const code = traceCode || questionContext?.solutionCode;
+    return (
+      solutionFilled &&
+      (!!code?.trim() || playbackSteps.length > 0)
+    );
   },
+
+  openVisualizeModal: () => {
+    set({
+      aiAnimationMode: "trace",
+      traceStepIndex: get().stepIndex,
+      aiAnimationError: null,
+    });
+  },
+
+  fetchAiAnimation: async () => {
+    const { traceCode, questionContext, playbackSteps } = get();
+    const code = traceCode || questionContext?.solutionCode;
+    if (!code?.trim()) {
+      set({
+        aiAnimationError: "Fill Solution first to visualize.",
+        aiAnimationMode: "trace",
+        aiAnimationLoading: false,
+      });
+      return;
+    }
+
+    set({
+      aiAnimationLoading: true,
+      aiAnimationError: null,
+      aiAnimation: null,
+      aiAnimStepIndex: 0,
+      isAiAnimPlaying: false,
+      aiAnimationMode: playbackSteps.length > 0 ? "trace" : "trace",
+    });
+
+    try {
+      const res = await fetch("/api/ai/generate-animation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "AI animation failed.");
+      }
+
+      set({
+        aiAnimation: data as AiAnimationResult,
+        aiAnimationMode: "ai",
+        aiAnimationLoading: false,
+        aiAnimationError: null,
+        aiAnimStepIndex: 0,
+        isAiAnimPlaying: false,
+      });
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "AI animation failed.";
+      set({
+        aiAnimationLoading: false,
+        aiAnimationMode: "trace",
+        aiAnimationError: message,
+        aiAnimation: null,
+      });
+    }
+  },
+
+  clearAiAnimation: () =>
+    set({
+      aiAnimation: null,
+      aiAnimationLoading: false,
+      aiAnimationError: null,
+      aiAnimationMode: "trace",
+      aiAnimStepIndex: 0,
+      isAiAnimPlaying: false,
+    }),
+
+  aiAnimStepCount: () => {
+    const { aiAnimation } = get();
+    if (!aiAnimation?.steps.length) return 0;
+    return Math.min(
+      aiAnimation.steps.length,
+      aiAnimation.totalSteps ?? aiAnimation.steps.length,
+    );
+  },
+
+  setAiAnimStep: (n) => {
+    const max = Math.max(0, get().aiAnimStepCount() - 1);
+    set({
+      aiAnimStepIndex: Math.min(Math.max(0, n), max),
+      isAiAnimPlaying: false,
+    });
+  },
+
+  aiAnimStepNext: () => {
+    const { aiAnimStepIndex } = get();
+    const max = get().aiAnimStepCount() - 1;
+    if (aiAnimStepIndex >= max) {
+      set({ isAiAnimPlaying: false });
+      return;
+    }
+    set({ aiAnimStepIndex: aiAnimStepIndex + 1 });
+  },
+
+  aiAnimStepPrev: () =>
+    set((s) => ({
+      aiAnimStepIndex: Math.max(0, s.aiAnimStepIndex - 1),
+      isAiAnimPlaying: false,
+    })),
+
+  aiAnimTogglePlay: () => {
+    const { aiAnimStepIndex } = get();
+    const max = get().aiAnimStepCount() - 1;
+    if (aiAnimStepIndex >= max) {
+      set({ isAiAnimPlaying: true, aiAnimStepIndex: 0 });
+      return;
+    }
+    set({ isAiAnimPlaying: !get().isAiAnimPlaying });
+  },
+
+  pauseAiAnim: () => set({ isAiAnimPlaying: false }),
 
   registerFormatCode: (fn) => {
     formatCodeFn = fn;
@@ -725,11 +903,71 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     return trace.events[rawIdx] ?? null;
   },
 
+  fetchAnimationCaptions: async () => {
+    const {
+      playbackSteps,
+      problemTitle,
+      patternName,
+      traceCode,
+      questionContext,
+    } = get();
+    if (playbackSteps.length === 0 || !problemTitle || !patternName) return;
+
+    set({ animationCaptionsLoading: true, aiAnimationError: null });
+
+    try {
+      const res = await fetch("/api/ai/animation-captions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: problemTitle,
+          patternName,
+          code: traceCode || questionContext?.solutionCode || "",
+          steps: playbackSteps.slice(0, 12).map((s, i) => ({
+            index: i,
+            line: s.line,
+            description: s.description,
+            structureKinds: s.scene.structures.map((st) => st.kind),
+          })),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Caption enhancement failed.");
+      }
+      const captions = data.captions as string[] | undefined;
+      if (!captions?.length) return;
+
+      const updated = playbackSteps.map((step, i) => ({
+        ...step,
+        description: captions[i]?.trim() || step.description,
+        scene: {
+          ...step.scene,
+          caption: captions[i]?.trim() || step.scene.caption,
+        },
+      }));
+      const timeline = playbackStepsToCompat(updated);
+      set({
+        playbackSteps: updated,
+        animationCaptionsLoading: false,
+        ...timeline,
+      });
+    } catch (err) {
+      set({
+        animationCaptionsLoading: false,
+        aiAnimationError:
+          err instanceof Error ? err.message : "Caption enhancement failed.",
+      });
+    }
+  },
+
   currentScene: () => {
     const { playbackSteps, traceStepIndex, compactedScenes, stepIndex } = get();
+    const idx =
+      playbackSteps.length > 0 ? traceStepIndex : stepIndex;
     return (
-      playbackSteps[traceStepIndex]?.scene ??
-      compactedScenes[stepIndex] ??
+      playbackSteps[idx]?.scene ??
+      compactedScenes[idx] ??
       null
     );
   },
