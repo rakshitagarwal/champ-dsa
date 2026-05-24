@@ -1,13 +1,14 @@
 import Link from "next/link";
 import type { NoteDocument } from "@/types/notes";
-import { extractH2Headings, parseMarkdown } from "@/lib/notes/parse-markdown";
+import { NoteDocumentBody } from "@/components/notes/note-document-body";
+import { extractH2Headings, parseNoteSegments } from "@/lib/notes/parse-markdown";
 import { cn } from "@/lib/utils";
-
-const proseClass = "note-prose mt-8 space-y-4";
 
 export function NoteDocument({ doc }: { doc: NoteDocument }) {
   const body = doc.markdown.replace(/^#\s+.+\n+/, "");
-  const html = parseMarkdown(body);
+  const segments = parseNoteSegments(body, {
+    enableRunnable: doc.slug === "javascript",
+  });
   const headings = extractH2Headings(body);
 
   return (
@@ -31,10 +32,7 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
               <p className="text-muted-foreground">{doc.description}</p>
             ) : null}
           </header>
-          <div
-            className={`mt-8 ${proseClass}`}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <NoteDocumentBody segments={segments} />
         </div>
       </article>
 

@@ -1,12 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import type { editor } from "monaco-editor";
 import { AlignLeft, ChevronDown, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { consumeCompilerPrefill } from "@/lib/compiler/prefill";
 import { runSimpleJavaScript } from "@/lib/compiler/run-simple";
 import { runSimplePython } from "@/lib/compiler/run-python";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,18 @@ export function CompilerWorkspace() {
   const [isRunning, setIsRunning] = useState(false);
   const [stats, setStats] = useState<string | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+
+  useEffect(() => {
+    const prefill = consumeCompilerPrefill();
+    if (!prefill) return;
+    if (prefill.language === "python") {
+      setLanguage("python");
+      setPyCode(prefill.code);
+    } else {
+      setLanguage("javascript");
+      setJsCode(prefill.code);
+    }
+  }, []);
 
   const meta = LANGUAGE_META[language];
   const code = language === "javascript" ? jsCode : pyCode;

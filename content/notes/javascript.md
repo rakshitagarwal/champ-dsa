@@ -35,18 +35,26 @@ The JS engine moves **declarations** to the top of their scope during compilatio
 - `let` / `const` are hoisted but NOT initialized → TDZ
 - `class` declarations are hoisted but NOT initialized → TDZ
 
-```js
-console.log(a); // undefined (var hoisted)
+```js runnable
+console.log("var hoisted:", a);
 var a = 5;
 
-console.log(b); // ReferenceError (TDZ)
+try {
+  console.log(b);
+} catch (e) {
+  console.log("let TDZ:", e.name);
+}
 let b = 5;
 
-greet(); // works — function declaration fully hoisted
-function greet() { return "hi"; }
+function greet() {
+  return "hi";
+}
+console.log("function decl:", greet());
 
-sayHi(); // TypeError — variable hoisted as undefined, not the function
-var sayHi = function() { return "hi"; };
+var sayHi = function () {
+  return "hi";
+};
+console.log("var + expr:", typeof sayHi);
 ```
 
 ---
@@ -60,16 +68,16 @@ var sayHi = function() { return "hi"; };
 
 **Closure:** A function that remembers variables from its outer lexical environment even after the outer function has returned.
 
-```js
+```js runnable
 function counter() {
   let count = 0;
-  return function() {
+  return function () {
     return ++count;
   };
 }
 const inc = counter();
-inc(); // 1
-inc(); // 2 — count is "closed over"
+console.log(inc());
+console.log(inc());
 ```
 
 > Closure is created at function creation time, not call time.
@@ -98,12 +106,12 @@ Every object has an internal `[[Prototype]]` link (accessible via `__proto__` or
 
 When a property is accessed, JS looks on the object first, then walks the prototype chain until `null`.
 
-```js
+```js runnable
 const animal = { eats: true };
 const dog = Object.create(animal);
 dog.barks = true;
-
-dog.eats; // true — found via prototype chain
+console.log("via prototype:", dog.eats);
+console.log("own prop:", dog.barks);
 ```
 
 `F.prototype` — when you use `new F()`, the new object's `[[Prototype]]` is set to `F.prototype`.
@@ -116,17 +124,24 @@ dog.eats; // true — found via prototype chain
 
 Syntactic sugar over prototypal inheritance. Under the hood, methods are on the prototype.
 
-```js
+```js runnable
 class Animal {
-  constructor(name) { this.name = name; }
-  speak() { return `${this.name} makes a sound`; }
+  constructor(name) {
+    this.name = name;
+  }
+  speak() {
+    return `${this.name} makes a sound`;
+  }
 }
 
 class Dog extends Animal {
   speak() {
-    return super.speak() + " (woof)";
+    return `${super.speak()} (woof)`;
   }
 }
+
+const d = new Dog("Rex");
+console.log(d.speak());
 ```
 
 - `extends` sets up prototype chain between classes
@@ -153,16 +168,11 @@ JavaScript is **single-threaded** but handles async via the event loop.
 4. Run **one** macrotask
 5. Repeat from step 2
 
-```js
+```js runnable
 console.log("1");
-
 setTimeout(() => console.log("2"), 0);
-
 Promise.resolve().then(() => console.log("3"));
-
 console.log("4");
-
-// Output: 1, 4, 3, 2
 ```
 
 > Microtasks always run before the next macrotask, even if macrotask has 0ms delay.
@@ -175,15 +185,14 @@ A `Promise` is an object representing the eventual completion or failure of an a
 
 **States:** `pending` → `fulfilled` | `rejected` (state is immutable once settled)
 
-```js
-const p = new Promise((resolve, reject) => {
-  // async work
-  resolve(value);  // or reject(error)
+```js runnable
+const p = new Promise((resolve) => {
+  resolve(42);
 });
 
-p.then(val => ...)
- .catch(err => ...)
- .finally(() => ...);
+p.then((val) => console.log("fulfilled:", val))
+  .catch((err) => console.log("rejected:", err))
+  .finally(() => console.log("finally"));
 ```
 
 **Key methods:**
@@ -203,16 +212,13 @@ p.then(val => ...)
 
 `async` functions always return a Promise. `await` pauses execution inside the async function until the promise settles. It does NOT block the main thread.
 
-```js
+```js runnable
 async function fetchData() {
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error(err);
-  }
+  const data = await Promise.resolve({ ok: true, user: "Ada" });
+  return data;
 }
+
+fetchData().then((result) => console.log(result));
 ```
 
 - `await` can only be used inside `async` functions (or top-level modules)
@@ -264,17 +270,17 @@ Each context has:
 
 Transforming a function that takes multiple arguments into a sequence of functions each taking a single argument.
 
-```js
+```js runnable
 function curry(f) {
-  return function(a) {
-    return function(b) {
+  return function (a) {
+    return function (b) {
       return f(a, b);
     };
   };
 }
 
 const add = curry((a, b) => a + b);
-add(2)(3); // 5
+console.log(add(2)(3));
 ```
 
 Use case: Partial application, reusable specialized functions.
@@ -285,22 +291,26 @@ Use case: Partial application, reusable specialized functions.
 
 **Debounce:** Delays function execution until after a specified time has passed since the last call. Used for search inputs, resize events.
 
-```js
+```js runnable
 function debounce(fn, delay) {
   let timer;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), delay);
   };
 }
+
+const log = debounce((msg) => console.log("debounced:", msg), 50);
+log("first");
+log("second");
 ```
 
 **Throttle:** Ensures function is called at most once in a specified time period. Used for scroll events, API rate limiting.
 
-```js
+```js runnable
 function throttle(fn, limit) {
   let lastCall = 0;
-  return function(...args) {
+  return function (...args) {
     const now = Date.now();
     if (now - lastCall >= limit) {
       lastCall = now;
@@ -308,6 +318,11 @@ function throttle(fn, limit) {
     }
   };
 }
+
+const log = throttle((n) => console.log("throttled:", n), 200);
+log(1);
+log(2);
+log(3);
 ```
 
 ---
@@ -341,10 +356,10 @@ document.getElementById("list").addEventListener("click", function(e) {
 
 Caching the result of expensive function calls and returning the cached result on repeated calls with same inputs.
 
-```js
+```js runnable
 function memoize(fn) {
   const cache = new Map();
-  return function(...args) {
+  return function (...args) {
     const key = JSON.stringify(args);
     if (cache.has(key)) return cache.get(key);
     const result = fn.apply(this, args);
@@ -352,6 +367,14 @@ function memoize(fn) {
     return result;
   };
 }
+
+function slowSquare(n) {
+  return n * n;
+}
+
+const fastSquare = memoize(slowSquare);
+console.log("First call:", fastSquare(5));
+console.log("Cached call:", fastSquare(5));
 ```
 
 ---
@@ -359,18 +382,25 @@ function memoize(fn) {
 ## 17. Spread & Rest
 
 **Spread (`...`):** Expands iterable into individual elements.
-```js
+```js runnable
 const arr = [1, 2, 3];
-Math.max(...arr); // 3
+const arr1 = [1, 2];
+const arr2 = [3, 4];
+console.log("Math.max:", Math.max(...arr));
 const copy = [...arr];
 const merged = [...arr1, ...arr2];
+console.log("copy:", copy);
+console.log("merged:", merged);
 ```
 
 **Rest (`...`):** Collects remaining arguments into an array.
-```js
+```js runnable
 function sum(...nums) {
   return nums.reduce((a, b) => a + b, 0);
 }
+console.log("sum(1,2,3):", sum(1, 2, 3));
+const [first, second, ...rest] = [10, 20, 30, 40];
+console.log({ first, second, rest });
 ```
 
 ---
@@ -378,18 +408,24 @@ function sum(...nums) {
 ## 18. Destructuring
 
 **Array destructuring:**
-```js
+```js runnable
 const [a, b, ...rest] = [1, 2, 3, 4];
+console.log({ a, b, rest });
 ```
 
 **Object destructuring:**
-```js
+```js runnable
+const user = { name: "Ada", age: 30, address: { city: "BLR" } };
 const { name, age = 25, address: { city } } = user;
+console.log({ name, age, city });
 ```
 
 **In function params:**
-```js
-function greet({ name, role = "user" }) { ... }
+```js runnable
+function greet({ name, role = "user" }) {
+  return `Hi ${name} (${role})`;
+}
+console.log(greet({ name: "Rakshit" }));
 ```
 
 ---
@@ -398,7 +434,7 @@ function greet({ name, role = "user" }) { ... }
 
 Functions that can be paused and resumed. Return an iterator.
 
-```js
+```js runnable
 function* gen() {
   yield 1;
   yield 2;
@@ -406,10 +442,10 @@ function* gen() {
 }
 
 const g = gen();
-g.next(); // { value: 1, done: false }
-g.next(); // { value: 2, done: false }
-g.next(); // { value: 3, done: false }
-g.next(); // { value: undefined, done: true }
+console.log(g.next());
+console.log(g.next());
+console.log(g.next());
+console.log(g.next());
 ```
 
 - `function*` syntax
@@ -422,10 +458,11 @@ g.next(); // { value: undefined, done: true }
 
 A primitive type. Each `Symbol()` is unique. Used as unique object property keys to avoid name collisions.
 
-```js
+```js runnable
 const id = Symbol("id");
-const user = { [id]: 123 };
-user[id]; // 123
+const user = { [id]: 123, name: "Ada" };
+console.log(user[id]);
+console.log(Object.keys(user));
 ```
 
 **Well-known Symbols:** `Symbol.iterator`, `Symbol.toPrimitive`, `Symbol.hasInstance`, etc.
@@ -450,9 +487,10 @@ Use case: Storing metadata about objects without preventing garbage collection.
 
 Built-in iterables: `Array`, `String`, `Map`, `Set`, `arguments`, generators.
 
-```js
+```js runnable
 const range = {
-  from: 1, to: 3,
+  from: 1,
+  to: 3,
   [Symbol.iterator]() {
     let cur = this.from;
     const last = this.to;
@@ -461,35 +499,43 @@ const range = {
         return cur <= last
           ? { value: cur++, done: false }
           : { value: undefined, done: true };
-      }
+      },
     };
-  }
+  },
 };
 
-for (let n of range) console.log(n); // 1, 2, 3
+for (const n of range) {
+  console.log(n);
+}
 ```
 
 ---
 
 ## 23. Error Handling
 
-```js
+```js runnable
 try {
-  // code
+  throw new Error("Something went wrong");
 } catch (err) {
-  // err.name, err.message, err.stack
+  console.log(err.name, err.message);
 } finally {
-  // always runs
+  console.log("finally runs");
 }
 ```
 
 **Custom errors:**
-```js
+```js runnable
 class ValidationError extends Error {
   constructor(message) {
     super(message);
     this.name = "ValidationError";
   }
+}
+
+try {
+  throw new ValidationError("Invalid email");
+} catch (err) {
+  console.log(err.name, err.message);
 }
 ```
 
@@ -554,14 +600,13 @@ JS uses **mark-and-sweep** algorithm.
 
 ## 27. Object Methods
 
-```js
-Object.keys(obj)        // array of own enumerable keys
-Object.values(obj)      // array of own enumerable values
-Object.entries(obj)     // array of [key, value] pairs
-Object.assign(target, ...sources)  // shallow copy/merge
-Object.freeze(obj)      // makes object immutable (shallow)
-Object.create(proto)    // creates object with given prototype
-Object.defineProperty(obj, key, descriptor)
+```js runnable
+const obj = { a: 1, b: 2 };
+console.log(Object.keys(obj));
+console.log(Object.values(obj));
+console.log(Object.entries(obj));
+const merged = Object.assign({}, obj, { c: 3 });
+console.log(merged);
 ```
 
 **Property descriptor:** `{ value, writable, enumerable, configurable }`
@@ -591,12 +636,13 @@ Object.defineProperty(obj, key, descriptor)
 
 **Implicit coercion** happens in comparisons and operations.
 
-```js
-"5" + 2      // "52" (number coerced to string)
-"5" - 2      // 3 (string coerced to number)
-true + 1     // 2
-null + 1     // 1
-undefined + 1 // NaN
+```js runnable
+console.log("5" + 2);
+console.log("5" - 2);
+console.log(true + 1);
+console.log(null + 1);
+console.log(undefined + 1);
+console.log(0 == false, 0 === false);
 ```
 
 **`==` vs `===`:**
@@ -611,15 +657,19 @@ Everything else is truthy, including `[]`, `{}`, `"0"`.
 ## 30. Optional Chaining & Nullish Coalescing
 
 **Optional chaining (`?.`):** Short-circuits and returns `undefined` if left side is `null`/`undefined`.
-```js
-user?.address?.city
-user?.getAge?.()
-arr?.[0]
+```js runnable
+const user = { address: { city: "BLR" }, scores: [90, 85] };
+console.log(user?.address?.city);
+console.log(user?.getAge?.());
+console.log(user?.scores?.[0]);
 ```
 
 **Nullish coalescing (`??`):** Returns right side only if left is `null` or `undefined` (not for `0`, `""`, `false`).
-```js
-const name = user.name ?? "Anonymous";
+```js runnable
+const user = { name: "", age: 0 };
+console.log(user.name ?? "Anonymous");
+console.log(user.age ?? 25);
+console.log(user.role ?? "guest");
 ```
 
 **`||` vs `??`:** `||` triggers on any falsy; `??` triggers only on nullish.
@@ -630,17 +680,23 @@ const name = user.name ?? "Anonymous";
 
 **Proxy:** Wraps an object and intercepts operations (get, set, delete, etc.) via traps.
 
-```js
+```js runnable
+const target = { x: 1 };
 const proxy = new Proxy(target, {
-  get(target, prop) {
-    return prop in target ? target[prop] : `Property ${prop} not found`;
+  get(obj, prop) {
+    return prop in obj ? obj[prop] : `Property ${String(prop)} not found`;
   },
-  set(target, prop, value) {
+  set(obj, prop, value) {
     if (typeof value !== "number") throw new TypeError("Only numbers");
-    target[prop] = value;
+    obj[prop] = value;
     return true;
-  }
+  },
 });
+
+console.log(proxy.x);
+console.log(proxy.y);
+proxy.z = 10;
+console.log(proxy.z);
 ```
 
 **Reflect:** Provides methods corresponding to Proxy traps. Cleaner way to forward operations.
@@ -650,9 +706,11 @@ const proxy = new Proxy(target, {
 
 ## 32. JSON
 
-```js
-JSON.stringify(value, replacer, space) // JS → JSON string
-JSON.parse(string, reviver)            // JSON string → JS
+```js runnable
+const value = { name: "Ada", skills: ["JS", "TS"], active: true };
+const json = JSON.stringify(value, null, 2);
+console.log(json);
+console.log(JSON.parse(json));
 ```
 
 - `undefined`, functions, and Symbols are omitted in stringify
@@ -663,12 +721,11 @@ JSON.parse(string, reviver)            // JSON string → JS
 
 ## 33. setTimeout / setInterval
 
-```js
-const id = setTimeout(fn, delay, ...args)   // runs once after delay
-clearTimeout(id)
-
-const id = setInterval(fn, delay, ...args)  // runs repeatedly
-clearInterval(id)
+```js runnable
+const id = setTimeout(() => console.log("setTimeout fired"), 30);
+console.log("scheduled id:", id);
+clearTimeout(id);
+console.log("cleared before fire");
 ```
 
 - Both are **macrotasks**
@@ -689,10 +746,17 @@ When `new Foo()` is called:
 
 ## 35. `call`, `apply`, `bind`
 
-```js
-fn.call(thisArg, arg1, arg2)       // invokes immediately
-fn.apply(thisArg, [arg1, arg2])    // invokes immediately, args as array
-const bound = fn.bind(thisArg, arg1) // returns new function, does not invoke
+```js runnable
+function greet(greeting, name) {
+  return `${greeting}, ${name} from ${this.team}`;
+}
+
+const ctx = { team: "Engineering" };
+console.log(greet.call(ctx, "Hello", "Ada"));
+console.log(greet.apply(ctx, ["Hi", "Bob"]));
+
+const bound = greet.bind(ctx, "Hey");
+console.log(bound("Rakshit"));
 ```
 
 `bind` creates a permanent `this` binding. Arrow functions cannot have `this` overridden by these methods.

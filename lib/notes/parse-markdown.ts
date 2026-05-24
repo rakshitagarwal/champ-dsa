@@ -43,33 +43,46 @@ function parseTableRowCells(line: string): string[] {
   return splitTableRow(line);
 }
 
-export function extractH2Headings(md: string): { id: string; title: string }[] {
-  const headings: { id: string; title: string }[] = [];
-  const seen = new Map<string, number>();
+export type NoteSegment =
+  | { type: "html"; html: string }
+  | { type: "code"; code: string; lang: string; runnable: boolean };
 
-  for (const line of md.replace(/\r\n/g, "\n").split("\n")) {
-    if (!line.startsWith("## ")) continue;
-    const title = line.slice(3).trim();
-    let id = slugifyHeading(title);
-    const count = seen.get(id) ?? 0;
-    if (count > 0) id = `${id}-${count}`;
-    seen.set(slugifyHeading(title), count + 1);
-    headings.push({ id, title });
-  }
-
-  return headings;
+function parseFenceInfo(fenceInfo: string): {
+  lang: string;
+  runnable: boolean;
+} {
+  const parts = fenceInfo.trim().split(/\s+/).filter(Boolean);
+  const runnable = parts.includes("runnable");
+  const lang = parts.find((p) => p !== "runnable") ?? "";
+  return { lang, runnable };
 }
 
-export function parseMarkdown(md: string): string {
+function isRunnableJs(lang: string, runnable: boolean): boolean {
+  if (!runnable) return false;
+  const id = lang.toLowerCase();
+  return id === "" || id === "js" || id === "javascript";
+}
+
+export function staticCodeBlockHtml(body: string, fenceInfo: string): string {
+  const { lang } = parseFenceInfo(fenceInfo);
+  return `<pre class="note-code-block"><code class="note-code"${lang ? ` data-lang="${escapeHtml(lang)}"` : ""}>${highlightCode(body, lang)}</code></pre>`;
+}
+
+/** When false, `js runnable` fences render as static blocks (used outside javascript.md). */
+export function parseNoteSegments(
+  md: string,
+  options?: { enableRunnable?: boolean },
+): NoteSegment[] {
+  const enableRunnable = options?.enableRunnable === true;
   const lines = md.replace(/\r\n/g, "\n").split("\n");
-  const out: string[] = [];
+  const segments: NoteSegment[] = [];
   let i = 0;
 
   while (i < lines.length) {
     const line = lines[i];
 
     if (line.startsWith("```")) {
-      const lang = line.slice(3).trim();
+      const fenceInfo = line.slice(3).trim();
       i++;
       const code: string[] = [];
       while (i < lines.length && !lines[i].startsWith("```")) {
@@ -78,9 +91,20 @@ export function parseMarkdown(md: string): string {
       }
       i++;
       const body = code.join("\n");
-      out.push(
-        `<pre class="note-code-block"><code class="note-code"${lang ? ` data-lang="${escapeHtml(lang)}"` : ""}>${highlightCode(body, lang)}</code></pre>`,
-      );
+      const { lang, runnable } = parseFenceInfo(fenceInfo);
+      if (enableRunnable && isRunnableJs(lang, runnable)) {
+        segments.push({
+          type: "code",
+          code: body,
+          lang: "javascript",
+          runnable: true,
+        });
+      } else {
+        segments.push({
+          type: "html",
+          html: staticCodeBlockHtml(body, fenceInfo),
+        });
+      }
       continue;
     }
 
@@ -96,42 +120,53 @@ export function parseMarkdown(md: string): string {
         bodyRows.push(parseTableRowCells(lines[i]!));
         i++;
       }
-      out.push('<div class="note-table-wrap"><table class="note-table"><thead><tr>');
+      const table: string[] = [];
+      table.push('<div class="note-table-wrap"><table class="note-table"><thead><tr>');
       for (const cell of headerCells) {
-        out.push(`<th>${inlineFormat(cell)}</th>`);
+        table.push(`<th>${inlineFormat(cell)}</th>`);
       }
-      out.push("</tr></thead><tbody>");
+      table.push("</tr></thead><tbody>");
       for (const row of bodyRows) {
-        out.push("<tr>");
+        table.push("<tr>");
         for (let c = 0; c < headerCells.length; c++) {
-          out.push(`<td>${inlineFormat(row[c] ?? "")}</td>`);
+          table.push(`<td>${inlineFormat(row[c] ?? "")}</td>`);
         }
-        out.push("</tr>");
+        table.push("</tr>");
       }
-      out.push("</tbody></table></div>");
+      table.push("</tbody></table></div>");
+      segments.push({ type: "html", html: table.join("") });
       continue;
     }
 
     if (/^---+$/.test(line.trim())) {
-      out.push("<hr />");
+      segments.push({ type: "html", html: "<hr />" });
       i++;
       continue;
     }
 
     if (line.startsWith("### ")) {
       const title = line.slice(4);
-      out.push(`<h3 id="${slugifyHeading(title)}">${inlineFormat(title)}</h3>`);
+      segments.push({
+        type: "html",
+        html: `<h3 id="${slugifyHeading(title)}">${inlineFormat(title)}</h3>`,
+      });
       i++;
       continue;
     }
     if (line.startsWith("## ")) {
       const title = line.slice(3);
-      out.push(`<h2 id="${slugifyHeading(title)}">${inlineFormat(title)}</h2>`);
+      segments.push({
+        type: "html",
+        html: `<h2 id="${slugifyHeading(title)}">${inlineFormat(title)}</h2>`,
+      });
       i++;
       continue;
     }
     if (line.startsWith("# ")) {
-      out.push(`<h1>${inlineFormat(line.slice(2))}</h1>`);
+      segments.push({
+        type: "html",
+        html: `<h1>${inlineFormat(line.slice(2))}</h1>`,
+      });
       i++;
       continue;
     }
@@ -142,27 +177,32 @@ export function parseMarkdown(md: string): string {
         quote.push(lines[i].slice(2));
         i++;
       }
-      out.push(`<blockquote><p>${inlineFormat(quote.join(" "))}</p></blockquote>`);
+      segments.push({
+        type: "html",
+        html: `<blockquote><p>${inlineFormat(quote.join(" "))}</p></blockquote>`,
+      });
       continue;
     }
 
     if (/^[-*] /.test(line)) {
-      out.push("<ul>");
+      const list: string[] = ["<ul>"];
       while (i < lines.length && /^[-*] /.test(lines[i])) {
-        out.push(`<li>${inlineFormat(lines[i].replace(/^[-*] /, ""))}</li>`);
+        list.push(`<li>${inlineFormat(lines[i].replace(/^[-*] /, ""))}</li>`);
         i++;
       }
-      out.push("</ul>");
+      list.push("</ul>");
+      segments.push({ type: "html", html: list.join("") });
       continue;
     }
 
     if (/^\d+\. /.test(line)) {
-      out.push("<ol>");
+      const list: string[] = ["<ol>"];
       while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        out.push(`<li>${inlineFormat(lines[i].replace(/^\d+\. /, ""))}</li>`);
+        list.push(`<li>${inlineFormat(lines[i].replace(/^\d+\. /, ""))}</li>`);
         i++;
       }
-      out.push("</ol>");
+      list.push("</ol>");
+      segments.push({ type: "html", html: list.join("") });
       continue;
     }
 
@@ -189,8 +229,38 @@ export function parseMarkdown(md: string): string {
       para.push(lines[i]);
       i++;
     }
-    out.push(`<p>${inlineFormat(para.join(" "))}</p>`);
+    segments.push({
+      type: "html",
+      html: `<p>${inlineFormat(para.join(" "))}</p>`,
+    });
   }
 
-  return out.join("\n");
+  return segments;
+}
+
+export function extractH2Headings(md: string): { id: string; title: string }[] {
+  const headings: { id: string; title: string }[] = [];
+  const seen = new Map<string, number>();
+
+  for (const line of md.replace(/\r\n/g, "\n").split("\n")) {
+    if (!line.startsWith("## ")) continue;
+    const title = line.slice(3).trim();
+    let id = slugifyHeading(title);
+    const count = seen.get(id) ?? 0;
+    if (count > 0) id = `${id}-${count}`;
+    seen.set(slugifyHeading(title), count + 1);
+    headings.push({ id, title });
+  }
+
+  return headings;
+}
+
+export function parseMarkdown(md: string): string {
+  return parseNoteSegments(md)
+    .map((seg) =>
+      seg.type === "html"
+        ? seg.html
+        : staticCodeBlockHtml(seg.code, seg.lang),
+    )
+    .join("\n");
 }
