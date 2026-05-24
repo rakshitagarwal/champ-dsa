@@ -30,9 +30,9 @@ export function MarketingLanding() {
         <LaneCard
           href="/patterns"
           icon={<BookOpen className="h-5 w-5" />}
-          title="Recap DSA patterns"
+          title="DSA Patterns"
           body="Forgot what sliding window or two pointers mean? Short explanations for working developers."
-          cta="Pattern recap"
+          cta="DSA Patterns"
         />
         <LaneCard
           href="/notes"

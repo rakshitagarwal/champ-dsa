@@ -18,31 +18,36 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const learnLinks = [
+const navLinks: {
+  href: string;
+  label: string;
+  icon: typeof Map;
+  exact?: boolean;
+}[] = [
   { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Solve", icon: PenLine },
-  { href: "/cheatsheet", label: "Cheat sheet", icon: Table2 },
+  { href: "/cheatsheet", label: "Cheatsheet", icon: Table2 },
   { href: "/compiler", label: "Compiler", icon: Code2 },
-] as const;
-
-const recapLinks = [
-  { href: "/patterns", label: "Pattern recap", icon: BookOpen },
+  { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
-] as const;
-
-const hireLinks = [
-  { href: "/jobs", label: "Find jobs", icon: Briefcase },
+  { href: "/jobs", label: "Find jobs", icon: Briefcase, exact: true },
   { href: "/jobs/resume", label: "Resume review", icon: UserRoundSearch },
-] as const;
+];
+
+function isNavActive(pathname: string, href: string, exact?: boolean): boolean {
+  if (pathname === href) return true;
+  if (exact) return false;
+  return pathname.startsWith(`${href}/`);
+}
 
 export function AppNav() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 
-  const linkClass = (href: string) =>
+  const linkClass = (href: string, exact?: boolean) =>
     cn(
       "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
-      pathname === href || pathname.startsWith(`${href}/`)
+      isNavActive(pathname, href, exact)
         ? "bg-accent text-accent-foreground"
         : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
     );
@@ -58,35 +63,8 @@ export function AppNav() {
         </Link>
 
         <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
-          <span className="hidden shrink-0 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground lg:inline">
-            Learn DSA
-          </span>
-          {learnLinks.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={linkClass(href)}>
-              <Icon className="h-4 w-4 shrink-0" />
-              <span className="hidden sm:inline">{label}</span>
-            </Link>
-          ))}
-
-          <span className="mx-1 hidden h-5 w-px shrink-0 bg-border lg:block" />
-
-          <span className="hidden shrink-0 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground lg:inline">
-            Recap
-          </span>
-          {recapLinks.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={linkClass(href)}>
-              <Icon className="h-4 w-4 shrink-0" />
-              <span className="hidden sm:inline">{label}</span>
-            </Link>
-          ))}
-
-          <span className="mx-1 hidden h-5 w-px shrink-0 bg-border lg:block" />
-
-          <span className="hidden shrink-0 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground lg:inline">
-            Get hired
-          </span>
-          {hireLinks.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={linkClass(href)}>
+          {navLinks.map(({ href, label, icon: Icon, exact }) => (
+            <Link key={href} href={href} className={linkClass(href, exact)}>
               <Icon className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">{label}</span>
             </Link>
