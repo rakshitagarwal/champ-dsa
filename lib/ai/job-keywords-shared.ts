@@ -8,13 +8,13 @@ Return ONLY valid JSON:
   "alternateKeywords": string[] (max 5),
   "suggestedTitles": string[] (max 3 job titles to search),
   "portalTips": {
-    "linkedin": string (one tip, max 20 words),
-    "naukri": string,
+    "naukri": string (one tip, max 20 words),
     "indeed": string,
     "instahyre": string,
     "wellfound": string,
-    "cutshort": string,
-    "google": string
+    "hirist": string,
+    "uplers": string,
+    "weekday": string
   }
 }
 

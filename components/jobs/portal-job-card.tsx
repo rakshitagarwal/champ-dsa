@@ -5,27 +5,35 @@ import { Badge } from "@/components/ui/badge";
 import type { PortalLink } from "@/types/job-search";
 
 const PORTAL_COLORS: Record<string, string> = {
-  linkedin: "bg-[#0A66C2]/10 text-[#0A66C2]",
   naukri: "bg-[#4A90D9]/10 text-[#2563EB]",
   indeed: "bg-[#2164F3]/10 text-[#2164F3]",
   instahyre: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   wellfound: "bg-black/10 text-foreground",
-  cutshort: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-  google: "bg-red-500/10 text-red-600 dark:text-red-400",
+  hirist: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  uplers: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  weekday: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
 };
 
 type Props = {
   portal: PortalLink;
+  pinned?: boolean;
 };
 
-export function PortalJobCard({ portal }: Props) {
+export function PortalJobCard({ portal, pinned }: Props) {
   const badgeClass = PORTAL_COLORS[portal.id] ?? "bg-muted text-muted-foreground";
 
   return (
     <article className="flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm">
-      <Badge variant="secondary" className={badgeClass}>
-        {portal.name}
-      </Badge>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="secondary" className={badgeClass}>
+          {portal.name}
+        </Badge>
+        {pinned ? (
+          <Badge variant="outline" className="text-xs">
+            Pinned
+          </Badge>
+        ) : null}
+      </div>
       <p className="mt-3 text-sm text-muted-foreground">{portal.description}</p>
       <p className="mt-2 text-xs font-medium text-foreground/80">
         {portal.querySummary}

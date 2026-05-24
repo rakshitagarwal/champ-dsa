@@ -12,6 +12,9 @@ Return ONLY valid JSON with this exact shape:
   "categories": [
     { "name": string, "score": number (0-100), "summary": string }
   ],
+  "sections": [
+    { "name": string, "score": number (0-100), "summary": string, "exampleFix": string }
+  ],
   "topFixes": string[] (max 5, ordered by impact),
   "missingKeywords": string[],
   "strongPoints": string[],
@@ -25,12 +28,20 @@ Required categories (use these exact names):
 - Structure & clarity
 - Grammar & tone
 
+Required sections (use these exact names):
+- Experience
+- Projects
+- Skills
+- Education
+- Summary
+
 Rules:
 - Score relative to target experience level (fresher vs 3-6 YOE expectations differ).
 - Penalize generic buzzwords without evidence.
 - Reward quantified impact (%, latency, users, revenue).
 - missingKeywords: role-relevant tech and domain terms absent from resume.
 - topFixes: concrete edits, not vague advice.
+- sections: score each resume section; exampleFix is one rewritten bullet or sentence.
 - Keep summaries to 1-2 sentences each.`;
 
 const MAX_RESUME_CHARS = 14_000;
@@ -80,12 +91,30 @@ export function parseResumeReviewJson(raw: string): ResumeReviewResult {
     };
   });
 
+  const sectionsRaw = obj.sections;
+  const parsedSections = Array.isArray(sectionsRaw)
+    ? sectionsRaw.map((s) => {
+        const sec = s as Record<string, unknown>;
+        const score = Number(sec.score);
+        if (!sec.name || !Number.isFinite(score)) {
+          throw new Error("Invalid section in resume review response.");
+        }
+        return {
+          name: String(sec.name),
+          score: Math.min(100, Math.max(0, score)),
+          summary: String(sec.summary ?? ""),
+          exampleFix: String(sec.exampleFix ?? ""),
+        };
+      })
+    : [];
+
   const strArr = (v: unknown, max: number) =>
     Array.isArray(v) ? v.slice(0, max).map(String) : [];
 
   return {
     overallScore: Math.round(overallScore),
     categories: parsedCategories,
+    sections: parsedSections,
     topFixes: strArr(obj.topFixes, 5),
     missingKeywords: strArr(obj.missingKeywords, 12),
     strongPoints: strArr(obj.strongPoints, 8),

@@ -1,14 +1,25 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Copy, Loader2, Search } from "lucide-react";
 import { ExperienceSelect } from "@/components/jobs/experience-select";
 import { LocationChips } from "@/components/jobs/location-chips";
+import { OpenAllPortalsButton } from "@/components/jobs/open-all-portals-button";
+import { PortalFavorites } from "@/components/jobs/portal-favorites";
 import { PortalJobCard } from "@/components/jobs/portal-job-card";
 import { ResumeUploadZone } from "@/components/jobs/resume-upload-zone";
+import { SuggestedTitleChips } from "@/components/jobs/suggested-title-chips";
 import { Button } from "@/components/ui/button";
 import { buildPortalLinks } from "@/lib/jobs/build-portal-links";
+import {
+  consumeJobsHandoff,
+  loadJobSearchPrefs,
+  loadPortalFavorites,
+  saveJobSearchPrefs,
+  sortPortalsByFavorites,
+  togglePortalFavorite,
+} from "@/lib/jobs/job-search-storage";
 import type {
   ExperienceLevel,
   JobLocation,
@@ -29,73 +40,128 @@ export default function FindJobsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [keywords, setKeywords] = useState<JobSearchKeywords | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [handoffNote, setHandoffNote] = useState<string | null>(null);
+  const initialized = useRef(false);
 
-  const runSearch = useCallback(async () => {
-    const title = jobTitle.trim();
-    if (!title) {
-      setError("Enter a job title.");
-      return;
-    }
-    if (locations.length === 0) {
-      setError("Select at least one location.");
-      return;
-    }
+  const runSearch = useCallback(
+    async (titleOverride?: string, resumeOverride?: string | null) => {
+      const title = (titleOverride ?? jobTitle).trim();
+      const activeResume = resumeOverride ?? resumeText;
+      if (!title) {
+        setError("Enter a job title.");
+        return;
+      }
+      if (locations.length === 0) {
+        setError("Select at least one location.");
+        return;
+      }
 
-    setError(null);
-    setLoading(true);
-    setKeywords(null);
+      setError(null);
+      setLoading(true);
+      if (titleOverride) setJobTitle(titleOverride);
 
-    let extraKeywords: string[] = [];
-    let tips: Record<string, string> | undefined;
-    let searchTitle = title;
+      let extraKeywords: string[] = [];
+      let tips: Record<string, string> | undefined;
+      let searchTitle = title;
 
-    if (resumeText && resumeText.length >= 200) {
-      try {
-        const res = await fetch("/api/ai/job-search-keywords", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            resumeText,
-            jobTitle: title,
-            experienceLevel,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error ?? "Keyword extraction failed.");
+      if (activeResume && activeResume.length >= 200) {
+        try {
+          const res = await fetch("/api/ai/job-search-keywords", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              resumeText: activeResume,
+              jobTitle: title,
+              experienceLevel,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setError(data.error ?? "Keyword extraction failed.");
+            setLoading(false);
+            return;
+          }
+          const kw = data as JobSearchKeywords;
+          setKeywords(kw);
+          extraKeywords = [
+            kw.primaryKeywords,
+            ...kw.alternateKeywords,
+          ].filter(Boolean);
+          tips = kw.portalTips;
+          if (kw.suggestedTitles[0]) {
+            searchTitle = kw.suggestedTitles[0];
+          }
+        } catch {
+          setError("Could not extract keywords from resume.");
           setLoading(false);
           return;
         }
-        const kw = data as JobSearchKeywords;
-        setKeywords(kw);
-        extraKeywords = [
-          kw.primaryKeywords,
-          ...kw.alternateKeywords,
-        ].filter(Boolean);
-        tips = kw.portalTips;
-        if (kw.suggestedTitles[0]) {
-          searchTitle = kw.suggestedTitles[0];
-        }
-      } catch {
-        setError("Could not extract keywords from resume.");
-        setLoading(false);
-        return;
+      } else {
+        setKeywords(null);
       }
+
+      const links = sortPortalsByFavorites(
+        buildPortalLinks(
+          {
+            jobTitle: searchTitle,
+            experienceLevel,
+            locations,
+            extraKeywords,
+          },
+          tips,
+        ),
+        loadPortalFavorites(),
+      );
+
+      saveJobSearchPrefs({ jobTitle: title, experienceLevel, locations });
+      setPortals(links);
+      setLoading(false);
+    },
+    [jobTitle, experienceLevel, locations, resumeText],
+  );
+
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
+    const prefs = loadJobSearchPrefs();
+    if (prefs) {
+      setJobTitle(prefs.jobTitle);
+      setExperienceLevel(prefs.experienceLevel);
+      setLocations(prefs.locations);
     }
 
-    const links = buildPortalLinks(
-      {
-        jobTitle: searchTitle,
-        experienceLevel,
-        locations,
-        extraKeywords,
-      },
-      tips,
+    setFavorites(loadPortalFavorites());
+
+    const handoff = consumeJobsHandoff();
+    if (!handoff) return;
+
+    if (handoff.jobTitle) setJobTitle(handoff.jobTitle);
+    if (handoff.experienceLevel) setExperienceLevel(handoff.experienceLevel);
+    if (handoff.resumeText) setResumeText(handoff.resumeText);
+    setHandoffNote(
+      handoff.fromReview
+        ? "Loaded from resume review — resume and target role pre-filled."
+        : "Previous session restored.",
     );
 
-    setPortals(links);
-    setLoading(false);
-  }, [jobTitle, experienceLevel, locations, resumeText]);
+    if (handoff.fromReview && handoff.resumeText) {
+      void runSearch(
+        handoff.jobTitle ?? prefs?.jobTitle ?? "Full Stack Developer",
+        handoff.resumeText,
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
+  }, []);
+
+  const handleToggleFavorite = (id: string) => {
+    const next = togglePortalFavorite(id);
+    setFavorites(next);
+    setPortals((prev) =>
+      prev ? sortPortalsByFavorites(prev, next) : null,
+    );
+  };
 
   const copyAllLinks = () => {
     if (!portals) return;
@@ -103,16 +169,25 @@ export default function FindJobsPage() {
     void navigator.clipboard.writeText(text);
   };
 
+  const favoriteSet = new Set(favorites);
+
   return (
     <div className="space-y-8">
       <header className="max-w-3xl">
         <h1 className="text-3xl font-bold tracking-tight">Find jobs</h1>
         <p className="mt-3 text-muted-foreground">
-          Search across top India job portals in one click — you apply on the
-          original site. Optional resume upload improves search keywords via
+          Search across trusted India job portals — Naukri, Indeed, Instahyre,
+          Wellfound, Hirist, Uplers, and Weekday — in one click. You apply on
+          the original site. Optional resume upload improves search keywords via
           Groq.
         </p>
       </header>
+
+      {handoffNote ? (
+        <p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
+          {handoffNote}
+        </p>
+      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,380px)_1fr]">
         <aside className="space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-20 lg:self-start">
@@ -143,11 +218,13 @@ export default function FindJobsPage() {
 
           <div>
             <p className="text-sm font-medium">Locations</p>
-            <LocationChips
-              selected={locations}
-              onChange={setLocations}
-            />
+            <LocationChips selected={locations} onChange={setLocations} />
           </div>
+
+          <PortalFavorites
+            favorites={favorites}
+            onToggle={handleToggleFavorite}
+          />
 
           <div>
             <p className="text-sm font-medium">Resume (optional)</p>
@@ -183,14 +260,17 @@ export default function FindJobsPage() {
 
         <section className="space-y-4">
           {keywords ? (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+            <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
               <p className="font-medium text-primary">Resume keywords</p>
-              <p className="mt-1 text-muted-foreground">
+              <p className="text-muted-foreground">
                 Primary: {keywords.primaryKeywords}
-                {keywords.suggestedTitles.length > 0
-                  ? ` · Also try: ${keywords.suggestedTitles.join(", ")}`
-                  : null}
               </p>
+              <SuggestedTitleChips
+                titles={keywords.suggestedTitles}
+                activeTitle={jobTitle}
+                onSelect={(title) => void runSearch(title)}
+                disabled={loading}
+              />
             </div>
           ) : null}
 
@@ -199,15 +279,28 @@ export default function FindJobsPage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm text-muted-foreground">
                   {portals.length} portals · opens in new tab
+                  {favorites.length > 0 ? " · pinned first" : ""}
                 </p>
-                <Button type="button" variant="outline" size="sm" onClick={copyAllLinks}>
-                  <Copy className="h-3.5 w-3.5" />
-                  Copy all links
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <OpenAllPortalsButton portals={portals} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyAllLinks}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy all links
+                  </Button>
+                </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {portals.map((portal) => (
-                  <PortalJobCard key={portal.id} portal={portal} />
+                  <PortalJobCard
+                    key={portal.id}
+                    portal={portal}
+                    pinned={favoriteSet.has(portal.id)}
+                  />
                 ))}
               </div>
             </>
@@ -219,12 +312,11 @@ export default function FindJobsPage() {
           )}
 
           <p className="text-xs text-muted-foreground">
-            Power user? Track cold outreach with the{" "}
+            Improve your resume first?{" "}
             <Link href="/jobs/resume" className="text-primary hover:underline">
-              resume review
+              Resume review
             </Link>{" "}
-            flow first, then use the Excel tracker in{" "}
-            <code className="rounded bg-muted px-1">tools/job-search/</code>.
+            scores your CV and can pre-fill this search.
           </p>
         </section>
       </div>

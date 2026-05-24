@@ -1,6 +1,7 @@
 "use client";
 
 import type { ResumeReviewResult } from "@/types/resume-review";
+import { AtsKeywordPanel } from "@/components/jobs/ats-keyword-panel";
 import { cn } from "@/lib/utils";
 
 function scoreBand(score: number): string {
@@ -18,9 +19,10 @@ function scoreLabel(score: number): string {
 type Props = {
   result: ResumeReviewResult;
   attemptLabel?: string;
+  jobTitle?: string;
 };
 
-export function ResumeScorePanel({ result, attemptLabel }: Props) {
+export function ResumeScorePanel({ result, attemptLabel, jobTitle }: Props) {
   return (
     <div className="space-y-6">
       {attemptLabel ? (
@@ -47,12 +49,49 @@ export function ResumeScorePanel({ result, attemptLabel }: Props) {
         ) : null}
       </div>
 
+      <AtsKeywordPanel keywords={result.missingKeywords} jobTitle={jobTitle} />
+
+      {result.sections.length > 0 ? (
+        <section>
+          <h3 className="text-sm font-semibold">Section scores</h3>
+          <ul className="mt-3 space-y-3">
+            {result.sections.map((section) => (
+              <li
+                key={section.name}
+                className="rounded-lg border border-border p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">{section.name}</span>
+                  <span
+                    className={cn(
+                      "text-sm font-bold tabular-nums",
+                      scoreBand(section.score),
+                    )}
+                  >
+                    {section.score}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {section.summary}
+                </p>
+                {section.exampleFix ? (
+                  <p className="mt-2 rounded-md bg-muted/50 px-2 py-1.5 text-xs">
+                    <span className="font-medium">Example fix: </span>
+                    {section.exampleFix}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <section>
         <h3 className="text-sm font-semibold">Category scores</h3>
         <ul className="mt-3 space-y-3">
           {result.categories.map((cat) => (
             <li key={cat.name} className="rounded-lg border border-border p-3">
-              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{cat.name}</span>
                 <span
                   className={cn(
@@ -83,22 +122,6 @@ export function ResumeScorePanel({ result, attemptLabel }: Props) {
               <li key={i}>{fix}</li>
             ))}
           </ol>
-        </section>
-      ) : null}
-
-      {result.missingKeywords.length > 0 ? (
-        <section>
-          <h3 className="text-sm font-semibold">Missing keywords</h3>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {result.missingKeywords.map((kw) => (
-              <span
-                key={kw}
-                className="rounded-md border border-border bg-muted/50 px-2 py-0.5 text-xs"
-              >
-                {kw}
-              </span>
-            ))}
-          </div>
         </section>
       ) : null}
 

@@ -13,15 +13,27 @@ describe("buildPortalLinks", () => {
     expect(links).toHaveLength(7);
   });
 
-  it("URL-encodes keywords and location for LinkedIn", () => {
+  it("does not include LinkedIn", () => {
+    const links = buildPortalLinks(base);
+    expect(links.some((l) => l.id === "linkedin")).toBe(false);
+  });
+
+  it("URL-encodes keywords for Indeed", () => {
     const links = buildPortalLinks({
       ...base,
       jobTitle: "MERN Developer",
     });
-    const linkedIn = links.find((l) => l.id === "linkedin")!;
-    expect(linkedIn.url).toContain("linkedin.com/jobs/search");
-    expect(linkedIn.url).toContain("keywords=MERN");
-    expect(linkedIn.url).toContain("f_E=3%2C4");
+    const indeed = links.find((l) => l.id === "indeed")!;
+    expect(indeed.url).toContain("in.indeed.com/jobs");
+    expect(indeed.url).toContain("q=MERN");
+  });
+
+  it("builds Hirist URL with experience filters", () => {
+    const links = buildPortalLinks(base);
+    const hirist = links.find((l) => l.id === "hirist")!;
+    expect(hirist.url).toContain("hirist.tech/k/");
+    expect(hirist.url).toContain("minexp=3");
+    expect(hirist.url).toContain("maxexp=6");
   });
 
   it("includes extra keywords in query", () => {
@@ -29,8 +41,8 @@ describe("buildPortalLinks", () => {
       ...base,
       extraKeywords: ["React", "Node.js"],
     });
-    const google = links.find((l) => l.id === "google")!;
-    expect(decodeURIComponent(google.url)).toMatch(/React/);
+    const indeed = links.find((l) => l.id === "indeed")!;
+    expect(decodeURIComponent(indeed.url)).toMatch(/React/);
   });
 
   it("attaches portal tips when provided", () => {
@@ -42,11 +54,12 @@ describe("buildPortalLinks", () => {
     );
   });
 
-  it("uses Remote India as location fallback", () => {
+  it("uses Remote India as location fallback for Indeed", () => {
     const links = buildPortalLinks({
       ...base,
       locations: ["Remote India"],
     });
-    expect(links[0].url).toContain("location=India");
+    const indeed = links.find((l) => l.id === "indeed")!;
+    expect(indeed.url).toContain("l=India");
   });
 });

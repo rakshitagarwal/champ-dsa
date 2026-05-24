@@ -6,9 +6,17 @@ export type ResumeCategoryScore = {
   summary: string;
 };
 
+export type ResumeSectionScore = {
+  name: string;
+  score: number;
+  summary: string;
+  exampleFix: string;
+};
+
 export type ResumeReviewResult = {
   overallScore: number;
   categories: ResumeCategoryScore[];
+  sections: ResumeSectionScore[];
   topFixes: string[];
   missingKeywords: string[];
   strongPoints: string[];

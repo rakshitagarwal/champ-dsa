@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Loader2, Sparkles } from "lucide-react";
 import { ExperienceSelect } from "@/components/jobs/experience-select";
+import { ResumeHandoffActions } from "@/components/jobs/resume-handoff-actions";
 import { ResumeUploadZone } from "@/components/jobs/resume-upload-zone";
 import { ResumeScorePanel } from "@/components/jobs/resume-score-panel";
 import { ScoreComparison } from "@/components/jobs/score-comparison";
@@ -18,6 +19,7 @@ export default function ResumeReviewPage() {
     useState<ExperienceLevel>("3–6 years");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [titleHint, setTitleHint] = useState<string | null>(null);
   const [attempts, setAttempts] = useState<ResumeAttempt[]>([]);
   const [latest, setLatest] = useState<ResumeReviewResult | null>(null);
 
@@ -25,6 +27,14 @@ export default function ResumeReviewPage() {
     if (!resumeText || resumeText.length < 200) {
       setError("Upload a resume with at least 200 characters of text.");
       return;
+    }
+
+    if (!jobTitle.trim()) {
+      setTitleHint(
+        "Adding a target job title gives more accurate keyword and skills feedback.",
+      );
+    } else {
+      setTitleHint(null);
     }
 
     setLoading(true);
@@ -87,15 +97,30 @@ export default function ResumeReviewPage() {
 
           <div>
             <label htmlFor="target-title" className="text-sm font-medium">
-              Target job title (optional)
+              Target job title{" "}
+              <span className="font-normal text-muted-foreground">
+                (recommended)
+              </span>
             </label>
             <input
               id="target-title"
               value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
+              onChange={(e) => {
+                setJobTitle(e.target.value);
+                if (e.target.value.trim()) setTitleHint(null);
+              }}
               placeholder="e.g. Full Stack Developer"
               className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
+            {titleHint ? (
+              <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
+                {titleHint}
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Tailors ATS keywords and skills match to your goal role.
+              </p>
+            )}
           </div>
 
           <div>
@@ -128,11 +153,6 @@ export default function ResumeReviewPage() {
 
           <p className="text-xs text-muted-foreground">
             AI feedback is guidance only. Remove sensitive data if concerned.
-            Ready to search?{" "}
-            <Link href="/jobs" className="text-primary hover:underline">
-              Find jobs
-            </Link>
-            .
           </p>
         </aside>
 
@@ -142,11 +162,18 @@ export default function ResumeReviewPage() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p>Analyzing your resume with Groq…</p>
             </div>
-          ) : latest ? (
+          ) : latest && resumeText ? (
             <div className="space-y-6">
+              <ResumeHandoffActions
+                result={latest}
+                resumeText={resumeText}
+                jobTitle={jobTitle}
+                experienceLevel={experienceLevel}
+              />
               <ScoreComparison attempts={attempts} />
               <ResumeScorePanel
                 result={latest}
+                jobTitle={jobTitle.trim() || undefined}
                 attemptLabel={
                   attempts.length > 1
                     ? `Attempt ${attempts.length} (latest)`
@@ -158,6 +185,13 @@ export default function ResumeReviewPage() {
             <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               <Sparkles className="mb-3 h-10 w-10 opacity-40" />
               <p>Upload a resume and click Review to see your score.</p>
+              <p className="mt-2">
+                Then{" "}
+                <Link href="/jobs" className="text-primary hover:underline">
+                  find jobs
+                </Link>{" "}
+                with AI-matched keywords.
+              </p>
             </div>
           )}
         </section>

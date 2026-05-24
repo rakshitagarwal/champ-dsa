@@ -5,19 +5,27 @@ import type {
   PortalLink,
 } from "@/types/job-search";
 
-/** LinkedIn f_E: 1=intern, 2=entry, 3=associate, 4=mid-senior, 5=director, 6=executive */
-function linkedInExperienceFilter(level: ExperienceLevel): string {
-  switch (level) {
-    case "Fresher":
-      return "1,2";
-    case "1–3 years":
-      return "2,3";
-    case "3–6 years":
-      return "3,4";
-    case "6+ years":
-      return "4,5";
-  }
-}
+export const PORTAL_IDS = [
+  "naukri",
+  "indeed",
+  "instahyre",
+  "wellfound",
+  "hirist",
+  "uplers",
+  "weekday",
+] as const;
+
+export type PortalId = (typeof PORTAL_IDS)[number];
+
+export const PORTAL_LABELS: Record<PortalId, string> = {
+  naukri: "Naukri",
+  indeed: "Indeed",
+  instahyre: "Instahyre",
+  wellfound: "Wellfound",
+  hirist: "Hirist",
+  uplers: "Uplers",
+  weekday: "Weekday",
+};
 
 /** Naukri experience range codes (approximate) */
 function naukriExperienceParam(level: ExperienceLevel): string {
@@ -31,6 +39,32 @@ function naukriExperienceParam(level: ExperienceLevel): string {
     case "6+ years":
       return "6";
   }
+}
+
+/** Hirist minexp/maxexp query params */
+function hiristExperienceParams(level: ExperienceLevel): {
+  minexp: string;
+  maxexp: string;
+} {
+  switch (level) {
+    case "Fresher":
+      return { minexp: "0", maxexp: "1" };
+    case "1–3 years":
+      return { minexp: "1", maxexp: "3" };
+    case "3–6 years":
+      return { minexp: "3", maxexp: "6" };
+    case "6+ years":
+      return { minexp: "6", maxexp: "15" };
+  }
+}
+
+function keywordSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }
 
 function primaryLocation(locations: JobLocation[]): string {
@@ -66,17 +100,11 @@ export function buildPortalLinks(
   const summary = querySummary(input);
   const encodedKeyword = encodeURIComponent(keyword);
   const encodedLocation = encodeURIComponent(location);
-  const linkedInExp = linkedInExperienceFilter(input.experienceLevel);
+  const slug = keywordSlug(keyword);
   const naukriExp = naukriExperienceParam(input.experienceLevel);
+  const hiristExp = hiristExperienceParams(input.experienceLevel);
 
   const portals: Omit<PortalLink, "tip">[] = [
-    {
-      id: "linkedin",
-      name: "LinkedIn Jobs",
-      description: "Professional network with strong India tech hiring.",
-      url: `https://www.linkedin.com/jobs/search/?keywords=${encodedKeyword}&location=${encodedLocation}&f_E=${encodeURIComponent(linkedInExp)}`,
-      querySummary: summary,
-    },
     {
       id: "naukri",
       name: "Naukri",
@@ -106,17 +134,26 @@ export function buildPortalLinks(
       querySummary: summary,
     },
     {
-      id: "cutshort",
-      name: "Cutshort",
-      description: "India tech hiring with skill-based matching.",
-      url: `https://cutshort.io/jobs?query=${encodedKeyword}`,
+      id: "hirist",
+      name: "Hirist",
+      description: "Premium handpicked tech roles from product companies.",
+      url: `https://www.hirist.tech/k/${slug}-jobs?minexp=${hiristExp.minexp}&maxexp=${hiristExp.maxexp}`,
       querySummary: summary,
     },
     {
-      id: "google",
-      name: "Google Jobs",
-      description: "Aggregated listings across multiple sources.",
-      url: `https://www.google.com/search?q=${encodeURIComponent(`${keyword} jobs ${location} India`)}&ibp=htl;jobs`,
+      id: "uplers",
+      name: "Uplers",
+      description: "Verified product and tech roles from 1,000+ companies.",
+      url: "https://platform.uplers.com/",
+      querySummary: summary,
+    },
+    {
+      id: "weekday",
+      name: "Weekday",
+      description: "Curated high-growth startup jobs with AI-assisted apply.",
+      url: slug
+        ? `https://www.weekday.works/jobs/${slug}-jobs`
+        : "https://jobs.weekday.works/?jobsTab=search",
       querySummary: summary,
     },
   ];
