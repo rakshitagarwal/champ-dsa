@@ -4,7 +4,7 @@ import { JobsSubNav } from "@/components/jobs/jobs-sub-nav";
 export const metadata: Metadata = {
   title: "Job search",
   description:
-    "Review your resume with Groq AI and open pre-filled job searches on Naukri, Indeed, Instahyre, Hirist, and more.",
+    "Open pre-filled job searches on Naukri, Indeed, Foundit, Shine, Instahyre, Hirist, and more.",
 };
 
 export default function JobsLayout({
@@ -14,9 +14,9 @@ export default function JobsLayout({
 }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 lg:px-10">
+      <div className="mx-auto w-full max-w-5xl px-3 py-5 sm:px-4 lg:px-5">
         <JobsSubNav />
-        <div className="mt-6">{children}</div>
+        <div className="mt-4">{children}</div>
       </div>
     </div>
   );

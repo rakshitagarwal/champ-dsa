@@ -2,7 +2,9 @@
 
 import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import type { PortalLink } from "@/types/job-search";
+import { cn } from "@/lib/utils";
 
 const PORTAL_COLORS: Record<string, string> = {
   naukri: "bg-[#4A90D9]/10 text-[#2563EB]",
@@ -19,10 +21,52 @@ const PORTAL_COLORS: Record<string, string> = {
 type Props = {
   portal: PortalLink;
   pinned?: boolean;
+  layout?: "card" | "row";
 };
 
-export function PortalJobCard({ portal, pinned }: Props) {
+export function PortalJobCard({
+  portal,
+  pinned,
+  layout = "card",
+}: Props) {
   const badgeClass = PORTAL_COLORS[portal.id] ?? "bg-muted text-muted-foreground";
+
+  if (layout === "row") {
+    return (
+      <article className="flex flex-col gap-3 rounded-lg border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className={badgeClass}>
+              {portal.name}
+            </Badge>
+            {pinned ? (
+              <Badge variant="outline" className="text-xs">
+                Pinned
+              </Badge>
+            ) : null}
+            <span className="text-xs text-muted-foreground">
+              {portal.querySummary}
+            </span>
+          </div>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {portal.description}
+          </p>
+          {portal.tip ? (
+            <p className="mt-2 text-xs text-primary">{portal.tip}</p>
+          ) : null}
+        </div>
+        <a
+          href={portal.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(buttonVariants({ size: "sm" }), "shrink-0")}
+        >
+          Open
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      </article>
+    );
+  }
 
   return (
     <article className="flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm">

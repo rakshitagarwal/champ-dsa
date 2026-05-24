@@ -74,28 +74,32 @@ export default function ResumeReviewPage() {
   }, [resumeText, jobTitle, experienceLevel]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <header className="max-w-3xl">
         <h1 className="text-3xl font-bold tracking-tight">Resume review</h1>
-        <p className="mt-3 text-muted-foreground">
-          Upload your resume for a Groq-powered score and actionable fixes.
-          Re-upload after editing to compare scores — nothing is stored on our
-          servers.
+        <p className="mt-2 text-sm text-muted-foreground">
+          Get a score, ATS keyword gaps, and section-level fixes. Re-upload
+          after edits to compare — your file stays in the browser only.
         </p>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <aside className="space-y-5 rounded-xl border border-border bg-card p-5">
-          <ResumeUploadZone
-            onTextExtracted={(text) => {
-              setResumeText(text);
-              setError(null);
-            }}
-            onClear={() => setResumeText(null)}
-            disabled={loading}
-          />
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-5">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(9rem,0.7fr)_auto] lg:items-end">
+          <div className="min-w-0">
+            <label className="text-sm font-medium">Resume file</label>
+            <ResumeUploadZone
+              className="mt-1.5"
+              variant="compact"
+              onTextExtracted={(text) => {
+                setResumeText(text);
+                setError(null);
+              }}
+              onClear={() => setResumeText(null)}
+              disabled={loading}
+            />
+          </div>
 
-          <div>
+          <div className="min-w-0">
             <label htmlFor="target-title" className="text-sm font-medium">
               Target job title{" "}
               <span className="font-normal text-muted-foreground">
@@ -112,20 +116,11 @@ export default function ResumeReviewPage() {
               placeholder="e.g. Full Stack Developer"
               className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
-            {titleHint ? (
-              <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
-                {titleHint}
-              </p>
-            ) : (
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Tailors ATS keywords and skills match to your goal role.
-              </p>
-            )}
           </div>
 
-          <div>
+          <div className="min-w-0">
             <label htmlFor="exp-resume" className="text-sm font-medium">
-              Experience level
+              Experience
             </label>
             <ExperienceSelect
               id="exp-resume"
@@ -137,7 +132,7 @@ export default function ResumeReviewPage() {
 
           <Button
             type="button"
-            className="w-full"
+            className="h-10 w-full shrink-0 lg:w-auto"
             disabled={loading || !resumeText}
             onClick={() => void review()}
           >
@@ -148,54 +143,63 @@ export default function ResumeReviewPage() {
             )}
             Review resume
           </Button>
+        </div>
 
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
-          <p className="text-xs text-muted-foreground">
-            AI feedback is guidance only. Remove sensitive data if concerned.
+        {titleHint ? (
+          <p className="mt-3 text-xs text-amber-600 dark:text-amber-400">
+            {titleHint}
           </p>
-        </aside>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Tailors ATS keywords and skills match to your goal role. AI feedback
+            is guidance only — remove sensitive data if concerned.
+          </p>
+        )}
 
-        <section className="min-h-[320px]">
-          {loading && !latest ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p>Analyzing your resume with Groq…</p>
-            </div>
-          ) : latest && resumeText ? (
-            <div className="space-y-6">
-              <ResumeHandoffActions
-                result={latest}
-                resumeText={resumeText}
-                jobTitle={jobTitle}
-                experienceLevel={experienceLevel}
-              />
-              <ScoreComparison attempts={attempts} />
-              <ResumeScorePanel
-                result={latest}
-                jobTitle={jobTitle.trim() || undefined}
-                attemptLabel={
-                  attempts.length > 1
-                    ? `Attempt ${attempts.length} (latest)`
-                    : undefined
-                }
-              />
-            </div>
-          ) : (
-            <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              <Sparkles className="mb-3 h-10 w-10 opacity-40" />
-              <p>Upload a resume and click Review to see your score.</p>
-              <p className="mt-2">
-                Then{" "}
-                <Link href="/jobs" className="text-primary hover:underline">
-                  find jobs
-                </Link>{" "}
-                with AI-matched keywords.
-              </p>
-            </div>
-          )}
-        </section>
+        {error ? (
+          <p className="mt-2 text-sm text-destructive">{error}</p>
+        ) : null}
       </div>
+
+      <section className="w-full min-h-[320px]">
+        {loading && !latest ? (
+          <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p>Analyzing your resume…</p>
+          </div>
+        ) : latest && resumeText ? (
+          <div className="space-y-6">
+            <ResumeHandoffActions
+              result={latest}
+              resumeText={resumeText}
+              jobTitle={jobTitle}
+              experienceLevel={experienceLevel}
+            />
+            <ScoreComparison attempts={attempts} />
+            <ResumeScorePanel
+              result={latest}
+              jobTitle={jobTitle.trim() || undefined}
+              attemptLabel={
+                attempts.length > 1
+                  ? `Attempt ${attempts.length} (latest)`
+                  : undefined
+              }
+            />
+          </div>
+        ) : (
+          <div className="flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <Sparkles className="mb-3 h-10 w-10 opacity-40" />
+            <p>Upload a resume and click Review to see your score.</p>
+            <p className="mt-2">
+              Then{" "}
+              <Link href="/jobs" className="text-primary hover:underline">
+                search jobs
+              </Link>{" "}
+              with AI-matched keywords.
+            </p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

@@ -154,7 +154,7 @@ export function LearningHub() {
       <section className="rounded-xl border border-border bg-card p-5">
         <h2 className="font-semibold">Get hired</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review your resume with Groq, then open job searches on top India portals.
+          Review your resume, then open job searches on top India portals.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

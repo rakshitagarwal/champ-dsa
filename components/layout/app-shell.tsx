@@ -45,7 +45,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         className={
           selfScrollRoute
             ? "flex min-h-0 flex-1 flex-col overflow-hidden"
-            : "flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto"
+            : "min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain"
         }
       >
         {allowed ? children : <DesktopRequired width={width} />}

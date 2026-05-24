@@ -172,26 +172,26 @@ export default function FindJobsPage() {
   const favoriteSet = new Set(favorites);
 
   return (
-    <div className="space-y-8">
-      <header className="max-w-3xl">
-        <h1 className="text-3xl font-bold tracking-tight">Job search</h1>
-        <p className="mt-3 text-muted-foreground">
-          Search Naukri, Indeed, Foundit, Shine, Instahyre, Hirist, Wellfound,
-          Uplers, and Weekday in one click. Links use each portal&apos;s native
-          URL format for your city. Optional resume upload improves keywords via
-          Groq.
+    <div className="space-y-5">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Job search
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Open pre-filled searches on nine India job portals in one click.
+          Optional resume upload tailors keywords to your profile.
         </p>
       </header>
 
       {handoffNote ? (
-        <p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
+        <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-primary">
           {handoffNote}
         </p>
       ) : null}
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,380px)_1fr]">
-        <aside className="space-y-5 rounded-xl border border-border bg-card p-5 lg:sticky lg:top-20 lg:self-start">
-          <div>
+      <div className="rounded-xl border border-border bg-card p-3 sm:p-4">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,0.55fr)_auto] sm:items-end">
+          <div className="min-w-0">
             <label htmlFor="job-title" className="text-sm font-medium">
               Job title
             </label>
@@ -203,8 +203,7 @@ export default function FindJobsPage() {
               className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
-
-          <div>
+          <div className="min-w-0">
             <label htmlFor="exp-jobs" className="text-sm font-medium">
               Experience
             </label>
@@ -215,40 +214,9 @@ export default function FindJobsPage() {
               className="mt-1.5"
             />
           </div>
-
-          <div>
-            <p className="text-sm font-medium">Locations</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Pick one or more — Delhi, Noida, and Gurgaon are separate.
-            </p>
-            <LocationChips
-              className="mt-2"
-              selected={locations}
-              onChange={setLocations}
-            />
-          </div>
-
-          <PortalFavorites
-            favorites={favorites}
-            onToggle={handleToggleFavorite}
-          />
-
-          <div>
-            <p className="text-sm font-medium">Resume (optional)</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Extracts keywords only — file is never stored.
-            </p>
-            <ResumeUploadZone
-              className="mt-2"
-              onTextExtracted={(text) => setResumeText(text)}
-              onClear={() => setResumeText(null)}
-              disabled={loading}
-            />
-          </div>
-
           <Button
             type="button"
-            className="w-full"
+            className="h-10 w-full shrink-0 sm:w-auto"
             onClick={() => void runSearch()}
             disabled={loading}
           >
@@ -259,87 +227,121 @@ export default function FindJobsPage() {
             )}
             Search jobs
           </Button>
+        </div>
 
-          {error ? (
-            <p className="text-sm text-destructive">{error}</p>
-          ) : null}
-        </aside>
+        <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,220px)_1fr] lg:items-start">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">Resume (optional)</p>
+            <ResumeUploadZone
+              className="mt-1.5"
+              variant="compact"
+              onTextExtracted={(text) => {
+                setResumeText(text);
+                setError(null);
+              }}
+              onClear={() => setResumeText(null)}
+              disabled={loading}
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium">Locations</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Delhi, Noida, and Gurgaon are separate.
+            </p>
+            <LocationChips
+              className="mt-1.5"
+              selected={locations}
+              onChange={setLocations}
+            />
+          </div>
+        </div>
 
-        <section className="relative min-h-[280px] space-y-4">
-          {loading ? (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-background/80 backdrop-blur-sm">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="mt-3 border-t border-border pt-3">
+          <PortalFavorites
+            favorites={favorites}
+            onToggle={handleToggleFavorite}
+          />
+        </div>
+
+        {error ? (
+          <p className="mt-3 text-sm text-destructive">{error}</p>
+        ) : null}
+      </div>
+
+      <section className="relative w-full min-h-[200px] space-y-3">
+        {loading ? (
+          <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>
+              Building portal links
+              {resumeText && resumeText.length >= 200
+                ? " and matching resume keywords"
+                : ""}
+              …
+            </p>
+          </div>
+        ) : null}
+
+        {keywords ? (
+          <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-3 text-sm">
+            <p className="font-medium text-primary">Resume keywords</p>
+            <p className="text-muted-foreground">
+              Primary: {keywords.primaryKeywords}
+            </p>
+            <SuggestedTitleChips
+              titles={keywords.suggestedTitles}
+              activeTitle={jobTitle}
+              onSelect={(title) => void runSearch(title)}
+              disabled={loading}
+            />
+          </div>
+        ) : null}
+
+        {portals ? (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">
-                Building portal links
-                {resumeText && resumeText.length >= 200
-                  ? " and extracting resume keywords"
-                  : ""}
-                …
+                {portals.length} portals · opens in new tab
+                {favorites.length > 0 ? " · pinned first" : ""}
               </p>
-            </div>
-          ) : null}
-
-          {keywords ? (
-            <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-              <p className="font-medium text-primary">Resume keywords</p>
-              <p className="text-muted-foreground">
-                Primary: {keywords.primaryKeywords}
-              </p>
-              <SuggestedTitleChips
-                titles={keywords.suggestedTitles}
-                activeTitle={jobTitle}
-                onSelect={(title) => void runSearch(title)}
-                disabled={loading}
-              />
-            </div>
-          ) : null}
-
-          {portals ? (
-            <>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm text-muted-foreground">
-                  {portals.length} portals · opens in new tab
-                  {favorites.length > 0 ? " · pinned first" : ""}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <OpenAllPortalsButton portals={portals} />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={copyAllLinks}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy all links
-                  </Button>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <OpenAllPortalsButton portals={portals} />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={copyAllLinks}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy all links
+                </Button>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {portals.map((portal) => (
+            </div>
+            <ul className="space-y-2">
+              {portals.map((portal) => (
+                <li key={portal.id}>
                   <PortalJobCard
-                    key={portal.id}
                     portal={portal}
                     pinned={favoriteSet.has(portal.id)}
+                    layout="row"
                   />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex min-h-[240px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              <Search className="mb-3 h-10 w-10 opacity-40" />
-              <p>Enter a job title and click Search jobs to open portal searches.</p>
-            </div>
-          )}
-
-          <p className="text-xs text-muted-foreground">
-            Improve your resume first?{" "}
-            <Link href="/jobs/resume" className="text-primary hover:underline">
-              Resume review
-            </Link>{" "}
-            scores your CV and can pre-fill this search.
-          </p>
-        </section>
-      </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : !loading ? (
+          <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            <Search className="mb-3 h-10 w-10 opacity-40" />
+            <p>Enter a job title and click Search jobs.</p>
+            <p className="mt-2">
+              <Link href="/jobs/resume" className="text-primary hover:underline">
+                Review your resume
+              </Link>{" "}
+              first for better keyword matches.
+            </p>
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }
