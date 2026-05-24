@@ -12,7 +12,6 @@ import {
   PenLine,
   Sun,
   Table2,
-  UserRoundSearch,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -30,8 +29,7 @@ const navLinks: {
   { href: "/compiler", label: "Compiler", icon: Code2 },
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/jobs", label: "Find jobs", icon: Briefcase, exact: true },
-  { href: "/jobs/resume", label: "Resume review", icon: UserRoundSearch },
+  { href: "/jobs", label: "Job search", icon: Briefcase },
 ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean): boolean {

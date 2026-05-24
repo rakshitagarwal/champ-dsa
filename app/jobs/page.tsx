@@ -174,7 +174,7 @@ export default function FindJobsPage() {
   return (
     <div className="space-y-8">
       <header className="max-w-3xl">
-        <h1 className="text-3xl font-bold tracking-tight">Find jobs</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Job search</h1>
         <p className="mt-3 text-muted-foreground">
           Search across trusted India job portals — Naukri, Indeed, Instahyre,
           Wellfound, Hirist, Uplers, and Weekday — in one click. You apply on
@@ -250,7 +250,7 @@ export default function FindJobsPage() {
             ) : (
               <Search className="h-4 w-4" />
             )}
-            Find jobs
+            Search jobs
           </Button>
 
           {error ? (
@@ -307,7 +307,7 @@ export default function FindJobsPage() {
           ) : (
             <div className="flex min-h-[240px] flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               <Search className="mb-3 h-10 w-10 opacity-40" />
-              <p>Enter a job title and click Find jobs to open portal searches.</p>
+              <p>Enter a job title and click Search jobs to open portal searches.</p>
             </div>
           )}
 

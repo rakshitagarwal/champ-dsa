@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { JobsSubNav } from "@/components/jobs/jobs-sub-nav";
 
 export const metadata: Metadata = {
-  title: "Jobs",
+  title: "Job search",
   description:
     "Review your resume with Groq AI and open pre-filled job searches on Naukri, Indeed, Instahyre, Hirist, and more.",
 };
