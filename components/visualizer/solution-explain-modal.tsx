@@ -31,15 +31,13 @@ function ExplainContent({
       </section>
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Step-by-step walkthrough
+          Why this works
         </h3>
-        <p className="mt-2 whitespace-pre-wrap font-mono text-[13px] leading-relaxed">
-          {explanation.whyItWorks}
-        </p>
+        <p className="mt-2 whitespace-pre-wrap">{explanation.whyItWorks}</p>
       </section>
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Full dry run
+          Example walkthrough
         </h3>
         <p className="mt-2 whitespace-pre-wrap">
           {explanation.howExamplesAreSatisfied}

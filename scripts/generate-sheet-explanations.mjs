@@ -9,9 +9,9 @@ import fs from "fs";
 import * as solutionsModule from "./sheet-solutions-data.mjs";
 import { USER_EXPLANATIONS_BY_NUM } from "./user-explanations-data.mjs";
 import {
-  buildReadmeExplanation,
-  buildBackspaceCompareExplanation,
-} from "./build-readme-explanation.mjs";
+  buildParagraphExplanation,
+  buildSearchBSTExplanation,
+} from "./build-paragraph-explanation.mjs";
 
 const SHEET_SOLUTIONS = solutionsModule.SHEET_SOLUTIONS;
 const useGroq = process.argv.includes("--groq");
@@ -116,10 +116,10 @@ function buildOfflineExplanation(q) {
       keyIdeas: hints,
     };
   }
-  if (q.num === 71) return buildBackspaceCompareExplanation();
+  if (q.num === 115) return buildSearchBSTExplanation();
   const sampleOut =
     sampleOutputsByNum[String(q.num)] ?? sol.expectedOutput ?? undefined;
-  return buildReadmeExplanation({
+  return buildParagraphExplanation({
     num: q.num,
     title: q.title,
     statement: q.statement,
@@ -159,7 +159,7 @@ async function buildGroqExplanation(q) {
         {
           role: "system",
           content:
-            "You explain DSA reference solutions clearly. Respond with JSON only: { summary, whyItWorks, howExamplesAreSatisfied, keyIdeas: string[] }",
+            "You explain DSA solutions for revision. Respond with JSON only: { summary, whyItWorks, howExamplesAreSatisfied, keyIdeas: string[] }. Write in plain English: summary is 1 paragraph (problem + approach), whyItWorks is 1-2 paragraphs (intuition + why code is correct), howExamplesAreSatisfied is 1 paragraph tracing the sample input. No markdown headers or code fences. keyIdeas: 3-5 short bullets including time/space.",
         },
         {
           role: "user",

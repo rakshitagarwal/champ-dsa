@@ -1,5 +1,5 @@
 /**
- * Generate README-style explanations for all imported user solutions.
+ * Generate paragraph-style explanations for imported user solutions.
  *
  * Usage:
  *   node scripts/generate-user-explanations.mjs
@@ -8,10 +8,8 @@
 import fs from "fs";
 import * as solutionsModule from "./sheet-solutions-data.mjs";
 import { USER_SOLUTION_OVERRIDES } from "./user-solution-overrides.mjs";
-import {
-  buildReadmeExplanation,
-  buildBackspaceCompareExplanation,
-} from "./build-readme-explanation.mjs";
+import { buildParagraphExplanation } from "./build-paragraph-explanation.mjs";
+import { USER_EXPLANATIONS_BY_NUM as MANUAL } from "./user-explanations-data.mjs";
 
 const SHEET_SOLUTIONS = solutionsModule.SHEET_SOLUTIONS;
 const useGroq = process.argv.includes("--groq");
@@ -159,22 +157,21 @@ for (let i = 0; i < nums.length; i++) {
     solutionCode: override.solutionCode.trim(),
   };
 
-  if (num === 71) {
-    explanations[num] = buildBackspaceCompareExplanation();
+  if (MANUAL[num]) {
+    explanations[num] = MANUAL[num];
     continue;
   }
-
   if (useGroq) {
     process.stdout.write(`Groq ${i + 1}/${nums.length} #${num}…\n`);
     try {
       explanations[num] = await buildGroqExplanation(meta);
     } catch (err) {
       console.warn(`  fallback offline #${num}: ${err.message}`);
-      explanations[num] = buildReadmeExplanation(meta);
+      explanations[num] = buildParagraphExplanation(meta);
     }
     await new Promise((r) => setTimeout(r, 300));
   } else {
-    explanations[num] = buildReadmeExplanation(meta);
+    explanations[num] = buildParagraphExplanation(meta);
   }
 }
 

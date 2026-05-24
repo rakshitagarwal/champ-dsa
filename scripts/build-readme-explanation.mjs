@@ -3,7 +3,7 @@
  * Style reference: step-by-step code walkthrough + dry run + complexity.
  */
 
-function detectApproach(code, hints = []) {
+export function detectApproach(code, hints = []) {
   const c = code.toLowerCase();
   const tags = [];
   if (/\bleft\b/.test(c) && /\bright\b/.test(c) && /mid/.test(c))
@@ -167,7 +167,7 @@ function explainStep(step, index, approach) {
   return lines.join("\n");
 }
 
-function estimateComplexity(code, approach) {
+export function estimateComplexity(code, approach) {
   const n = "n";
   let time = "O(n)";
   let space = "O(1)";
