@@ -7,6 +7,8 @@ export type ExplainRequest = {
   constraints?: string[];
   examples: { input: string; output: string }[];
   code: string;
+  /** When true, produce a longer step-by-step revision walkthrough. */
+  detailed?: boolean;
 };
 
 export const EXPLAIN_SYSTEM_INSTRUCTION = `You are an expert DSA tutor for ChampDSA. The student submitted JavaScript that already passes the problem's sample test cases.
@@ -22,7 +24,49 @@ Rules:
 - Tie explanations to the provided LeetCode-style examples.
 - Be pedagogical: intuition first, then how the code implements it.`;
 
+export const DETAILED_EXPLAIN_SYSTEM_INSTRUCTION = `You are an expert DSA tutor for ChampDSA. The student already has a working JavaScript solution and wants a deeper revision guide.
+
+Your job: explain this exact code in rich detail so they can revise the problem, the pattern, and the approach before interviews.
+
+Rules:
+- Respond with valid JSON only, matching the schema exactly.
+- Write in English only.
+- Do NOT rewrite or replace their code. Walk through what they submitted.
+- Do NOT mention UI, visualization, or debuggers.
+- Be step-by-step: break the algorithm into logical phases, then tie each phase to lines in their code.
+- Cover the DSA pattern name and when to recognize this problem type.
+- Include time/space complexity in keyIdeas.
+- Use plain text paragraphs (no markdown headers, no code fences).`;
+
 export function buildExplainUserPrompt(req: ExplainRequest): string {
+  if (req.detailed) {
+    return JSON.stringify(
+      {
+        problem: {
+          title: req.title,
+          statement: req.statement,
+          pattern: req.patternName,
+          constraints: req.constraints ?? [],
+          examples: req.examples,
+        },
+        studentCode: req.code,
+        responseSchema: {
+          summary:
+            "string — 1 paragraph: restate the problem, name the pattern, and summarize the overall approach in this code",
+          whyItWorks:
+            "string — 2-3 paragraphs: step-by-step walkthrough of the algorithm and how this code implements each step (reference variable names and control flow)",
+          howExamplesAreSatisfied:
+            "string — 1-2 paragraphs: trace each provided example input through the code to the expected output",
+          keyIdeas: [
+            "string — 4-6 bullets: pattern recognition, invariant, edge cases, time/space complexity, interview tips",
+          ],
+        },
+      },
+      null,
+      2,
+    );
+  }
+
   return JSON.stringify(
     {
       problem: {

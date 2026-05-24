@@ -1,12 +1,12 @@
 # Fill Solution audit (all 211)
 
-Generated: 2026-05-23T19:28:45.203Z
+Generated: 2026-05-24T07:11:11.803Z
 
 | Status | Count |
 |--------|-------|
-| OK (visualize steps) | 184 |
-| Error | 26 |
-| Heavy (max steps / stack) | 1 |
+| OK (visualize steps) | 195 |
+| Error | 14 |
+| Heavy (max steps / stack) | 2 |
 
 UI steps (curated): min 2, avg 25, max 200
 
@@ -14,16 +14,10 @@ UI steps (curated): min 2, avg 25, max 200
 
 - **#23** Minimum Size Subarray Sum (`minSubArrayLen`): Cannot read properties of undefined (reading 'length')
 - **#26** Container With Most Water (`maxArea`): Cannot read properties of undefined (reading 'length')
-- **#53** Palindrome Pairs (`palindromePairs`): Expecting Unicode escape sequence \uXXXX. (47:33)
 - **#63** Palindrome Linked (`solve`): Cannot read properties of undefined (reading 'length')
-- **#72** Baseball Game (`calPoints`): Expecting Unicode escape sequence \uXXXX. (11:25)
+- **#68** Sort List (`sortList`): Invalid array length
 - **#76** Largest Rectangle in Histogram (`largestRectangleArea`): Cannot read properties of undefined (reading 'length')
-- **#78** Minimum Remove to Make Valid Parentheses (`minRemoveToMakeValid`): Expecting Unicode escape sequence \uXXXX. (15:26)
 - **#79** Find Median from Data Stream (`MedianFinder`): Unsupported syntax: imports, async/await, classes, timers, fetch, or eval are not allowed in MVP.
-- **#90** Wildcard Matching (`isMatch`): Expecting Unicode escape sequence \uXXXX. (9:23)
-- **#94** Letter Combinations of a Phone Number (`letterCombinations`): Expecting Unicode escape sequence \uXXXX. (8:12)
-- **#96** Letter Case Permutation (`letterCasePermutation`): Expecting Unicode escape sequence \uXXXX. (25:18)
-- **#98** Sudoku Solver (`solveSudoku`): Expecting Unicode escape sequence \uXXXX. (29:41)
 - **#102** Same Tree (`isSameTree`): Cannot read properties of undefined (reading 'val')
 - **#105** Minimum Cost Tree From Leaf Values (`mctFromLeafValues`): arr is not iterable
 - **#107** Maximum Depth of Binary Tree (`maxDepth`): Cannot read properties of undefined (reading 'left')
@@ -32,16 +26,11 @@ UI steps (curated): min 2, avg 25, max 200
 - **#135** Find Eventual Safe States (`eventualSafeNodes`): Cannot read properties of undefined (reading 'length')
 - **#137** Network Delay Time (`networkDelayTime`): Unsupported syntax: imports, async/await, classes, timers, fetch, or eval are not allowed in MVP.
 - **#142** Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree (`findCriticalAndPseudoCriticalEdges`): Unsupported syntax: imports, async/await, classes, timers, fetch, or eval are not allowed in MVP.
-- **#154** Maximum Swap (`maximumSwap`): Expecting Unicode escape sequence \uXXXX. (6:38)
-- **#167** Ones and Zeroes (`findMaxForm`): Expecting Unicode escape sequence \uXXXX. (21:24)
-- **#179** Parsing a Boolean Expression (`parseBoolExpr`): Expecting Unicode escape sequence \uXXXX. (11:20)
-- **#183** Unique Paths II (`uniquePathsWithObstacles`): Unexpected token (26:51)
-- **#190** Day of the Week (`dayOfTheWeek`): Expecting Unicode escape sequence \uXXXX. (8:19)
-- **#211** Longest Duplicate Substring (`longestDupSubstring`): Expecting Unicode escape sequence \uXXXX. (60:27)
 
 ## Heavy (timeout / max steps)
 
 - **#99** Construct Binary Tree from Inorder and Postorder Traversal: Maximum call stack size exceeded
+- **#179** Parsing a Boolean Expression: Max steps exceeded
 
 ## Working — UI step count
 
@@ -97,6 +86,7 @@ UI steps (curated): min 2, avg 25, max 200
 | 50 | Ugly Number II | nthUglyNumber | 69 | 69 | array |
 | 51 | Subarray Sum Equals K | subarraySum | 9 | 9 | array |
 | 52 | Max Points on a Line | maxPoints | 29 | 33 | array |
+| 53 | Palindrome Pairs | palindromePairs | 78 | 87 | array |
 | 54 | Middle of the Linked List | middleNode | 6 | 6 | linkedList |
 | 55 | Maximum Twin Sum of a Linked List | pairSum | 13 | 14 | linkedList |
 | 56 | Merge Two Sorted Lists | mergeTwoLists | 16 | 16 | linkedList |
@@ -110,14 +100,15 @@ UI steps (curated): min 2, avg 25, max 200
 | 65 | Convert Binary Number in a Linked List to Integer | getDecimalValue | 5 | 5 | none |
 | 66 | Remove Duplicates from Sorted List II | deleteDuplicates | 16 | 16 | none |
 | 67 | Reverse Linked List II | reverseBetween | 8 | 10 | linkedList |
-| 68 | Sort List | solve | 4 | 4 | linkedList |
-| 69 | Implement Stack using Queues | solve | 16 | 16 | array |
+| 69 | Implement Stack using Queues | MyStack | 3 | 3 | none |
 | 70 | Implement Queue using Stacks | MyQueue | 3 | 3 | none |
 | 71 | Backspace String Compare | backspaceCompare | 22 | 22 | array |
+| 72 | Baseball Game | calPoints | 32 | 34 | array |
 | 73 | Longest Valid Parentheses | longestValidParentheses | 32 | 32 | array |
 | 74 | Evaluate Reverse Polish Notation | evalRPN | 25 | 25 | array |
 | 75 | Daily Temperatures | dailyTemperatures | 13 | 13 | array |
 | 77 | Min Stack | MinStack | 3 | 3 | none |
+| 78 | Minimum Remove to Make Valid Parentheses | minRemoveToMakeValid | 64 | 64 | array |
 | 80 | Merge k Sorted Lists | mergeKLists | 73 | 78 | array |
 | 81 | Find K Pairs with Smallest Sums | kSmallestPairs | 4 | 4 | array |
 | 82 | Meeting Rooms II | solve | 7 | 7 | array |
@@ -128,11 +119,15 @@ UI steps (curated): min 2, avg 25, max 200
 | 87 | Permutations II | permuteUnique | 5 | 5 | array |
 | 88 | Subsets | subsets | 3 | 3 | array |
 | 89 | Basic Calculator | calculate | 48 | 48 | array |
+| 90 | Wildcard Matching | isMatch | 4 | 4 | none |
 | 91 | Combinations | combine | 5 | 5 | array |
 | 92 | Combination Sum | combinationSum | 4 | 4 | array |
 | 93 | Combination Sum III | combinationSum3 | 5 | 5 | array |
+| 94 | Letter Combinations of a Phone Number | letterCombinations | 6 | 7 | array |
 | 95 | Gray Code | grayCode | 6 | 6 | array |
+| 96 | Letter Case Permutation | letterCasePermutation | 5 | 5 | array |
 | 97 | N-Queens | solveNQueens | 8 | 8 | array |
+| 98 | Sudoku Solver | solveSudoku | 5 | 5 | array |
 | 100 | Construct Binary Tree from Preorder and Inorder Traversal | buildTree | 51 | 56 | array |
 | 101 | Path Sum | hasPathSum | 5 | 5 | none |
 | 103 | Binary Tree Level Order Traversal | levelOrder | 8 | 8 | array |
@@ -162,7 +157,7 @@ UI steps (curated): min 2, avg 25, max 200
 | 131 | Detect Cycle in an Undirected Graph | solve | 9 | 9 | array |
 | 132 | Detect Cycle in a Directed Graph | solve | 10 | 10 | array |
 | 133 | Course Schedule | canFinish | 17 | 17 | array |
-| 134 | Course Schedule II | solve | 19 | 19 | array |
+| 134 | Course Schedule II | findOrder | 31 | 31 | array |
 | 136 | Alien Dictionary | solve | 37 | 37 | array |
 | 138 | Shortest Path in Binary Matrix | shortestPathBinaryMatrix | 49 | 51 | graph |
 | 139 | Path With Minimum Effort | minimumEffortPath | 157 | 175 | array |
@@ -179,6 +174,7 @@ UI steps (curated): min 2, avg 25, max 200
 | 151 | Maximum Product of Three Numbers | maximumProduct | 6 | 6 | array |
 | 152 | Bulb Switcher | bulbSwitch | 3 | 3 | none |
 | 153 | Candy | candy | 14 | 14 | array |
+| 154 | Maximum Swap | maximumSwap | 11 | 12 | array |
 | 155 | Climbing Stairs | climbStairs | 7 | 8 | none |
 | 156 | Decode Ways | numDecodings | 10 | 11 | array |
 | 157 | Frog Jump | canCross | 8 | 9 | array |
@@ -191,6 +187,7 @@ UI steps (curated): min 2, avg 25, max 200
 | 164 | Best Time to Buy and Sell Stock with Cooldown | maxProfit | 20 | 20 | array |
 | 165 | Best Time to Buy and Sell Stock with Transaction Fee | maxProfit | 17 | 17 | array |
 | 166 | Partition Equal Subset Sum | canPartition | 10 | 11 | array |
+| 167 | Ones and Zeroes | findMaxForm | 32 | 32 | array |
 | 168 | Coin Change II | change | 7 | 7 | array |
 | 169 | Last Stone Weight II | lastStoneWeightII | 15 | 15 | array |
 | 170 | Longest Common Subsequence | longestCommonSubsequence | 37 | 37 | array |
@@ -205,12 +202,14 @@ UI steps (curated): min 2, avg 25, max 200
 | 180 | Palindrome Partitioning II | minCut | 26 | 26 | array |
 | 181 | Shortest Path Visiting All Nodes | shortestPathLength | 80 | 80 | graph |
 | 182 | Unique Paths | uniquePaths | 6 | 6 | array |
+| 183 | Unique Paths II | uniquePathsWithObstacles | 46 | 47 | array |
 | 184 | Minimum Path Sum | minPathSum | 25 | 25 | graph |
 | 185 | Russian Doll Envelopes | maxEnvelopes | 21 | 21 | array |
 | 186 | Find Greatest Common Divisor of Array | findGCD | 25 | 25 | array |
 | 187 | Self Dividing Numbers | selfDividingNumbers | 158 | 159 | array |
 | 188 | Number of Good Pairs | numIdenticalPairs | 20 | 20 | array |
 | 189 | Four Divisors | sumFourDivisors | 5 | 5 | array |
+| 190 | Day of the Week | dayOfTheWeek | 12 | 12 | array |
 | 191 | Subtract the Product and Sum of Digits of an Integer | subtractProductAndSum | 8 | 9 | none |
 | 192 | Count of Matches in Tournament | numberOfMatches | 3 | 3 | none |
 | 193 | Max Consecutive Ones | findMaxConsecutiveOnes | 18 | 18 | array |
@@ -221,7 +220,7 @@ UI steps (curated): min 2, avg 25, max 200
 | 198 | Check If Array Pairs Are Divisible by k | canArrange | 21 | 21 | array |
 | 199 | Factorial Trailing Zeroes | trailingZeroes | 5 | 5 | none |
 | 200 | Nth Magical Number | nthMagicalNumber | 13 | 14 | none |
-| 201 | Permutation Sequence | solve | 10 | 10 | array |
+| 201 | Permutation Sequence | getPermutation | 16 | 16 | array |
 | 202 | Single Number | singleNumber | 3 | 3 | array |
 | 203 | Reverse Bits | reverseBits | 69 | 69 | none |
 | 204 | Single Number II | singleNumber | 200 | 205 | array |
@@ -231,3 +230,4 @@ UI steps (curated): min 2, avg 25, max 200
 | 208 | Number of Even and Odd Bits | evenOddBit | 13 | 13 | none |
 | 209 | Find the Index of the First Occurrence in a String | strStr | 11 | 11 | none |
 | 210 | Repeated DNA Sequences | findRepeatedDnaSequences | 76 | 76 | none |
+| 211 | Longest Duplicate Substring | longestDupSubstring | 16 | 17 | array |

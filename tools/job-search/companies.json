@@ -1,0 +1,402 @@
+[
+  {
+    "company": "Google India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Hyderabad",
+    "why_target": "Large-scale web platforms; strong MERN-adjacent full-stack teams in India offices.",
+    "careers_url": "https://www.google.com/about/careers/applications/jobs/results/?location=India"
+  },
+  {
+    "company": "Microsoft India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Hyderabad / Bangalore / Noida",
+    "why_target": "Azure, Office 365, and product engineering — steady full-stack hiring at 3–6 YOE.",
+    "careers_url": "https://careers.microsoft.com/professionals/us/en/l-india"
+  },
+  {
+    "company": "Amazon India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Hyderabad / Chennai",
+    "why_target": "E-commerce + AWS India teams; high volume of SDE-II / full-stack roles.",
+    "careers_url": "https://www.amazon.jobs/en/locations/india"
+  },
+  {
+    "company": "Adobe India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Noida / Bangalore",
+    "why_target": "Creative Cloud and Experience Cloud — modern web stack, product-focused engineering.",
+    "careers_url": "https://careers.adobe.com/us/en/search-results?keywords=&location=India"
+  },
+  {
+    "company": "Salesforce India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Hyderabad / Bangalore",
+    "why_target": "SaaS platform engineering; strong India R&D for web and cloud products.",
+    "careers_url": "https://careers.salesforce.com/en/jobs/?location=India"
+  },
+  {
+    "company": "Oracle India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Hyderabad",
+    "why_target": "Cloud infrastructure and enterprise SaaS — full-stack roles in India hubs.",
+    "careers_url": "https://careers.oracle.com/en/sites/jobsearch/jobs?location=India"
+  },
+  {
+    "company": "SAP Labs India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Gurgaon",
+    "why_target": "Enterprise SaaS product development; stable mid-level engineering pipeline.",
+    "careers_url": "https://jobs.sap.com/search/?createNewAlert=false&q=&locationsearch=India"
+  },
+  {
+    "company": "Intuit India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore",
+    "why_target": "Fintech-adjacent (QuickBooks, TurboTax) with strong full-stack product teams.",
+    "careers_url": "https://www.intuit.com/careers/search-jobs/?location=India"
+  },
+  {
+    "company": "Cisco India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Hyderabad",
+    "why_target": "Networking + SaaS (Webex, security) — web platform roles in India.",
+    "careers_url": "https://jobs.cisco.com/jobs/SearchJobs/?21178=%5B169%5D&21178_format=6020&listFilterMode=1"
+  },
+  {
+    "company": "VMware Broadcom India",
+    "tier": "Tier 1 — Big Tech",
+    "tier_key": 1,
+    "hq": "Bangalore / Pune",
+    "why_target": "Cloud and virtualization products; Bangalore/Pune engineering centers.",
+    "careers_url": "https://careers.broadcom.com/global/en/search-results?keywords=&location=India"
+  },
+  {
+    "company": "Razorpay",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "Top Indian fintech; MERN-friendly product engineering and payments platform.",
+    "careers_url": "https://razorpay.com/jobs/"
+  },
+  {
+    "company": "PhonePe",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "UPI super-app scale; full-stack roles on consumer and merchant products.",
+    "careers_url": "https://www.phonepe.com/careers/"
+  },
+  {
+    "company": "CRED",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "Premium fintech with strong design-engineering culture; web + mobile stack.",
+    "careers_url": "https://careers.cred.club/"
+  },
+  {
+    "company": "Zerodha",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "India's largest broker; lean product teams, full-stack fintech engineering.",
+    "careers_url": "https://zerodha.com/careers/"
+  },
+  {
+    "company": "Freshworks",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Chennai / Bangalore",
+    "why_target": "Global SaaS unicorn born in India; ideal for full-stack SaaS experience.",
+    "careers_url": "https://www.freshworks.com/company/careers/"
+  },
+  {
+    "company": "Postman",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "API platform SaaS; developer tools company with strong web engineering.",
+    "careers_url": "https://www.postman.com/company/careers/"
+  },
+  {
+    "company": "Flipkart",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "E-commerce at scale; full-stack roles on marketplace and supply chain.",
+    "careers_url": "https://www.flipkartcareers.com/"
+  },
+  {
+    "company": "Swiggy",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "Food delivery + quick commerce; high-growth product engineering in Bangalore.",
+    "careers_url": "https://careers.swiggy.com/"
+  },
+  {
+    "company": "Zomato",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Gurgaon (Delhi NCR)",
+    "why_target": "Public food-tech company; full-stack roles in Delhi NCR hub.",
+    "careers_url": "https://www.zomato.com/careers"
+  },
+  {
+    "company": "Paytm",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Noida (Delhi NCR)",
+    "why_target": "Payments + fintech super-app; large engineering org in NCR.",
+    "careers_url": "https://paytm.com/careers/"
+  },
+  {
+    "company": "Meesho",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "Social commerce unicorn; full-stack web for seller and buyer platforms.",
+    "careers_url": "https://meesho.io/jobs"
+  },
+  {
+    "company": "Dream11",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Mumbai / Bangalore",
+    "why_target": "Fantasy sports at scale; product engineering with real-time web systems.",
+    "careers_url": "https://careers.dreamsports.group/"
+  },
+  {
+    "company": "Ola",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Bangalore",
+    "why_target": "Mobility + fintech (Ola Money); full-stack roles in Bangalore HQ.",
+    "careers_url": "https://www.olacabs.com/careers"
+  },
+  {
+    "company": "Chargebee",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Chennai / Remote India",
+    "why_target": "Subscription billing SaaS; strong fit for full-stack SaaS developers.",
+    "careers_url": "https://www.chargebee.com/careers/"
+  },
+  {
+    "company": "BrowserStack",
+    "tier": "Tier 2 — Unicorns / late-stage",
+    "tier_key": 2,
+    "hq": "Mumbai / Bangalore",
+    "why_target": "Developer SaaS platform; web-heavy product engineering culture.",
+    "careers_url": "https://www.browserstack.com/careers"
+  },
+  {
+    "company": "Zoho",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Chennai",
+    "why_target": "Bootstrapped SaaS suite; full-stack product roles without VC churn.",
+    "careers_url": "https://www.zoho.com/careers/"
+  },
+  {
+    "company": "InMobi",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Bangalore",
+    "why_target": "Ad-tech platform; large-scale distributed systems and web dashboards.",
+    "careers_url": "https://www.inmobi.com/company/careers/"
+  },
+  {
+    "company": "CleverTap",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Mumbai / Bangalore",
+    "why_target": "Customer engagement SaaS; full-stack roles on analytics and campaign tools.",
+    "careers_url": "https://clevertap.com/careers/"
+  },
+  {
+    "company": "Nykaa",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Mumbai",
+    "why_target": "E-commerce + beauty tech; full-stack web for catalog and checkout.",
+    "careers_url": "https://www.nykaa.com/careers"
+  },
+  {
+    "company": "Lenskart",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Gurgaon (Delhi NCR)",
+    "why_target": "Omnichannel retail tech; D2C e-commerce engineering in NCR.",
+    "careers_url": "https://www.lenskart.com/careers"
+  },
+  {
+    "company": "Druva",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Pune",
+    "why_target": "Cloud data protection SaaS; strong Pune engineering hub.",
+    "careers_url": "https://www.druva.com/about/careers.html"
+  },
+  {
+    "company": "Hasura",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Bangalore / Remote India",
+    "why_target": "GraphQL / data API platform; developer-first product, remote-friendly.",
+    "careers_url": "https://hasura.io/careers/"
+  },
+  {
+    "company": "Unacademy",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Bangalore",
+    "why_target": "Ed-tech platform; full-stack web for live classes and content delivery.",
+    "careers_url": "https://unacademy.com/careers"
+  },
+  {
+    "company": "Darwinbox",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Hyderabad",
+    "why_target": "HR SaaS unicorn-track; Hyderabad product engineering for enterprise web apps.",
+    "careers_url": "https://darwinbox.com/careers/"
+  },
+  {
+    "company": "Innovaccer",
+    "tier": "Tier 3 — Mid-size product",
+    "tier_key": 3,
+    "hq": "Noida (Delhi NCR)",
+    "why_target": "Health-tech SaaS; full-stack roles on data platforms in NCR.",
+    "careers_url": "https://innovaccer.com/careers"
+  },
+  {
+    "company": "Juspay",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Payments infrastructure fintech; deep full-stack work on checkout systems.",
+    "careers_url": "https://juspay.io/careers"
+  },
+  {
+    "company": "Cashfree",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "B2B payments fintech; MERN-friendly product teams.",
+    "careers_url": "https://www.cashfree.com/careers"
+  },
+  {
+    "company": "Yellow.ai",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Conversational AI SaaS; AI startup with full-stack platform engineering.",
+    "careers_url": "https://yellow.ai/careers/"
+  },
+  {
+    "company": "Observe.AI",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore / San Francisco",
+    "why_target": "AI for contact centers; India engineering center for ML + web products.",
+    "careers_url": "https://www.observe.ai/careers"
+  },
+  {
+    "company": "SigNoz",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore / Remote India",
+    "why_target": "Open-source observability; developer tools, remote-friendly full-stack.",
+    "careers_url": "https://signoz.io/careers/"
+  },
+  {
+    "company": "Setu",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+     "hq": "Bangalore",
+    "why_target": "API infrastructure fintech (Pincode); modern web stack for financial APIs.",
+    "careers_url": "https://setu.co/careers"
+  },
+  {
+    "company": "Groww",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Investments fintech; consumer web app at scale, strong Bangalore hiring.",
+    "careers_url": "https://groww.in/careers"
+  },
+  {
+    "company": "Hyperface",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Credit card fintech infrastructure; early-stage full-stack product work.",
+    "careers_url": "https://hyperface.co/careers"
+  },
+  {
+    "company": "Leap",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Ed-tech / study-abroad fintech; full-stack web for student platform.",
+    "careers_url": "https://leapscholar.com/careers"
+  },
+  {
+    "company": "Scaler (InterviewBit)",
+    "tier": "Tier 4 — Series A–C startups",
+    "tier_key": 4,
+    "hq": "Bangalore",
+    "why_target": "Ed-tech platform; full-stack engineering on learning products.",
+    "careers_url": "https://www.scaler.com/careers/"
+  },
+  {
+    "company": "GitLab",
+    "tier": "Tier 5 — Remote-friendly globals",
+    "tier_key": 5,
+    "hq": "Remote India",
+    "why_target": "All-remote DevOps platform; hires full-stack engineers across India.",
+    "careers_url": "https://about.gitlab.com/jobs/"
+  },
+  {
+    "company": "Automattic",
+    "tier": "Tier 5 — Remote-friendly globals",
+    "tier_key": 5,
+    "hq": "Remote India",
+    "why_target": "WordPress.com / WooCommerce — fully distributed, web-first engineering.",
+    "careers_url": "https://automattic.com/work-with-us/"
+  },
+  {
+    "company": "Zapier",
+    "tier": "Tier 5 — Remote-friendly globals",
+    "tier_key": 5,
+    "hq": "Remote India",
+    "why_target": "Automation SaaS; remote-first with India-eligible full-stack roles.",
+    "careers_url": "https://zapier.com/jobs"
+  },
+  {
+    "company": "Toptal",
+    "tier": "Tier 5 — Remote-friendly globals",
+    "tier_key": 5,
+    "hq": "Remote India",
+    "why_target": "Elite remote network; contract and full-time paths for senior web devs.",
+    "careers_url": "https://www.toptal.com/careers"
+  },
+  {
+    "company": "Doist",
+    "tier": "Tier 5 — Remote-friendly globals",
+    "tier_key": 5,
+    "hq": "Remote India",
+    "why_target": "Todoist / Twist — async remote culture, product-focused full-stack work.",
+    "careers_url": "https://doist.com/careers"
+  }
+]

@@ -42,8 +42,8 @@ export function getOnboardingChecklist(): ChecklistItem[] {
       done: readPattern,
     },
     {
-      id: "visualizer",
-      label: "Run a solution and view the walkthrough",
+      id: "explain",
+      label: "Fill a solution and open Explain",
       href: "/practice",
       done: triedVisualizer,
     },

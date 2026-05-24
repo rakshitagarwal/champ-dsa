@@ -13,6 +13,7 @@ type Body = {
   constraints?: string[];
   examples: { input: string; output: string }[];
   code: string;
+  detailed?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -33,9 +34,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!body.examples?.length || body.examples.length < 2) {
+    const minExamples = body.detailed ? 1 : 2;
+    if (!body.examples?.length || body.examples.length < minExamples) {
       return NextResponse.json(
-        { error: "At least two passing examples are required." },
+        {
+          error: body.detailed
+            ? "At least one example is required."
+            : "At least two passing examples are required.",
+        },
         { status: 400 },
       );
     }
@@ -45,8 +51,9 @@ export async function POST(request: Request) {
       statement: body.statement ?? "",
       patternName: body.patternName,
       constraints: body.constraints,
-      examples: body.examples,
+      examples: body.examples.slice(0, 2),
       code: body.code,
+      detailed: body.detailed,
     });
 
     return NextResponse.json(explanation);

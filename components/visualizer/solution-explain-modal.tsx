@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Sparkles, X } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { cn } from "@/lib/utils";
@@ -15,14 +15,21 @@ type Props = {
 function ExplainContent({
   explanation,
   patternName,
+  aiGenerated,
 }: {
   explanation: AiExplainCommentary;
   patternName: string | null;
+  aiGenerated: boolean;
 }) {
   const patternLabel = patternName ?? "DSA pattern";
 
   return (
     <article className="space-y-5 text-sm leading-relaxed text-foreground/95">
+      {aiGenerated ? (
+        <p className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+          AI-generated deep dive — step-by-step revision guide
+        </p>
+      ) : null}
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Problem &amp; approach
@@ -65,6 +72,13 @@ export function SolutionExplainModal({ open, onOpenChange }: Props) {
   const problemTitle = useVisualizerStore((s) => s.problemTitle);
   const patternName = useVisualizerStore((s) => s.patternName);
   const savedAiExplanation = useVisualizerStore((s) => s.savedAiExplanation);
+  const aiExplain = useVisualizerStore((s) => s.aiExplain);
+  const aiExplainLoading = useVisualizerStore((s) => s.aiExplainLoading);
+  const aiExplainError = useVisualizerStore((s) => s.aiExplainError);
+  const explainAgainWithGroq = useVisualizerStore((s) => s.explainAgainWithGroq);
+
+  const displayExplanation = aiExplain ?? savedAiExplanation;
+  const aiGenerated = !!aiExplain;
 
   useEffect(() => {
     if (!open) return;
@@ -140,20 +154,48 @@ export function SolutionExplainModal({ open, onOpenChange }: Props) {
           </div>
 
           <div className="flex min-h-0 flex-col">
-            <div className="shrink-0 border-b border-border bg-muted/20 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Explanation
+            <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border bg-muted/20 px-3 py-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Explanation
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1.5 text-xs"
+                disabled={aiExplainLoading}
+                onClick={() => explainAgainWithGroq()}
+              >
+                {aiExplainLoading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
+                Explain again
+              </Button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
-              {savedAiExplanation ? (
+              {aiExplainLoading && !displayExplanation ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-16 text-sm text-muted-foreground">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p>Generating a detailed explanation with Groq…</p>
+                </div>
+              ) : displayExplanation ? (
                 <ExplainContent
-                  explanation={savedAiExplanation}
+                  explanation={displayExplanation}
                   patternName={patternName}
+                  aiGenerated={aiGenerated}
                 />
               ) : (
                 <p className="text-sm text-muted-foreground">
                   No saved explanation for this problem yet.
                 </p>
               )}
+              {aiExplainError ? (
+                <p className="mt-4 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {aiExplainError}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>

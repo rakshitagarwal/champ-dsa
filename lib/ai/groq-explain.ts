@@ -1,6 +1,7 @@
 import type { AiExplainCommentary } from "@/types/ai-explain";
 import {
   buildExplainUserPrompt,
+  DETAILED_EXPLAIN_SYSTEM_INSTRUCTION,
   EXPLAIN_SYSTEM_INSTRUCTION,
   parseExplainJson,
   type ExplainRequest,
@@ -67,6 +68,7 @@ async function generateWithModel(
   apiKey: string,
   modelId: string,
   userPrompt: string,
+  detailed: boolean,
 ): Promise<AiExplainCommentary> {
   const res = await fetch(GROQ_CHAT_URL, {
     method: "POST",
@@ -77,12 +79,17 @@ async function generateWithModel(
     body: JSON.stringify({
       model: modelId,
       messages: [
-        { role: "system", content: EXPLAIN_SYSTEM_INSTRUCTION },
+        {
+          role: "system",
+          content: detailed
+            ? DETAILED_EXPLAIN_SYSTEM_INSTRUCTION
+            : EXPLAIN_SYSTEM_INSTRUCTION,
+        },
         { role: "user", content: userPrompt },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.4,
-      max_tokens: 4096,
+      temperature: detailed ? 0.35 : 0.4,
+      max_tokens: detailed ? 6144 : 4096,
     }),
   });
 
@@ -127,7 +134,12 @@ export async function generateAiExplanation(
 
   for (const modelId of models) {
     try {
-      return await generateWithModel(apiKey, modelId, userPrompt);
+      return await generateWithModel(
+        apiKey,
+        modelId,
+        userPrompt,
+        !!req.detailed,
+      );
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push(`${modelId}: ${msg.slice(0, 120)}`);

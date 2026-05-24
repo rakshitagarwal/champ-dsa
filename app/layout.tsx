@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ChampDSA — Understand algorithms deeply",
   description:
-    "Desktop-first DSA learning with step-by-step visualization. Recap JavaScript fundamentals and DSA patterns when you need a quick refresh.",
+    "Desktop-first DSA practice with saved and AI-powered solution explanations. Recap JavaScript fundamentals and DSA patterns when you need a quick refresh.",
 };
 
 export default function RootLayout({

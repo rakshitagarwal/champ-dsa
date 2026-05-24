@@ -137,6 +137,7 @@ type VisualizerState = {
   loadFreePlayground: () => void;
   run: () => Promise<void>;
   fetchAiExplain: () => Promise<void>;
+  explainAgainWithGroq: () => Promise<void>;
   clearAiExplain: () => void;
   clearStepExplain: () => void;
   currentScene: () => VizScene | null;
@@ -617,11 +618,13 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   },
 
   fetchAiExplain: async () => {
+    await get().explainAgainWithGroq();
+  },
+
+  explainAgainWithGroq: async () => {
     const {
       code,
-      trace,
-      allExamplesPass,
-      hasTwoExamples,
+      solutionFilled,
       problemTitle,
       problemStatement,
       patternName,
@@ -632,24 +635,37 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       problemSampleOutput,
     } = get();
 
-    if (!trace || !allExamplesPass || !hasTwoExamples) return;
+    if (!solutionFilled || !code?.trim()) {
+      set({ aiExplainError: "Fill the solution first." });
+      return;
+    }
     if (!problemTitle || !patternName) {
       set({ aiExplainError: "Load a practice problem to use AI Explain." });
       return;
     }
 
-    const runExamples = getFirstTwoRunExamples(
+    let runExamples = getFirstTwoRunExamples(
       problemExamples,
       problemDescription,
       problemHumanInput,
       problemSampleOutput,
     );
-    if (runExamples.length < 2) return;
+    if (runExamples.length === 0 && problemHumanInput && problemSampleOutput) {
+      runExamples = [
+        { input: problemHumanInput, output: problemSampleOutput },
+      ];
+    }
+    if (runExamples.length === 0) {
+      set({ aiExplainError: "This problem has no examples for AI Explain." });
+      return;
+    }
+    if (runExamples.length === 1) {
+      runExamples = [...runExamples, runExamples[0]!];
+    }
 
     set({
       aiExplainLoading: true,
       aiExplainError: null,
-      aiExplainModalOpen: true,
     });
 
     try {
@@ -661,11 +677,12 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
           statement: problemStatement ?? "",
           patternName,
           constraints: problemConstraints ?? [],
-          examples: runExamples.map((e) => ({
+          examples: runExamples.slice(0, 2).map((e) => ({
             input: e.input,
             output: e.output,
           })),
           code,
+          detailed: true,
         }),
       });
 
@@ -775,10 +792,22 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   showSolutionExplanation: () => {
     const { savedAiExplanation } = get();
     if (!savedAiExplanation) return;
-    set({ solutionExplanationVisible: true });
+    markVisualizerUsed();
+    set({
+      solutionExplanationVisible: true,
+      aiExplain: null,
+      aiExplainError: null,
+      aiExplainLoading: false,
+    });
   },
 
-  hideSolutionExplanation: () => set({ solutionExplanationVisible: false }),
+  hideSolutionExplanation: () =>
+    set({
+      solutionExplanationVisible: false,
+      aiExplain: null,
+      aiExplainError: null,
+      aiExplainLoading: false,
+    }),
 
   canOpenVisualize: () => {
     const { solutionFilled, traceCode, questionContext, playbackSteps } = get();

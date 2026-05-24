@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, FileText, Map, Sparkles } from "lucide-react";
+import { BookOpen, Briefcase, FileText, Map, Sparkles } from "lucide-react";
 
 export function MarketingLanding() {
   return (
@@ -10,11 +10,12 @@ export function MarketingLanding() {
       </div>
       <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
         Learn DSA with{" "}
-        <span className="text-primary">step-by-step visualization</span>
+        <span className="text-primary">clear explanations</span>
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        See the why behind each line — not just memorized answers. Use the main
-        path to learn DSA; jump to recap sections when you need a quick refresh.
+        Solve BossCoder sheet problems LeetCode-style, fill in reference solutions,
+        and read revision-focused explanations — then review your resume and find
+        roles on top India job portals when you are ready to apply.
       </p>
 
       <div className="mt-12 grid w-full max-w-3xl gap-4 text-left">
@@ -23,7 +24,7 @@ export function MarketingLanding() {
           href="/roadmap"
           icon={<Map className="h-5 w-5" />}
           title="Start learning DSA"
-          body="Follow the roadmap, solve sheet problems LeetCode-style, and step through your code with visualization."
+          body="Follow the roadmap, solve sheet problems in the editor, run against examples, and open Explain to revise each approach."
           cta="Open roadmap"
         />
         <LaneCard
@@ -39,6 +40,15 @@ export function MarketingLanding() {
           title="Recap JavaScript"
           body="Closures, promises, this, and more — plain English notes when fundamentals need a refresh."
           cta="Notes"
+        />
+        <LaneCard
+          href="/jobs/resume"
+          icon={<Briefcase className="h-5 w-5" />}
+          title="Improve resume & find jobs"
+          body="Groq scores your resume with actionable fixes, then opens pre-filled searches on LinkedIn, Naukri, Indeed, and more."
+          cta="Resume review"
+          secondaryHref="/jobs"
+          secondaryCta="Find jobs"
         />
       </div>
 
@@ -57,6 +67,8 @@ function LaneCard({
   title,
   body,
   cta,
+  secondaryHref,
+  secondaryCta,
 }: {
   primary?: boolean;
   href: string;
@@ -64,16 +76,15 @@ function LaneCard({
   title: string;
   body: string;
   cta: string;
+  secondaryHref?: string;
+  secondaryCta?: string;
 }) {
+  const cardClass = primary
+    ? "rounded-xl border-2 border-primary/40 bg-primary/5 p-6"
+    : "rounded-xl border border-border bg-card p-6";
+
   return (
-    <Link
-      href={href}
-      className={
-        primary
-          ? "block rounded-xl border-2 border-primary/40 bg-primary/5 p-6 transition-colors hover:bg-primary/10"
-          : "block rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/30 hover:bg-accent/30"
-      }
-    >
+    <div className={cardClass}>
       <div className="flex items-start gap-4">
         <span
           className={
@@ -89,17 +100,28 @@ function LaneCard({
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {body}
           </p>
-          <span
-            className={
-              primary
-                ? "mt-3 inline-block text-sm font-medium text-primary"
-                : "mt-3 inline-block text-sm font-medium text-foreground"
-            }
-          >
-            {cta} →
-          </span>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Link
+              href={href}
+              className={
+                primary
+                  ? "text-sm font-medium text-primary hover:underline"
+                  : "text-sm font-medium text-foreground hover:underline"
+              }
+            >
+              {cta} →
+            </Link>
+            {secondaryHref && secondaryCta ? (
+              <Link
+                href={secondaryHref}
+                className="text-sm font-medium text-muted-foreground hover:text-primary hover:underline"
+              >
+                {secondaryCta} →
+              </Link>
+            ) : null}
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

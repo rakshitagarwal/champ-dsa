@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-23T19:28:45.203Z",
+  "generatedAt": "2026-05-24T07:11:11.803Z",
   "total": 211,
-  "ok": 184,
-  "error": 26,
-  "heavy": 1,
+  "ok": 195,
+  "error": 14,
+  "heavy": 2,
   "uiSteps": {
     "min": 2,
     "max": 200,
@@ -589,12 +589,11 @@
       "id": "bc-053-palindrome-pairs",
       "title": "Palindrome Pairs",
       "entryFunction": "palindromePairs",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (47:33)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 87,
+      "uiSteps": 78,
       "patternName": "Hashing",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 54,
@@ -755,23 +754,24 @@
       "num": 68,
       "id": "bc-068-sort-list",
       "title": "Sort List",
-      "entryFunction": "solve",
-      "status": "ok",
-      "rawTraceSteps": 4,
-      "uiSteps": 4,
+      "entryFunction": "sortList",
+      "status": "error",
+      "error": "Invalid array length",
+      "rawTraceSteps": 0,
+      "uiSteps": 0,
       "patternName": "Linked Lists",
-      "structures": "linkedList"
+      "structures": ""
     },
     {
       "num": 69,
       "id": "bc-069-implement-stack-using-queues",
       "title": "Implement Stack using Queues",
-      "entryFunction": "solve",
+      "entryFunction": "MyStack",
       "status": "ok",
-      "rawTraceSteps": 16,
-      "uiSteps": 16,
+      "rawTraceSteps": 3,
+      "uiSteps": 3,
       "patternName": "Stack & Queue",
-      "structures": "array"
+      "structures": "none"
     },
     {
       "num": 70,
@@ -800,12 +800,11 @@
       "id": "bc-072-baseball-game",
       "title": "Baseball Game",
       "entryFunction": "calPoints",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (11:25)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 34,
+      "uiSteps": 32,
       "patternName": "Stack & Queue",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 73,
@@ -868,12 +867,11 @@
       "id": "bc-078-minimum-remove-to-make-valid-parentheses",
       "title": "Minimum Remove to Make Valid Parentheses",
       "entryFunction": "minRemoveToMakeValid",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (15:26)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 64,
+      "uiSteps": 64,
       "patternName": "Stack & Queue",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 79,
@@ -1002,12 +1000,11 @@
       "id": "bc-090-wildcard-matching",
       "title": "Wildcard Matching",
       "entryFunction": "isMatch",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (9:23)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 4,
+      "uiSteps": 4,
       "patternName": "Recursion",
-      "structures": ""
+      "structures": "none"
     },
     {
       "num": 91,
@@ -1047,12 +1044,11 @@
       "id": "bc-094-letter-combinations-of-a-phone-number",
       "title": "Letter Combinations of a Phone Number",
       "entryFunction": "letterCombinations",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (8:12)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 7,
+      "uiSteps": 6,
       "patternName": "Backtracking",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 95,
@@ -1070,12 +1066,11 @@
       "id": "bc-096-letter-case-permutation",
       "title": "Letter Case Permutation",
       "entryFunction": "letterCasePermutation",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (25:18)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
       "patternName": "Backtracking",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 97,
@@ -1093,12 +1088,11 @@
       "id": "bc-098-sudoku-solver",
       "title": "Sudoku Solver",
       "entryFunction": "solveSudoku",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (29:41)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 5,
+      "uiSteps": 5,
       "patternName": "Backtracking",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 99,
@@ -1495,10 +1489,10 @@
       "num": 134,
       "id": "bc-134-course-schedule-ii",
       "title": "Course Schedule II",
-      "entryFunction": "solve",
+      "entryFunction": "findOrder",
       "status": "ok",
-      "rawTraceSteps": 19,
-      "uiSteps": 19,
+      "rawTraceSteps": 31,
+      "uiSteps": 31,
       "patternName": "Graphs",
       "structures": "array"
     },
@@ -1719,12 +1713,11 @@
       "id": "bc-154-maximum-swap",
       "title": "Maximum Swap",
       "entryFunction": "maximumSwap",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (6:38)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 12,
+      "uiSteps": 11,
       "patternName": "Greedy",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 155,
@@ -1863,12 +1856,11 @@
       "id": "bc-167-ones-and-zeroes",
       "title": "Ones and Zeroes",
       "entryFunction": "findMaxForm",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (21:24)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 32,
+      "uiSteps": 32,
       "patternName": "Dynamic Programming",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 168,
@@ -1996,8 +1988,8 @@
       "id": "bc-179-parsing-a-boolean-expression",
       "title": "Parsing a Boolean Expression",
       "entryFunction": "parseBoolExpr",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (11:20)",
+      "status": "heavy",
+      "error": "Max steps exceeded",
       "rawTraceSteps": 0,
       "uiSteps": 0,
       "patternName": "Dynamic Programming",
@@ -2041,12 +2033,11 @@
       "id": "bc-183-unique-paths-ii",
       "title": "Unique Paths II",
       "entryFunction": "uniquePathsWithObstacles",
-      "status": "error",
-      "error": "Unexpected token (26:51)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 47,
+      "uiSteps": 46,
       "patternName": "Dynamic Programming",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 184,
@@ -2119,12 +2110,11 @@
       "id": "bc-190-day-of-the-week",
       "title": "Day of the Week",
       "entryFunction": "dayOfTheWeek",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (8:19)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 12,
+      "uiSteps": 12,
       "patternName": "Math",
-      "structures": ""
+      "structures": "array"
     },
     {
       "num": 191,
@@ -2240,10 +2230,10 @@
       "num": 201,
       "id": "bc-201-permutation-sequence",
       "title": "Permutation Sequence",
-      "entryFunction": "solve",
+      "entryFunction": "getPermutation",
       "status": "ok",
-      "rawTraceSteps": 10,
-      "uiSteps": 10,
+      "rawTraceSteps": 16,
+      "uiSteps": 16,
       "patternName": "Math",
       "structures": "array"
     },
@@ -2351,12 +2341,11 @@
       "id": "bc-211-longest-duplicate-substring",
       "title": "Longest Duplicate Substring",
       "entryFunction": "longestDupSubstring",
-      "status": "error",
-      "error": "Expecting Unicode escape sequence \\uXXXX. (60:27)",
-      "rawTraceSteps": 0,
-      "uiSteps": 0,
+      "status": "ok",
+      "rawTraceSteps": 17,
+      "uiSteps": 16,
       "patternName": "Miscellaneous",
-      "structures": ""
+      "structures": "array"
     }
   ]
 }

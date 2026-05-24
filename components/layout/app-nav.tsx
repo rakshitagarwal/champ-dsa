@@ -4,14 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  Briefcase,
   Code2,
-  Table2,
   FileText,
   Map,
   Moon,
   PenLine,
   Sun,
-  BarChart3,
+  Table2,
+  UserRoundSearch,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,11 @@ const learnLinks = [
 const recapLinks = [
   { href: "/patterns", label: "Pattern recap", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
+] as const;
+
+const hireLinks = [
+  { href: "/jobs", label: "Find jobs", icon: Briefcase },
+  { href: "/jobs/resume", label: "Resume review", icon: UserRoundSearch },
 ] as const;
 
 export function AppNav() {
@@ -74,14 +80,17 @@ export function AppNav() {
             </Link>
           ))}
 
-          <Link
-            href="/progress"
-            className={cn(linkClass("/progress"), "ml-auto lg:ml-0")}
-            title="Progress"
-          >
-            <BarChart3 className="h-4 w-4 shrink-0" />
-            <span className="hidden xl:inline">Progress</span>
-          </Link>
+          <span className="mx-1 hidden h-5 w-px shrink-0 bg-border lg:block" />
+
+          <span className="hidden shrink-0 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground lg:inline">
+            Get hired
+          </span>
+          {hireLinks.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className={linkClass(href)}>
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">{label}</span>
+            </Link>
+          ))}
         </nav>
 
         <Button
