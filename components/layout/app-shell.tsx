@@ -14,6 +14,13 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   const width = useViewportWidth();
   const [ready, setReady] = useState(false);
 
+  const selfScrollRoute =
+    pathname.startsWith("/notes") ||
+    pathname.startsWith("/practice") ||
+    pathname.startsWith("/compiler") ||
+    pathname.startsWith("/visualizer") ||
+    pathname.startsWith("/jobs");
+
   useEffect(() => {
     if (searchParams.get("desktop") === "1") {
       skipViewportGate();
@@ -32,12 +39,18 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
   const allowed = isRouteAllowed(pathname, width);
 
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col">
       {allowed ? <AppNav /> : <MinimalNav />}
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+      <main
+        className={
+          selfScrollRoute
+            ? "flex min-h-0 flex-1 flex-col overflow-hidden"
+            : "flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto"
+        }
+      >
         {allowed ? children : <DesktopRequired width={width} />}
       </main>
-    </>
+    </div>
   );
 }
 

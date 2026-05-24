@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { NoteDocument } from "@/types/notes";
 import { extractH2Headings, parseMarkdown } from "@/lib/notes/parse-markdown";
+import { cn } from "@/lib/utils";
 
 const proseClass = "note-prose mt-8 space-y-4";
 
@@ -10,8 +11,13 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
   const headings = extractH2Headings(body);
 
   return (
-    <div className="flex h-full min-h-0 w-full">
-      <article className="note-document min-h-0 min-w-0 flex-1 overflow-y-auto">
+    <>
+      <article
+        className={cn(
+          "note-document scrollbar-hide h-full min-h-0 overflow-y-auto overscroll-contain",
+          headings.length > 0 && "lg:pr-52",
+        )}
+      >
         <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
           <header className="space-y-3 border-b border-border pb-6">
             <Link
@@ -35,13 +41,13 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
       {headings.length > 0 ? (
         <aside
           aria-label="On this page"
-          className="hidden h-full w-52 shrink-0 border-l border-border bg-panel/30 lg:block"
+          className="fixed right-0 top-14 z-30 hidden h-[calc(100dvh-3.5rem)] w-52 flex-col overflow-hidden border-l border-border bg-panel/30 lg:flex"
         >
-          <nav className="flex h-full flex-col px-4 py-8">
+          <nav className="flex h-full flex-col overflow-hidden px-4 py-8">
             <p className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               On this page
             </p>
-            <ul className="mt-3 min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain border-l border-border pl-3 [scrollbar-width:thin]">
+            <ul className="scrollbar-hide mt-3 min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain border-l border-border pl-3">
               {headings.map((h) => (
                 <li key={h.id}>
                   <a
@@ -56,6 +62,6 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
           </nav>
         </aside>
       ) : null}
-    </div>
+    </>
   );
 }

@@ -83,6 +83,15 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Notes & pattern lesson prose ── */
 .note-prose {
   font-size: 15px;

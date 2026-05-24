@@ -16,7 +16,7 @@ export function NotesSidebar({ notes, className }: Props) {
   return (
     <aside
       className={cn(
-        "flex h-full w-56 shrink-0 flex-col overflow-hidden border-r border-border bg-panel/50",
+        "fixed left-0 top-14 z-30 hidden h-[calc(100dvh-3.5rem)] w-56 flex-col overflow-hidden border-r border-border bg-panel/50 lg:flex",
         className,
       )}
     >
@@ -36,7 +36,7 @@ export function NotesSidebar({ notes, className }: Props) {
           One page per topic — add a .md file to grow the list
         </p>
       </div>
-      <nav className="shrink-0 px-2 py-3">
+      <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 scrollbar-hide">
         <ul className="space-y-0.5">
           {notes.map((note) => {
             const href = `/notes/${note.slug}`;
