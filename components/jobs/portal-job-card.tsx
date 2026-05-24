@@ -7,6 +7,8 @@ import type { PortalLink } from "@/types/job-search";
 const PORTAL_COLORS: Record<string, string> = {
   naukri: "bg-[#4A90D9]/10 text-[#2563EB]",
   indeed: "bg-[#2164F3]/10 text-[#2164F3]",
+  foundit: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+  shine: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
   instahyre: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   wellfound: "bg-black/10 text-foreground",
   hirist: "bg-violet-500/10 text-violet-600 dark:text-violet-400",

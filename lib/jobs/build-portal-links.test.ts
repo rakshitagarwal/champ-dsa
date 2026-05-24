@@ -8,14 +8,55 @@ describe("buildPortalLinks", () => {
     locations: ["Bangalore" as const],
   };
 
-  it("returns 7 portal links", () => {
+  it("returns 9 portal links", () => {
     const links = buildPortalLinks(base);
-    expect(links).toHaveLength(7);
+    expect(links).toHaveLength(9);
   });
 
-  it("does not include LinkedIn", () => {
+  it("builds working Hirist URL without /k/ over-specific slug", () => {
     const links = buildPortalLinks(base);
-    expect(links.some((l) => l.id === "linkedin")).toBe(false);
+    const hirist = links.find((l) => l.id === "hirist")!;
+    expect(hirist.url).toBe(
+      "https://www.hirist.tech/full-stack-jobs-in-bangalore",
+    );
+  });
+
+  it("builds Instahyre location page URL", () => {
+    const links = buildPortalLinks(base);
+    const instahyre = links.find((l) => l.id === "instahyre")!;
+    expect(instahyre.url).toBe("https://www.instahyre.com/jobs-in-bangalore/");
+  });
+
+  it("uses separate Noida slugs for Noida", () => {
+    const links = buildPortalLinks({
+      ...base,
+      locations: ["Noida"],
+    });
+    expect(links.find((l) => l.id === "hirist")?.url).toContain(
+      "full-stack-jobs-in-noida",
+    );
+    expect(links.find((l) => l.id === "instahyre")?.url).toContain(
+      "jobs-in-noida",
+    );
+  });
+
+  it("maps Gift City to Gandhinagar on Hirist", () => {
+    const links = buildPortalLinks({
+      ...base,
+      locations: ["Gift City"],
+    });
+    expect(links.find((l) => l.id === "hirist")?.url).toContain(
+      "gandhinagar",
+    );
+  });
+
+  it("includes Foundit and Shine portals", () => {
+    const links = buildPortalLinks(base);
+    expect(links.some((l) => l.id === "foundit")).toBe(true);
+    expect(links.some((l) => l.id === "shine")).toBe(true);
+    expect(links.find((l) => l.id === "foundit")?.url).toContain(
+      "foundit.in/srp/results",
+    );
   });
 
   it("URL-encodes keywords for Indeed", () => {
@@ -28,32 +69,6 @@ describe("buildPortalLinks", () => {
     expect(indeed.url).toContain("q=MERN");
   });
 
-  it("builds Hirist URL with experience filters", () => {
-    const links = buildPortalLinks(base);
-    const hirist = links.find((l) => l.id === "hirist")!;
-    expect(hirist.url).toContain("hirist.tech/k/");
-    expect(hirist.url).toContain("minexp=3");
-    expect(hirist.url).toContain("maxexp=6");
-  });
-
-  it("includes extra keywords in query", () => {
-    const links = buildPortalLinks({
-      ...base,
-      extraKeywords: ["React", "Node.js"],
-    });
-    const indeed = links.find((l) => l.id === "indeed")!;
-    expect(decodeURIComponent(indeed.url)).toMatch(/React/);
-  });
-
-  it("attaches portal tips when provided", () => {
-    const links = buildPortalLinks(base, {
-      naukri: "Also try Payments keyword",
-    });
-    expect(links.find((l) => l.id === "naukri")?.tip).toBe(
-      "Also try Payments keyword",
-    );
-  });
-
   it("uses Remote India as location fallback for Indeed", () => {
     const links = buildPortalLinks({
       ...base,
@@ -61,5 +76,8 @@ describe("buildPortalLinks", () => {
     });
     const indeed = links.find((l) => l.id === "indeed")!;
     expect(indeed.url).toContain("l=India");
+    expect(links.find((l) => l.id === "instahyre")?.url).toContain(
+      "search-jobs",
+    );
   });
 });

@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 type Props = {
   selected: JobLocation[];
   onChange: (locations: JobLocation[]) => void;
+  className?: string;
 };
 
-export function LocationChips({ selected, onChange }: Props) {
+export function LocationChips({ selected, onChange, className }: Props) {
   const toggle = (loc: JobLocation) => {
     if (selected.includes(loc)) {
       onChange(selected.filter((l) => l !== loc));
@@ -18,7 +19,13 @@ export function LocationChips({ selected, onChange }: Props) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div
+      className={cn(
+        "max-h-40 overflow-y-auto overscroll-contain pr-1",
+        className,
+      )}
+    >
+      <div className="flex flex-wrap gap-2">
       {JOB_LOCATIONS.map((loc) => {
         const active = selected.includes(loc);
         return (
@@ -37,6 +44,7 @@ export function LocationChips({ selected, onChange }: Props) {
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -176,9 +176,9 @@ export default function FindJobsPage() {
       <header className="max-w-3xl">
         <h1 className="text-3xl font-bold tracking-tight">Job search</h1>
         <p className="mt-3 text-muted-foreground">
-          Search across trusted India job portals — Naukri, Indeed, Instahyre,
-          Wellfound, Hirist, Uplers, and Weekday — in one click. You apply on
-          the original site. Optional resume upload improves search keywords via
+          Search Naukri, Indeed, Foundit, Shine, Instahyre, Hirist, Wellfound,
+          Uplers, and Weekday in one click. Links use each portal&apos;s native
+          URL format for your city. Optional resume upload improves keywords via
           Groq.
         </p>
       </header>
@@ -218,7 +218,14 @@ export default function FindJobsPage() {
 
           <div>
             <p className="text-sm font-medium">Locations</p>
-            <LocationChips selected={locations} onChange={setLocations} />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Pick one or more — Delhi, Noida, and Gurgaon are separate.
+            </p>
+            <LocationChips
+              className="mt-2"
+              selected={locations}
+              onChange={setLocations}
+            />
           </div>
 
           <PortalFavorites
@@ -258,7 +265,20 @@ export default function FindJobsPage() {
           ) : null}
         </aside>
 
-        <section className="space-y-4">
+        <section className="relative min-h-[280px] space-y-4">
+          {loading ? (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-background/80 backdrop-blur-sm">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">
+                Building portal links
+                {resumeText && resumeText.length >= 200
+                  ? " and extracting resume keywords"
+                  : ""}
+                …
+              </p>
+            </div>
+          ) : null}
+
           {keywords ? (
             <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
               <p className="font-medium text-primary">Resume keywords</p>

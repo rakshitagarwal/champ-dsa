@@ -7,11 +7,23 @@ export const EXPERIENCE_LEVELS = [
 
 export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 
+/** Metro and emerging hubs — Delhi NCR cities are listed separately. */
 export const JOB_LOCATIONS = [
   "Bangalore",
   "Hyderabad",
   "Pune",
-  "Delhi NCR",
+  "Mumbai",
+  "Chennai",
+  "Delhi",
+  "Noida",
+  "Gurgaon",
+  "Ahmedabad",
+  "Gift City",
+  "Kolkata",
+  "Chandigarh",
+  "Jaipur",
+  "Kochi",
+  "Indore",
   "Remote India",
 ] as const;
 

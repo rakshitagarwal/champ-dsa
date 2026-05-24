@@ -10,6 +10,8 @@ Return ONLY valid JSON:
   "portalTips": {
     "naukri": string (one tip, max 20 words),
     "indeed": string,
+    "foundit": string,
+    "shine": string,
     "instahyre": string,
     "wellfound": string,
     "hirist": string,

@@ -4,10 +4,18 @@ import type {
   JobSearchInput,
   PortalLink,
 } from "@/types/job-search";
+import { toHiristKeyword } from "@/lib/jobs/hirist-keyword";
+import {
+  getPortalLocations,
+  pickPrimaryLocation,
+  slugifySegment,
+} from "@/lib/jobs/portal-locations";
 
 export const PORTAL_IDS = [
   "naukri",
   "indeed",
+  "foundit",
+  "shine",
   "instahyre",
   "wellfound",
   "hirist",
@@ -20,6 +28,8 @@ export type PortalId = (typeof PORTAL_IDS)[number];
 export const PORTAL_LABELS: Record<PortalId, string> = {
   naukri: "Naukri",
   indeed: "Indeed",
+  foundit: "Foundit",
+  shine: "Shine",
   instahyre: "Instahyre",
   wellfound: "Wellfound",
   hirist: "Hirist",
@@ -27,7 +37,6 @@ export const PORTAL_LABELS: Record<PortalId, string> = {
   weekday: "Weekday",
 };
 
-/** Naukri experience range codes (approximate) */
 function naukriExperienceParam(level: ExperienceLevel): string {
   switch (level) {
     case "Fresher":
@@ -41,40 +50,6 @@ function naukriExperienceParam(level: ExperienceLevel): string {
   }
 }
 
-/** Hirist minexp/maxexp query params */
-function hiristExperienceParams(level: ExperienceLevel): {
-  minexp: string;
-  maxexp: string;
-} {
-  switch (level) {
-    case "Fresher":
-      return { minexp: "0", maxexp: "1" };
-    case "1–3 years":
-      return { minexp: "1", maxexp: "3" };
-    case "3–6 years":
-      return { minexp: "3", maxexp: "6" };
-    case "6+ years":
-      return { minexp: "6", maxexp: "15" };
-  }
-}
-
-function keywordSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-function primaryLocation(locations: JobLocation[]): string {
-  if (locations.includes("Remote India") && locations.length === 1) {
-    return "India";
-  }
-  const onSite = locations.filter((l) => l !== "Remote India");
-  return onSite[0] ?? "Bangalore";
-}
-
 function buildKeywordQuery(input: JobSearchInput): string {
   const parts = [input.jobTitle.trim()];
   if (input.extraKeywords?.length) {
@@ -86,9 +61,35 @@ function buildKeywordQuery(input: JobSearchInput): string {
 function querySummary(input: JobSearchInput): string {
   const loc =
     input.locations.length > 0
-      ? input.locations.slice(0, 2).join(", ")
+      ? input.locations.slice(0, 3).join(", ")
       : "India";
   return `${input.jobTitle} · ${input.experienceLevel} · ${loc}`;
+}
+
+function buildInstahyreUrl(loc: ReturnType<typeof getPortalLocations>): string {
+  if (loc.instahyre === "remote") {
+    return "https://www.instahyre.com/search-jobs/";
+  }
+  return `https://www.instahyre.com/jobs-in-${loc.instahyre}/`;
+}
+
+function buildHiristUrl(
+  jobTitle: string,
+  loc: ReturnType<typeof getPortalLocations>,
+): string {
+  const keyword = toHiristKeyword(jobTitle);
+  if (loc.hirist === "india") {
+    return `https://www.hirist.tech/k/${keyword}-jobs`;
+  }
+  return `https://www.hirist.tech/${keyword}-jobs-in-${loc.hirist}`;
+}
+
+function buildShineUrl(keyword: string, loc: ReturnType<typeof getPortalLocations>): string {
+  const slug = slugifySegment(keyword);
+  if (loc.shine === "all-india") {
+    return `https://www.shine.com/job-search/${slug}-jobs`;
+  }
+  return `https://www.shine.com/job-search/${slug}-jobs-in-${loc.shine}`;
 }
 
 export function buildPortalLinks(
@@ -96,48 +97,62 @@ export function buildPortalLinks(
   tips?: Record<string, string>,
 ): PortalLink[] {
   const keyword = buildKeywordQuery(input);
-  const location = primaryLocation(input.locations);
+  const primary = pickPrimaryLocation(input.locations);
+  const loc = getPortalLocations(primary);
   const summary = querySummary(input);
   const encodedKeyword = encodeURIComponent(keyword);
-  const encodedLocation = encodeURIComponent(location);
-  const slug = keywordSlug(keyword);
+  const titleSlug = slugifySegment(input.jobTitle);
+  const hiristKeyword = toHiristKeyword(input.jobTitle);
   const naukriExp = naukriExperienceParam(input.experienceLevel);
-  const hiristExp = hiristExperienceParams(input.experienceLevel);
 
   const portals: Omit<PortalLink, "tip">[] = [
     {
       id: "naukri",
       name: "Naukri",
       description: "India's largest job portal for IT and product roles.",
-      url: `https://www.naukri.com/${encodeURIComponent(keyword.replace(/\s+/g, "-").toLowerCase())}-jobs-in-${encodeURIComponent(location.replace(/\s+/g, "-").toLowerCase())}?experience=${naukriExp}`,
+      url: `https://www.naukri.com/${titleSlug}-jobs-in-${loc.naukri}?experience=${naukriExp}`,
       querySummary: summary,
     },
     {
       id: "indeed",
       name: "Indeed India",
       description: "Broad listings across companies and consultancies.",
-      url: `https://in.indeed.com/jobs?q=${encodedKeyword}&l=${encodedLocation}`,
+      url: `https://in.indeed.com/jobs?q=${encodedKeyword}&l=${encodeURIComponent(loc.indeed)}`,
+      querySummary: summary,
+    },
+    {
+      id: "foundit",
+      name: "Foundit",
+      description: "Formerly Monster India — large IT and enterprise listings.",
+      url: `https://www.foundit.in/srp/results?query=${encodedKeyword}&locations=${encodeURIComponent(loc.foundit)}`,
+      querySummary: summary,
+    },
+    {
+      id: "shine",
+      name: "Shine",
+      description: "Popular India job board for tech and corporate roles.",
+      url: buildShineUrl(keyword, loc),
       querySummary: summary,
     },
     {
       id: "instahyre",
       name: "Instahyre",
-      description: "Curated startup and product-company roles.",
-      url: `https://www.instahyre.com/search/jobs/?query=${encodedKeyword}`,
+      description: `Curated startup roles${primary !== "Remote India" ? ` in ${primary}` : ""}. Filter skills on site.`,
+      url: buildInstahyreUrl(loc),
       querySummary: summary,
     },
     {
       id: "wellfound",
       name: "Wellfound",
       description: "Startup jobs — fintech, SaaS, and early-stage teams.",
-      url: `https://wellfound.com/jobs?search=${encodedKeyword}&locations[]=${encodedLocation}`,
+      url: `https://wellfound.com/jobs?search=${encodedKeyword}&locations[]=${encodeURIComponent(loc.wellfound)}`,
       querySummary: summary,
     },
     {
       id: "hirist",
       name: "Hirist",
-      description: "Premium handpicked tech roles from product companies.",
-      url: `https://www.hirist.tech/k/${slug}-jobs?minexp=${hiristExp.minexp}&maxexp=${hiristExp.maxexp}`,
+      description: `Handpicked tech roles${primary !== "Remote India" ? ` in ${primary}` : ""}.`,
+      url: buildHiristUrl(input.jobTitle, loc),
       querySummary: summary,
     },
     {
@@ -151,8 +166,8 @@ export function buildPortalLinks(
       id: "weekday",
       name: "Weekday",
       description: "Curated high-growth startup jobs with AI-assisted apply.",
-      url: slug
-        ? `https://www.weekday.works/jobs/${slug}-jobs`
+      url: hiristKeyword
+        ? `https://www.weekday.works/jobs/${hiristKeyword}-jobs`
         : "https://jobs.weekday.works/?jobsTab=search",
       querySummary: summary,
     },

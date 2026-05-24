@@ -1,4 +1,8 @@
-import type { ExperienceLevel, JobLocation } from "@/types/job-search";
+import {
+  JOB_LOCATIONS,
+  type ExperienceLevel,
+  type JobLocation,
+} from "@/types/job-search";
 
 const PREFS_KEY = "champdsa-job-search-prefs";
 const FAVORITES_KEY = "champdsa-portal-favorites";
@@ -37,8 +41,30 @@ function writeJson(key: string, value: unknown) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+const LEGACY_LOCATION_MAP: Record<string, JobLocation> = {
+  "Delhi NCR": "Delhi",
+};
+
+export function sanitizeJobLocations(
+  locations: string[] | JobLocation[],
+): JobLocation[] {
+  const allowed = new Set<string>(JOB_LOCATIONS);
+  const out: JobLocation[] = [];
+  for (const raw of locations) {
+    const mapped = LEGACY_LOCATION_MAP[raw] ?? raw;
+    if (allowed.has(mapped) && !out.includes(mapped as JobLocation)) {
+      out.push(mapped as JobLocation);
+    }
+  }
+  return out;
+}
+
 export function loadJobSearchPrefs(): JobSearchPrefs | null {
-  return readJson<JobSearchPrefs>(PREFS_KEY);
+  const prefs = readJson<JobSearchPrefs>(PREFS_KEY);
+  if (!prefs) return null;
+  const locations = sanitizeJobLocations(prefs.locations);
+  if (locations.length === 0) return null;
+  return { ...prefs, locations };
 }
 
 export function saveJobSearchPrefs(prefs: JobSearchPrefs) {
