@@ -17,12 +17,27 @@ export function Accordion({
   children,
   className,
   defaultOpen,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   children: React.ReactNode;
   className?: string;
   defaultOpen?: string | null;
+  open?: string | null;
+  onOpenChange?: (id: string | null) => void;
 }) {
-  const [open, setOpen] = React.useState<string | null>(defaultOpen ?? null);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState<string | null>(
+    defaultOpen ?? null,
+  );
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = React.useCallback(
+    (id: string | null) => {
+      if (!isControlled) setUncontrolledOpen(id);
+      onOpenChange?.(id);
+    },
+    [isControlled, onOpenChange],
+  );
   return (
     <AccordionContext.Provider value={{ open, setOpen }}>
       <div className={cn("space-y-2", className)}>{children}</div>
@@ -41,8 +56,9 @@ export function AccordionItem({
 }) {
   return (
     <div
+      id={id}
       className={cn(
-        "overflow-hidden rounded-xl border border-border bg-card",
+        "scroll-mt-24 overflow-hidden rounded-xl border border-border bg-card",
         className,
       )}
     >

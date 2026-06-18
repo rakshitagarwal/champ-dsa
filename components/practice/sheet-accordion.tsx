@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
 import { sheetSections } from "@/data/questions/sheet-meta";
 import { getQuestionById, getSheetQuestions } from "@/data/questions";
 import { stripSheetSectionNumber } from "@/lib/sheet-display";
+import {
+  loadPracticeExpandedSub,
+  findSubsectionIdForQuestion,
+  savePracticeExpandedSub,
+  scrollPracticeSubsectionIntoView,
+} from "@/lib/storage/practice-list-state";
 import {
   Accordion,
   AccordionContent,
@@ -14,8 +21,38 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
+function sectionOpenForSub(
+  section: (typeof sheetSections)[number],
+  expandedSubId: string | null,
+): string | null {
+  if (!expandedSubId) return null;
+  return section.subsections.some((sub) => sub.id === expandedSubId)
+    ? expandedSubId
+    : null;
+}
+
+function onQuestionNavigate(questionId: string) {
+  const subsectionId = findSubsectionIdForQuestion(questionId);
+  if (subsectionId) savePracticeExpandedSub(subsectionId);
+}
+
 export function SheetAccordion() {
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
+  const [expandedSubId, setExpandedSubId] = useState<string | null>(() =>
+    loadPracticeExpandedSub(),
+  );
+
+  useEffect(() => {
+    if (pathname !== "/practice") return;
+    const saved = loadPracticeExpandedSub();
+    if (!saved) return;
+    setExpandedSubId(saved);
+    const frame = requestAnimationFrame(() => {
+      scrollPracticeSubsectionIntoView(saved);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -58,6 +95,7 @@ export function SheetAccordion() {
               <li key={q.id}>
                 <Link
                   href={`/practice/${q.id}`}
+                  onClick={() => onQuestionNavigate(q.id)}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
                 >
                   <span className="font-medium">{q.title}</span>
@@ -76,7 +114,17 @@ export function SheetAccordion() {
               <h2 className="text-xl font-bold tracking-tight">
                 {stripSheetSectionNumber(section.title)}
               </h2>
-              <Accordion>
+              <Accordion
+                open={sectionOpenForSub(section, expandedSubId)}
+                onOpenChange={(id) => {
+                  if (id) {
+                    savePracticeExpandedSub(id);
+                    setExpandedSubId(id);
+                  } else if (expandedSubId && sectionOpenForSub(section, expandedSubId)) {
+                    setExpandedSubId(null);
+                  }
+                }}
+              >
                 {section.subsections.map((sub) => (
                   <AccordionItem key={sub.id} id={sub.id}>
                     <AccordionTrigger id={sub.id}>
@@ -96,6 +144,7 @@ export function SheetAccordion() {
                             <li key={qid}>
                               <Link
                                 href={`/practice/${qid}`}
+                                onClick={() => onQuestionNavigate(qid)}
                                 className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
                               >
                                 <span className="font-medium">{q.title}</span>
