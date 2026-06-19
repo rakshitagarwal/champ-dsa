@@ -20,7 +20,7 @@ import { compactTimeline } from "@/lib/viz/scene/compact-steps";
 import { runCode } from "@/lib/tracer/run";
 import { validateExamples } from "@/lib/run/validate-examples";
 import { getFirstTwoRunExamples } from "@/lib/questions/run-examples";
-import { getManualTracerMeta } from "@/lib/tracer/manual/registry";
+import { solutionCodeForStarter } from "@/lib/questions/wrap-solution-code";
 import { markVisualizerUsed } from "@/lib/onboarding/checklist";
 import { recordQuestionAttempt } from "@/lib/storage/learning-store";
 
@@ -352,8 +352,13 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   revealSolution: () => {
     const { questionContext } = get();
     if (!questionContext) return;
+    const code = solutionCodeForStarter(
+      questionContext.starterCode,
+      questionContext.solutionCode,
+      questionContext.entryFunction,
+    );
     set({
-      code: questionContext.solutionCode,
+      code,
       questionContext: { ...questionContext, solutionRevealed: true },
       ...clearRunState(),
     });
@@ -362,48 +367,24 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     const { questionContext, problemHumanInput, stdinLocked, stdin } = get();
     if (!questionContext?.solutionCode) return;
 
+    const code = solutionCodeForStarter(
+      questionContext.starterCode,
+      questionContext.solutionCode,
+      questionContext.entryFunction,
+    );
+
     set({
-      code: questionContext.solutionCode,
+      code,
       questionContext: { ...questionContext, solutionRevealed: true },
       stdin: stdinLocked ? stdin : (problemHumanInput ?? stdin),
       ...clearRunState(),
       solutionFilled: true,
     });
 
-    await get().run();
-
-    const state = get();
-    const { trace, patternName, patternSlug } = state;
-    const sampleRaw = state.problemHumanInput ?? state.stdin;
-    const manualMeta = getManualTracerMeta(
-      questionContext.questionId,
-      patternSlug,
-    );
-
-    const profile = trace ? buildDefaultVizProfile(trace, patternName) : null;
-    const playbackSteps = buildPlaybackTimeline({
-      trace,
-      profile,
-      curated: true,
-      questionId: questionContext.questionId,
-      patternSlug,
-      sampleRaw,
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
-    const timeline = playbackStepsToCompat(playbackSteps);
-    set({
-      vizProfile: profile,
-      vizProfileSource: "fallback",
-      vizSetupLoading: false,
-      stepIndex: 0,
-      traceStepIndex: 0,
-      isTracePlaying: false,
-      playbackSteps,
-      traceCode: manualMeta?.traceCode ?? questionContext.solutionCode,
-      playerMode: playbackSteps.length > 0 ? "trace" : "scene",
-      aiAnimationMode: "trace",
-      solutionExplanationVisible: false,
-      ...timeline,
-    });
+    get().formatCode();
   },
   advanceAiHint: () => {
     const level = get().aiHintLevel;

@@ -79,8 +79,9 @@ export function VizPanel({ layout = "viewport" }: Props) {
               <>No saved explanation for this problem yet.</>
             ) : solutionFilled ? (
               <>
-                Click <strong className="text-foreground">Explain</strong> to
-                open a walkthrough of the reference solution and pattern.
+                Click <strong className="text-foreground">Run</strong> to test
+                your code, or <strong className="text-foreground">Explain</strong>{" "}
+                for a walkthrough of the reference solution.
               </>
             ) : (
               <>

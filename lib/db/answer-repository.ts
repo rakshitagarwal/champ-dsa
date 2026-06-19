@@ -9,6 +9,11 @@ export type Answer = Omit<AnswerDocument, "createdAt" | "updatedAt"> & {
   updatedAt: string;
 };
 
+export type ReferenceAnswerInput = {
+  questionId: string;
+  code: string;
+};
+
 function toAnswer(doc: AnswerDocument & { _id: { toString(): string } }): Answer {
   return {
     id: doc._id.toString(),
@@ -17,6 +22,7 @@ function toAnswer(doc: AnswerDocument & { _id: { toString(): string } }): Answer
     passed: doc.passed,
     language: doc.language,
     notes: doc.notes,
+    source: doc.source,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
@@ -46,6 +52,7 @@ export async function createAnswer(input: CreateAnswerInput): Promise<Answer> {
     passed: input.passed ?? false,
     language: input.language ?? "javascript",
     notes: input.notes,
+    source: input.source ?? "user",
     createdAt: now,
     updatedAt: now,
   };
@@ -64,4 +71,35 @@ export async function findLatestAnswer(
 ): Promise<Answer | null> {
   const answers = await listAnswersForQuestion(questionId);
   return answers[0] ?? null;
+}
+
+export async function upsertReferenceAnswers(
+  answers: ReferenceAnswerInput[],
+): Promise<number> {
+  await ensureIndexes();
+  const db = await getDb();
+  const now = new Date();
+  const ops = answers.map((answer) => ({
+    updateOne: {
+      filter: { questionId: answer.questionId, source: "reference" as const },
+      update: {
+        $set: {
+          questionId: answer.questionId,
+          code: answer.code,
+          passed: true,
+          language: "javascript" as const,
+          source: "reference" as const,
+          notes: "Synced reference solution",
+          updatedAt: now,
+        },
+        $setOnInsert: { createdAt: now },
+      },
+      upsert: true,
+    },
+  }));
+  if (ops.length === 0) return 0;
+  const result = await db
+    .collection<AnswerDocument>(COLLECTIONS.answers)
+    .bulkWrite(ops, { ordered: false });
+  return result.upsertedCount + result.modifiedCount + result.matchedCount;
 }

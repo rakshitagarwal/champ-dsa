@@ -1,6 +1,6 @@
 "use client";
 
-import { AlignLeft, FileCode2, Sparkles, Zap } from "lucide-react";
+import { AlignLeft, FileCode2, RotateCcw, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVisualizerStore } from "@/lib/playback/visualizer-store";
 import { AiHintButton } from "./ai-hint-button";
@@ -10,15 +10,17 @@ export function EditorActionBar() {
   const isRunning = useVisualizerStore((s) => s.isRunning);
   const run = useVisualizerStore((s) => s.run);
   const fillSolution = useVisualizerStore((s) => s.fillSolution);
+  const resetToStarter = useVisualizerStore((s) => s.resetToStarter);
   const formatCode = useVisualizerStore((s) => s.formatCode);
   const questionContext = useVisualizerStore((s) => s.questionContext);
+  const solutionFilled = useVisualizerStore((s) => s.solutionFilled);
   const canOpenExplain = useVisualizerStore((s) => s.canOpenExplain);
   const showSolutionExplanation = useVisualizerStore(
     (s) => s.showSolutionExplanation,
   );
 
-  const showFill = !!questionContext?.solutionCode;
-  const showExplain = canOpenExplain();
+  const showFill = !!questionContext?.solutionCode && !solutionFilled;
+  const showReset = !!questionContext;
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-panel px-3 py-2">
@@ -26,6 +28,18 @@ export function EditorActionBar() {
         Your solution
       </p>
       <div className="flex flex-wrap items-center gap-2">
+        {showReset ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetToStarter}
+            disabled={isRunning}
+            className="gap-1.5"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </Button>
+        ) : null}
         <Button
           size="sm"
           onClick={() => run()}
@@ -47,7 +61,7 @@ export function EditorActionBar() {
             {isRunning ? "Loading…" : "Fill Solution"}
           </Button>
         ) : null}
-        {showExplain ? (
+        {canOpenExplain() ? (
           <Button
             size="sm"
             variant="default"

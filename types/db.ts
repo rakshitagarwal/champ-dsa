@@ -5,12 +5,15 @@ export type QuestionDocument = Question & {
   updatedAt: Date;
 };
 
+export type AnswerSource = "reference" | "user";
+
 export type AnswerDocument = {
   questionId: string;
   code: string;
   passed: boolean;
   language?: "javascript";
   notes?: string;
+  source?: AnswerSource;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -28,4 +31,5 @@ export type CreateAnswerInput = {
   passed?: boolean;
   language?: "javascript";
   notes?: string;
+  source?: AnswerSource;
 };

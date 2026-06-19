@@ -13,7 +13,7 @@ async function main() {
   const { syncQuestionsAndAnswers } = await import("@/lib/db/sync");
   const result = await syncQuestionsAndAnswers();
   console.log(
-    `Seeded ${result.questions} questions and ${result.answers} reference answers into MongoDB.`,
+    `Synced ${result.questions} questions and ${result.answers} reference answers into MongoDB.`,
   );
   process.exit(0);
 }

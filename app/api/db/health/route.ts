@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isMongoConfigured } from "@/lib/db/mongodb";
-import { seedQuestionsFromStaticData } from "@/lib/db/seed";
+import { syncQuestionsAndAnswers } from "@/lib/db/sync";
 
 export async function GET() {
   if (!isMongoConfigured()) {
@@ -36,10 +36,10 @@ export async function POST() {
   }
 
   try {
-    const result = await seedQuestionsFromStaticData();
+    const result = await syncQuestionsAndAnswers();
     return NextResponse.json({
       ok: true,
-      message: `Seeded ${result.count} questions into MongoDB.`,
+      message: `Synced ${result.questions} questions and ${result.answers} reference answers into MongoDB.`,
       ...result,
     });
   } catch (err) {

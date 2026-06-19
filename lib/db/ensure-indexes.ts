@@ -13,6 +13,13 @@ export function ensureIndexes(): Promise<void> {
       await db
         .collection(COLLECTIONS.answers)
         .createIndex({ questionId: 1, createdAt: -1 });
+      await db.collection(COLLECTIONS.answers).createIndex(
+        { questionId: 1, source: 1 },
+        {
+          unique: true,
+          partialFilterExpression: { source: "reference" },
+        },
+      );
     })();
   }
   return indexesReady;
