@@ -7,7 +7,6 @@ import {
   Code2,
   FileText,
   Layers,
-  Map,
   PenLine,
   Play,
   Sparkles,
@@ -19,13 +18,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const EXPLORE = [
-  {
-    href: "/roadmap",
-    title: "Roadmap",
-    description: "Pattern order, prerequisites, and what to solve next.",
-    icon: Map,
-    accent: "from-blue-500/20 to-blue-500/5",
-  },
   {
     href: "/practice",
     title: "Practice",
@@ -75,19 +67,6 @@ const EXPLORE = [
     icon: Briefcase,
     accent: "from-primary/25 to-primary/5",
   },
-] as const;
-
-const PATTERN_CHIPS = [
-  "Two pointers",
-  "Sliding window",
-  "Prefix sum",
-  "Binary search",
-  "BFS / DFS",
-  "Backtracking",
-  "Dynamic programming",
-  "Greedy",
-  "Hashing",
-  "Stacks & queues",
 ] as const;
 
 const EXPERIENCE = [
@@ -146,7 +125,7 @@ export function MarketingLanding() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/roadmap"
+            href="/practice"
             className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-6")}
           >
             Start learning free
@@ -213,16 +192,19 @@ export function MarketingLanding() {
           </div>
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              On the roadmap
+              DSA patterns available
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {PATTERN_CHIPS.map((name) => (
-                <li key={name}>
-                  <span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">
-                    {name}
-                  </span>
-                </li>
-              ))}
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Two pointers</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Sliding window</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Prefix sum</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Binary search</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">BFS / DFS</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Backtracking</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Dynamic programming</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Greedy</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Hashing</span></li>
+              <li><span className="inline-block rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium">Stacks & queues</span></li>
             </ul>
             <p className="mt-5 text-sm text-muted-foreground">
               Each pattern links to practice problems, notes, and visual
@@ -245,7 +227,7 @@ export function MarketingLanding() {
             <StepCard
               step="1"
               title="Build skill"
-              body="Follow the roadmap, solve on the sheet, and use the visualizer when a solution clicks but the intuition does not."
+              body="Study DSA patterns, solve on the sheet, and use the visualizer when a solution clicks but the intuition does not."
               href="/practice"
               cta="Start practicing"
             />

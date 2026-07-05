@@ -20,5 +20,4 @@ export type DsaPattern = {
   difficulty?: PatternDifficulty;
   prerequisites?: string[];
   estimatedMinutes?: number;
-  roadmapOrder?: number;
 };

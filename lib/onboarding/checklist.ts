@@ -38,7 +38,7 @@ export function getOnboardingChecklist(): ChecklistItem[] {
     {
       id: "pattern",
       label: "Read one DSA pattern concept",
-      href: "/roadmap",
+      href: "/patterns",
       done: readPattern,
     },
     {

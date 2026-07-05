@@ -9,18 +9,15 @@ import {
   Flame,
   PenLine,
   Target,
-  Map,
   ArrowRight,
   Table2,
   UserRoundSearch,
 } from "lucide-react";
 import { getAllPatterns, getPatternBySlug } from "@/data/patterns";
 import { getQuestionById } from "@/data/questions";
-import { roadmapOrder, getRoadmapPrerequisites } from "@/data/roadmap";
 import {
   getDailyProgress,
   getOverallProgress,
-  getRecommendedNextPattern,
   getStreak,
   getStore,
   LEARNING_UPDATED_EVENT,
@@ -32,12 +29,10 @@ export function LearningHub() {
   const [overall, setOverall] = useState(0);
   const [streak, setStreak] = useState(0);
   const [daily, setDaily] = useState({ completed: 0, goal: 2 });
-  const [nextSlug, setNextSlug] = useState<string | null>(null);
   const [lastLabel, setLastLabel] = useState<string | null>(null);
 
   const refresh = () => {
     const byPattern = getQuestionsByPattern();
-    const slugs = roadmapOrder.map((n) => n.slug);
     setOverall(
       getOverallProgress(
         getAllPatterns().map((p) => p.slug),
@@ -46,13 +41,6 @@ export function LearningHub() {
     );
     setStreak(getStreak());
     setDaily(getDailyProgress());
-    setNextSlug(
-      getRecommendedNextPattern(
-        slugs,
-        getRoadmapPrerequisites(),
-        byPattern,
-      ),
-    );
     const last = getStore().profile.lastVisited;
     if (!last) {
       setLastLabel(null);
@@ -72,8 +60,6 @@ export function LearningHub() {
     window.addEventListener(LEARNING_UPDATED_EVENT, refresh);
     return () => window.removeEventListener(LEARNING_UPDATED_EVENT, refresh);
   }, []);
-
-  const nextPattern = nextSlug ? getPatternBySlug(nextSlug) : null;
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-12">
@@ -107,16 +93,9 @@ export function LearningHub() {
       <section className="rounded-xl border border-border bg-card p-5">
         <h2 className="font-semibold">Continue learning DSA</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Main path: roadmap → patterns → solve problems and review explanations
+          Study patterns, solve problems, and review explanations.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link
-            href="/roadmap"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Map className="h-4 w-4" />
-            Learning roadmap
-          </Link>
           {lastLabel && (
             <Link
               href={
@@ -126,21 +105,19 @@ export function LearningHub() {
                     ? `/patterns/${getStore().profile.lastVisited?.slugOrId}`
                     : "/cheatsheet"
               }
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Resume: {lastLabel}
               <ArrowRight className="h-4 w-4" />
             </Link>
           )}
-          {nextPattern && (
-            <Link
-              href={`/patterns/${nextPattern.slug}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
-            >
-              Next pattern: {nextPattern.name}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          )}
+          <Link
+            href="/patterns"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
+          >
+            <BookOpen className="h-4 w-4" />
+            DSA patterns
+          </Link>
           <Link
             href="/practice"
             className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"

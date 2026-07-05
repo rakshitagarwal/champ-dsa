@@ -7,7 +7,6 @@ import {
   Briefcase,
   Code2,
   FileText,
-  Map,
   Moon,
   PenLine,
   Sun,
@@ -20,10 +19,9 @@ import { cn } from "@/lib/utils";
 const navLinks: {
   href: string;
   label: string;
-  icon: typeof Map;
+  icon: typeof PenLine;
   exact?: boolean;
 }[] = [
-  { href: "/roadmap", label: "Roadmap", icon: Map },
   { href: "/practice", label: "Solve", icon: PenLine },
   { href: "/cheatsheet", label: "Cheatsheet", icon: Table2 },
   { href: "/compiler", label: "Compiler", icon: Code2 },
