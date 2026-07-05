@@ -1,27 +1,17 @@
-import Link from "next/link";
-import { PatternStats } from "@/components/bank/pattern-stats";
-import { PatternList } from "@/components/learn/pattern-list";
+import { redirect } from "next/navigation";
+import { getAllPatterns } from "@/data/patterns";
 
 export default function PatternsPage() {
-  return (
-    <div className="w-full space-y-8 px-4 py-8 lg:px-10">
-      <header className="max-w-4xl">
-        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
-          Learn DSA patterns
-        </h1>
-        <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Structured lessons with clear overviews, when to use each technique,
-          step-by-step approaches, and reference code — similar to visual
-          interview prep guides. Practice on the{" "}
-          <Link href="/practice" className="font-medium text-primary hover:underline">
-            practice sheet
-          </Link>
-          .
+  const patterns = getAllPatterns();
+  if (patterns.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+        <h1 className="text-xl font-semibold">DSA Patterns</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No patterns available yet.
         </p>
-      </header>
-
-      <PatternStats />
-      <PatternList />
-    </div>
-  );
+      </div>
+    );
+  }
+  redirect(`/patterns/${patterns[0].slug}`);
 }

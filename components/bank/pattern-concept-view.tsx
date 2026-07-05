@@ -20,16 +20,6 @@ import { cn } from "@/lib/utils";
 import { highlightCode } from "@/lib/notes/highlight-code";
 import { PatternAiExplain } from "@/components/bank/pattern-ai-explain";
 
-const SECTIONS = [
-  { id: "overview", label: "Overview" },
-  { id: "ai-notes", label: "AI deep dive" },
-  { id: "when", label: "When to use" },
-  { id: "approach", label: "Approach" },
-  { id: "complexity", label: "Complexity" },
-  { id: "example", label: "Example" },
-  { id: "pitfalls", label: "Pitfalls" },
-] as const;
-
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const [done, setDone] = useState(false);
   const f = pattern.fundamentals;
@@ -46,29 +36,8 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   }, [pattern.slug]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 py-8 lg:px-8 xl:px-10">
-      <nav
-        aria-label="On this page"
-        className="sticky top-20 hidden h-fit w-44 shrink-0 lg:block"
-      >
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          On this page
-        </p>
-        <ul className="mt-3 space-y-1 border-l border-border pl-3">
-          {SECTIONS.map((s) => (
-            <li key={s.id}>
-              <a
-                href={`#${s.id}`}
-                className="block py-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {s.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <article className="min-w-0 flex-1 space-y-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-8 lg:px-8">
+      <article className="space-y-10">
         <header className="space-y-4 border-b border-border pb-8">
           <Link
             href="/patterns"

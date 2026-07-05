@@ -40,11 +40,16 @@ export function extractSolutionBody(
   const code = stripLeadingJsDoc(solutionCode.trim());
   if (!code) return null;
 
-  let chosen: { fn: t.Function; priority: number } | null = null;
+  let candidates: { fn: t.Function; priority: number }[] = [];
 
-  const consider = (name: string, fn: t.Function, priority: number) => {
-    if (chosen && chosen.priority >= priority) return;
-    chosen = { fn, priority };
+  const add = (name: string, fn: t.Function) => {
+    const priority =
+      preferredEntry && name === preferredEntry
+        ? 100
+        : name === "solve"
+          ? 50
+          : 10;
+    candidates.push({ fn, priority });
   };
 
   try {
@@ -58,13 +63,7 @@ export function extractSolutionBody(
       FunctionDeclaration(path) {
         const name = path.node.id?.name;
         if (!name) return;
-        const priority =
-          preferredEntry && name === preferredEntry
-            ? 100
-            : name === "solve"
-              ? 50
-              : 10;
-        consider(name, path.node, priority);
+        add(name, path.node);
       },
       VariableDeclarator(path) {
         if (!t.isIdentifier(path.node.id)) return;
@@ -76,21 +75,17 @@ export function extractSolutionBody(
         ) {
           return;
         }
-        const priority =
-          preferredEntry && name === preferredEntry
-            ? 100
-            : name === "solve"
-              ? 50
-              : 10;
-        consider(name, init, priority);
+        add(name, init);
       },
     });
   } catch {
     return null;
   }
 
+  candidates.sort((a, b) => b.priority - a.priority);
+  const chosen = candidates[0]?.fn;
   if (!chosen) return null;
-  return blockBodySource(chosen.fn);
+  return blockBodySource(chosen);
 }
 
 /** Re-wrap solution logic to match the starter scaffold (same fn name, no JSDoc). */
