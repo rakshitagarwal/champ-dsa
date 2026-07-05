@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  Building2,
   Code2,
   FileCheck,
   FileText,
@@ -28,6 +29,7 @@ const navLinks: {
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "ATS Score", icon: FileCheck },
+  { href: "/companies", label: "Companies", icon: Building2 },
 ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean): boolean {
