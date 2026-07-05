@@ -9,10 +9,10 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "champdsa-solve-problem-code-pct-v3";
-const DEFAULT_CODE_PCT = 64;
-const MIN_CODE_PCT = 48;
-const MAX_CODE_PCT = 78;
+const STORAGE_KEY = "champdsa-study-problem-solution-pct-v1";
+const DEFAULT_RIGHT_PCT = 35;
+const MIN_RIGHT_PCT = 20;
+const MAX_RIGHT_PCT = 50;
 
 type Props = {
   problem: ReactNode;
@@ -20,23 +20,23 @@ type Props = {
 };
 
 function readStoredPct(): number {
-  if (typeof window === "undefined") return DEFAULT_CODE_PCT;
+  if (typeof window === "undefined") return DEFAULT_RIGHT_PCT;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_CODE_PCT;
+    if (!raw) return DEFAULT_RIGHT_PCT;
     const n = Number(raw);
-    if (Number.isFinite(n) && n >= MIN_CODE_PCT && n <= MAX_CODE_PCT) return n;
+    if (Number.isFinite(n) && n >= MIN_RIGHT_PCT && n <= MAX_RIGHT_PCT) return n;
   } catch {
     /* ignore */
   }
-  return DEFAULT_CODE_PCT;
+  return DEFAULT_RIGHT_PCT;
 }
 
 /** Two columns that grow with content; drag handle adjusts width only (no viewport lock). */
 export function DocumentColumns({ problem, code }: Props) {
-  const [codePct, setCodePct] = useState(DEFAULT_CODE_PCT);
+  const [codePct, setCodePct] = useState(DEFAULT_RIGHT_PCT);
   const containerRef = useRef<HTMLDivElement>(null);
-  const codePctRef = useRef(DEFAULT_CODE_PCT);
+  const codePctRef = useRef(DEFAULT_RIGHT_PCT);
   const dragging = useRef(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function DocumentColumns({ problem, code }: Props) {
     const rect = containerRef.current.getBoundingClientRect();
     const fromRight = rect.right - e.clientX;
     const pct = (fromRight / rect.width) * 100;
-    const clamped = Math.min(MAX_CODE_PCT, Math.max(MIN_CODE_PCT, pct));
+    const clamped = Math.min(MAX_RIGHT_PCT, Math.max(MIN_RIGHT_PCT, pct));
     codePctRef.current = clamped;
     setCodePct(clamped);
   }, []);
@@ -77,10 +77,10 @@ export function DocumentColumns({ problem, code }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex w-full flex-col items-stretch lg:flex-row lg:items-start"
+      className="flex h-full w-full flex-col items-stretch lg:flex-row"
     >
       <div
-        className="min-w-0 shrink-0 border-b border-border lg:border-b-0 lg:border-r"
+        className="min-w-0 shrink-0 overflow-y-auto border-b border-border lg:border-b-0 lg:border-r"
         style={{ flex: `0 0 ${problemPct}%` }}
       >
         {problem}
@@ -103,7 +103,7 @@ export function DocumentColumns({ problem, code }: Props) {
         )}
       />
 
-      <div className="min-w-0 flex-1">{code}</div>
+      <div className="min-w-0 flex-1 overflow-y-auto">{code}</div>
     </div>
   );
 }

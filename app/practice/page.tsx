@@ -13,10 +13,8 @@ export default function PracticePage() {
         </div>
         <h1 className="mt-3 text-4xl font-bold">Practice ({count} problems)</h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Solve problems, each with an empty{" "}
-          <code className="rounded bg-muted px-1">solve</code> function — use{" "}
-          <strong>Run</strong> and <strong>Next</strong> to animate your code, or
-          reveal the <strong>Solution</strong> when you are stuck.
+          Study solutions for all 211 problems. Each page shows the problem, a
+          reference solution, and a breakdown of the DSA pattern used.
         </p>
       </header>
 

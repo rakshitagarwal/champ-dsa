@@ -145,8 +145,8 @@ export function ProblemPanel({
         </div>
 
         <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground">
-          Problem text from LeetCode. Your solution is tested against Example 1
-          when you click Run.
+          Problem text from LeetCode. Study the reference solution and
+          explanation on the right.
         </p>
       </div>
     </div>

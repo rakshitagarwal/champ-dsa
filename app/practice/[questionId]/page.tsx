@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { getSheetQuestionById } from "@/data/questions";
-import { PracticeWorkspace } from "@/components/practice/practice-workspace";
+import { SolutionView } from "@/components/practice/solution-view";
 
 type Props = { params: Promise<{ questionId: string }> };
 
@@ -12,8 +11,8 @@ export default async function PracticeQuestionPage({ params }: Props) {
   if (!question) notFound();
 
   return (
-    <div className="w-full pb-10">
-      <header className="border-b border-border bg-background">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <header className="shrink-0 border-b border-border bg-background">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm">
           <Link
             href="/practice"
@@ -32,9 +31,9 @@ export default async function PracticeQuestionPage({ params }: Props) {
         </div>
       </header>
 
-      <Suspense fallback={<p className="p-4 text-sm">Loading workspace…</p>}>
-        <PracticeWorkspace question={question} />
-      </Suspense>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <SolutionView question={question} />
+      </div>
     </div>
   );
 }
