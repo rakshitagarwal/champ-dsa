@@ -2,16 +2,15 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
-  Briefcase,
   CheckCircle2,
   Code2,
+  FileCheck,
   FileText,
   Layers,
   PenLine,
   Play,
   Sparkles,
   Table2,
-  Target,
   Zap,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -54,18 +53,11 @@ const EXPLORE = [
     accent: "from-orange-500/20 to-orange-500/5",
   },
   {
-    href: "/jobs/resume",
-    title: "Resume review",
-    description: "Score, ATS gaps, and section-level fixes.",
-    icon: Target,
-    accent: "from-rose-500/20 to-rose-500/5",
-  },
-  {
     href: "/jobs",
-    title: "Job search",
-    description: "Nine India portals — one click each, your city pre-filled.",
-    icon: Briefcase,
-    accent: "from-primary/25 to-primary/5",
+    title: "ATS Score",
+    description: "Upload your resume and get an ATS compatibility score with fixes.",
+    icon: FileCheck,
+    accent: "from-rose-500/20 to-rose-500/5",
   },
 ] as const;
 
@@ -138,7 +130,7 @@ export function MarketingLanding() {
               "h-11 px-6",
             )}
           >
-            Search jobs
+            Check ATS Score
           </Link>
         </div>
 
@@ -149,8 +141,8 @@ export function MarketingLanding() {
         <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value="15+" label="DSA patterns" />
           <Stat value="200+" label="Practice problems" />
-          <Stat value="9" label="Job portals" />
-          <Stat value="1" label="Resume-to-search flow" />
+          <Stat value="ATS" label="Resume scoring" />
+          <Stat value="PDF" label="Upload & analyze" />
         </div>
       </section>
 
@@ -233,17 +225,10 @@ export function MarketingLanding() {
             />
             <StepCard
               step="2"
-              title="Polish your resume"
-              body="Upload for a score, ATS keyword gaps, and section fixes. Re-upload after edits to track improvement."
-              href="/jobs/resume"
-              cta="Review resume"
-            />
-            <StepCard
-              step="3"
-              title="Apply everywhere"
-              body="Open Naukri, Indeed, Hirist, Instahyre, Foundit, Shine, and more — pre-filled for your role, experience, and city."
+              title="Check ATS Score"
+              body="Upload your resume as PDF or DOCX and get an ATS compatibility score with keyword gaps and fixes."
               href="/jobs"
-              cta="Job search"
+              cta="Score my resume"
             />
           </div>
         </div>
@@ -287,20 +272,19 @@ export function MarketingLanding() {
             One solution for skills and job search
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Stop juggling LeetCode, random blogs, resume checkers, and nine job
-            tabs. Start with one problem today — your next application is already
-            wired in.
+            Stop juggling LeetCode, random blogs, and resume checkers.
+            Start with one problem today — your next job is closer than you think.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/practice" className={buttonVariants({ size: "lg" })}>
               Solve a problem
             </Link>
-            <Link
-              href="/jobs/resume"
-              className={buttonVariants({ variant: "outline", size: "lg" })}
-            >
-              Score my resume
-            </Link>
+          <Link
+            href="/jobs"
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
+            Score my resume
+          </Link>
           </div>
         </div>
       </section>

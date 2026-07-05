@@ -19,7 +19,7 @@ export async function generateResumeReview(
         systemPrompt: RESUME_REVIEW_SYSTEM,
         userPrompt: buildResumeReviewPrompt(req),
         temperature: 0.35,
-        maxTokens: 4096,
+        maxTokens: 8192,
       },
       parseResumeReviewJson,
     );

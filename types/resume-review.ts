@@ -13,6 +13,13 @@ export type ResumeSectionScore = {
   exampleFix: string;
 };
 
+export type ResumeLineFix = {
+  section: string;
+  originalLine: string;
+  suggestedLine: string;
+  reason: string;
+};
+
 export type ResumeReviewResult = {
   overallScore: number;
   categories: ResumeCategoryScore[];
@@ -21,6 +28,8 @@ export type ResumeReviewResult = {
   missingKeywords: string[];
   strongPoints: string[];
   oneLineVerdict: string;
+  scoreExplanation: string;
+  lineFixes: ResumeLineFix[];
 };
 
 export type ResumeReviewRequest = {

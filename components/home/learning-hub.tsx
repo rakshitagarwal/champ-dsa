@@ -4,14 +4,13 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   BookOpen,
-  Briefcase,
+  FileCheck,
   FileText,
   Flame,
   PenLine,
   Target,
   ArrowRight,
   Table2,
-  UserRoundSearch,
 } from "lucide-react";
 import { getAllPatterns, getPatternBySlug } from "@/data/patterns";
 import { getQuestionById } from "@/data/questions";
@@ -129,24 +128,17 @@ export function LearningHub() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-semibold">Get hired</h2>
+        <h2 className="font-semibold">ATS Score</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review your resume, then open job searches on top India portals.
+          Upload your resume as PDF or DOCX and get an ATS compatibility score with actionable feedback.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
-            href="/jobs/resume"
+            href="/jobs"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            <UserRoundSearch className="h-4 w-4" />
-            Resume review
-          </Link>
-          <Link
-            href="/jobs"
-            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted/50"
-          >
-            <Briefcase className="h-4 w-4" />
-            Find jobs
+            <FileCheck className="h-4 w-4" />
+            Score my resume
           </Link>
         </div>
       </section>
