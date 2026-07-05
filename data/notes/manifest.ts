@@ -34,6 +34,12 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Interview revision — joins, indexes, transactions, normalization, and query patterns.",
   },
   {
+    slug: "system-design",
+    title: "System Design",
+    description:
+      "Interview revision — scalability, load balancing, caching, databases, microservices, and design patterns.",
+  },
+  {
     slug: "html-css",
     title: "HTML & CSS",
     description:
