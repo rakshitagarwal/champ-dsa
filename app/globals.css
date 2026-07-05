@@ -1,33 +1,7 @@
 @import "tailwindcss";
 
-/* Light — soft slate (optional; app defaults to dark) */
+/* Dark blue — Programiz / interview-guide style (always dark) */
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-foreground: #eff6ff;
-  --secondary: #e2e8f0;
-  --secondary-foreground: #1e3a8a;
-  --muted: #e2e8f0;
-  --muted-foreground: #64748b;
-  --accent: #dbeafe;
-  --accent-foreground: #1e40af;
-  --destructive: #dc2626;
-  --destructive-foreground: #fafafa;
-  --border: #cbd5e1;
-  --input: #cbd5e1;
-  --ring: #3b82f6;
-  --panel: #e8eef5;
-  --editor: #ffffff;
-  --radius: 0.5rem;
-}
-
-/* Dark blue — Programiz / interview-guide style */
-.dark {
   --background: #0f1419;
   --foreground: #e8eaed;
   --card: #1a2332;
