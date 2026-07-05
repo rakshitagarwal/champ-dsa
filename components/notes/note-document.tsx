@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { NoteDocument } from "@/types/notes";
 import { NoteDocumentBody } from "@/components/notes/note-document-body";
 import { extractH2Headings, parseNoteSegments } from "@/lib/notes/parse-markdown";
@@ -21,12 +20,6 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
       >
         <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
           <header className="space-y-3 border-b border-border pb-6">
-            <Link
-              href="/notes"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              ← Notes
-            </Link>
             <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
             {doc.description ? (
               <p className="text-muted-foreground">{doc.description}</p>
