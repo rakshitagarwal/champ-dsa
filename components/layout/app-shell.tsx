@@ -20,7 +20,8 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/compiler") ||
     pathname.startsWith("/visualizer") ||
     pathname.startsWith("/jobs") ||
-    pathname.startsWith("/companies");
+    pathname.startsWith("/companies") ||
+    pathname.startsWith("/resources");
 
   useEffect(() => {
     if (searchParams.get("desktop") === "1") {
