@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { DsaPattern } from "@/types/pattern";
+import type { DsaNoteMeta } from "@/data/dsa/manifest";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  patterns: DsaPattern[];
+  notes: DsaNoteMeta[];
   className?: string;
 };
 
-export function DsaPatternsMobileNav({ patterns, className }: Props) {
+export function DsaPatternsMobileNav({ notes, className }: Props) {
   const pathname = usePathname();
 
   return (
@@ -26,12 +26,12 @@ export function DsaPatternsMobileNav({ patterns, className }: Props) {
       >
         Overview
       </Link>
-      {patterns.map((pattern) => {
-        const href = `/patterns/${pattern.slug}`;
+      {notes.map((note) => {
+        const href = `/patterns/${note.slug}`;
         const active = pathname === href;
         return (
           <Link
-            key={pattern.slug}
+            key={note.slug}
             href={href}
             className={cn(
               "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
@@ -40,7 +40,7 @@ export function DsaPatternsMobileNav({ patterns, className }: Props) {
                 : "bg-muted text-muted-foreground",
             )}
           >
-            {pattern.name}
+            {note.title}
           </Link>
         );
       })}

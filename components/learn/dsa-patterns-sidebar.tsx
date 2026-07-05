@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { DsaPattern } from "@/types/pattern";
+import type { DsaNoteMeta } from "@/data/dsa/manifest";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  patterns: DsaPattern[];
+  notes: DsaNoteMeta[];
   className?: string;
 };
 
-export function DsaPatternsSidebar({ patterns, className }: Props) {
+export function DsaPatternsSidebar({ notes, className }: Props) {
   const pathname = usePathname();
 
   return (
@@ -38,11 +38,11 @@ export function DsaPatternsSidebar({ patterns, className }: Props) {
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 scrollbar-hide">
         <ul className="space-y-0.5">
-          {patterns.map((pattern) => {
-            const href = `/patterns/${pattern.slug}`;
+          {notes.map((note) => {
+            const href = `/patterns/${note.slug}`;
             const active = pathname === href;
             return (
-              <li key={pattern.slug}>
+              <li key={note.slug}>
                 <Link
                   href={href}
                   className={cn(
@@ -52,7 +52,7 @@ export function DsaPatternsSidebar({ patterns, className }: Props) {
                       : "text-foreground hover:bg-accent/50",
                   )}
                 >
-                  {pattern.name}
+                  {note.title}
                 </Link>
               </li>
             );

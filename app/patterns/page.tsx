@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getAllPatterns } from "@/data/patterns";
+import { getFirstDsaNote } from "@/lib/dsa/loader";
 
 export default function PatternsPage() {
-  const patterns = getAllPatterns();
-  if (patterns.length === 0) {
+  const first = getFirstDsaNote();
+  if (!first) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <h1 className="text-xl font-semibold">DSA Patterns</h1>
@@ -13,5 +13,5 @@ export default function PatternsPage() {
       </div>
     );
   }
-  redirect(`/patterns/${patterns[0].slug}`);
+  redirect(`/patterns/${first.slug}`);
 }

@@ -4,24 +4,18 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { DsaPattern } from "@/types/pattern";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getDeveloperFraming } from "@/data/patterns/developer-framing";
 import {
   getPatternEnrichment,
   mergePatternLists,
 } from "@/data/patterns/pattern-enrichment";
-import {
-  isPatternDone,
-  togglePatternDone,
-} from "@/lib/storage/pattern-progress";
 import { setLastVisited } from "@/lib/storage/learning-store";
 import { cn } from "@/lib/utils";
 import { highlightCode } from "@/lib/notes/highlight-code";
 import { PatternAiExplain } from "@/components/bank/pattern-ai-explain";
 
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
-  const [done, setDone] = useState(false);
   const f = pattern.fundamentals;
   const enrich = getPatternEnrichment(pattern.slug);
   const whenToUse = mergePatternLists(f.whenToUse, enrich?.whenToUse);
@@ -31,7 +25,6 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const summary = dev?.summary ?? pattern.summary;
 
   useEffect(() => {
-    setDone(isPatternDone(pattern.slug));
     setLastVisited({ type: "pattern", slugOrId: pattern.slug });
   }, [pattern.slug]);
 
@@ -53,7 +46,6 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             {pattern.difficulty ? (
               <Badge variant="outline">{pattern.difficulty}</Badge>
             ) : null}
-            {done ? <Badge>Understood</Badge> : null}
           </div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             {pattern.name}
@@ -193,17 +185,6 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
           </ul>
         </section>
 
-        <div className="flex flex-wrap gap-3 border-t border-border pt-8">
-          <Button
-            size="lg"
-            onClick={() => {
-              const next = togglePatternDone(pattern.slug);
-              setDone(next);
-            }}
-          >
-            {done ? "Mark as not done" : "I understand this pattern"}
-          </Button>
-        </div>
       </article>
     </div>
   );
