@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search } from "lucide-react";
+import { ExternalLink, Search } from "lucide-react";
 import { sheetSections } from "@/data/questions/sheet-meta";
 import { getQuestionById, getSheetQuestions } from "@/data/questions";
 import { stripSheetSectionNumber } from "@/lib/sheet-display";
@@ -99,9 +99,26 @@ export function SheetAccordion() {
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
                 >
                   <span className="font-medium">{q.title}</span>
-                  <Badge variant="outline" className="shrink-0">
-                    {q.difficulty}
-                  </Badge>
+                  <span className="flex items-center gap-2">
+                    {q.leetcodeUrl ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          window.open(q.leetcodeUrl!, "_blank", "noopener,noreferrer");
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        title="Open on LeetCode"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        LeetCode
+                      </button>
+                    ) : null}
+                    <Badge variant="outline" className="shrink-0">
+                      {q.difficulty}
+                    </Badge>
+                  </span>
                 </Link>
               </li>
             ))}
@@ -148,9 +165,26 @@ export function SheetAccordion() {
                                 className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
                               >
                                 <span className="font-medium">{q.title}</span>
-                                <Badge variant="outline" className="shrink-0">
-                                  {q.difficulty}
-                                </Badge>
+                                <span className="flex items-center gap-2">
+                                  {q.leetcodeUrl ? (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        window.open(q.leetcodeUrl!, "_blank", "noopener,noreferrer");
+                                      }}
+                                      className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                      title="Open on LeetCode"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                      LeetCode
+                                    </button>
+                                  ) : null}
+                                  <Badge variant="outline" className="shrink-0">
+                                    {q.difficulty}
+                                  </Badge>
+                                </span>
                               </Link>
                             </li>
                           );

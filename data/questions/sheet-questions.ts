@@ -651,6 +651,8 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "sliding-window",
     "patternName": "Sliding Window",
     "difficulty": "easy",
+    "leetcodeSlug": "number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/",
     "statement": "Count length-k subarrays with average >= threshold.",
     "examples": [
       {
@@ -1909,6 +1911,8 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "fast-slow-pointers",
     "patternName": "Linked Lists",
     "difficulty": "easy",
+    "leetcodeSlug": "palindrome-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/palindrome-linked-list/",
     "statement": "Check if linked list is palindrome.",
     "examples": [
       {
@@ -1936,6 +1940,8 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "fast-slow-pointers",
     "patternName": "Linked Lists",
     "difficulty": "easy",
+    "leetcodeSlug": "remove-linked-list-elements",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-linked-list-elements/",
     "statement": "Remove all nodes equal to val.",
     "examples": [
       {
@@ -4416,6 +4422,8 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "graph-bfs",
     "patternName": "Graphs",
     "difficulty": "medium",
+    "leetcodeSlug": "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
+    "leetcodeUrl": "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/",
     "statement": "City with smallest reachable count within threshold.",
     "examples": [
       {
@@ -5940,6 +5948,8 @@ export const sheetQuestions: Question[] = [
     "patternSlug": "math",
     "patternName": "Math",
     "difficulty": "easy",
+    "leetcodeSlug": "excel-sheet-column-title",
+    "leetcodeUrl": "https://leetcode.com/problems/excel-sheet-column-title/",
     "statement": "Convert Excel column title to number.",
     "examples": [
       {
