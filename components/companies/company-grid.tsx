@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
-import { COMPANIES, CATEGORIES, type CompanyCategory } from "@/data/companies";
-import { CompanyCard } from "./company-card";
+import { Search, ExternalLink } from "lucide-react";
+import { COMPANIES, CATEGORIES, getCategoryLabel, type CompanyCategory, getCompanyProfile } from "@/data/companies";
 import { cn } from "@/lib/utils";
 
 export function CompanyGrid() {
@@ -17,7 +16,7 @@ export function CompanyGrid() {
         const q = search.toLowerCase();
         if (
           !c.name.toLowerCase().includes(q) &&
-          !c.description.toLowerCase().includes(q)
+          !getCategoryLabel(c.category).toLowerCase().includes(q)
         ) {
           return false;
         }
@@ -27,12 +26,12 @@ export function CompanyGrid() {
   }, [search, activeCategory]);
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">IT Companies</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Companies</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Browse 200+ top IT companies and jump directly to their career pages
-          to find your next opportunity.
+          Browse {COMPANIES.length} top tech companies — jump to their career
+          pages or reach out to a recruiter or engineer via LinkedIn.
         </p>
       </header>
 
@@ -47,7 +46,6 @@ export function CompanyGrid() {
             className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
-
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map((cat) => (
             <button
@@ -74,10 +72,76 @@ export function CompanyGrid() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((company) => (
-            <CompanyCard key={company.id} company={company} />
-          ))}
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="w-10 px-3 py-3 text-xs font-medium text-muted-foreground">#</th>
+                <th className="px-3 py-3 text-xs font-medium text-muted-foreground">Company</th>
+                <th className="hidden px-3 py-3 text-xs font-medium text-muted-foreground md:table-cell">Category</th>
+                <th className="px-3 py-3 text-xs font-medium text-muted-foreground">Career Page</th>
+                <th className="px-3 py-3 text-xs font-medium text-muted-foreground">Recruiter</th>
+                <th className="px-3 py-3 text-xs font-medium text-muted-foreground">Software Engineer</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((company, i) => {
+                const profile = getCompanyProfile(company.name);
+                return (
+                  <tr key={company.id} className="border-b border-border transition-colors hover:bg-muted/30">
+                    <td className="px-3 py-3 text-xs text-muted-foreground">{i + 1}</td>
+                    <td className="px-3 py-3 font-medium">{company.name}</td>
+                    <td className="hidden px-3 py-3 md:table-cell">
+                      <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                        {getCategoryLabel(company.category)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <a
+                        href={company.careerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                      >
+                        Career Page
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </td>
+                    <td className="px-3 py-3">
+                      {profile.recruiter ? (
+                        <a
+                          href={profile.recruiter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 px-2.5 py-1 text-xs font-medium text-sky-600 transition-colors hover:bg-sky-500/20 dark:text-sky-400"
+                        >
+                          LinkedIn
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {profile.swe ? (
+                        <a
+                          href={profile.swe}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md bg-pink-500/10 px-2.5 py-1 text-xs font-medium text-pink-600 transition-colors hover:bg-pink-500/20 dark:text-pink-400"
+                        >
+                          LinkedIn
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
