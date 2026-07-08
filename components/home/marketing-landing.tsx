@@ -57,8 +57,8 @@ const EXPLORE = [
   },
   {
     href: "/jobs",
-    title: "ATS Score",
-    description: "Upload your resume as PDF/DOCX and get an ATS score with line-level fixes.",
+    title: "CV & Jobs",
+    description: "Upload your resume for an ATS score, then search jobs on LinkedIn, Naukri, Greenhouse, and more.",
     icon: FileCheck,
     accent: "from-rose-500/20 to-rose-500/5",
   },
@@ -87,8 +87,8 @@ const EXPERIENCE = [
   },
   {
     num: "02",
-    title: "ATS resume scoring",
-    body: "Upload a PDF or DOCX and get a compatibility score with specific line-level fixes to pass automated filters.",
+    title: "CV analyzer & job search",
+    body: "Upload a PDF or DOCX for an ATS score, then launch tailored searches across Naukri, LinkedIn, Greenhouse, Lever, and more.",
     icon: Layers,
   },
   {
@@ -146,7 +146,7 @@ export function MarketingLanding() {
               "h-11 px-6",
             )}
           >
-            Check ATS Score
+            Check CV & Jobs
           </Link>
         </div>
 
@@ -241,8 +241,8 @@ export function MarketingLanding() {
             />
             <StepCard
               step="2"
-              title="Check ATS Score"
-              body="Upload your resume as PDF or DOCX and get an ATS compatibility score with specific line-level fixes."
+              title="Check CV & Jobs"
+              body="Upload your resume for an ATS score, then search jobs across Naukri, LinkedIn, Greenhouse, Lever, and more."
               href="/jobs"
               cta="Score my resume"
             />

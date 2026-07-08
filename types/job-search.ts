@@ -25,9 +25,52 @@ export const JOB_LOCATIONS = [
   "Kochi",
   "Indore",
   "Remote India",
+  "London",
+  "Manchester",
+  "Sydney",
+  "Melbourne",
+  "Remote Global",
 ] as const;
 
 export type JobLocation = (typeof JOB_LOCATIONS)[number];
+
+export const INDIAN_LOCATIONS = [
+  "Bangalore",
+  "Hyderabad",
+  "Pune",
+  "Mumbai",
+  "Chennai",
+  "Delhi",
+  "Noida",
+  "Gurgaon",
+  "Ahmedabad",
+  "Gift City",
+  "Kolkata",
+  "Chandigarh",
+  "Jaipur",
+  "Kochi",
+  "Indore",
+  "Remote India",
+] as const satisfies readonly JobLocation[];
+
+export const UK_LOCATIONS = ["London", "Manchester"] as const satisfies readonly JobLocation[];
+
+export const AU_LOCATIONS = ["Sydney", "Melbourne"] as const satisfies readonly JobLocation[];
+
+export type JobRegion = "india" | "uk" | "au" | "global";
+
+export function getJobRegion(locations: JobLocation[]): JobRegion {
+  if (locations.some((l) => UK_LOCATIONS.includes(l as (typeof UK_LOCATIONS)[number]))) {
+    return "uk";
+  }
+  if (locations.some((l) => AU_LOCATIONS.includes(l as (typeof AU_LOCATIONS)[number]))) {
+    return "au";
+  }
+  if (locations.includes("Remote Global")) {
+    return "global";
+  }
+  return "india";
+}
 
 export type JobSearchInput = {
   jobTitle: string;

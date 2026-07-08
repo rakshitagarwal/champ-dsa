@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 const PORTAL_COLORS: Record<string, string> = {
   naukri: "bg-[#4A90D9]/10 text-[#2563EB]",
   indeed: "bg-[#2164F3]/10 text-[#2164F3]",
+  linkedin: "bg-[#0A66C2]/10 text-[#0A66C2]",
+  internshala: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400",
   foundit: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
   shine: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
   instahyre: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -16,6 +18,10 @@ const PORTAL_COLORS: Record<string, string> = {
   hirist: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
   uplers: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
   weekday: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  greenhouse: "bg-green-600/10 text-green-700 dark:text-green-400",
+  lever: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+  reed: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  seek: "bg-teal-500/10 text-teal-700 dark:text-teal-400",
 };
 
 type Props = {

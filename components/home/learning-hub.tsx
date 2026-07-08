@@ -128,9 +128,9 @@ export function LearningHub() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-semibold">ATS Score</h2>
+        <h2 className="font-semibold">CV & Jobs</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload your resume as PDF or DOCX and get an ATS compatibility score with actionable feedback.
+          Upload your resume for an ATS score, then search jobs across LinkedIn, Naukri, Greenhouse, and more.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

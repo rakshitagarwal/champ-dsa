@@ -3,11 +3,14 @@ import {
   type ExperienceLevel,
   type JobLocation,
 } from "@/types/job-search";
+import type { ResumeAttempt, ResumeReviewResult } from "@/types/resume-review";
 
 const PREFS_KEY = "champdsa-job-search-prefs";
 const FAVORITES_KEY = "champdsa-portal-favorites";
 const HANDOFF_KEY = "champdsa-jobs-handoff";
+const ATTEMPTS_KEY = "champdsa-resume-attempts";
 const MAX_FAVORITES = 3;
+const MAX_ATTEMPTS = 5;
 
 export type JobSearchPrefs = {
   jobTitle: string;
@@ -23,6 +26,12 @@ export type JobsHandoff = {
   missingKeywords?: string[];
   suggestedTitles?: string[];
   primaryKeywords?: string;
+};
+
+export type StoredResumeAttempt = {
+  attemptNumber: number;
+  result: ResumeReviewResult;
+  reviewedAt: string;
 };
 
 function readJson<T>(key: string): T | null {
@@ -109,6 +118,17 @@ export function consumeJobsHandoff(): JobsHandoff | null {
   }
 }
 
+export function peekJobsHandoff(): JobsHandoff | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(HANDOFF_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as JobsHandoff;
+  } catch {
+    return null;
+  }
+}
+
 export function sortPortalsByFavorites<T extends { id: string }>(
   portals: T[],
   favorites: string[],
@@ -120,4 +140,69 @@ export function sortPortalsByFavorites<T extends { id: string }>(
     const bRank = order.has(b.id) ? order.get(b.id)! : favorites.length;
     return aRank - bRank;
   });
+}
+
+export function loadResumeAttempts(): ResumeAttempt[] {
+  const stored = readJson<StoredResumeAttempt[]>(ATTEMPTS_KEY);
+  if (!Array.isArray(stored)) return [];
+  return stored.map((a) => ({
+    attemptNumber: a.attemptNumber,
+    result: a.result,
+    reviewedAt: new Date(a.reviewedAt),
+  }));
+}
+
+export function saveResumeAttempt(result: ResumeReviewResult): ResumeAttempt[] {
+  const existing = loadResumeAttempts();
+  const next: StoredResumeAttempt = {
+    attemptNumber: existing.length + 1,
+    result,
+    reviewedAt: new Date().toISOString(),
+  };
+  const updated = [...existing.map((a) => ({
+    attemptNumber: a.attemptNumber,
+    result: a.result,
+    reviewedAt: a.reviewedAt.toISOString(),
+  })), next].slice(-MAX_ATTEMPTS);
+  writeJson(ATTEMPTS_KEY, updated);
+  return loadResumeAttempts();
+}
+
+export function getScoreDelta(
+  attempts: ResumeAttempt[],
+): { delta: number; previousScore: number } | null {
+  if (attempts.length < 2) return null;
+  const prev = attempts[attempts.length - 2];
+  const curr = attempts[attempts.length - 1];
+  return {
+    delta: curr.result.overallScore - prev.result.overallScore,
+    previousScore: prev.result.overallScore,
+  };
+}
+
+export function getFixedSinceLastReview(
+  attempts: ResumeAttempt[],
+): string[] {
+  if (attempts.length < 2) return [];
+  const prev = attempts[attempts.length - 2].result;
+  const curr = attempts[attempts.length - 1].result;
+
+  const prevIssues = new Set([
+    ...prev.topFixes,
+    ...prev.lineFixes.map((f) => f.originalLine),
+  ]);
+
+  const fixed: string[] = [];
+  for (const fix of prev.topFixes) {
+    if (!curr.topFixes.includes(fix)) fixed.push(fix);
+  }
+  for (const fix of prev.lineFixes) {
+    const stillPresent = curr.lineFixes.some(
+      (f) => f.originalLine === fix.originalLine,
+    );
+    if (!stillPresent && prevIssues.has(fix.originalLine)) {
+      fixed.push(fix.originalLine);
+    }
+  }
+  return fixed;
 }

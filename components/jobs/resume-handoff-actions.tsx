@@ -35,7 +35,7 @@ export function ResumeHandoffActions({
         : undefined,
       primaryKeywords: result.missingKeywords.slice(0, 3).join(" "),
     });
-    router.push("/jobs");
+    router.push("/jobs?step=jobs");
   };
 
   return (

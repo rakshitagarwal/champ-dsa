@@ -8,6 +8,10 @@ export type PortalLocationMaps = {
   instahyre: string;
   hirist: string;
   wellfound: string;
+  linkedin: string;
+  internshala: string;
+  reed: string;
+  seek: string;
 };
 
 const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
@@ -19,6 +23,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "bangalore",
     hirist: "bangalore",
     wellfound: "Bangalore",
+    linkedin: "Bangalore, Karnataka, India",
+    internshala: "bangalore",
+    reed: "london",
+    seek: "sydney",
   },
   Hyderabad: {
     naukri: "hyderabad",
@@ -28,6 +36,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "hyderabad",
     hirist: "hyderabad",
     wellfound: "Hyderabad",
+    linkedin: "Hyderabad, Telangana, India",
+    internshala: "hyderabad",
+    reed: "london",
+    seek: "sydney",
   },
   Pune: {
     naukri: "pune",
@@ -37,6 +49,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "pune",
     hirist: "pune",
     wellfound: "Pune",
+    linkedin: "Pune, Maharashtra, India",
+    internshala: "pune",
+    reed: "london",
+    seek: "sydney",
   },
   Mumbai: {
     naukri: "mumbai",
@@ -46,6 +62,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "mumbai",
     hirist: "mumbai",
     wellfound: "Mumbai",
+    linkedin: "Mumbai, Maharashtra, India",
+    internshala: "mumbai",
+    reed: "london",
+    seek: "sydney",
   },
   Chennai: {
     naukri: "chennai",
@@ -55,6 +75,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "chennai",
     hirist: "chennai",
     wellfound: "Chennai",
+    linkedin: "Chennai, Tamil Nadu, India",
+    internshala: "chennai",
+    reed: "london",
+    seek: "sydney",
   },
   Delhi: {
     naukri: "delhi-ncr",
@@ -64,6 +88,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "delhi-ncr",
     hirist: "delhi",
     wellfound: "New Delhi",
+    linkedin: "New Delhi, Delhi, India",
+    internshala: "delhi",
+    reed: "london",
+    seek: "sydney",
   },
   Noida: {
     naukri: "noida",
@@ -73,6 +101,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "noida",
     hirist: "noida",
     wellfound: "Noida",
+    linkedin: "Noida, Uttar Pradesh, India",
+    internshala: "noida",
+    reed: "london",
+    seek: "sydney",
   },
   Gurgaon: {
     naukri: "gurgaon",
@@ -82,6 +114,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "gurgaon",
     hirist: "gurgaon-gurugram",
     wellfound: "Gurgaon",
+    linkedin: "Gurugram, Haryana, India",
+    internshala: "gurgaon",
+    reed: "london",
+    seek: "sydney",
   },
   Ahmedabad: {
     naukri: "ahmedabad",
@@ -91,6 +127,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "ahmedabad",
     hirist: "ahmedabad",
     wellfound: "Ahmedabad",
+    linkedin: "Ahmedabad, Gujarat, India",
+    internshala: "ahmedabad",
+    reed: "london",
+    seek: "sydney",
   },
   "Gift City": {
     naukri: "gandhinagar",
@@ -100,6 +140,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "gandhinagar",
     hirist: "gandhinagar",
     wellfound: "Gandhinagar",
+    linkedin: "Gandhinagar, Gujarat, India",
+    internshala: "gandhinagar",
+    reed: "london",
+    seek: "sydney",
   },
   Kolkata: {
     naukri: "kolkata",
@@ -109,6 +153,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "kolkata",
     hirist: "kolkata",
     wellfound: "Kolkata",
+    linkedin: "Kolkata, West Bengal, India",
+    internshala: "kolkata",
+    reed: "london",
+    seek: "sydney",
   },
   Chandigarh: {
     naukri: "chandigarh",
@@ -118,6 +166,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "chandigarh",
     hirist: "chandigarh",
     wellfound: "Chandigarh",
+    linkedin: "Chandigarh, India",
+    internshala: "chandigarh",
+    reed: "london",
+    seek: "sydney",
   },
   Jaipur: {
     naukri: "jaipur",
@@ -127,6 +179,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "jaipur",
     hirist: "jaipur",
     wellfound: "Jaipur",
+    linkedin: "Jaipur, Rajasthan, India",
+    internshala: "jaipur",
+    reed: "london",
+    seek: "sydney",
   },
   Kochi: {
     naukri: "kochi",
@@ -136,6 +192,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "kochi",
     hirist: "cochin-kochi",
     wellfound: "Kochi",
+    linkedin: "Kochi, Kerala, India",
+    internshala: "kochi",
+    reed: "london",
+    seek: "sydney",
   },
   Indore: {
     naukri: "indore",
@@ -145,6 +205,10 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "indore",
     hirist: "indore",
     wellfound: "Indore",
+    linkedin: "Indore, Madhya Pradesh, India",
+    internshala: "indore",
+    reed: "london",
+    seek: "sydney",
   },
   "Remote India": {
     naukri: "india",
@@ -154,13 +218,84 @@ const LOCATION_PORTAL_SLUGS: Record<JobLocation, PortalLocationMaps> = {
     instahyre: "remote",
     hirist: "india",
     wellfound: "India",
+    linkedin: "India",
+    internshala: "work-from-home",
+    reed: "london",
+    seek: "sydney",
+  },
+  London: {
+    naukri: "london",
+    indeed: "London",
+    foundit: "London",
+    shine: "london",
+    instahyre: "london",
+    hirist: "london",
+    wellfound: "London",
+    linkedin: "London, England, United Kingdom",
+    internshala: "london",
+    reed: "london",
+    seek: "sydney",
+  },
+  Manchester: {
+    naukri: "manchester",
+    indeed: "Manchester",
+    foundit: "Manchester",
+    shine: "manchester",
+    instahyre: "manchester",
+    hirist: "manchester",
+    wellfound: "Manchester",
+    linkedin: "Manchester, England, United Kingdom",
+    internshala: "manchester",
+    reed: "manchester",
+    seek: "sydney",
+  },
+  Sydney: {
+    naukri: "sydney",
+    indeed: "Sydney NSW",
+    foundit: "Sydney",
+    shine: "sydney",
+    instahyre: "sydney",
+    hirist: "sydney",
+    wellfound: "Sydney",
+    linkedin: "Sydney, New South Wales, Australia",
+    internshala: "sydney",
+    reed: "london",
+    seek: "sydney",
+  },
+  Melbourne: {
+    naukri: "melbourne",
+    indeed: "Melbourne VIC",
+    foundit: "Melbourne",
+    shine: "melbourne",
+    instahyre: "melbourne",
+    hirist: "melbourne",
+    wellfound: "Melbourne",
+    linkedin: "Melbourne, Victoria, Australia",
+    internshala: "melbourne",
+    reed: "london",
+    seek: "melbourne",
+  },
+  "Remote Global": {
+    naukri: "india",
+    indeed: "Remote",
+    foundit: "Remote",
+    shine: "all-india",
+    instahyre: "remote",
+    hirist: "india",
+    wellfound: "Remote",
+    linkedin: "Worldwide",
+    internshala: "work-from-home",
+    reed: "london",
+    seek: "sydney",
   },
 };
 
 export function pickPrimaryLocation(locations: JobLocation[]): JobLocation {
   if (locations.length === 0) return "Bangalore";
-  const onSite = locations.filter((l) => l !== "Remote India");
-  return onSite[0] ?? "Remote India";
+  const onSite = locations.filter(
+    (l) => l !== "Remote India" && l !== "Remote Global",
+  );
+  return onSite[0] ?? locations[0] ?? "Bangalore";
 }
 
 export function getPortalLocations(location: JobLocation): PortalLocationMaps {

@@ -25,7 +25,7 @@ const navLinks: {
   { href: "/compiler", label: "Compiler", icon: Code2 },
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/jobs", label: "ATS Score", icon: FileCheck },
+  { href: "/jobs", label: "CV & Jobs", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/resources", label: "Resources", icon: Bookmark },
 ];

@@ -1,7 +1,7 @@
 import type { ExperienceLevel } from "@/types/job-search";
 import type { JobSearchKeywords } from "@/types/job-search";
 
-export const JOB_KEYWORDS_SYSTEM = `You extract job-search keywords from resumes for Indian software engineering roles.
+export const JOB_KEYWORDS_SYSTEM = `You extract job-search keywords from resumes for software engineering roles.
 Return ONLY valid JSON:
 {
   "primaryKeywords": string (short search phrase, max 6 words),
@@ -10,13 +10,19 @@ Return ONLY valid JSON:
   "portalTips": {
     "naukri": string (one tip, max 20 words),
     "indeed": string,
+    "linkedin": string,
+    "internshala": string,
     "foundit": string,
     "shine": string,
     "instahyre": string,
     "wellfound": string,
     "hirist": string,
     "uplers": string,
-    "weekday": string
+    "weekday": string,
+    "greenhouse": string,
+    "lever": string,
+    "reed": string,
+    "seek": string
   }
 }
 

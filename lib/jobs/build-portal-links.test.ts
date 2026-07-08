@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildPortalLinks } from "@/lib/jobs/build-portal-links";
+import {
+  buildPortalLinks,
+  filterPortalsByRegion,
+} from "@/lib/jobs/build-portal-links";
 
 describe("buildPortalLinks", () => {
   const base = {
@@ -8,9 +11,20 @@ describe("buildPortalLinks", () => {
     locations: ["Bangalore" as const],
   };
 
-  it("returns 9 portal links", () => {
+  it("returns 13 portal links for India (excludes Reed UK and Seek AU)", () => {
     const links = buildPortalLinks(base);
-    expect(links).toHaveLength(9);
+    expect(links).toHaveLength(13);
+    expect(links.some((l) => l.id === "reed")).toBe(false);
+    expect(links.some((l) => l.id === "seek")).toBe(false);
+  });
+
+  it("includes LinkedIn and Greenhouse portals", () => {
+    const links = buildPortalLinks(base);
+    const linkedin = links.find((l) => l.id === "linkedin")!;
+    expect(linkedin.url).toContain("linkedin.com/jobs/search");
+    expect(linkedin.url).toContain("keywords=");
+    const greenhouse = links.find((l) => l.id === "greenhouse")!;
+    expect(greenhouse.url).toContain("job-boards.greenhouse.io");
   });
 
   it("builds working Hirist URL without /k/ over-specific slug", () => {
@@ -79,5 +93,67 @@ describe("buildPortalLinks", () => {
     expect(links.find((l) => l.id === "instahyre")?.url).toContain(
       "search-jobs",
     );
+  });
+
+  it("builds Internshala URL for fresher roles", () => {
+    const links = buildPortalLinks({
+      ...base,
+      experienceLevel: "Fresher",
+    });
+    const internshala = links.find((l) => l.id === "internshala")!;
+    expect(internshala.url).toContain("internshala.com/internships");
+  });
+
+  it("builds Lever search URL", () => {
+    const links = buildPortalLinks(base);
+    const lever = links.find((l) => l.id === "lever")!;
+    expect(lever.url).toContain("jobs.lever.co");
+    expect(lever.url).toContain("search=");
+  });
+
+  it("shows Reed UK for London and hides Indian-only portals", () => {
+    const links = buildPortalLinks({
+      ...base,
+      locations: ["London"],
+    });
+    expect(links.some((l) => l.id === "reed")).toBe(true);
+    expect(links.some((l) => l.id === "naukri")).toBe(false);
+    expect(links.some((l) => l.id === "internshala")).toBe(false);
+    const reed = links.find((l) => l.id === "reed")!;
+    expect(reed.url).toContain("reed.co.uk/jobs");
+  });
+
+  it("shows Seek AU for Sydney and hides Reed UK", () => {
+    const links = buildPortalLinks({
+      ...base,
+      locations: ["Sydney"],
+    });
+    expect(links.some((l) => l.id === "seek")).toBe(true);
+    expect(links.some((l) => l.id === "reed")).toBe(false);
+    const seek = links.find((l) => l.id === "seek")!;
+    expect(seek.url).toContain("seek.com.au");
+  });
+
+  it("uses UK Indeed for London", () => {
+    const links = buildPortalLinks({
+      ...base,
+      locations: ["London"],
+    });
+    const indeed = links.find((l) => l.id === "indeed")!;
+    expect(indeed.url).toContain("uk.indeed.com");
+  });
+});
+
+describe("filterPortalsByRegion", () => {
+  const allPortals = buildPortalLinks({
+    jobTitle: "Engineer",
+    experienceLevel: "3–6 years",
+    locations: ["Bangalore"],
+  });
+
+  it("filters UK-only portals for India region", () => {
+    const filtered = filterPortalsByRegion(allPortals, "india");
+    expect(filtered.some((p) => p.id === "reed")).toBe(false);
+    expect(filtered.some((p) => p.id === "seek")).toBe(false);
   });
 });
