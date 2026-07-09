@@ -14,11 +14,11 @@ export function NoteDocument({ doc }: { doc: NoteDocument }) {
     <>
       <article
         className={cn(
-          "note-document scrollbar-hide h-full min-h-0 overflow-y-auto overscroll-contain",
+          "note-document scrollbar-hide h-full min-h-0 w-full overflow-y-auto overscroll-contain",
           headings.length > 0 && "lg:pr-52",
         )}
       >
-        <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
+        <div className="w-full min-w-0 px-4 py-8 sm:px-5 lg:px-6">
           <header className="space-y-3 border-b border-border pb-6">
             <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
             {doc.description ? (

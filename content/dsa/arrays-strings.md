@@ -1,5 +1,7 @@
 # Arrays & Strings
 
+> **Foundation — skim if revising.** This page covers basics that overlap with later patterns (Two Pointers, Sliding Window, Prefix Sum, Hashing). If you already know those, read the recognition cues and jump ahead.
+
 Arrays and strings form the foundation of nearly every technical interview problem. An array is a contiguous block of memory storing elements of the same type, offering O(1) index-based access at the cost of O(n) insertion and deletion in the worst case. Strings are essentially arrays of characters with their own set of immutable vs. mutable semantics across languages. Mastering this pattern means understanding how to traverse, rearrange, and transform these sequences efficiently using techniques like in-place mutation, two-pass processing, and auxiliary frequency maps.
 
 The pattern is deceptively broad — it covers everything from simple linear scans to multi-pass algorithms that build temporary structures before a final assembly. What unifies these problems is the sequential nature of the data: you can iterate, partition, and accumulate information about the elements by exploiting their positional relationships. Many array-and-string problems are building blocks for harder patterns (sliding window, two pointers, prefix sum), so a strong grasp here is essential before moving to more advanced topics.

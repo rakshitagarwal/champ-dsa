@@ -21,18 +21,18 @@ import { cn } from "@/lib/utils";
 
 const EXPLORE = [
   {
+    href: "/patterns",
+    title: "DSA patterns",
+    description: "17 core patterns with LeetCode practice links for revision.",
+    icon: BookOpen,
+    accent: "from-emerald-500/20 to-emerald-500/5",
+  },
+  {
     href: "/practice",
     title: "Practice",
     description: "Study solutions for 211 problems with pattern explanations.",
     icon: PenLine,
     accent: "from-violet-500/20 to-violet-500/5",
-  },
-  {
-    href: "/patterns",
-    title: "DSA patterns",
-    description: "16 core patterns with LeetCode practice links for revision.",
-    icon: BookOpen,
-    accent: "from-emerald-500/20 to-emerald-500/5",
   },
   {
     href: "/notes",
@@ -81,14 +81,14 @@ const EXPLORE = [
 const EXPERIENCE = [
   {
     num: "01",
-    title: "Study mode practice",
-    body: "Every problem shows a read-only solution with AI explanations — understand the why, not just the answer.",
+    title: "DSA pattern guides",
+    body: "Read recognition cues and pattern notes first, then apply them on the practice sheet.",
     icon: Play,
   },
   {
     num: "02",
-    title: "CV analyzer & job search",
-    body: "Upload a PDF or DOCX for an ATS score, then launch tailored searches across Naukri, LinkedIn, Greenhouse, Lever, and more.",
+    title: "Study mode practice",
+    body: "Every problem shows a read-only solution with AI explanations — understand the why, not just the answer.",
     icon: Layers,
   },
   {
@@ -133,20 +133,20 @@ export function MarketingLanding() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/practice"
+            href="/patterns"
             className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 px-6")}
           >
-            Start learning free
+            Learn DSA patterns
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/jobs"
+            href="/practice"
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
               "h-11 px-6",
             )}
           >
-            Check CV & Jobs
+            Solve problems
           </Link>
         </div>
 
@@ -155,7 +155,7 @@ export function MarketingLanding() {
         </p>
 
         <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat value="16" label="DSA patterns" />
+          <Stat value="17" label="DSA patterns" />
           <Stat value="211" label="Practice problems" />
           <Stat value="214" label="Companies listed" />
           <Stat value="15" label="Learning resources" />

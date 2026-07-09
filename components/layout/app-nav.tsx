@@ -20,10 +20,10 @@ const navLinks: {
   icon: typeof PenLine;
   exact?: boolean;
 }[] = [
+  { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/practice", label: "Solve", icon: PenLine },
   { href: "/cheatsheet", label: "Cheatsheet", icon: Table2 },
   { href: "/compiler", label: "Compiler", icon: Code2 },
-  { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV & Jobs", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
