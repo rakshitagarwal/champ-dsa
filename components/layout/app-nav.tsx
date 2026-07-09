@@ -9,8 +9,8 @@ import {
   Code2,
   FileCheck,
   FileText,
+  Lightbulb,
   PenLine,
-  Table2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ const navLinks: {
 }[] = [
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/practice", label: "Solve", icon: PenLine },
-  { href: "/cheatsheet", label: "Cheatsheet", icon: Table2 },
+  { href: "/tips", label: "Tips & Tricks", icon: Lightbulb },
   { href: "/compiler", label: "Compiler", icon: Code2 },
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV & Jobs", icon: FileCheck },

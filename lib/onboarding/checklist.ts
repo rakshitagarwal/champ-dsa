@@ -1,6 +1,7 @@
 import { getStore } from "@/lib/storage/learning-store";
 
 const VIZ_KEY = "champdsa-used-visualizer";
+const TIPS_KEY = "champdsa-read-tips";
 const DISMISS_KEY = "champdsa-onboarding-dismissed";
 
 export type ChecklistItem = {
@@ -13,6 +14,12 @@ export type ChecklistItem = {
 export function markVisualizerUsed(): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(VIZ_KEY, "1");
+}
+
+export function markTipsVisited(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TIPS_KEY, "1");
+  window.dispatchEvent(new Event("champdsa-tips-visited"));
 }
 
 export function isOnboardingDismissed(): boolean {
@@ -33,6 +40,8 @@ export function getOnboardingChecklist(): ChecklistItem[] {
   );
   const triedVisualizer =
     typeof window !== "undefined" && localStorage.getItem(VIZ_KEY) === "1";
+  const readTips =
+    typeof window !== "undefined" && localStorage.getItem(TIPS_KEY) === "1";
 
   return [
     {
@@ -52,6 +61,12 @@ export function getOnboardingChecklist(): ChecklistItem[] {
       label: "Solve one practice problem",
       href: "/practice",
       done: solvedPractice,
+    },
+    {
+      id: "tips",
+      label: "Read one job-hunt tip",
+      href: "/tips",
+      done: readTips,
     },
   ];
 }

@@ -23,9 +23,11 @@ export function OnboardingChecklist() {
     refresh();
     window.addEventListener(LEARNING_UPDATED_EVENT, refresh);
     window.addEventListener("champdsa-visualizer-used", refresh);
+    window.addEventListener("champdsa-tips-visited", refresh);
     return () => {
       window.removeEventListener(LEARNING_UPDATED_EVENT, refresh);
       window.removeEventListener("champdsa-visualizer-used", refresh);
+      window.removeEventListener("champdsa-tips-visited", refresh);
     };
   }, []);
 
@@ -37,7 +39,7 @@ export function OnboardingChecklist() {
         <div>
           <h2 className="font-semibold">Getting started</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Three steps to get value from ChampDSA — no account needed.
+            Four quick steps to get value from ChampDSA — no account needed.
           </p>
         </div>
         <button

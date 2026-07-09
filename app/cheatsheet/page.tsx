@@ -1,20 +1,6 @@
-import { CheatsheetView } from "@/components/cheatsheet/cheatsheet-view";
+import { redirect } from "next/navigation";
 
+/** Legacy DSA complexity cheat sheet — replaced by Tips & Tricks. */
 export default function CheatsheetPage() {
-  return (
-    <div className="w-full space-y-8 px-4 py-8 lg:px-10">
-      <header className="max-w-4xl">
-        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
-          DSA complexity cheat sheet
-        </h1>
-        <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Time and space complexity for sorting, searching, graphs, trees, and
-          more. Search or filter by topic when you need a quick refresh before
-          interviews or practice.
-        </p>
-      </header>
-
-      <CheatsheetView />
-    </div>
-  );
+  redirect("/tips");
 }

@@ -13,7 +13,6 @@ import {
   PenLine,
   Play,
   Sparkles,
-  Table2,
   Zap,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -63,10 +62,10 @@ const EXPLORE = [
     accent: "from-rose-500/20 to-rose-500/5",
   },
   {
-    href: "/cheatsheet",
-    title: "Cheatsheet",
-    description: "Time and space complexity tables for sorting, searching, and more.",
-    icon: Table2,
+    href: "/tips",
+    title: "Tips & Tricks",
+    description: "Resume, LinkedIn, projects, interview prep, and cold email — recruiter-tested playbooks to keep momentum high.",
+    icon: Sparkles,
     accent: "from-orange-500/20 to-orange-500/5",
   },
   {
