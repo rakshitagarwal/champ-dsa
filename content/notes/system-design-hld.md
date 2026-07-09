@@ -1,18 +1,67 @@
-# System Design Interview Notes
+# System Design — High-Level Design (HLD)
+
+> **What seniors are evaluated on:** Trade-offs at architecture level — not class diagrams. Clarify scale, draw boxes, estimate capacity, deep-dive two components, defend choices.
+
+For class-level design (SOLID, patterns, APIs), see [System Design — LLD](/notes/system-design-lld).
 
 ---
 
-## 1. What is System Design?
+## 0. Senior HLD interview flow
 
-System design is the process of defining the architecture, components, modules, interfaces, and data flow of a system to satisfy specific requirements. It bridges the gap between requirements and implementation.
+Use this order in every round:
 
-**Two types:**
-- **High-Level Design (HLD)** — overall system architecture, components, data flow
-- **Low-Level Design (LLD)** — detailed component-level design (classes, APIs, database schemas)
+1. **Clarify requirements** — functional (must-have vs nice-to-have), non-functional (scale, latency, availability), constraints (budget, team size)
+2. **Capacity estimate** — DAU, QPS, storage (see section 25)
+3. **High-level diagram** — clients, LB, services, caches, DBs, queues — label read vs write paths
+4. **Deep-dive 2 components** — usually storage + one hot path (feed, chat, shorten URL)
+5. **Trade-offs** — consistency vs availability, sync vs async, build vs buy
+6. **Failure modes** — what breaks first under 10x load; how you observe and recover
 
-**Why it matters:**
-- Ensures scalability, reliability, and maintainability
-- Helps identify bottlenecks and trade-offs early
+**Phrase to use:** *"I'd start simple with a monolith and clear schema, then extract services when we hit a scaling or team boundary — not before we have traffic data."*
+
+---
+
+## 0.1 Quick architecture sketches
+
+### URL shortener (read-heavy)
+
+Client → LB → API servers → Redis (hot URLs) → DB (shortId, longUrl). Hash or base62 ID generation. 301 vs 302 for analytics. Cache aside on read.
+
+### News feed (write fan-out vs read fan-out)
+
+**Fan-out on write:** Push to followers' feeds on post — good for small follower counts.
+**Fan-out on read:** Merge on read — good for celebrities with millions of followers.
+Hybrid: push for normal users, pull for celebrities.
+
+### Chat (real-time)
+
+WebSocket gateway → message service → queue (Kafka) for persistence → DB for history. Offline store-and-forward. Presence via heartbeat + Redis.
+
+### Rate-limited public API
+
+API gateway → token bucket in Redis per user/IP → backend services. 429 + Retry-After. Distributed Redis cluster for shared counters.
+
+Class-level detail for these → [LLD notes](/notes/system-design-lld).
+
+---
+
+## 1. What is High-Level Design?
+
+High-Level Design (HLD) defines the **architecture** of a system — the major components, how they communicate, data flow, storage choices, and scaling strategy. It answers *"What are the boxes and arrows?"* without diving into class diagrams or method signatures.
+
+For component-level design (classes, APIs, schemas), see [System Design — LLD](/notes/system-design-lld).
+
+| Aspect | High-Level Design (HLD) | Low-Level Design (LLD) |
+|---|---|---|
+| **Focus** | System architecture, components, data flow | Classes, APIs, database schemas, algorithms |
+| **Audience** | Architects, senior engineers | Implementing engineers |
+| **Questions answered** | What services? How do they scale? Where is data stored? | How is this class structured? What's the API contract? |
+| **Artifacts** | Architecture diagrams, capacity estimates | Class diagrams, sequence diagrams, API specs |
+| **Interview depth** | Trade-offs, bottlenecks, failure modes | SOLID, design patterns, code structure |
+
+**Why HLD matters:**
+- Ensures scalability, reliability, and maintainability at the architecture level
+- Helps identify bottlenecks and trade-offs before implementation
 - Critical for distributed systems handling large-scale traffic
 
 ---
@@ -550,4 +599,3 @@ Examples:
 - **100M photos/day × 200 KB** → ~20 TB/day new photo storage
 
 ---
-

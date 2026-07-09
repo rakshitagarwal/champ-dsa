@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
+        source: "/notes/system-design",
+        destination: "/notes/system-design-hld",
+        permanent: false,
+      },
+      {
         source: "/notes/:section/:page",
         destination: "/notes/javascript",
         permanent: false,

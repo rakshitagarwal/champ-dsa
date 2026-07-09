@@ -36,7 +36,7 @@ const EXPLORE = [
   {
     href: "/notes",
     title: "Notes",
-    description: "JavaScript, React, Node, and system design interview notes.",
+    description: "JavaScript, React, Node, performance, system design (HLD/LLD), AI, and senior engineering notes.",
     icon: FileText,
     accent: "from-amber-500/20 to-amber-500/5",
   },

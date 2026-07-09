@@ -1,4 +1,4 @@
-# SQL Interview Notes
+# SQL & DBMS Interview Notes
 
 ---
 
@@ -918,5 +918,104 @@ WHERE id NOT IN (
 | Transactions | Full ACID | Varies (MongoDB has multi-doc ACID since v4) |
 | Best for | Structured data, complex queries | Unstructured data, high write volume, flexibility |
 | Examples | MySQL, PostgreSQL, SQLite | MongoDB, Redis, Cassandra, DynamoDB |
+
+---
+
+## 29. DBMS — frequently asked interview questions
+
+### Q1. What is DBMS vs RDBMS?
+
+**DBMS** stores data in files with less strict structure. **RDBMS** stores data in tables with rows/columns, enforces schema, and supports SQL + relationships via foreign keys. MySQL and PostgreSQL are RDBMS.
+
+### Q2. Explain ACID properties
+
+| Property | Meaning |
+|----------|---------|
+| **Atomicity** | All operations in a transaction succeed or all roll back |
+| **Consistency** | Transaction moves DB from one valid state to another (constraints hold) |
+| **Isolation** | Concurrent transactions don't see each other's incomplete work |
+| **Durability** | Committed data survives crash (WAL, disk flush) |
+
+### Q3. Transaction isolation levels (low → high isolation)
+
+| Level | Dirty read | Non-repeatable read | Phantom read |
+|-------|------------|---------------------|--------------|
+| READ UNCOMMITTED | Yes | Yes | Yes |
+| READ COMMITTED | No | Yes | Yes |
+| REPEATABLE READ | No | No | Yes |
+| SERIALIZABLE | No | No | No |
+
+**Trade-off:** Higher isolation = more locking / less concurrency. MySQL InnoDB default is REPEATABLE READ; PostgreSQL default is READ COMMITTED.
+
+### Q4. Normalization — 1NF to 3NF (quick)
+
+- **1NF** — atomic columns, no repeating groups
+- **2NF** — 1NF + no partial dependency on composite key
+- **3NF** — 2NF + no transitive dependency (non-key column depends only on primary key)
+
+**Denormalize** when read performance matters and you accept redundant data + harder updates.
+
+### Q5. Primary key vs unique vs foreign key
+
+| Constraint | Purpose |
+|------------|---------|
+| **PRIMARY KEY** | Unique + NOT NULL; one per table; clustered index (often) |
+| **UNIQUE** | No duplicates; allows one NULL (in most DBs) |
+| **FOREIGN KEY** | Referential integrity to parent table; ON DELETE CASCADE/RESTRICT |
+
+### Q6. Clustered vs non-clustered index
+
+**Clustered** — table rows stored in index order (one per table). **Non-clustered** — separate structure pointing to row location. Range scans on clustered index are fast; too many non-clustered indexes slow writes.
+
+### Q7. B-Tree vs hash index
+
+**B-Tree** — range queries, sorting, equality (default in Postgres/MySQL). **Hash** — equality only, O(1) lookup, no range support.
+
+### Q8. What is a deadlock? How do you prevent it?
+
+Two transactions wait on each other's locks. **Prevention:** consistent lock ordering, shorter transactions, lower isolation when safe. **Detection:** DB kills one transaction (victim). **App level:** retry with backoff.
+
+### Q9. Optimistic vs pessimistic locking
+
+| | Pessimistic | Optimistic |
+|---|-------------|------------|
+| **How** | `SELECT FOR UPDATE` locks row | Version column; update fails if version changed |
+| **When** | High contention writes | Low contention, read-heavy |
+
+### Q10. Replication vs sharding
+
+**Replication** — copy data to multiple nodes (read scaling, failover). **Sharding** — split data across nodes by shard key (write scaling). Sharding adds cross-shard query complexity.
+
+### Q11. What is WAL (Write-Ahead Log)?
+
+Changes written to log before applying to data pages. On crash, replay log for durability. Foundation of ACID durability in Postgres, InnoDB, etc.
+
+### Q12. View vs materialized view
+
+**View** — saved query, computed on read. **Materialized view** — stores result snapshot; faster reads, must refresh (manual or scheduled).
+
+### Q13. Stored procedure vs function
+
+**Procedure** — side effects allowed (INSERT/UPDATE), called via `CALL`. **Function** — returns value, used in SELECT expressions; typically no side effects (varies by DB).
+
+### Q14. What does EXPLAIN show?
+
+Query execution plan: scan type (`ALL` = full table scan), index used (`key`), rows examined, join order. First tool for slow query tuning.
+
+### Q15. N+1 problem (application + DB)
+
+Load N parent rows, then 1 query per row for children. **Fix:** JOIN, eager load, or batch `WHERE id IN (...)`.
+
+### Q16. Connection pooling — why?
+
+Opening DB connections is expensive. Pool reuses connections across requests. Tune max pool size vs DB `max_connections`.
+
+### Q17. CAP theorem (DBMS interview angle)
+
+Distributed DB picks two of Consistency, Availability, Partition tolerance. Network partitions are inevitable → choose CP (strong consistency, may reject writes) or AP (eventual consistency, stays available). See also [System Design — HLD](/notes/system-design-hld).
+
+### Q18. When SQL vs NoSQL?
+
+**SQL:** transactions, joins, reporting, fixed schema. **NoSQL:** flexible schema, horizontal scale, high write volume, embedded documents. Many teams use both (Postgres + Redis).
 
 ---

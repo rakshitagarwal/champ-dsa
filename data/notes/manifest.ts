@@ -17,32 +17,57 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Interview revision — Virtual DOM, hooks, state, reconciliation, and patterns.",
   },
   {
+    slug: "next",
+    title: "Next js",
+    description:
+      "Interview revision — App Router, RSC, data fetching, caching, SSR/SSG, and deployment.",
+  },
+  {
     slug: "node",
     title: "Node js",
     description:
       "Interview revision — event loop, streams, modules, Express, and the Node runtime.",
   },
   {
-    slug: "next",
-    title: "Next js",
-    description: "Add content/notes/next.md to enable.",
-  },
-  {
     slug: "sql",
-    title: "SQL basics",
+    title: "SQL & DBMS",
     description:
-      "Interview revision — joins, indexes, transactions, normalization, and query patterns.",
-  },
-  {
-    slug: "system-design",
-    title: "System Design",
-    description:
-      "Interview revision — scalability, load balancing, caching, databases, microservices, and design patterns.",
+      "Interview revision — SQL queries, joins, indexes, transactions, normalization, and DBMS FAQs.",
   },
   {
     slug: "html-css",
     title: "HTML & CSS",
     description:
       "Interview revision — HTML5 semantics, layout, Flexbox, Grid, and responsive CSS.",
+  },
+  {
+    slug: "performance",
+    title: "Performance optimization",
+    description:
+      "Senior revision — Core Web Vitals, profiling, Node/DB bottlenecks, and production checklists.",
+  },
+  {
+    slug: "system-design-lld",
+    title: "System Design — LLD",
+    description:
+      "Low-level design — SOLID, design patterns, API/DB contracts, and classic module design prompts.",
+  },
+  {
+    slug: "system-design-hld",
+    title: "System Design — HLD",
+    description:
+      "High-level design — scaling, caching, databases, queues, CAP, estimation, and architecture patterns.",
+  },
+  {
+    slug: "ai-ml",
+    title: "AI & ML for engineers",
+    description:
+      "Product-engineer depth — LLMs, embeddings, RAG, integrations, and interview talking points.",
+  },
+  {
+    slug: "advanced-topics",
+    title: "Advanced topics",
+    description:
+      "Senior revision — CI/CD, Docker, deploy strategies, observability, testing, and security.",
   },
 ];

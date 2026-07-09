@@ -92,10 +92,24 @@ export const RESOURCES: Resource[] = [
     category: "Computer Science",
   },
   {
-    id: "system-design",
-    topic: "System Design",
-    description: "Hello Interview — system design fundamentals and case studies.",
+    id: "system-design-hld",
+    topic: "System Design (HLD)",
+    description: "Hello Interview — high-level system design fundamentals and case studies.",
     url: "https://www.hellointerview.com/learn/system-design",
+    category: "Computer Science",
+  },
+  {
+    id: "ai-engineering",
+    topic: "AI for developers",
+    description: "OpenAI documentation — APIs, embeddings, and integration patterns.",
+    url: "https://platform.openai.com/docs",
+    category: "Computer Science",
+  },
+  {
+    id: "huggingface",
+    topic: "ML foundations",
+    description: "Hugging Face course — transformers and NLP basics for engineers.",
+    url: "https://huggingface.co/learn",
     category: "Computer Science",
   },
   {
