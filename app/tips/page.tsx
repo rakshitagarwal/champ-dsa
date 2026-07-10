@@ -4,7 +4,7 @@ import { TipsPage } from "@/components/tips/tips-page";
 export const metadata = {
   title: "Tips & Tricks",
   description:
-    "Action-oriented job search playbooks: resume, LinkedIn, projects, interviews, and cold email.",
+    "Action-oriented job search playbooks: resume, LinkedIn, projects, interviews, cold email, and referral strategy.",
 };
 
 export default function Page() {

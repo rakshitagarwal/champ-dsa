@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { TIPS_CATALOG, type TipsTabMeta } from "@/data/tips/manifest";
-import { FileText, UserRound, FolderGit2, MessageCircle, Mail } from "lucide-react";
+import { FileText, UserRound, FolderGit2, MessageCircle, Mail, Handshake } from "lucide-react";
 
 const ICONS = {
   resume: FileText,
@@ -11,6 +11,7 @@ const ICONS = {
   projects: FolderGit2,
   interview: MessageCircle,
   email: Mail,
+  referral: Handshake,
 } as const;
 
 type TipsTabsProps = {

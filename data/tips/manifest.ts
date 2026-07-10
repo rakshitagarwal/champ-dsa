@@ -3,7 +3,8 @@ export type TipsTabSlug =
   | "linkedin"
   | "projects"
   | "interview"
-  | "email";
+  | "email"
+  | "referral";
 
 export type TipsTabMeta = {
   slug: TipsTabSlug;
@@ -37,6 +38,11 @@ export const TIPS_CATALOG: TipsTabMeta[] = [
     slug: "email",
     title: "Cold email strategy",
     description: "Templates, hooks, follow-ups, and weekly send targets.",
+  },
+  {
+    slug: "referral",
+    title: "Referral strategy",
+    description: "How to ask for referrals without feeling awkward and maximise your odds.",
   },
 ];
 

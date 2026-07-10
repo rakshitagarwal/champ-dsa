@@ -4,7 +4,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import type { TipsTabSlug } from "@/data/tips/manifest";
 import { cn } from "@/lib/utils";
-import { Briefcase, Building2, BookOpen, Code2 } from "lucide-react";
+import { Briefcase, Building2, BookOpen, Code2, UserPlus, ExternalLink } from "lucide-react";
 
 type QuickAction = {
   label: string;
@@ -29,6 +29,10 @@ const ACTIONS: Record<TipsTabSlug, QuickAction[]> = {
   email: [
     { label: "Browse companies", href: "/companies", icon: Building2 },
     { label: "CV & Jobs", href: "/jobs", icon: Briefcase },
+  ],
+  referral: [
+    { label: "Browse companies", href: "/companies", icon: Building2 },
+    { label: "LinkedIn tips", href: "/tips?tab=linkedin", icon: ExternalLink },
   ],
 };
 
