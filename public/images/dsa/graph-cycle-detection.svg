@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+    <marker id="backedge" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ef4444"/></marker>
+    <radialGradient id="wGrad"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="100%" stop-color="#cbd5e1"/></radialGradient>
+    <radialGradient id="gGrad"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient>
+    <radialGradient id="bGrad"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+    <radialGradient id="greenGrad"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></radialGradient>
+  </defs>
+
+  <rect width="800" height="420" fill="#fafafa" rx="12"/>
+
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Cycle Detection — Three-Color DFS</text>
+  <text x="400" y="48" text-anchor="middle" font-size="11" fill="#64748b">Track node state: 0 = unvisited (white), 1 = in-stack (gray/visiting), 2 = done (black)</text>
+
+  <!-- Step 1: Start DFS from 0 -->
+  <rect x="20" y="65" width="245" height="155" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="142" y="85" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Step 1: Visit node 0</text>
+
+  <g transform="translate(30, 95)">
+    <!-- Graph: 0 → 1, 0 → 2, 1 → 2, 2 → 0 (cycle) -->
+    <path d="M75,10 Q100,60 70,75" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M75,10 Q120,30 140,10" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M70,75 Q145,65 140,10" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+    <circle cx="75" cy="10" r="22" fill="url(#gGrad)"/><text x="75" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">0</text>
+    <circle cx="35" cy="75" r="22" fill="url(#wGrad)"/><text x="35" y="80" text-anchor="middle" font-size="12" font-weight="600" fill="#64748b">1</text>
+    <circle cx="140" cy="10" r="22" fill="url(#wGrad)"/><text x="140" y="15" text-anchor="middle" font-size="12" font-weight="600" fill="#64748b">2</text>
+
+    <text x="105" y="65" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="20" y="120" font-size="8" fill="#94a3b8">unvisited</text>
+    <text x="125" y="50" font-size="8" fill="#94a3b8">unvisited</text>
+  </g>
+
+  <!-- Step 2: DFS from 0 → 1 -->
+  <rect x="280" y="65" width="245" height="155" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="402" y="85" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Step 2: Recurse 0 → 1</text>
+
+  <g transform="translate(290, 95)">
+    <path d="M75,10 Q100,60 70,75" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M75,10 Q120,30 140,10" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M70,75 Q145,65 140,10" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+    <circle cx="75" cy="10" r="22" fill="url(#gGrad)"/><text x="75" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">0</text>
+    <circle cx="35" cy="75" r="22" fill="url(#gGrad)"/><text x="35" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+    <circle cx="140" cy="10" r="22" fill="url(#wGrad)"/><text x="140" y="15" text-anchor="middle" font-size="12" font-weight="600" fill="#64748b">2</text>
+
+    <text x="105" y="65" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="60" y="115" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="125" y="50" font-size="8" fill="#94a3b8">unvisited</text>
+    <text x="40" y="35" font-size="8" fill="#64748b">stack: [0, 1]</text>
+  </g>
+
+  <!-- Step 3: Recurse 1 → 2 -->
+  <rect x="540" y="65" width="245" height="155" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="662" y="85" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Step 3: Recurse 1 → 2</text>
+
+  <g transform="translate(550, 95)">
+    <path d="M75,10 Q100,60 70,75" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M75,10 Q120,30 140,10" stroke="#64748b" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+    <path d="M70,75 Q145,65 140,10" stroke="#ef4444" stroke-width="2.5" fill="none" marker-end="url(#backedge)" stroke-dasharray="6,3"/>
+
+    <circle cx="75" cy="10" r="22" fill="url(#gGrad)"/><text x="75" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">0</text>
+    <circle cx="35" cy="75" r="22" fill="url(#gGrad)"/><text x="35" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+    <circle cx="140" cy="10" r="22" fill="url(#gGrad)"/><text x="140" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+
+    <text x="105" y="65" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="60" y="115" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="125" y="50" font-size="8" fill="#f59e0b" font-weight="700">visiting</text>
+    <text x="150" y="70" font-size="8" fill="#ef4444" font-weight="700">BACK EDGE!</text>
+    <text x="30" y="35" font-size="8" fill="#64748b">stack: [0, 1, 2]</text>
+    <text x="30" y="50" font-size="8" fill="#ef4444" font-weight="600">2 → 0 but 0 is in stack!</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(20, 240)">
+    <rect x="0" y="0" width="760" height="55" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+
+    <circle cx="30" cy="20" r="10" fill="url(#wGrad)"/>
+    <text x="45" y="24" font-size="10" fill="#475569">0 = White (unvisited)</text>
+
+    <circle cx="200" cy="20" r="10" fill="url(#gGrad)"/>
+    <text x="215" y="24" font-size="10" fill="#475569">1 = Gray (visiting / in recursion stack)</text>
+
+    <circle cx="470" cy="20" r="10" fill="url(#bGrad)"/>
+    <text x="485" y="24" font-size="10" fill="#475569">2 = Black (done / all descendants processed)</text>
+
+    <line x1="30" y1="45" x2="60" y2="45" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,3"/>
+    <text x="68" y="49" font-size="10" fill="#ef4444">Back edge → gray neighbor → CYCLE detected</text>
+  </g>
+
+  <!-- Summary -->
+  <g transform="translate(20, 310)">
+    <rect x="0" y="0" width="760" height="95" rx="8" fill="rgba(99,102,241,0.05)" stroke="#e2e8f0" stroke-width="1"/>
+
+    <text x="380" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Why three colors?</text>
+
+    <circle cx="25" cy="40" r="6" fill="#22c55e"/>
+    <text x="38" y="44" font-size="10" fill="#475569">Two colors (visited/unvisited) can't distinguish cross edges from back edges in directed graphs</text>
+
+    <circle cx="25" cy="62" r="6" fill="#22c55e"/>
+    <text x="38" y="66" font-size="10" fill="#475569">Gray means "still on the current DFS path" — finding a gray neighbor means you've found a cycle</text>
+
+    <circle cx="25" cy="84" r="6" fill="#22c55e"/>
+    <text x="38" y="88" font-size="10" fill="#475569">Black means "fully processed" — finding a black neighbor is fine (cross edge or forward edge, not a cycle)</text>
+  </g>
+</svg>

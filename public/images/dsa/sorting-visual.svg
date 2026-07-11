@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bar1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="bar2"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>
+    <linearGradient id="bar3"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+    <linearGradient id="bar4"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+    <linearGradient id="bar5"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
+  </defs>
+  <rect width="800" height="380" fill="#fafafa" rx="12"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Sorting — Preprocessing for Efficient Algorithms</text>
+  <text x="400" y="48" text-anchor="middle" font-size="11" fill="#64748b">Sorting unlocks two-pointer, greedy, binary search, and many other patterns — O(n log n) time</text>
+
+  <!-- Sort visualization -->
+  <rect x="20" y="65" width="370" height="145" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="205" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">Before Sorting: Unsorted</text>
+
+  <g transform="translate(40, 100)">
+    <rect x="0" y="20" width="36" height="60" rx="4" fill="url(#bar2)"/><text x="18" y="95" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">2</text>
+    <rect x="44" y="35" width="36" height="45" rx="4" fill="url(#bar4)"/><text x="62" y="95" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">4</text>
+    <rect x="88" y="0" width="36" height="80" rx="4" fill="url(#bar1)"/><text x="106" y="95" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">1</text>
+    <rect x="132" y="50" width="36" height="30" rx="4" fill="url(#bar5)"/><text x="150" y="95" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">5</text>
+    <rect x="176" y="25" width="36" height="55" rx="4" fill="url(#bar3)"/><text x="194" y="95" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">3</text>
+  </g>
+
+  <rect x="20" y="155" width="370" height="60" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+
+  <g transform="translate(40, 168)">
+    <rect x="0" y="20" width="36" height="60" rx="4" fill="url(#bar1)"/><text x="18" y="35" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">1</text>
+    <rect x="44" y="35" width="36" height="45" rx="4" fill="url(#bar2)"/><text x="62" y="35" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">2</text>
+    <rect x="88" y="50" width="36" height="30" rx="4" fill="url(#bar3)"/><text x="106" y="35" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">3</text>
+    <rect x="132" y="25" width="36" height="55" rx="4" fill="url(#bar4)"/><text x="150" y="35" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">4</text>
+    <rect x="176" y="0" width="36" height="80" rx="4" fill="url(#bar5)"/><text x="194" y="35" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">5</text>
+  </g>
+  <text x="230" y="195" text-anchor="middle" font-size="10" font-weight="700" fill="#16a34a">After: Sorted → [1, 2, 3, 4, 5]</text>
+
+  <!-- Sorting algorithms comparison -->
+  <rect x="410" y="65" width="370" height="145" rx="10" fill="rgba(99,102,241,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="595" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#0891b2">Common Sorting Algorithms</text>
+
+  <g transform="translate(420, 95)">
+    <rect x="0" y="0" width="110" height="55" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="55" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">Quick Sort</text>
+    <text x="10" y="32" font-size="9" fill="#64748b">O(n log n) avg</text>
+    <text x="10" y="46" font-size="9" fill="#64748b">In-place, unstable</text>
+  </g>
+
+  <g transform="translate(130, 0)">
+    <rect x="0" y="0" width="110" height="55" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="55" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">Merge Sort</text>
+    <text x="10" y="32" font-size="9" fill="#64748b">O(n log n) all</text>
+    <text x="10" y="46" font-size="9" fill="#64748b">O(n) space, stable</text>
+  </g>
+
+  <g transform="translate(0, 65)">
+    <rect x="0" y="0" width="110" height="55" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="55" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#16a34a">Heap Sort</text>
+    <text x="10" y="32" font-size="9" fill="#64748b">O(n log n) all</text>
+    <text x="10" y="46" font-size="9" fill="#64748b">In-place, unstable</text>
+  </g>
+
+  <g transform="translate(130, 65)">
+    <rect x="0" y="0" width="110" height="55" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="55" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#f59e0b">Counting Sort</text>
+    <text x="10" y="32" font-size="9" fill="#64748b">O(n + k) </text>
+    <text x="10" y="46" font-size="9" fill="#64748b">Needs small range k</text>
+  </g>
+
+  <!-- Summary -->
+  <g transform="translate(20, 230)">
+    <rect x="0" y="0" width="760" height="135" rx="10" fill="rgba(99,102,241,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="380" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Why Sorting Is a DSA Pattern — Common Use Cases</text>
+
+    <g transform="translate(20, 32)">
+      <rect x="0" y="0" width="230" height="90" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <circle cx="15" cy="16" r="6" fill="#7c3aed"/>
+      <text x="28" y="20" font-size="10" font-weight="700" fill="#475569">Sort + Two Pointers</text>
+      <text x="10" y="40" font-size="9" fill="#64748b">Two Sum II → sorted + L/R pointers</text>
+      <text x="10" y="56" font-size="9" fill="#64748b">3Sum → sort + fix one + two pointers</text>
+      <text x="10" y="72" font-size="9" fill="#64748b">K closest → sort by distance</text>
+    </g>
+
+    <g transform="translate(265, 32)">
+      <rect x="0" y="0" width="230" height="90" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <circle cx="15" cy="16" r="6" fill="#0891b2"/>
+      <text x="28" y="20" font-size="10" font-weight="700" fill="#475569">Sort + Greedy</text>
+      <text x="10" y="40" font-size="9" fill="#64748b">Intervals → sort by start/end time</text>
+      <text x="10" y="56" font-size="9" fill="#64748b">Min platforms → sort arrivals + departures</text>
+      <text x="10" y="72" font-size="9" fill="#64748b">Meeting rooms → sort + heap</text>
+    </g>
+
+    <g transform="translate(510, 32)">
+      <rect x="0" y="0" width="230" height="90" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <circle cx="15" cy="16" r="6" fill="#16a34a"/>
+      <text x="28" y="20" font-size="10" font-weight="700" fill="#475569">Sort + Binary Search</text>
+      <text x="10" y="40" font-size="9" fill="#64748b">Binary search requires sorted input</text>
+      <text x="10" y="56" font-size="9" fill="#64748b">Kth smallest → sort + index</text>
+      <text x="10" y="72" font-size="9" fill="#64748b">Range queries → sort + prefix</text>
+    </g>
+  </g>
+</svg>

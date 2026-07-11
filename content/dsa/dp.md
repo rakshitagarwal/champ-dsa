@@ -6,6 +6,8 @@ The key insight is **optimal substructure**: the optimal solution for problem si
 
 Kadane's algorithm is a special case of DP where the state is compressed to a single variable. The recurrence `dp[i] = max(nums[i], dp[i-1] + nums[i])` finds the maximum subarray sum in O(n) time with O(1) space — the classic "Maximum Subarray" problem. The algorithm decides at each position whether to extend the existing subarray (add the current element) or start a new subarray from the current element alone. If the previous subarray's sum is negative, extending it would only make things worse, so starting fresh is better.
 
+![Dynamic programming — overlapping subproblems and DP table](/images/dsa/dp.svg)
+
 ## When to use
 
 - Problem asks for count, min, or max of ways to achieve something with sequential decisions

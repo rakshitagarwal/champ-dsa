@@ -6,6 +6,8 @@ The core invariant that makes binary search correct is that the search range `[l
 
 Binary search also extends to non-standard search spaces. Arrays that are **rotated** (e.g., `[4,5,6,7,0,1,2]`) consist of two sorted segments. By checking which half is normally sorted, you can decide where to search. Arrays that are **not sorted at all** but have a defined slope (e.g., finding a peak element) can also be searched in O(log n) time by comparing adjacent elements. The unifying thread is that binary search works whenever you can make a deterministic decision to discard half the remaining space.
 
+![Binary search — halving the search space](/images/dsa/binary-search.svg)
+
 ## When to use
 
 - The input is sorted or can be arranged in a monotonic order (non-decreasing, non-increasing)

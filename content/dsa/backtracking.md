@@ -6,6 +6,8 @@ The core idea is the **choose-explore-undo** pattern: at each step, you make a c
 
 Backtracking is a natural application of **recursion**, where a function calls itself with a smaller or modified input until it reaches a **base case**. The call stack maintains state — each invocation gets its own scope with parameters and local variables. When the base case is reached, return values propagate back up (stack unwinding), combining to produce the final result. The key to designing backtracking is the **leap of faith**: assume the function already works correctly for all smaller inputs, then figure out how to use those results.
 
+![Backtracking — decision tree and template](/images/dsa/backtracking.svg)
+
 ## When to use
 
 - Need to generate all subsets, permutations, or combinations of a set

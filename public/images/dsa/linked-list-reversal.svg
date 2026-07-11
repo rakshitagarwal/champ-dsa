@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+    <marker id="arrow-rev" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#8b5cf6"/></marker>
+    <marker id="arrow-null" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ef4444"/></marker>
+    <linearGradient id="node1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="node2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>
+    <linearGradient id="node3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+    <linearGradient id="node4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+  </defs>
+
+  <rect width="800" height="420" fill="#fafafa" rx="12"/>
+
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Linked List Reversal — Pointer Rewiring</text>
+
+  <!-- Before reversal -->
+  <rect x="20" y="50" width="760" height="80" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="400" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Before:  head → 1 → 2 → 3 → 4 → null</text>
+
+  <g transform="translate(100, 80)">
+    <!-- Node 1 -->
+    <rect x="0" y="0" width="60" height="30" rx="6" fill="url(#node1)"/>
+    <text x="30" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+    <line x1="60" y1="0" x2="95" y2="0" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="45" y="22" font-size="8" fill="#cbd5e1">next</text>
+
+    <!-- Node 2 -->
+    <rect x="100" y="0" width="60" height="30" rx="6" fill="url(#node2)"/>
+    <text x="130" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+    <line x1="160" y1="0" x2="195" y2="0" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="145" y="22" font-size="8" fill="#cbd5e1">next</text>
+
+    <!-- Node 3 -->
+    <rect x="200" y="0" width="60" height="30" rx="6" fill="url(#node3)"/>
+    <text x="230" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+    <line x1="260" y1="0" x2="295" y2="0" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="245" y="22" font-size="8" fill="#cbd5e1">next</text>
+
+    <!-- Node 4 -->
+    <rect x="300" y="0" width="60" height="30" rx="6" fill="url(#node4)"/>
+    <text x="330" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text>
+    <line x1="360" y1="15" x2="400" y2="15" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-null)" stroke-dasharray="4,3"/>
+    <text x="380" y="35" font-size="9" fill="#ef4444" font-style="italic">null</text>
+  </g>
+
+  <!-- Pointer setup explanation -->
+  <g transform="translate(50, 145)">
+    <text x="0" y="0" font-size="10" fill="#64748b" font-weight="600">Three pointers:</text>
+    <rect x="0" y="8" width="16" height="16" rx="3" fill="rgba(245,158,11,0.2)"/><text x="22" y="20" font-size="10" fill="#64748b">prev (starts null)</text>
+    <rect x="140" y="8" width="16" height="16" rx="3" fill="rgba(139,92,246,0.2)"/><text x="162" y="20" font-size="10" fill="#64748b">curr (starts at head)</text>
+    <rect x="310" y="8" width="16" height="16" rx="3" fill="rgba(6,182,212,0.2)"/><text x="332" y="20" font-size="10" fill="#64748b">next (saves curr.next before overwrite)</text>
+  </g>
+
+  <!-- Step 1: curr=1, save next, point curr.next to prev -->
+  <rect x="20" y="175" width="760" height="105" rx="8" fill="rgba(139,92,246,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="400" y="194" text-anchor="middle" font-size="11" font-weight="700" fill="#7c3aed">Step 1: save next = curr.next  →  then curr.next = prev (null)</text>
+
+  <g transform="translate(50, 210)">
+    <!-- prev -->
+    <rect x="0" y="0" width="50" height="22" rx="4" fill="rgba(245,158,11,0.15)"/>
+    <text x="25" y="15" text-anchor="middle" font-size="10" fill="#d97706">prev</text>
+    <line x1="50" y1="11" x2="75" y2="11" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Node 1 (curr, pointing to null) -->
+    <rect x="80" y="0" width="55" height="28" rx="6" fill="url(#node1)" stroke="#7c3aed" stroke-width="2"/>
+    <text x="107" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+    <line x1="135" y1="14" x2="170" y2="14" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-null)" stroke-dasharray="4,3"/>
+    <text x="150" y="32" font-size="9" fill="#ef4444" font-style="italic">null</text>
+    <text x="65" y="40" font-size="9" fill="#7c3aed" font-weight="600">curr</text>
+
+    <!-- Node 2 (next) -->
+    <rect x="175" y="0" width="55" height="28" rx="6" fill="url(#node2)"/>
+    <text x="202" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+    <line x1="230" y1="14" x2="265" y2="14" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="190" y="40" font-size="9" fill="#0891b2" font-weight="600">next</text>
+
+    <rect x="270" y="0" width="55" height="28" rx="6" fill="url(#node3)"/>
+    <text x="297" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+    <line x1="325" y1="14" x2="360" y2="14" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="365" y="0" width="55" height="28" rx="6" fill="url(#node4)"/>
+    <text x="392" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text>
+    <line x1="420" y1="14" x2="455" y2="14" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-null)" stroke-dasharray="4,3"/>
+    <text x="440" y="32" font-size="9" fill="#ef4444" font-style="italic">null</text>
+  </g>
+
+  <!-- Step 2: advance all three -->
+  <rect x="20" y="295" width="760" height="105" rx="8" fill="rgba(6,182,212,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="400" y="314" text-anchor="middle" font-size="11" font-weight="700" fill="#0891b2">Step 2: prev = curr, curr = next, next = curr.next  →  repeat until curr == null</text>
+
+  <g transform="translate(50, 330)">
+    <!-- prev (now at 1) -->
+    <rect x="0" y="0" width="50" height="22" rx="4" fill="rgba(245,158,11,0.15)"/>
+    <text x="25" y="15" text-anchor="middle" font-size="10" fill="#d97706">prev</text>
+
+    <rect x="55" y="0" width="55" height="28" rx="6" fill="url(#node1)"/>
+    <text x="82" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text>
+    <line x1="110" y1="14" x2="55" y2="14" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrow-rev)"/>
+
+    <!-- curr (now at 2) -->
+    <rect x="120" y="0" width="55" height="28" rx="6" fill="url(#node2)" stroke="#0891b2" stroke-width="2"/>
+    <text x="147" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text>
+    <line x1="175" y1="14" x2="210" y2="14" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-null)" stroke-dasharray="4,3"/>
+    <text x="145" y="40" font-size="9" fill="#0891b2" font-weight="600">curr</text>
+    <text x="190" y="32" font-size="9" fill="#ef4444" font-style="italic">null</text>
+
+    <!-- next (now at 3) -->
+    <rect x="215" y="0" width="55" height="28" rx="6" fill="url(#node3)"/>
+    <text x="242" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text>
+    <line x1="270" y1="14" x2="305" y2="14" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="230" y="40" font-size="9" fill="#0891b2" font-weight="600">next</text>
+
+    <rect x="310" y="0" width="55" height="28" rx="6" fill="url(#node4)"/>
+    <text x="337" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text>
+    <line x1="365" y1="14" x2="400" y2="14" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="420" y1="14" x2="455" y2="14" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-null)" stroke-dasharray="4,3"/>
+  </g>
+
+  <!-- After: reversed -->
+  <text x="400" y="408" text-anchor="middle" font-size="11" font-weight="600" fill="#16a34a">After: null ← 1 ← 2 ← 3 ← 4 ← head</text>
+</svg>

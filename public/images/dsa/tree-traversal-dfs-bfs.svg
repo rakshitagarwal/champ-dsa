@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow-node" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/></marker>
+    <radialGradient id="dfsGrad"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+    <radialGradient id="bfsGrad"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></radialGradient>
+    <radialGradient id="grayGrad"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="100%" stop-color="#cbd5e1"/></radialGradient>
+    <radialGradient id="visGrad"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></radialGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="#fafafa" rx="12"/>
+
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">DFS vs BFS Traversal Order</text>
+
+  <!-- ============== DFS SIDE (left half) ============== -->
+  <rect x="20" y="45" width="375" height="440" rx="10" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <rect x="20" y="45" width="375" height="32" rx="10" fill="rgba(139,92,246,0.1)"/>
+  <text x="207" y="66" text-anchor="middle" font-size="13" font-weight="700" fill="#7c3aed">DFS — Depth-First (Preorder: 5 → 3 → 2 → 4 → 7 → 6 → 8 → 9 → 10)</text>
+
+  <!-- Tree for DFS -->
+  <g transform="translate(10, 20)">
+    <!-- Edges -->
+    <line x1="165" y1="115" x2="95" y2="170" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="165" y1="115" x2="235" y2="170" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="95" y1="170" x2="45" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="95" y1="170" x2="145" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="235" y1="170" x2="185" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="235" y1="170" x2="285" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="285" y1="225" x2="255" y2="280" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="285" y1="225" x2="315" y2="280" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- DFS visited path arrows -->
+    <path d="M165,118 Q130,145 98,170 Q72,198 48,225" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+    <path d="M48,228 Q90,198 142,225" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+    <path d="M148,228 Q190,198 232,170" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+    <path d="M188,228 Q160,198 132,225" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+    <path d="M238,228 Q260,198 282,225" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+    <path d="M258,228 Q240,248 258,280" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-node)" stroke-dasharray="4,3"/>
+
+    <!-- DFS nodes with order numbers -->
+    <g transform="translate(165,100)"><circle r="24" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="5" font-size="13" font-weight="700" fill="#fff">5</text><text y="-30" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">①</text></g>
+    <g transform="translate(95,155)"><circle r="22" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="5" font-size="12" font-weight="600" fill="#fff">3</text><text y="-28" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">②</text></g>
+    <g transform="translate(45,210)"><circle r="20" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">2</text><text y="-26" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">③</text></g>
+    <g transform="translate(145,210)"><circle r="20" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">4</text><text y="-26" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">④</text></g>
+    <g transform="translate(235,155)"><circle r="22" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="5" font-size="12" font-weight="600" fill="#fff">7</text><text y="-28" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">⑤</text></g>
+    <g transform="translate(185,210)"><circle r="20" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">6</text><text y="-26" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">⑥</text></g>
+    <g transform="translate(285,210)"><circle r="20" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">8</text><text y="-26" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">⑦</text></g>
+    <g transform="translate(255,265)"><circle r="18" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="10" font-weight="600" fill="#fff">9</text><text y="-24" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">⑧</text></g>
+    <g transform="translate(315,265)"><circle r="18" fill="url(#dfsGrad)"/><text text-anchor="middle" dy="4" font-size="10" font-weight="600" fill="#fff">10</text><text y="-24" text-anchor="middle" font-size="10" font-weight="700" fill="#8b5cf6">⑨</text></g>
+  </g>
+
+  <!-- DFS explanation -->
+  <text x="207" y="335" text-anchor="middle" font-size="10" fill="#475569" font-weight="600">Stack (LIFO): push children, pop to visit</text>
+  <text x="207" y="352" text-anchor="middle" font-size="9" fill="#64748b">Goes deep first: explores entire branch before backtracking</text>
+  <text x="207" y="370" text-anchor="middle" font-size="9" fill="#64748b">Uses O(h) space where h = tree height</text>
+  <text x="207" y="388" text-anchor="middle" font-size="9" fill="#64748b">Good for: path-based problems, subtree checks</text>
+
+  <!-- ============== BFS SIDE (right half) ============== -->
+  <rect x="405" y="45" width="375" height="440" rx="10" fill="rgba(6,182,212,0.04)" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <rect x="405" y="45" width="375" height="32" rx="10" fill="rgba(6,182,212,0.1)"/>
+  <text x="592" y="66" text-anchor="middle" font-size="13" font-weight="700" fill="#0891b2">BFS — Breadth-First (Level 0 → 1 → 2 → 3)</text>
+
+  <!-- Tree for BFS (same structure) -->
+  <g transform="translate(395, 20)">
+    <!-- Edges -->
+    <line x1="165" y1="115" x2="95" y2="170" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="165" y1="115" x2="235" y2="170" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="95" y1="170" x2="45" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="95" y1="170" x2="145" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="235" y1="170" x2="185" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="235" y1="170" x2="285" y2="225" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="285" y1="225" x2="255" y2="280" stroke="#cbd5e1" stroke-width="1.5"/>
+    <line x1="285" y1="225" x2="315" y2="280" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Level indicators (left side) -->
+    <rect x="335" y="88" width="38" height="22" rx="4" fill="rgba(6,182,212,0.12)"/>
+    <text x="354" y="103" text-anchor="middle" font-size="9" font-weight="600" fill="#0891b2">L0</text>
+    <rect x="335" y="143" width="38" height="22" rx="4" fill="rgba(6,182,212,0.12)"/>
+    <text x="354" y="158" text-anchor="middle" font-size="9" font-weight="600" fill="#0891b2">L1</text>
+    <rect x="335" y="198" width="38" height="22" rx="4" fill="rgba(6,182,212,0.12)"/>
+    <text x="354" y="213" text-anchor="middle" font-size="9" font-weight="600" fill="#0891b2">L2</text>
+    <rect x="335" y="253" width="38" height="22" rx="4" fill="rgba(6,182,212,0.12)"/>
+    <text x="354" y="268" text-anchor="middle" font-size="9" font-weight="600" fill="#0891b2">L3</text>
+
+    <!-- BFS nodes -->
+    <g transform="translate(165,100)"><circle r="24" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="5" font-size="13" font-weight="700" fill="#fff">5</text></g>
+    <g transform="translate(95,155)"><circle r="22" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="5" font-size="12" font-weight="600" fill="#fff">3</text></g>
+    <g transform="translate(235,155)"><circle r="22" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="5" font-size="12" font-weight="600" fill="#fff">7</text></g>
+    <g transform="translate(45,210)"><circle r="20" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">2</text></g>
+    <g transform="translate(145,210)"><circle r="20" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">4</text></g>
+    <g transform="translate(185,210)"><circle r="20" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">6</text></g>
+    <g transform="translate(285,210)"><circle r="20" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="11" font-weight="600" fill="#fff">8</text></g>
+    <g transform="translate(255,265)"><circle r="18" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="10" font-weight="600" fill="#fff">9</text></g>
+    <g transform="translate(315,265)"><circle r="18" fill="url(#bfsGrad)"/><text text-anchor="middle" dy="4" font-size="10" font-weight="600" fill="#fff">10</text></g>
+
+    <!-- BFS queue visualization -->
+    <g transform="translate(30, 310)">
+      <rect x="0" y="0" width="160" height="65" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="80" y="15" text-anchor="middle" font-size="9" font-weight="600" fill="#64748b">Queue</text>
+      <text x="15" y="32" font-size="9" fill="#64748b">Front</text>
+      <rect x="15" y="38" width="22" height="18" rx="3" fill="rgba(6,182,212,0.2)"/><text x="26" y="51" text-anchor="middle" font-size="9" fill="#0891b2">5</text>
+      <text x="45" y="51" font-size="9" fill="#94a3b8">→</text>
+      <rect x="52" y="38" width="22" height="18" rx="3" fill="rgba(6,182,212,0.2)"/><text x="63" y="51" text-anchor="middle" font-size="9" fill="#0891b2">3</text>
+      <text x="80" y="51" font-size="9" fill="#94a3b8">→</text>
+      <rect x="88" y="38" width="22" height="18" rx="3" fill="rgba(6,182,212,0.2)"/><text x="99" y="51" text-anchor="middle" font-size="9" fill="#0891b2">7</text>
+      <text x="115" y="38" font-size="8" fill="#94a3b8">Rear</text>
+    </g>
+  </g>
+
+  <!-- BFS explanation -->
+  <text x="592" y="335" text-anchor="middle" font-size="10" fill="#475569" font-weight="600">Queue (FIFO): enqueue children, dequeue to visit</text>
+  <text x="592" y="352" text-anchor="middle" font-size="9" fill="#64748b">Processes level by level: all nodes at depth d before d+1</text>
+  <text x="592" y="370" text-anchor="middle" font-size="9" fill="#64748b">Uses O(w) space where w = max tree width</text>
+  <text x="592" y="388" text-anchor="middle" font-size="9" fill="#64748b">Good for: shortest path, level-order, min depth</text>
+
+  <!-- Bottom note -->
+  <text x="400" y="435" text-anchor="middle" font-size="10" fill="#64748b">Both run in O(n) time — each node visited exactly once</text>
+  <text x="400" y="453" text-anchor="middle" font-size="10" fill="#64748b">DFS uses implicit (recursion) or explicit stack; BFS uses a queue</text>
+
+  <!-- Legend -->
+  <g transform="translate(690, 80)">
+    <rect x="0" y="0" width="90" height="40" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <circle cx="12" cy="15" r="6" fill="url(#dfsGrad)"/>
+    <text x="23" y="19" font-size="9" fill="#475569">DFS path</text>
+    <circle cx="12" cy="33" r="6" fill="url(#bfsGrad)"/>
+    <text x="23" y="37" font-size="9" fill="#475569">BFS level</text>
+  </g>
+</svg>

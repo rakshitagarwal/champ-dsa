@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/></marker>
+    <linearGradient id="keyG"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="valG"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>
+    <linearGradient id="bucketG"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+  </defs>
+  <rect width="800" height="420" fill="#fafafa" rx="12"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Hashing — O(1) Lookups via Key Mapping</text>
+  <text x="400" y="48" text-anchor="middle" font-size="11" fill="#64748b">Hash function converts key → array index; collisions handled by chaining or open addressing</text>
+
+  <!-- Hash Table Visualization -->
+  <rect x="20" y="65" width="370" height="210" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="205" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">Hash Table with Chaining</text>
+
+  <g transform="translate(30, 95)">
+    <!-- Hash function -->
+    <rect x="0" y="0" width="80" height="28" rx="5" fill="rgba(139,92,246,0.1)"/>
+    <text x="40" y="18" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">hash(key)</text>
+    <line x1="80" y1="14" x2="120" y2="14" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Array (buckets) -->
+    <rect x="125" y="0" width="200" height="160" rx="6" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <rect x="130" y="5" width="190" height="22" rx="3" fill="rgba(241,245,249,0.8)"/>
+    <text x="135" y="20" font-size="9" font-weight="600" fill="#64748b">0</text>
+
+    <rect x="130" y="29" width="190" height="22" rx="3" fill="#fff"/>
+    <text x="135" y="44" font-size="9" font-weight="600" fill="#64748b">1</text>
+    <rect x="155" y="31" width="55" height="18" rx="3" fill="rgba(6,182,212,0.15)"/><text x="182" y="44" text-anchor="middle" font-size="9" fill="#0891b2">"Alice"</text>
+    <text x="214" y="42" font-size="9" fill="#94a3b8">→</text>
+    <rect x="222" y="31" width="40" height="18" rx="3" fill="rgba(34,197,94,0.15)"/><text x="242" y="44" text-anchor="middle" font-size="9" fill="#16a34a">85</text>
+
+    <rect x="130" y="53" width="190" height="22" rx="3" fill="rgba(241,245,249,0.8)"/>
+    <text x="135" y="68" font-size="9" font-weight="600" fill="#64748b">2</text>
+
+    <rect x="130" y="77" width="190" height="22" rx="3" fill="#fff"/>
+    <text x="135" y="92" font-size="9" font-weight="600" fill="#64748b">3</text>
+    <rect x="155" y="79" width="50" height="18" rx="3" fill="rgba(6,182,212,0.15)"/><text x="180" y="92" text-anchor="middle" font-size="9" fill="#0891b2">"Bob"</text>
+    <text x="209" y="90" font-size="9" fill="#94a3b8">→</text>
+    <rect x="217" y="79" width="40" height="18" rx="3" fill="rgba(34,197,94,0.15)"/><text x="237" y="92" text-anchor="middle" font-size="9" fill="#16a34a">92</text>
+
+    <rect x="130" y="101" width="190" height="22" rx="3" fill="rgba(241,245,249,0.8)"/>
+    <text x="135" y="116" font-size="9" font-weight="600" fill="#64748b">4</text>
+    <rect x="155" y="103" width="55" height="18" rx="3" fill="rgba(6,182,212,0.15)"/><text x="182" y="116" text-anchor="middle" font-size="9" fill="#0891b2">"Charlie"</text>
+    <text x="214" y="114" font-size="9" fill="#94a3b8">→</text>
+    <rect x="222" y="103" width="40" height="18" rx="3" fill="rgba(34,197,94,0.15)"/><text x="242" y="116" text-anchor="middle" font-size="9" fill="#16a34a">78</text>
+
+    <rect x="130" y="125" width="190" height="22" rx="3" fill="#fff"/>
+    <text x="135" y="140" font-size="9" font-weight="600" fill="#64748b">5</text>
+    <rect x="155" y="127" width="50" height="18" rx="3" fill="rgba(6,182,212,0.15)"/><text x="180" y="140" text-anchor="middle" font-size="9" fill="#0891b2">"Dave"</text>
+    <text x="209" y="138" font-size="9" fill="#94a3b8">→</text>
+    <rect x="217" y="127" width="40" height="18" rx="3" fill="rgba(34,197,94,0.15)"/><text x="237" y="140" text-anchor="middle" font-size="9" fill="#16a34a">88</text>
+
+    <rect x="130" y="149" width="190" height="8" rx="3" fill="rgba(241,245,249,0.5)"/>
+    <text x="225" y="158" text-anchor="middle" font-size="8" fill="#94a3b8">...</text>
+  </g>
+
+  <!-- Collision Handling -->
+  <rect x="410" y="65" width="370" height="210" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="595" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#0891b2">Collision: Two Keys, Same Bucket</text>
+
+  <g transform="translate(420, 100)">
+    <rect x="0" y="0" width="340" height="120" rx="6" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Collision bucket showing chaining -->
+    <text x="10" y="18" font-size="10" font-weight="600" fill="#64748b">Bucket 3:</text>
+
+    <!-- Chain of entries -->
+    <rect x="10" y="25" width="75" height="28" rx="5" fill="rgba(6,182,212,0.15)"/>
+    <text x="20" y="43" font-size="9" fill="#0891b2">"Banana"</text>
+    <line x1="85" y1="39" x2="105" y2="39" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <rect x="110" y="25" width="75" height="28" rx="5" fill="rgba(245,158,11,0.15)"/>
+    <text x="120" y="43" font-size="9" fill="#d97706">"Grapes"</text>
+    <line x1="185" y1="39" x2="205" y2="39" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <rect x="210" y="25" width="75" height="28" rx="5" fill="rgba(239,68,68,0.15)"/>
+    <text x="220" y="43" font-size="9" fill="#dc2626">"Apple"</text>
+    <line x1="285" y1="39" x2="300" y2="39" stroke="#64748b" stroke-width="1.5"/>
+
+    <text x="10" y="80" font-size="9" fill="#475569">Linked list (chaining) at same index</text>
+    <text x="10" y="96" font-size="9" fill="#475569">Search needs to scan the chain O(k) where k = chain length</text>
+    <text x="10" y="112" font-size="9" fill="#64748b">Good hash function minimizes collisions → O(1) average</text>
+  </g>
+
+  <!-- Common patterns -->
+  <g transform="translate(20, 290)">
+    <rect x="0" y="0" width="760" height="115" rx="10" fill="rgba(99,102,241,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="380" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Common Hashing Patterns in DSA</text>
+
+    <g transform="translate(20, 32)">
+      <rect x="0" y="0" width="230" height="70" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">Duplicate Detection</text>
+      <text x="10" y="34" font-size="9" fill="#64748b">Set: track seen elements</text>
+      <text x="10" y="48" font-size="9" fill="#64748b">if num in set → duplicate found</text>
+      <text x="10" y="62" font-size="9" fill="#64748b">Time: O(n), Space: O(n)</text>
+    </g>
+
+    <g transform="translate(265, 32)">
+      <rect x="0" y="0" width="230" height="70" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">Frequency / Complement</text>
+      <text x="10" y="34" font-size="9" fill="#64748b">Map: element → count/index</text>
+      <text x="10" y="48" font-size="9" fill="#64748b">Two Sum: target - num in map?</text>
+      <text x="10" y="62" font-size="9" fill="#64748b">Anagrams: sorted str → count</text>
+    </g>
+
+    <g transform="translate(510, 32)">
+      <rect x="0" y="0" width="230" height="70" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#16a34a">Grouping by Key</text>
+      <text x="10" y="34" font-size="9" fill="#64748b">Map: key → array of elements</text>
+      <text x="10" y="48" font-size="9" fill="#64748b">Group anagrams, frequency signature</text>
+      <text x="10" y="62" font-size="9" fill="#64748b">Subarray sum = k: prefix map</text>
+    </g>
+  </g>
+</svg>

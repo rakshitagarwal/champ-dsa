@@ -8,6 +8,8 @@ To build intuition, consider an array `[3, 1, 4, 1, 5]`. The prefix array is `[0
 
 A key intuition to develop is that prefix sums convert range-sum queries into point queries. Instead of summing across a range every time, you answer with a single subtraction. This shift in perspective — from iterative summation to direct lookup — is the hallmark of preprocessing techniques. The same idea reappears in many forms: prefix-XOR, prefix-product, 2D prefix sums for submatrix queries, and even prefix sums on trees (where the cumulative sum is computed along root-to-leaf paths).
 
+![Prefix sum — O(1) range queries](/images/dsa/prefix-sum.svg)
+
 ## When to use
 
 - Answering multiple range-sum queries over a static array (e.g., LeetCode's Range Sum Query — Immutable)

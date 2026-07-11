@@ -6,6 +6,8 @@ A hash table works by applying a hash function to a key, producing an integer in
 
 The difference between a hash set and a hash map is simple: a set stores only keys (membership), while a map stores key-value pairs (association). Use a set when you only need to know if something exists. Use a map when you need to associate data with each key — the most recent index, the frequency count, or a list of grouped items. JavaScript's `Set` and `Map` are both well-optimized and maintain insertion order, which can be useful for problems requiring ordering (like finding the first non-repeating character).
 
+![Hashing — hash table with chaining](/images/dsa/hashing.svg)
+
 ## When to use
 
 - Checking for duplicates or existence of an element in O(1) average time (e.g., "Contains Duplicate")

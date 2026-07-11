@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow-dir" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+    <marker id="arrow-bidir" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#8b5cf6"/></marker>
+    <radialGradient id="nodeP"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+    <radialGradient id="nodeT"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></radialGradient>
+    <radialGradient id="nodeG"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></radialGradient>
+    <radialGradient id="nodeO"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></radialGradient>
+  </defs>
+
+  <rect width="800" height="520" fill="#fafafa" rx="12"/>
+
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Graph Types &amp; Representations</text>
+
+  <!-- ====== TOP: Graph Types ====== -->
+
+  <!-- Undirected Unweighted -->
+  <rect x="20" y="45" width="230" height="210" rx="10" fill="rgba(139,92,246,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="135" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Undirected Unweighted</text>
+
+  <g transform="translate(20, 80)">
+    <line x1="105" y1="30" x2="55" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="105" y1="30" x2="155" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="55" y1="90" x2="155" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="105" y1="30" x2="185" y2="60" stroke="#94a3b8" stroke-width="1.5"/>
+    <circle cx="105" cy="30" r="20" fill="url(#nodeP)"/><text x="105" y="35" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">0</text>
+    <circle cx="55" cy="90" r="20" fill="url(#nodeT)"/><text x="55" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">1</text>
+    <circle cx="155" cy="90" r="20" fill="url(#nodeG)"/><text x="155" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">2</text>
+    <circle cx="185" cy="60" r="16" fill="url(#nodeO)"/><text x="185" y="65" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">3</text>
+  </g>
+
+  <!-- Directed Unweighted -->
+  <rect x="285" y="45" width="230" height="210" rx="10" fill="rgba(6,182,212,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="400" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Directed Unweighted (Digraph)</text>
+
+  <g transform="translate(285, 80)">
+    <line x1="105" y1="30" x2="55" y2="90" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-dir)"/>
+    <line x1="55" y1="90" x2="155" y2="90" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-dir)"/>
+    <line x1="105" y1="30" x2="155" y2="90" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow-dir)"/>
+    <line x1="155" y1="90" x2="55" y2="90" stroke="#64748b" stroke-width="0"/>
+    <circle cx="105" cy="30" r="20" fill="url(#nodeP)"/><text x="105" y="35" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">0</text>
+    <circle cx="55" cy="90" r="20" fill="url(#nodeT)"/><text x="55" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">1</text>
+    <circle cx="155" cy="90" r="20" fill="url(#nodeG)"/><text x="155" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">2</text>
+  </g>
+
+  <!-- Weighted Undirected -->
+  <rect x="550" y="45" width="230" height="210" rx="10" fill="rgba(34,197,94,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="665" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Weighted Undirected</text>
+
+  <g transform="translate(550, 80)">
+    <line x1="105" y1="30" x2="55" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="105" y1="30" x2="155" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="55" y1="90" x2="155" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+    <!-- Edge weights -->
+    <text x="72" y="55" font-size="10" fill="#f59e0b" font-weight="700">4</text>
+    <text x="115" y="55" font-size="10" fill="#f59e0b" font-weight="700">2</text>
+    <text x="98" y="98" font-size="10" fill="#f59e0b" font-weight="700">7</text>
+    <circle cx="105" cy="30" r="20" fill="url(#nodeP)"/><text x="105" y="35" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">A</text>
+    <circle cx="55" cy="90" r="20" fill="url(#nodeT)"/><text x="55" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">B</text>
+    <circle cx="155" cy="90" r="20" fill="url(#nodeG)"/><text x="155" y="95" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">C</text>
+  </g>
+
+  <!-- ====== BOTTOM: Representations ====== -->
+  <rect x="20" y="275" width="760" height="230" rx="10" fill="rgba(99,102,241,0.03)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="400" y="295" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">Two Common Ways to Represent a Graph</text>
+
+  <!-- Same graph -->
+  <text x="90" y="320" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Graph</text>
+  <g transform="translate(40, 330)">
+    <line x1="50" y1="15" x2="30" y2="55" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="50" y1="15" x2="70" y2="55" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="30" y1="55" x2="70" y2="55" stroke="#94a3b8" stroke-width="1.5"/>
+    <circle cx="50" cy="15" r="14" fill="url(#nodeP)"/><text x="50" y="20" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">0</text>
+    <circle cx="30" cy="55" r="14" fill="url(#nodeT)"/><text x="30" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">1</text>
+    <circle cx="70" cy="55" r="14" fill="url(#nodeG)"/><text x="70" y="60" text-anchor="middle" font-size="10" font-weight="600" fill="#fff">2</text>
+  </g>
+
+  <!-- Adjacency List -->
+  <rect x="165" y="310" width="280" height="175" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="305" y="332" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Adjacency List (O(V+E) space)</text>
+  <g transform="translate(175, 342)">
+    <text x="10" y="14" font-size="10" font-weight="600" fill="#8b5cf6">0</text>
+    <text x="22" y="14" font-size="10" fill="#64748b">→</text>
+    <rect x="30" y="4" width="20" height="16" rx="3" fill="rgba(6,182,212,0.15)"/><text x="40" y="16" text-anchor="middle" font-size="9" fill="#0891b2">1</text>
+    <text x="54" y="14" font-size="9" fill="#94a3b8">→</text>
+    <rect x="60" y="4" width="20" height="16" rx="3" fill="rgba(34,197,94,0.15)"/><text x="70" y="16" text-anchor="middle" font-size="9" fill="#16a34a">2</text>
+
+    <text x="10" y="40" font-size="10" font-weight="600" fill="#06b6d4">1</text>
+    <text x="22" y="40" font-size="10" fill="#64748b">→</text>
+    <rect x="30" y="30" width="20" height="16" rx="3" fill="rgba(139,92,246,0.15)"/><text x="40" y="42" text-anchor="middle" font-size="9" fill="#7c3aed">0</text>
+    <text x="54" y="40" font-size="9" fill="#94a3b8">→</text>
+    <rect x="60" y="30" width="20" height="16" rx="3" fill="rgba(34,197,94,0.15)"/><text x="70" y="42" text-anchor="middle" font-size="9" fill="#16a34a">2</text>
+
+    <text x="10" y="66" font-size="10" font-weight="600" fill="#22c55e">2</text>
+    <text x="22" y="66" font-size="10" fill="#64748b">→</text>
+    <rect x="30" y="56" width="20" height="16" rx="3" fill="rgba(139,92,246,0.15)"/><text x="40" y="68" text-anchor="middle" font-size="9" fill="#7c3aed">0</text>
+    <text x="54" y="66" font-size="9" fill="#94a3b8">→</text>
+    <rect x="60" y="56" width="20" height="16" rx="3" fill="rgba(6,182,212,0.15)"/><text x="70" y="68" text-anchor="middle" font-size="9" fill="#0891b2">1</text>
+
+    <text x="10" y="100" font-size="9" fill="#64748b" font-style="italic">Space-efficient for sparse graphs</text>
+    <text x="10" y="115" font-size="9" fill="#64748b" font-style="italic">Edge existence check: O(degree)
+
+</text>
+  </g>
+
+  <!-- Adjacency Matrix -->
+  <rect x="470" y="310" width="290" height="175" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="615" y="332" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">Adjacency Matrix (O(V²) space)</text>
+  <g transform="translate(495, 340)">
+    <!-- Matrix -->
+    <rect x="20" y="15" width="95" height="80" rx="4" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+    <!-- Row/col labels -->
+    <text x="30" y="10" font-size="9" fill="#94a3b8" text-anchor="middle">0</text>
+    <text x="52" y="10" font-size="9" fill="#94a3b8" text-anchor="middle">1</text>
+    <text x="74" y="10" font-size="9" fill="#94a3b8" text-anchor="middle">2</text>
+    <text x="12" y="30" font-size="9" font-weight="600" fill="#8b5cf6" text-anchor="end">0</text>
+    <text x="12" y="52" font-size="9" font-weight="600" fill="#06b6d4" text-anchor="end">1</text>
+    <text x="12" y="74" font-size="9" font-weight="600" fill="#22c55e" text-anchor="end">2</text>
+
+    <!-- Row 0 -->
+    <rect x="22" y="20" width="20" height="20" rx="3" fill="rgba(241,245,249,0.8)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="32" y="34" text-anchor="middle" font-size="10" fill="#94a3b8">0</text>
+    <rect x="44" y="20" width="20" height="20" rx="3" fill="rgba(6,182,212,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="54" y="34" text-anchor="middle" font-size="10" font-weight="600" fill="#0891b2">1</text>
+    <rect x="66" y="20" width="20" height="20" rx="3" fill="rgba(34,197,94,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="76" y="34" text-anchor="middle" font-size="10" font-weight="600" fill="#16a34a">1</text>
+
+    <!-- Row 1 -->
+    <rect x="22" y="42" width="20" height="20" rx="3" fill="rgba(139,92,246,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="32" y="56" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">1</text>
+    <rect x="44" y="42" width="20" height="20" rx="3" fill="rgba(241,245,249,0.8)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="54" y="56" text-anchor="middle" font-size="10" fill="#94a3b8">0</text>
+    <rect x="66" y="42" width="20" height="20" rx="3" fill="rgba(34,197,94,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="76" y="56" text-anchor="middle" font-size="10" font-weight="600" fill="#16a34a">1</text>
+
+    <!-- Row 2 -->
+    <rect x="22" y="64" width="20" height="20" rx="3" fill="rgba(139,92,246,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="32" y="78" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">1</text>
+    <rect x="44" y="64" width="20" height="20" rx="3" fill="rgba(6,182,212,0.15)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="54" y="78" text-anchor="middle" font-size="10" font-weight="600" fill="#0891b2">1</text>
+    <rect x="66" y="64" width="20" height="20" rx="3" fill="rgba(241,245,249,0.8)" stroke="#e2e8f0" stroke-width="0.5"/>
+    <text x="76" y="78" text-anchor="middle" font-size="10" fill="#94a3b8">0</text>
+
+    <!-- Note -->
+    <rect x="130" y="18" width="55" height="20" rx="4" fill="rgba(34,197,94,0.1)"/>
+    <text x="157" y="32" text-anchor="middle" font-size="9" fill="#16a34a">1 = edge</text>
+    <rect x="130" y="44" width="55" height="20" rx="4" fill="rgba(241,245,249,0.5)"/>
+    <text x="157" y="58" text-anchor="middle" font-size="9" fill="#94a3b8">0 = no edge</text>
+    <text x="10" y="110" font-size="9" fill="#64748b" font-style="italic">Edge existence check: O(1)</text>
+    <text x="10" y="125" font-size="9" fill="#64748b" font-style="italic">Good for dense graphs</text>
+  </g>
+</svg>

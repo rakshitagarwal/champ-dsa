@@ -6,6 +6,8 @@ The key insight is that the stack holds a sequence of "candidates" who are still
 
 This makes monotonic stacks a powerful tool for problems involving **range queries with nearest-neighbor comparisons**, such as computing the span of a stock price (consecutive days where the price was ≤ the current price), finding the largest rectangle under a histogram, or trapping rainwater between elevations. In each case, the stack eliminates redundant comparisons by remembering only the relevant elements that have not yet found their match.
 
+![Monotonic stack — next greater element](/images/dsa/monotonic-stack.svg)
+
 ## When to use
 
 - Need to find the next greater / next smaller element for each position in an array

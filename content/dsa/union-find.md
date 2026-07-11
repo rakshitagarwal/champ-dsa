@@ -4,6 +4,8 @@ Disjoint Set Union (DSU), also called Union Find, is a data structure that track
 
 The data structure is widely used in graph algorithms (Kruskal's MST, connected components), dynamic connectivity problems, and any scenario where you need to efficiently manage equivalence relations or merge groups incrementally. Despite its simplicity — often implemented in under 30 lines of code — DSU is a powerful tool that appears frequently in both competitive programming and technical interviews.
 
+![Union-Find — disjoint sets, union, and path compression](/images/dsa/union-find.svg)
+
 ## When to use
 
 - **Dynamic connectivity:** Determining whether two nodes are connected in a graph as edges are added incrementally

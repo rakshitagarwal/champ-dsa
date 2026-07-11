@@ -6,6 +6,8 @@ The core idea is simple: instead of letting a single loop do all the work (often
 
 The technique can be traced back to basic algorithmic problems like searching in a sorted array, but it has since evolved into a versatile tool for solving everything from palindrome checking to linked-list cycle detection. What makes two pointers so effective is that each step eliminates one or more candidates from consideration without needing to revisit them. For opposite-direction pointers on a sorted array, each comparison lets you discard either the leftmost or rightmost element, cutting the search space in half with every move — not literally in half, but by at least one element per iteration, keeping the overall complexity linear.
 
+![Two pointers — opposite direction and same direction](/images/dsa/two-pointers.svg)
+
 ## When to use
 
 - Searching for a pair of elements that satisfy a target condition in a **sorted** array (e.g., Two Sum II, 3Sum, 4Sum)

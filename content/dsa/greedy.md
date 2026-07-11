@@ -4,6 +4,8 @@ A greedy algorithm makes the locally optimal choice at each step, hoping that th
 
 Greedy is appealing because it is usually simple to implement and runs in O(n log n) or less. Common greedy patterns include: always pick the interval that ends earliest (activity selection), always pick the largest coin denomination (canonical coin systems), always extend the furthest reachable point (jump games), and always serve the smallest/shortest task first (scheduling). However, greedy is not always correct — problems like the knapsack or non-canonical coin change require dynamic programming instead.
 
+![Greedy — interval scheduling and patterns](/images/dsa/greedy.svg)
+
 ## When to use
 
 - Interval scheduling and activity selection (sort by end time, pick non-overlapping)

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="sGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="qGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>
+    <linearGradient id="sItem" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient>
+    <linearGradient id="qItem" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient>
+    <marker id="arrDown" viewBox="0 0 10 10" refX="5" refY="10" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L5,10 L10,0 Z" fill="#64748b"/></marker>
+  </defs>
+
+  <rect width="800" height="340" fill="#fafafa" rx="12"/>
+
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Stack vs Queue</text>
+  <text x="400" y="48" text-anchor="middle" font-size="11" fill="#64748b">LIFO (Last-In-First-Out) vs FIFO (First-In-First-Out)</text>
+
+  <!-- ===== STACK (left) ===== -->
+  <rect x="30" y="65" width="350" height="260" rx="10" fill="rgba(139,92,246,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="30" y="65" width="350" height="30" rx="10" fill="rgba(139,92,246,0.08)"/>
+  <text x="205" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#7c3aed">Stack — LIFO</text>
+
+  <g transform="translate(50, 105)">
+    <!-- Stack visualization -->
+    <rect x="20" y="0" width="120" height="160" rx="8" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="80" y="202" text-anchor="middle" font-size="10" fill="#64748b">Top ← push / pop</text>
+    <text x="80" y="216" text-anchor="middle" font-size="10" fill="#64748b">Bottom (first element)</text>
+
+    <!-- Stack items (3 items stacked) -->
+    <rect x="30" y="115" width="100" height="30" rx="5" fill="url(#sItem)"/>
+    <text x="80" y="134" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">"undo"</text>
+
+    <rect x="30" y="80" width="100" height="30" rx="5" fill="url(#sItem)"/>
+    <text x="80" y="99" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">"copy"</text>
+
+    <rect x="30" y="45" width="100" height="30" rx="5" fill="url(#sItem)"/>
+    <text x="80" y="64" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">"paste"</text>
+
+    <!-- Push/pop labels -->
+    <text x="85" y="40" font-size="9" fill="#ef4444" font-weight="600" text-anchor="end">pop →</text>
+    <line x1="90" y1="33" x2="115" y2="50" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrDown)"/>
+    <text x="85" y="155" font-size="9" fill="#22c55e" font-weight="600" text-anchor="end">← push</text>
+    <line x1="140" y1="145" x2="140" y2="125" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Operations list -->
+    <g transform="translate(165, 5)">
+      <text x="0" y="12" font-size="10" font-weight="600" fill="#475569">Operations:</text>
+      <text x="0" y="30" font-size="10" fill="#64748b">push(x) — add to top</text>
+      <text x="0" y="46" font-size="10" fill="#64748b">pop()   — remove from top</text>
+      <text x="0" y="62" font-size="10" fill="#64748b">peek()  — view top</text>
+      <text x="0" y="80" font-size="10" fill="#64748b">isEmpty() — check empty</text>
+
+      <text x="0" y="104" font-size="10" font-weight="600" fill="#475569">Use cases:</text>
+      <text x="0" y="120" font-size="9" fill="#64748b">• Undo/Redo in editors</text>
+      <text x="0" y="134" font-size="9" fill="#64748b">• Bracket matching</text>
+      <text x="0" y="148" font-size="9" fill="#64748b">• Expression evaluation</text>
+    </g>
+  </g>
+
+  <!-- ===== QUEUE (right) ===== -->
+  <rect x="420" y="65" width="350" height="260" rx="10" fill="rgba(6,182,212,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="420" y="65" width="350" height="30" rx="10" fill="rgba(6,182,212,0.08)"/>
+  <text x="595" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#0891b2">Queue — FIFO</text>
+
+  <g transform="translate(440, 105)">
+    <!-- Queue visualization (horizontal) -->
+    <rect x="10" y="0" width="240" height="60" rx="8" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="60" y="88" text-anchor="middle" font-size="10" fill="#64748b">Front ← dequeue</text>
+    <text x="200" y="88" text-anchor="middle" font-size="10" fill="#64748b">enqueue → Rear</text>
+
+    <!-- Queue items -->
+    <rect x="18" y="10" width="50" height="40" rx="5" fill="url(#qItem)"/>
+    <text x="43" y="34" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">job 1</text>
+
+    <rect x="72" y="10" width="50" height="40" rx="5" fill="url(#qItem)"/>
+    <text x="97" y="34" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">job 2</text>
+
+    <rect x="126" y="10" width="50" height="40" rx="5" fill="url(#qItem)"/>
+    <text x="151" y="34" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">job 3</text>
+
+    <rect x="180" y="10" width="50" height="40" rx="5" fill="url(#qItem)"/>
+    <text x="205" y="34" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">job 4</text>
+
+    <!-- Enqueue/Dequeue arrows -->
+    <text x="10" y="62" font-size="9" fill="#ef4444" font-weight="600">dequeue →</text>
+    <line x1="60" y1="65" x2="50" y2="72" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrDown)"/>
+    <text x="230" y="62" font-size="9" fill="#22c55e" font-weight="600">← enqueue</text>
+    <line x1="235" y1="65" x2="235" y2="58" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Operations list -->
+    <g transform="translate(5, 110)">
+      <text x="0" y="12" font-size="10" font-weight="600" fill="#475569">Operations:</text>
+      <text x="0" y="30" font-size="10" fill="#64748b">enqueue(x) — add to rear</text>
+      <text x="0" y="46" font-size="10" fill="#64748b">dequeue()  — remove from front</text>
+      <text x="0" y="62" font-size="10" fill="#64748b">peek()     — view front</text>
+      <text x="0" y="78" font-size="10" fill="#64748b">isEmpty()  — check empty</text>
+
+      <text x="0" y="102" font-size="10" font-weight="600" fill="#475569">Use cases:</text>
+      <text x="0" y="118" font-size="9" fill="#64748b">• BFS traversal</text>
+      <text x="0" y="132" font-size="9" fill="#64748b">• Task scheduling</text>
+      <text x="0" y="146" font-size="9" fill="#64748b">• Print spooling</text>
+    </g>
+  </g>
+</svg>

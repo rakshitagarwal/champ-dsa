@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { DsaPattern } from "@/types/pattern";
+import { Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getDeveloperFraming } from "@/data/patterns/developer-framing";
 import {
@@ -177,8 +178,9 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             {pitfalls.map((item) => (
               <li
                 key={item}
-                className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed"
+                className="flex gap-3 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed"
               >
+                <Circle className="mt-0.5 h-4 w-4 shrink-0 fill-current text-destructive/50" />
                 {item}
               </li>
             ))}

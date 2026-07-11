@@ -4,6 +4,10 @@ Graphs model pairwise relationships between objects using **vertices** (nodes) a
 
 DFS (Depth-First Search) uses a stack (recursive or explicit) to explore one branch to completion before backtracking. It is memory-efficient for deep graphs but can overflow the call stack on long paths. BFS (Breadth-First Search) uses a queue to explore level by level, guaranteeing the shortest path in unweighted graphs at the cost of larger memory for wide graphs. Both run in **O(V + E)** time and require a **visited set** to avoid infinite loops in cyclic graphs. For directed graphs, **three-color marking** (unvisited → visiting → visited) detects back edges that indicate cycles.
 
+![Graph types and representations](/images/dsa/graph-types-representations.svg)
+
+![Cycle detection with three-color DFS](/images/dsa/graph-cycle-detection.svg)
+
 ## When to use
 
 - **Finding connected components or counting islands** — Run DFS/BFS from each unvisited node; each traversal marks one component

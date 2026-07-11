@@ -4,6 +4,8 @@ A **stack** is a Last-In-First-Out (LIFO) data structure where elements are adde
 
 Beyond their textbook definitions, stacks and queues serve as the scaffolding for more advanced patterns like monotonic stacks, sliding window maximums (via deques), and breadth-first search. Understanding their internal mechanics — and the tradeoffs between array-backed vs. pointer-based implementations — is critical for writing correct, performant code in both interviews and production systems.
 
+![Stack vs Queue visualization](/images/dsa/stack-queue-visual.svg)
+
 ## When to use
 
 - Parenthesis or bracket matching — push opening brackets, pop on closing; mismatched top means invalid

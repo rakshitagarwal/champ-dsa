@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { Circle, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   clearPatternAiExplanation,
@@ -202,13 +202,14 @@ function Block({
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </h3>
-      <div className="mt-2 space-y-3">
+      <ul className="mt-2 space-y-2">
         {paragraphs.map((p, i) => (
-          <p key={i} className="whitespace-pre-wrap">
-            {p}
-          </p>
+          <li key={i} className="flex gap-3">
+            <Circle className="mt-1 h-3 w-3 shrink-0 fill-current text-primary" />
+            <span className="whitespace-pre-wrap">{p}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
@@ -219,9 +220,12 @@ function BulletBlock({ title, items }: { title: string; items: string[] }) {
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </h3>
-      <ul className="mt-2 list-disc space-y-1.5 pl-5">
+      <ul className="mt-2 space-y-1.5">
         {items.map((item, i) => (
-          <li key={i}>{item}</li>
+          <li key={i} className="flex gap-3">
+            <Circle className="mt-1 h-3 w-3 shrink-0 fill-current text-primary" />
+            <span>{item}</span>
+          </li>
         ))}
       </ul>
     </section>

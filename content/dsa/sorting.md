@@ -4,6 +4,8 @@ Sorting rearranges elements into a defined order (usually ascending). In intervi
 
 Know when sorting is worth it: if the problem involves pairs, intervals, scheduling, or finding duplicates/kth elements, sorting first often beats clever unsorted tricks. For fixed-size alphabets, counting sort can beat comparison sort in O(n + k) time.
 
+![Sorting — preprocessing for efficient algorithms](/images/dsa/sorting-visual.svg)
+
 ## When to use
 
 - Pair or triplet problems where sorting enables two pointers (3Sum, container problems)

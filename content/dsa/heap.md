@@ -6,6 +6,8 @@ Priority queues appear across domains: scheduling tasks by urgency, merging K so
 
 The canonical operations are **push** (insert at the bottom and sift-up), **pop** (swap root with last element, remove it, then sift-down the new root), and **peek** (read the root). Building a heap from scratch (heapify) runs in O(n) by sifting-down each non-leaf node from bottom to top, which is surprisingly linear and faster than inserting n elements one at a time (O(n log n)).
 
+![Min-heap tree view and array representation](/images/dsa/heap-array-representation.svg)
+
 ## When to use
 
 - Finding the **top K largest / smallest / most frequent** elements in a stream or array — a min-heap of size K keeps the K largest so far; a max-heap of size K keeps the K smallest

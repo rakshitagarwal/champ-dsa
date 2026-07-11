@@ -4,6 +4,10 @@ Trees are hierarchical data structures consisting of nodes connected by edges, w
 
 Depth-first search (DFS) explores as far as possible along each branch before backtracking, consuming O(h) stack space where h is tree height. Breadth-first search (BFS) explores all nodes at the current depth before moving deeper, using O(w) queue space where w is the maximum width. Understanding when to use each is critical: DFS is typically simpler to implement recursively and works well for path-based problems (root-to-leaf sums, subtree checks), while BFS is the natural choice for shortest-path, level-order, and problems requiring minimal distance from the root.
 
+![Binary tree anatomy](/images/dsa/binary-tree-anatomy.svg)
+
+![DFS vs BFS traversal order](/images/dsa/tree-traversal-dfs-bfs.svg)
+
 ## When to use
 
 - Computing tree properties like maximum depth, diameter, or balanced-height checks

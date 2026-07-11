@@ -6,6 +6,8 @@ The intuition behind sliding window comes from the observation that many problem
 
 There are two major variants: **fixed-size windows** (where you always keep exactly k elements) and **dynamic-size windows** (where you expand and shrink based on a condition). In both cases, the core invariant is that you maintain a data structure — a sum, a hash map of character frequencies, or a set of unique elements — that stays consistent with the current window. Each element enters the window exactly once (when the right pointer passes over it) and leaves at most once (when the left pointer passes over it), giving a total of O(n) operations.
 
+![Sliding window — fixed and dynamic](/images/dsa/sliding-window.svg)
+
 ## When to use
 
 - Problems asking for the maximum or minimum value of a subarray that satisfies a constraint (size k, unique characters, sum threshold, etc.)

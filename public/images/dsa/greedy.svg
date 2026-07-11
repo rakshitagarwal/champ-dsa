@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/></marker>
+    <linearGradient id="optG"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+    <linearGradient id="subG"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+    <linearGradient id="badG"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#ef4444"/></linearGradient>
+    <linearGradient id="intG"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+  </defs>
+  <rect width="800" height="420" fill="#fafafa" rx="12"/>
+  <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Greedy — Local Choice → Global Optimum</text>
+  <text x="400" y="48" text-anchor="middle" font-size="11" fill="#64748b">Make the best immediate choice; if the problem has optimal substructure, it yields the global optimum</text>
+
+  <!-- Classic: Interval Scheduling -->
+  <rect x="20" y="65" width="370" height="175" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="205" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">Interval Scheduling — Pick max non-overlapping</text>
+  <text x="205" y="100" text-anchor="middle" font-size="10" fill="#64748b">Greedy choice: pick the interval that ends earliest</text>
+
+  <g transform="translate(30, 115)">
+    <!-- Intervals -->
+    <line x1="0" y1="0" x2="80" y2="0" stroke="#f87171" stroke-width="6" stroke-linecap="round"/>
+    <text x="90" y="4" font-size="9" fill="#64748b">[1, 4]</text>
+    <line x1="30" y1="16" x2="120" y2="16" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>
+    <text x="130" y="20" font-size="9" fill="#64748b">[2, 6]</text>
+    <line x1="10" y1="32" x2="55" y2="32" stroke="#06b6d4" stroke-width="6" stroke-linecap="round"/>
+    <text x="65" y="36" font-size="9" fill="#64748b">[1, 3]</text>
+    <line x1="60" y1="48" x2="100" y2="48" stroke="#22c55e" stroke-width="6" stroke-linecap="round"/>
+    <text x="110" y="52" font-size="9" fill="#64748b">[4, 5]</text>
+    <line x1="105" y1="64" x2="170" y2="64" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round"/>
+    <text x="180" y="68" font-size="9" fill="#64748b">[6, 8]</text>
+
+    <!-- Timeline -->
+    <line x1="0" y1="80" x2="200" y2="80" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="0" y="92" font-size="8" fill="#94a3b8">1</text>
+    <text x="50" y="92" font-size="8" fill="#94a3b8">2</text>
+    <text x="100" y="92" font-size="8" fill="#94a3b8">3</text>
+    <text x="150" y="92" font-size="8" fill="#94a3b8">4</text>
+    <text x="200" y="92" font-size="8" fill="#94a3b8">5...</text>
+
+    <!-- Selection indicator -->
+    <text x="10" y="115" font-size="9" fill="#16a34a" font-weight="600">✓ Picked: [1,3], [4,5], [6,8]</text>
+    <text x="10" y="130" font-size="9" fill="#64748b">Sort by end time, always pick if start ≥ last end</text>
+    <text x="10" y="145" font-size="8" fill="#64748b" font-style="italic">Proof: earliest-finish leaves max room for remaining intervals</text>
+  </g>
+
+  <!-- Greedy vs DP -->
+  <rect x="410" y="65" width="370" height="175" rx="10" fill="rgba(99,102,241,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="595" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#0891b2">When Greedy Works vs When You Need DP</text>
+
+  <g transform="translate(420, 105)">
+    <rect x="0" y="0" width="350" height="50" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <circle cx="15" cy="16" r="7" fill="#16a34a"/>
+    <text x="28" y="20" font-size="10" font-weight="700" fill="#475569">Greedy works</text>
+    <text x="10" y="40" font-size="9" fill="#64748b">Greedy choice property + optimal substructure</text>
+
+    <rect x="0" y="60" width="350" height="50" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <circle cx="15" cy="16" r="7" fill="#ef4444"/>
+    <text x="28" y="20" font-size="10" font-weight="700" fill="#475569">Greedy fails</text>
+    <text x="10" y="40" font-size="9" fill="#64748b">Local best doesn't lead to global best → DP needed</text>
+
+    <text x="10" y="72" font-size="9" fill="#64748b">Examples where greedy fails: 0/1 Knapsack, coin change with weird denominations,</text>
+    <text x="10" y="86" font-size="9" fill="#64748b">weighted interval scheduling (use DP instead)</text>
+  </g>
+
+  <!-- Summary -->
+  <g transform="translate(20, 255)">
+    <rect x="0" y="0" width="760" height="150" rx="10" fill="rgba(99,102,241,0.04)" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="380" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Common Greedy Patterns</text>
+
+    <g transform="translate(20, 32)">
+      <rect x="0" y="0" width="230" height="105" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed">1. Sort by End Time</text>
+      <text x="10" y="36" font-size="9" fill="#64748b">Interval scheduling, meeting rooms</text>
+      <text x="10" y="52" font-size="9" fill="#64748b">Always pick earliest finish</text>
+      <text x="10" y="68" font-size="9" fill="#64748b">→ O(n log n)</text>
+    </g>
+
+    <g transform="translate(265, 32)">
+      <rect x="0" y="0" width="230" height="105" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#0891b2">2. Sort by Ratio / Value</text>
+      <text x="10" y="36" font-size="9" fill="#64748b">Fractional knapsack (sort by value/weight)</text>
+      <text x="10" y="52" font-size="9" fill="#64748b">Job sequencing (sort by profit)</text>
+      <text x="10" y="68" font-size="9" fill="#64748b">→ O(n log n)</text>
+    </g>
+
+    <g transform="translate(510, 32)">
+      <rect x="0" y="0" width="230" height="105" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="115" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#16a34a">3. One-Pass Decision</text>
+      <text x="10" y="36" font-size="9" fill="#64748b">Jump Game — max reachable index</text>
+      <text x="10" y="52" font-size="9" fill="#64748b">Gas Station — running total</text>
+      <text x="10" y="68" font-size="9" fill="#64748b">Buy/Sell stock — min price so far</text>
+      <text x="10" y="84" font-size="9" fill="#64748b">→ O(n) time, O(1) space</text>
+    </g>
+  </g>
+</svg>

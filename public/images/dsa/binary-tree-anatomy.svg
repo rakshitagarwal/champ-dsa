@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#666"/></marker>
+    <radialGradient id="nodeGrad"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/></radialGradient>
+    <radialGradient id="leafGrad"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a"/></radialGradient>
+    <radialGradient id="nullGrad"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#ef4444"/></radialGradient>
+  </defs>
+
+  <rect width="800" height="420" fill="#fafafa" rx="12"/>
+
+  <!-- Title -->
+  <text x="400" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Binary Tree Anatomy</text>
+  <text x="400" y="55" text-anchor="middle" font-size="12" fill="#64748b">Each node has at most two children: left and right</text>
+
+  <!-- Tree structure -->
+  <!-- Edges -->
+  <line x1="310" y1="105" x2="170" y2="175" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="310" y1="105" x2="450" y2="175" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="170" y1="175" x2="90" y2="245" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="170" y1="175" x2="250" y2="245" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="175" x2="370" y2="245" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="175" x2="530" y2="245" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="530" y1="245" x2="490" y2="315" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="530" y1="245" x2="610" y2="315" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Null pointers -->
+  <line x1="90" y1="245" x2="50" y2="310" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="370" y1="245" x2="330" y2="310" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="490" y1="315" x2="450" y2="370" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- Nodes -->
+  <circle cx="310" cy="90" r="28" fill="url(#nodeGrad)"/>
+  <text x="310" y="95" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">5</text>
+  <text x="310" y="70" text-anchor="middle" font-size="10" fill="#6366f1" font-weight="600">root</text>
+
+  <circle cx="170" cy="175" r="26" fill="url(#nodeGrad)"/>
+  <text x="170" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">3</text>
+
+  <circle cx="450" cy="175" r="26" fill="url(#nodeGrad)"/>
+  <text x="450" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#fff">7</text>
+
+  <circle cx="90" cy="245" r="24" fill="url(#leafGrad)"/>
+  <text x="90" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">2</text>
+
+  <circle cx="250" cy="245" r="24" fill="url(#leafGrad)"/>
+  <text x="250" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">4</text>
+
+  <circle cx="370" cy="245" r="24" fill="url(#nodeGrad)"/>
+  <text x="370" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">6</text>
+
+  <circle cx="530" cy="245" r="24" fill="url(#leafGrad)"/>
+  <text x="530" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">8</text>
+
+  <circle cx="490" cy="315" r="22" fill="url(#leafGrad)"/>
+  <text x="490" y="320" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">9</text>
+
+  <circle cx="610" cy="315" r="22" fill="url(#leafGrad)"/>
+  <text x="610" y="320" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">10</text>
+
+  <!-- Null children -->
+  <text x="50" y="333" text-anchor="middle" font-size="9" fill="#ef4444" font-style="italic">null</text>
+  <text x="330" y="333" text-anchor="middle" font-size="9" fill="#ef4444" font-style="italic">null</text>
+  <text x="450" y="390" text-anchor="middle" font-size="9" fill="#ef4444" font-style="italic">null</text>
+
+  <!-- Legend -->
+  <g transform="translate(650, 75)">
+    <rect x="0" y="0" width="135" height="135" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="67" y="20" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b">Legend</text>
+    <rect x="10" y="30" width="12" height="12" rx="6" fill="url(#nodeGrad)"/>
+    <text x="28" y="40" font-size="10" fill="#475569">Internal node</text>
+    <rect x="10" y="52" width="12" height="12" rx="6" fill="url(#leafGrad)"/>
+    <text x="28" y="62" font-size="10" fill="#475569">Leaf node</text>
+    <line x1="10" y1="82" x2="22" y2="82" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="28" y="86" font-size="10" fill="#475569">Null pointer</text>
+    <circle cx="16" cy="102" r="6" fill="url(#nodeGrad)"/>
+    <text x="28" y="106" font-size="10" fill="#475569">height = 3</text>
+    <line x1="10" y1="120" x2="22" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="28" y="124" font-size="10" fill="#475569">Edge / pointer</text>
+  </g>
+</svg>

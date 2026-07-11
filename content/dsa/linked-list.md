@@ -6,6 +6,8 @@ The power of linked list problems lies in pointer manipulation. By reassigning a
 
 Common operations include traversal (walking until null), insertion (at head, tail, or after a given node), deletion (by value or by pointer), reversal (iterative or recursive), and merging two sorted lists. Many coding-interview problems reduce to mastering these handful of pointer-rewiring patterns — once you can reverse and merge, you can solve most linked-list challenges.
 
+![Linked list reversal — pointer rewiring](/images/dsa/linked-list-reversal.svg)
+
 ## When to use
 
 - Reversing a linked list in-place (iterative or recursive) without extra array storage

@@ -8,6 +8,8 @@ The pattern is deceptively broad — it covers everything from simple linear sca
 
 A key insight is that strings are often converted to arrays (e.g., `.split('')`) to enable in-place mutation, then re-joined. Similarly, problems involving character counting, ordering, or anagram detection typically use a fixed-size integer array (size 26 for lowercase letters, 128 for ASCII, 256 for extended ASCII) as a frequency table. This bounded auxiliary space is a recurring trick that keeps solutions simple and fast.
 
+![Arrays and strings — structure and operations](/images/dsa/arrays-strings.svg)
+
 ## When to use
 
 - Reversing a string or array in-place using two-pointer swapping
