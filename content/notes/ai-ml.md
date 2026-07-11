@@ -134,7 +134,7 @@ Structured answer:
 - Paper-level architecture comparisons (BERT vs GPT internals)
 - Building your own embedding model
 
-**Go deeper externally:** [OpenAI docs](https://platform.openai.com/docs), [Anthropic docs](https://docs.anthropic.com), [Hugging Face course](https://huggingface.co/learn) — linked from [Resources](/resources).
+**Go deeper externally:** [OpenAI docs](https://platform.openai.com/docs), [Anthropic docs](https://docs.anthropic.com), [Hugging Face course](https://huggingface.co/learn).
 
 ---
 

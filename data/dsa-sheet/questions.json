@@ -1,0 +1,2366 @@
+[
+  {
+    "id": "striver-001",
+    "sheetNumber": 1,
+    "title": "Reverse Integer",
+    "leetcodeSlug": "reverse-integer",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-integer/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-002",
+    "sheetNumber": 2,
+    "title": "Palindrome Number",
+    "leetcodeSlug": "palindrome-number",
+    "leetcodeUrl": "https://leetcode.com/problems/palindrome-number/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-003",
+    "sheetNumber": 3,
+    "title": "Armstrong Number",
+    "leetcodeSlug": "armstrong-number",
+    "leetcodeUrl": "https://leetcode.com/problems/armstrong-number/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-004",
+    "sheetNumber": 4,
+    "title": "Valid Palindrome",
+    "leetcodeSlug": "valid-palindrome",
+    "leetcodeUrl": "https://leetcode.com/problems/valid-palindrome/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-005",
+    "sheetNumber": 5,
+    "title": "Fibonacci Number",
+    "leetcodeSlug": "fibonacci-number",
+    "leetcodeUrl": "https://leetcode.com/problems/fibonacci-number/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-006",
+    "sheetNumber": 6,
+    "title": "Frequency Of The Most Frequent Element",
+    "leetcodeSlug": "frequency-of-the-most-frequent-element",
+    "leetcodeUrl": "https://leetcode.com/problems/frequency-of-the-most-frequent-element/",
+    "sectionId": "learn-basics",
+    "sectionTitle": "Learn the basics"
+  },
+  {
+    "id": "striver-007",
+    "sheetNumber": 7,
+    "title": "Check If Array Is Sorted And Rotated",
+    "leetcodeSlug": "check-if-array-is-sorted-and-rotated",
+    "leetcodeUrl": "https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-008",
+    "sheetNumber": 8,
+    "title": "Remove Duplicates from Sorted Array",
+    "leetcodeSlug": "remove-duplicates-from-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-duplicates-from-sorted-array/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-032-remove-duplicates-from-sorted-array"
+  },
+  {
+    "id": "striver-009",
+    "sheetNumber": 9,
+    "title": "Rotate Array",
+    "leetcodeSlug": "rotate-array",
+    "leetcodeUrl": "https://leetcode.com/problems/rotate-array/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-010",
+    "sheetNumber": 10,
+    "title": "Move Zeroes",
+    "leetcodeSlug": "move-zeroes",
+    "leetcodeUrl": "https://leetcode.com/problems/move-zeroes/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-011",
+    "sheetNumber": 11,
+    "title": "Max Consecutive Ones",
+    "leetcodeSlug": "max-consecutive-ones",
+    "leetcodeUrl": "https://leetcode.com/problems/max-consecutive-ones/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-193-max-consecutive-ones"
+  },
+  {
+    "id": "striver-012",
+    "sheetNumber": 12,
+    "title": "Single Number",
+    "leetcodeSlug": "single-number",
+    "leetcodeUrl": "https://leetcode.com/problems/single-number/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-202-single-number"
+  },
+  {
+    "id": "striver-013",
+    "sheetNumber": 13,
+    "title": "Two Sum",
+    "leetcodeSlug": "two-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/two-sum/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-002-two-sum"
+  },
+  {
+    "id": "striver-014",
+    "sheetNumber": 14,
+    "title": "Sort Colors",
+    "leetcodeSlug": "sort-colors",
+    "leetcodeUrl": "https://leetcode.com/problems/sort-colors/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-038-check-if-two-arrays-are-equal-or-not"
+  },
+  {
+    "id": "striver-015",
+    "sheetNumber": 15,
+    "title": "Majority Element",
+    "leetcodeSlug": "majority-element",
+    "leetcodeUrl": "https://leetcode.com/problems/majority-element/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-016",
+    "sheetNumber": 16,
+    "title": "Maximum Subarray",
+    "leetcodeSlug": "maximum-subarray",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-subarray/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-018-maximum-subarray"
+  },
+  {
+    "id": "striver-017",
+    "sheetNumber": 17,
+    "title": "Best Time to Buy and Sell Stock",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-160-best-time-to-buy-and-sell-stock"
+  },
+  {
+    "id": "striver-018",
+    "sheetNumber": 18,
+    "title": "Rearrange Array Elements By Sign",
+    "leetcodeSlug": "rearrange-array-elements-by-sign",
+    "leetcodeUrl": "https://leetcode.com/problems/rearrange-array-elements-by-sign/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-019",
+    "sheetNumber": 19,
+    "title": "Next Permutation",
+    "leetcodeSlug": "next-permutation",
+    "leetcodeUrl": "https://leetcode.com/problems/next-permutation/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-004-next-permutation"
+  },
+  {
+    "id": "striver-020",
+    "sheetNumber": 20,
+    "title": "Longest Consecutive Sequence",
+    "leetcodeSlug": "longest-consecutive-sequence",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-046-longest-consecutive-sequence"
+  },
+  {
+    "id": "striver-021",
+    "sheetNumber": 21,
+    "title": "Set Matrix Zeroes",
+    "leetcodeSlug": "set-matrix-zeroes",
+    "leetcodeUrl": "https://leetcode.com/problems/set-matrix-zeroes/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-022",
+    "sheetNumber": 22,
+    "title": "Rotate Image",
+    "leetcodeSlug": "rotate-image",
+    "leetcodeUrl": "https://leetcode.com/problems/rotate-image/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-023",
+    "sheetNumber": 23,
+    "title": "Spiral Matrix",
+    "leetcodeSlug": "spiral-matrix",
+    "leetcodeUrl": "https://leetcode.com/problems/spiral-matrix/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-013-spiral-matrix"
+  },
+  {
+    "id": "striver-024",
+    "sheetNumber": 24,
+    "title": "Subarray Sum Equals K",
+    "leetcodeSlug": "subarray-sum-equals-k",
+    "leetcodeUrl": "https://leetcode.com/problems/subarray-sum-equals-k/",
+    "difficulty": "medium",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-047-subarray-sum-equals-k"
+  },
+  {
+    "id": "striver-025",
+    "sheetNumber": 25,
+    "title": "Pascal's Triangle",
+    "leetcodeSlug": "pascals-triangle",
+    "leetcodeUrl": "https://leetcode.com/problems/pascals-triangle/",
+    "difficulty": "easy",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-014-pascal-s-triangle"
+  },
+  {
+    "id": "striver-026",
+    "sheetNumber": 26,
+    "title": "Majority Element Ii",
+    "leetcodeSlug": "majority-element-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/majority-element-ii/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-027",
+    "sheetNumber": 27,
+    "title": "3sum",
+    "leetcodeSlug": "3sum",
+    "leetcodeUrl": "https://leetcode.com/problems/3sum/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-028",
+    "sheetNumber": 28,
+    "title": "4sum",
+    "leetcodeSlug": "4sum",
+    "leetcodeUrl": "https://leetcode.com/problems/4sum/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-029",
+    "sheetNumber": 29,
+    "title": "Merge Intervals",
+    "leetcodeSlug": "merge-intervals",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-intervals/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-030",
+    "sheetNumber": 30,
+    "title": "Merge Sorted Array",
+    "leetcodeSlug": "merge-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-sorted-array/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-031",
+    "sheetNumber": 31,
+    "title": "Reverse Pairs",
+    "leetcodeSlug": "reverse-pairs",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-pairs/",
+    "difficulty": "hard",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays",
+    "practiceId": "bc-008-inversion-of-array-1587115620"
+  },
+  {
+    "id": "striver-032",
+    "sheetNumber": 32,
+    "title": "Maximum Product Subarray",
+    "leetcodeSlug": "maximum-product-subarray",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-product-subarray/",
+    "sectionId": "arrays",
+    "sectionTitle": "Solve Problems on Arrays"
+  },
+  {
+    "id": "striver-033",
+    "sheetNumber": 33,
+    "title": "Binary Search",
+    "leetcodeSlug": "binary-search",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-search/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-034",
+    "sheetNumber": 34,
+    "title": "Search Insert Position",
+    "leetcodeSlug": "search-insert-position",
+    "leetcodeUrl": "https://leetcode.com/problems/search-insert-position/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-035",
+    "sheetNumber": 35,
+    "title": "Find First and Last Position of Element in Sorted Array",
+    "leetcodeSlug": "find-first-and-last-position-of-element-in-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+    "difficulty": "medium",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search",
+    "practiceId": "bc-033-find-first-and-last-position-of-element-in-sorte"
+  },
+  {
+    "id": "striver-036",
+    "sheetNumber": 36,
+    "title": "Search in Rotated Sorted Array",
+    "leetcodeSlug": "search-in-rotated-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+    "difficulty": "medium",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search",
+    "practiceId": "bc-031-search-in-rotated-sorted-array"
+  },
+  {
+    "id": "striver-037",
+    "sheetNumber": 37,
+    "title": "Search In Rotated Sorted Array Ii",
+    "leetcodeSlug": "search-in-rotated-sorted-array-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array-ii/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-038",
+    "sheetNumber": 38,
+    "title": "Find Minimum In Rotated Sorted Array",
+    "leetcodeSlug": "find-minimum-in-rotated-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-039",
+    "sheetNumber": 39,
+    "title": "Single Element in a Sorted Array",
+    "leetcodeSlug": "single-element-in-a-sorted-array",
+    "leetcodeUrl": "https://leetcode.com/problems/single-element-in-a-sorted-array/",
+    "difficulty": "medium",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search",
+    "practiceId": "bc-036-single-element-in-a-sorted-array"
+  },
+  {
+    "id": "striver-040",
+    "sheetNumber": 40,
+    "title": "Find Peak Element",
+    "leetcodeSlug": "find-peak-element",
+    "leetcodeUrl": "https://leetcode.com/problems/find-peak-element/",
+    "difficulty": "medium",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search",
+    "practiceId": "bc-035-find-peak-element"
+  },
+  {
+    "id": "striver-041",
+    "sheetNumber": 41,
+    "title": "Koko Eating Bananas",
+    "leetcodeSlug": "koko-eating-bananas",
+    "leetcodeUrl": "https://leetcode.com/problems/koko-eating-bananas/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-042",
+    "sheetNumber": 42,
+    "title": "Minimum Number Of Days To Make M Bouquets",
+    "leetcodeSlug": "minimum-number-of-days-to-make-m-bouquets",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-043",
+    "sheetNumber": 43,
+    "title": "Find The Smallest Divisor Given A Threshold",
+    "leetcodeSlug": "find-the-smallest-divisor-given-a-threshold",
+    "leetcodeUrl": "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-044",
+    "sheetNumber": 44,
+    "title": "Capacity To Ship Packages Within D Days",
+    "leetcodeSlug": "capacity-to-ship-packages-within-d-days",
+    "leetcodeUrl": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-045",
+    "sheetNumber": 45,
+    "title": "Kth Missing Positive Number",
+    "leetcodeSlug": "kth-missing-positive-number",
+    "leetcodeUrl": "https://leetcode.com/problems/kth-missing-positive-number/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-046",
+    "sheetNumber": 46,
+    "title": "Split Array Largest Sum",
+    "leetcodeSlug": "split-array-largest-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/split-array-largest-sum/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-047",
+    "sheetNumber": 47,
+    "title": "Minimize Max Distance To Gas Station",
+    "leetcodeSlug": "minimize-max-distance-to-gas-station",
+    "leetcodeUrl": "https://leetcode.com/problems/minimize-max-distance-to-gas-station/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-048",
+    "sheetNumber": 48,
+    "title": "Median Of Two Sorted Arrays",
+    "leetcodeSlug": "median-of-two-sorted-arrays",
+    "leetcodeUrl": "https://leetcode.com/problems/median-of-two-sorted-arrays/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-049",
+    "sheetNumber": 49,
+    "title": "Search a 2D Matrix",
+    "leetcodeSlug": "search-a-2d-matrix",
+    "leetcodeUrl": "https://leetcode.com/problems/search-a-2d-matrix/",
+    "difficulty": "medium",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search",
+    "practiceId": "bc-034-search-a-2d-matrix"
+  },
+  {
+    "id": "striver-050",
+    "sheetNumber": 50,
+    "title": "Search A 2d Matrix Ii",
+    "leetcodeSlug": "search-a-2d-matrix-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/search-a-2d-matrix-ii/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-051",
+    "sheetNumber": 51,
+    "title": "Find A Peak Element Ii",
+    "leetcodeSlug": "find-a-peak-element-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/find-a-peak-element-ii/",
+    "sectionId": "binary-search",
+    "sectionTitle": "Binary Search"
+  },
+  {
+    "id": "striver-052",
+    "sheetNumber": 52,
+    "title": "Remove Outermost Parentheses",
+    "leetcodeSlug": "remove-outermost-parentheses",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-outermost-parentheses/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-053",
+    "sheetNumber": 53,
+    "title": "Reverse Words In A String",
+    "leetcodeSlug": "reverse-words-in-a-string",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-words-in-a-string/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-054",
+    "sheetNumber": 54,
+    "title": "Largest Odd Number In String",
+    "leetcodeSlug": "largest-odd-number-in-string",
+    "leetcodeUrl": "https://leetcode.com/problems/largest-odd-number-in-string/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-055",
+    "sheetNumber": 55,
+    "title": "Longest Common Prefix",
+    "leetcodeSlug": "longest-common-prefix",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-common-prefix/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-056",
+    "sheetNumber": 56,
+    "title": "Isomorphic Strings",
+    "leetcodeSlug": "isomorphic-strings",
+    "leetcodeUrl": "https://leetcode.com/problems/isomorphic-strings/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-057",
+    "sheetNumber": 57,
+    "title": "Rotate String",
+    "leetcodeSlug": "rotate-string",
+    "leetcodeUrl": "https://leetcode.com/problems/rotate-string/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-058",
+    "sheetNumber": 58,
+    "title": "Valid Anagram",
+    "leetcodeSlug": "valid-anagram",
+    "leetcodeUrl": "https://leetcode.com/problems/valid-anagram/",
+    "difficulty": "easy",
+    "sectionId": "strings",
+    "sectionTitle": "Strings",
+    "practiceId": "bc-048-valid-anagram"
+  },
+  {
+    "id": "striver-059",
+    "sheetNumber": 59,
+    "title": "Sort Characters By Frequency",
+    "leetcodeSlug": "sort-characters-by-frequency",
+    "leetcodeUrl": "https://leetcode.com/problems/sort-characters-by-frequency/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-060",
+    "sheetNumber": 60,
+    "title": "Maximum Nesting Depth Of The Parentheses",
+    "leetcodeSlug": "maximum-nesting-depth-of-the-parentheses",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-nesting-depth-of-the-parentheses/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-061",
+    "sheetNumber": 61,
+    "title": "Roman To Integer",
+    "leetcodeSlug": "roman-to-integer",
+    "leetcodeUrl": "https://leetcode.com/problems/roman-to-integer/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-062",
+    "sheetNumber": 62,
+    "title": "String To Integer Atoi",
+    "leetcodeSlug": "string-to-integer-atoi",
+    "leetcodeUrl": "https://leetcode.com/problems/string-to-integer-atoi/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-063",
+    "sheetNumber": 63,
+    "title": "Longest Palindromic Substring",
+    "leetcodeSlug": "longest-palindromic-substring",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-palindromic-substring/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-064",
+    "sheetNumber": 64,
+    "title": "Sum Of Beauty Of All Substrings",
+    "leetcodeSlug": "sum-of-beauty-of-all-substrings",
+    "leetcodeUrl": "https://leetcode.com/problems/sum-of-beauty-of-all-substrings/",
+    "sectionId": "strings",
+    "sectionTitle": "Strings"
+  },
+  {
+    "id": "striver-065",
+    "sheetNumber": 65,
+    "title": "Delete Node in a Linked List",
+    "leetcodeSlug": "delete-node-in-a-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/delete-node-in-a-linked-list/",
+    "difficulty": "medium",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-061-delete-node-in-a-linked-list"
+  },
+  {
+    "id": "striver-066",
+    "sheetNumber": 66,
+    "title": "Middle of the Linked List",
+    "leetcodeSlug": "middle-of-the-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/middle-of-the-linked-list/",
+    "difficulty": "easy",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-054-middle-of-the-linked-list"
+  },
+  {
+    "id": "striver-067",
+    "sheetNumber": 67,
+    "title": "Reverse Linked List",
+    "leetcodeSlug": "reverse-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-linked-list/",
+    "difficulty": "easy",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-062-reverse-linked-list"
+  },
+  {
+    "id": "striver-068",
+    "sheetNumber": 68,
+    "title": "Linked List Cycle",
+    "leetcodeSlug": "linked-list-cycle",
+    "leetcodeUrl": "https://leetcode.com/problems/linked-list-cycle/",
+    "difficulty": "easy",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-057-linked-list-cycle"
+  },
+  {
+    "id": "striver-069",
+    "sheetNumber": 69,
+    "title": "Linked List Cycle II",
+    "leetcodeSlug": "linked-list-cycle-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/linked-list-cycle-ii/",
+    "difficulty": "medium",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-060-linked-list-cycle-ii"
+  },
+  {
+    "id": "striver-070",
+    "sheetNumber": 70,
+    "title": "Palindrome Linked List",
+    "leetcodeSlug": "palindrome-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/palindrome-linked-list/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-063-palindrome-linked"
+  },
+  {
+    "id": "striver-071",
+    "sheetNumber": 71,
+    "title": "Odd Even Linked List",
+    "leetcodeSlug": "odd-even-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/odd-even-linked-list/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-072",
+    "sheetNumber": 72,
+    "title": "Remove Nth Node From End of List",
+    "leetcodeSlug": "remove-nth-node-from-end-of-list",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
+    "difficulty": "medium",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-059-remove-nth-node-from-end-of-list"
+  },
+  {
+    "id": "striver-073",
+    "sheetNumber": 73,
+    "title": "Delete The Middle Node Of A Linked List",
+    "leetcodeSlug": "delete-the-middle-node-of-a-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-074",
+    "sheetNumber": 74,
+    "title": "Sort List",
+    "leetcodeSlug": "sort-list",
+    "leetcodeUrl": "https://leetcode.com/problems/sort-list/",
+    "difficulty": "medium",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-068-sort-list"
+  },
+  {
+    "id": "striver-075",
+    "sheetNumber": 75,
+    "title": "Intersection Of Two Linked Lists",
+    "leetcodeSlug": "intersection-of-two-linked-lists",
+    "leetcodeUrl": "https://leetcode.com/problems/intersection-of-two-linked-lists/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-076",
+    "sheetNumber": 76,
+    "title": "Add Two Numbers",
+    "leetcodeSlug": "add-two-numbers",
+    "leetcodeUrl": "https://leetcode.com/problems/add-two-numbers/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-077",
+    "sheetNumber": 77,
+    "title": "Reverse Nodes in k-Group",
+    "leetcodeSlug": "reverse-nodes-in-k-group",
+    "leetcodeUrl": "https://leetcode.com/problems/reverse-nodes-in-k-group/",
+    "difficulty": "hard",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList",
+    "practiceId": "bc-058-reverse-nodes-in-k-group"
+  },
+  {
+    "id": "striver-078",
+    "sheetNumber": 78,
+    "title": "Rotate List",
+    "leetcodeSlug": "rotate-list",
+    "leetcodeUrl": "https://leetcode.com/problems/rotate-list/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-079",
+    "sheetNumber": 79,
+    "title": "Copy List With Random Pointer",
+    "leetcodeSlug": "copy-list-with-random-pointer",
+    "leetcodeUrl": "https://leetcode.com/problems/copy-list-with-random-pointer/",
+    "sectionId": "linked-list",
+    "sectionTitle": "Learn LinkedList"
+  },
+  {
+    "id": "striver-080",
+    "sheetNumber": 80,
+    "title": "Powx N",
+    "leetcodeSlug": "powx-n",
+    "leetcodeUrl": "https://leetcode.com/problems/powx-n/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-081",
+    "sheetNumber": 81,
+    "title": "Count Good Numbers",
+    "leetcodeSlug": "count-good-numbers",
+    "leetcodeUrl": "https://leetcode.com/problems/count-good-numbers/",
+    "difficulty": "medium",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-085-count-good-numbers"
+  },
+  {
+    "id": "striver-082",
+    "sheetNumber": 82,
+    "title": "Generate Parentheses",
+    "leetcodeSlug": "generate-parentheses",
+    "leetcodeUrl": "https://leetcode.com/problems/generate-parentheses/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-083",
+    "sheetNumber": 83,
+    "title": "Combination Sum",
+    "leetcodeSlug": "combination-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/combination-sum/",
+    "difficulty": "medium",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-092-combination-sum"
+  },
+  {
+    "id": "striver-084",
+    "sheetNumber": 84,
+    "title": "Combination Sum Ii",
+    "leetcodeSlug": "combination-sum-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/combination-sum-ii/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-085",
+    "sheetNumber": 85,
+    "title": "Subsets Ii",
+    "leetcodeSlug": "subsets-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/subsets-ii/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-086",
+    "sheetNumber": 86,
+    "title": "Combination Sum III",
+    "leetcodeSlug": "combination-sum-iii",
+    "leetcodeUrl": "https://leetcode.com/problems/combination-sum-iii/",
+    "difficulty": "medium",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-093-combination-sum-iii"
+  },
+  {
+    "id": "striver-087",
+    "sheetNumber": 87,
+    "title": "Letter Combinations of a Phone Number",
+    "leetcodeSlug": "letter-combinations-of-a-phone-number",
+    "leetcodeUrl": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/",
+    "difficulty": "medium",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-094-letter-combinations-of-a-phone-number"
+  },
+  {
+    "id": "striver-088",
+    "sheetNumber": 88,
+    "title": "Word Search",
+    "leetcodeSlug": "word-search",
+    "leetcodeUrl": "https://leetcode.com/problems/word-search/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-089",
+    "sheetNumber": 89,
+    "title": "N-Queens",
+    "leetcodeSlug": "n-queens",
+    "leetcodeUrl": "https://leetcode.com/problems/n-queens/",
+    "difficulty": "hard",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-097-n-queens"
+  },
+  {
+    "id": "striver-090",
+    "sheetNumber": 90,
+    "title": "Sudoku Solver",
+    "leetcodeSlug": "sudoku-solver",
+    "leetcodeUrl": "https://leetcode.com/problems/sudoku-solver/",
+    "difficulty": "hard",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion",
+    "practiceId": "bc-098-sudoku-solver"
+  },
+  {
+    "id": "striver-091",
+    "sheetNumber": 91,
+    "title": "Expression Add Operators",
+    "leetcodeSlug": "expression-add-operators",
+    "leetcodeUrl": "https://leetcode.com/problems/expression-add-operators/",
+    "sectionId": "recursion",
+    "sectionTitle": "Recursion"
+  },
+  {
+    "id": "striver-092",
+    "sheetNumber": 92,
+    "title": "Power Of Two",
+    "leetcodeSlug": "power-of-two",
+    "leetcodeUrl": "https://leetcode.com/problems/power-of-two/",
+    "sectionId": "bit-manipulation",
+    "sectionTitle": "Bit Manipulation"
+  },
+  {
+    "id": "striver-093",
+    "sheetNumber": 93,
+    "title": "Divide Two Integers",
+    "leetcodeSlug": "divide-two-integers",
+    "leetcodeUrl": "https://leetcode.com/problems/divide-two-integers/",
+    "sectionId": "bit-manipulation",
+    "sectionTitle": "Bit Manipulation"
+  },
+  {
+    "id": "striver-094",
+    "sheetNumber": 94,
+    "title": "Minimum Bit Flips To Convert Number",
+    "leetcodeSlug": "minimum-bit-flips-to-convert-number",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-bit-flips-to-convert-number/",
+    "sectionId": "bit-manipulation",
+    "sectionTitle": "Bit Manipulation"
+  },
+  {
+    "id": "striver-095",
+    "sheetNumber": 95,
+    "title": "Subsets",
+    "leetcodeSlug": "subsets",
+    "leetcodeUrl": "https://leetcode.com/problems/subsets/",
+    "difficulty": "medium",
+    "sectionId": "bit-manipulation",
+    "sectionTitle": "Bit Manipulation",
+    "practiceId": "bc-088-subsets"
+  },
+  {
+    "id": "striver-096",
+    "sheetNumber": 96,
+    "title": "Count Primes",
+    "leetcodeSlug": "count-primes",
+    "leetcodeUrl": "https://leetcode.com/problems/count-primes/",
+    "sectionId": "bit-manipulation",
+    "sectionTitle": "Bit Manipulation"
+  },
+  {
+    "id": "striver-097",
+    "sheetNumber": 97,
+    "title": "Implement Stack using Queues",
+    "leetcodeSlug": "implement-stack-using-queues",
+    "leetcodeUrl": "https://leetcode.com/problems/implement-stack-using-queues/",
+    "difficulty": "easy",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues",
+    "practiceId": "bc-069-implement-stack-using-queues"
+  },
+  {
+    "id": "striver-098",
+    "sheetNumber": 98,
+    "title": "Implement Queue using Stacks",
+    "leetcodeSlug": "implement-queue-using-stacks",
+    "leetcodeUrl": "https://leetcode.com/problems/implement-queue-using-stacks/",
+    "difficulty": "easy",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues",
+    "practiceId": "bc-070-implement-queue-using-stacks"
+  },
+  {
+    "id": "striver-099",
+    "sheetNumber": 99,
+    "title": "Valid Parentheses",
+    "leetcodeSlug": "valid-parentheses",
+    "leetcodeUrl": "https://leetcode.com/problems/valid-parentheses/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-100",
+    "sheetNumber": 100,
+    "title": "Min Stack",
+    "leetcodeSlug": "min-stack",
+    "leetcodeUrl": "https://leetcode.com/problems/min-stack/",
+    "difficulty": "medium",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues",
+    "practiceId": "bc-077-min-stack"
+  },
+  {
+    "id": "striver-101",
+    "sheetNumber": 101,
+    "title": "Next Greater Element I",
+    "leetcodeSlug": "next-greater-element-i",
+    "leetcodeUrl": "https://leetcode.com/problems/next-greater-element-i/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-102",
+    "sheetNumber": 102,
+    "title": "Next Greater Element Ii",
+    "leetcodeSlug": "next-greater-element-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/next-greater-element-ii/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-103",
+    "sheetNumber": 103,
+    "title": "Trapping Rain Water",
+    "leetcodeSlug": "trapping-rain-water",
+    "leetcodeUrl": "https://leetcode.com/problems/trapping-rain-water/",
+    "difficulty": "hard",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues",
+    "practiceId": "bc-027-trapping-rain-water"
+  },
+  {
+    "id": "striver-104",
+    "sheetNumber": 104,
+    "title": "Sum Of Subarray Minimums",
+    "leetcodeSlug": "sum-of-subarray-minimums",
+    "leetcodeUrl": "https://leetcode.com/problems/sum-of-subarray-minimums/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-105",
+    "sheetNumber": 105,
+    "title": "Asteroid Collision",
+    "leetcodeSlug": "asteroid-collision",
+    "leetcodeUrl": "https://leetcode.com/problems/asteroid-collision/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-106",
+    "sheetNumber": 106,
+    "title": "Sum Of Subarray Ranges",
+    "leetcodeSlug": "sum-of-subarray-ranges",
+    "leetcodeUrl": "https://leetcode.com/problems/sum-of-subarray-ranges/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-107",
+    "sheetNumber": 107,
+    "title": "Remove K Digits",
+    "leetcodeSlug": "remove-k-digits",
+    "leetcodeUrl": "https://leetcode.com/problems/remove-k-digits/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-108",
+    "sheetNumber": 108,
+    "title": "Largest Rectangle in Histogram",
+    "leetcodeSlug": "largest-rectangle-in-histogram",
+    "leetcodeUrl": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
+    "difficulty": "hard",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues",
+    "practiceId": "bc-076-largest-rectangle-in-histogram"
+  },
+  {
+    "id": "striver-109",
+    "sheetNumber": 109,
+    "title": "Maximal Rectangle",
+    "leetcodeSlug": "maximal-rectangle",
+    "leetcodeUrl": "https://leetcode.com/problems/maximal-rectangle/",
+    "sectionId": "stack-queue",
+    "sectionTitle": "Stack and Queues"
+  },
+  {
+    "id": "striver-110",
+    "sheetNumber": 110,
+    "title": "Sliding Window Maximum",
+    "leetcodeSlug": "sliding-window-maximum",
+    "leetcodeUrl": "https://leetcode.com/problems/sliding-window-maximum/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-111",
+    "sheetNumber": 111,
+    "title": "Online Stock Span",
+    "leetcodeSlug": "online-stock-span",
+    "leetcodeUrl": "https://leetcode.com/problems/online-stock-span/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-112",
+    "sheetNumber": 112,
+    "title": "Lfu Cache",
+    "leetcodeSlug": "lfu-cache",
+    "leetcodeUrl": "https://leetcode.com/problems/lfu-cache/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-113",
+    "sheetNumber": 113,
+    "title": "Longest Substring Without Repeating Characters",
+    "leetcodeSlug": "longest-substring-without-repeating-characters",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    "difficulty": "medium",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer",
+    "practiceId": "bc-024-longest-substring-without-repeating-characters"
+  },
+  {
+    "id": "striver-114",
+    "sheetNumber": 114,
+    "title": "Max Consecutive Ones Iii",
+    "leetcodeSlug": "max-consecutive-ones-iii",
+    "leetcodeUrl": "https://leetcode.com/problems/max-consecutive-ones-iii/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-115",
+    "sheetNumber": 115,
+    "title": "Longest Repeating Character Replacement",
+    "leetcodeSlug": "longest-repeating-character-replacement",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-repeating-character-replacement/",
+    "difficulty": "medium",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer",
+    "practiceId": "bc-025-longest-repeating-character-replacement"
+  },
+  {
+    "id": "striver-116",
+    "sheetNumber": 116,
+    "title": "Binary Subarrays With Sum",
+    "leetcodeSlug": "binary-subarrays-with-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-subarrays-with-sum/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-117",
+    "sheetNumber": 117,
+    "title": "Count Number Of Nice Subarrays",
+    "leetcodeSlug": "count-number-of-nice-subarrays",
+    "leetcodeUrl": "https://leetcode.com/problems/count-number-of-nice-subarrays/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-118",
+    "sheetNumber": 118,
+    "title": "Number Of Substrings Containing All Three Characters",
+    "leetcodeSlug": "number-of-substrings-containing-all-three-characters",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-119",
+    "sheetNumber": 119,
+    "title": "Maximum Points You Can Obtain From Cards",
+    "leetcodeSlug": "maximum-points-you-can-obtain-from-cards",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-120",
+    "sheetNumber": 120,
+    "title": "Longest Substring With At Most K Distinct Characters",
+    "leetcodeSlug": "longest-substring-with-at-most-k-distinct-characters",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-121",
+    "sheetNumber": 121,
+    "title": "Subarrays With K Different Integers",
+    "leetcodeSlug": "subarrays-with-k-different-integers",
+    "leetcodeUrl": "https://leetcode.com/problems/subarrays-with-k-different-integers/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-122",
+    "sheetNumber": 122,
+    "title": "Minimum Window Substring",
+    "leetcodeSlug": "minimum-window-substring",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-window-substring/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-123",
+    "sheetNumber": 123,
+    "title": "Minimum Window Subsequence",
+    "leetcodeSlug": "minimum-window-subsequence",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-window-subsequence/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-124",
+    "sheetNumber": 124,
+    "title": "Merge k Sorted Lists",
+    "leetcodeSlug": "merge-k-sorted-lists",
+    "leetcodeUrl": "https://leetcode.com/problems/merge-k-sorted-lists/",
+    "difficulty": "hard",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer",
+    "practiceId": "bc-080-merge-k-sorted-lists"
+  },
+  {
+    "id": "striver-125",
+    "sheetNumber": 125,
+    "title": "Task Scheduler",
+    "leetcodeSlug": "task-scheduler",
+    "leetcodeUrl": "https://leetcode.com/problems/task-scheduler/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-126",
+    "sheetNumber": 126,
+    "title": "Hand Of Straights",
+    "leetcodeSlug": "hand-of-straights",
+    "leetcodeUrl": "https://leetcode.com/problems/hand-of-straights/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-127",
+    "sheetNumber": 127,
+    "title": "Design Twitter",
+    "leetcodeSlug": "design-twitter",
+    "leetcodeUrl": "https://leetcode.com/problems/design-twitter/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-128",
+    "sheetNumber": 128,
+    "title": "Kth Largest Element In A Stream",
+    "leetcodeSlug": "kth-largest-element-in-a-stream",
+    "leetcodeUrl": "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer"
+  },
+  {
+    "id": "striver-129",
+    "sheetNumber": 129,
+    "title": "Find Median from Data Stream",
+    "leetcodeSlug": "find-median-from-data-stream",
+    "leetcodeUrl": "https://leetcode.com/problems/find-median-from-data-stream/",
+    "difficulty": "hard",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer",
+    "practiceId": "bc-079-find-median-from-data-stream"
+  },
+  {
+    "id": "striver-130",
+    "sheetNumber": 130,
+    "title": "Top K Frequent Elements",
+    "leetcodeSlug": "top-k-frequent-elements",
+    "leetcodeUrl": "https://leetcode.com/problems/top-k-frequent-elements/",
+    "difficulty": "medium",
+    "sectionId": "sliding-window",
+    "sectionTitle": "Sliding Window & Two Pointer",
+    "practiceId": "bc-083-top-k-frequent-elements"
+  },
+  {
+    "id": "striver-131",
+    "sheetNumber": 131,
+    "title": "Assign Cookies",
+    "leetcodeSlug": "assign-cookies",
+    "leetcodeUrl": "https://leetcode.com/problems/assign-cookies/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-132",
+    "sheetNumber": 132,
+    "title": "Lemonade Change",
+    "leetcodeSlug": "lemonade-change",
+    "leetcodeUrl": "https://leetcode.com/problems/lemonade-change/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-133",
+    "sheetNumber": 133,
+    "title": "Valid Parenthesis String",
+    "leetcodeSlug": "valid-parenthesis-string",
+    "leetcodeUrl": "https://leetcode.com/problems/valid-parenthesis-string/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-134",
+    "sheetNumber": 134,
+    "title": "Jump Game",
+    "leetcodeSlug": "jump-game",
+    "leetcodeUrl": "https://leetcode.com/problems/jump-game/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-135",
+    "sheetNumber": 135,
+    "title": "Jump Game Ii",
+    "leetcodeSlug": "jump-game-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/jump-game-ii/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-136",
+    "sheetNumber": 136,
+    "title": "Candy",
+    "leetcodeSlug": "candy",
+    "leetcodeUrl": "https://leetcode.com/problems/candy/",
+    "difficulty": "hard",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms",
+    "practiceId": "bc-153-candy"
+  },
+  {
+    "id": "striver-137",
+    "sheetNumber": 137,
+    "title": "Insert Interval",
+    "leetcodeSlug": "insert-interval",
+    "leetcodeUrl": "https://leetcode.com/problems/insert-interval/",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms"
+  },
+  {
+    "id": "striver-138",
+    "sheetNumber": 138,
+    "title": "Non-overlapping Intervals",
+    "leetcodeSlug": "non-overlapping-intervals",
+    "leetcodeUrl": "https://leetcode.com/problems/non-overlapping-intervals/",
+    "difficulty": "medium",
+    "sectionId": "greedy",
+    "sectionTitle": "Greedy Algorithms",
+    "practiceId": "bc-147-non-overlapping-intervals"
+  },
+  {
+    "id": "striver-139",
+    "sheetNumber": 139,
+    "title": "Binary Tree Preorder Traversal",
+    "leetcodeSlug": "binary-tree-preorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-140",
+    "sheetNumber": 140,
+    "title": "Binary Tree Inorder Traversal",
+    "leetcodeSlug": "binary-tree-inorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-141",
+    "sheetNumber": 141,
+    "title": "Binary Tree Postorder Traversal",
+    "leetcodeSlug": "binary-tree-postorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-postorder-traversal/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-142",
+    "sheetNumber": 142,
+    "title": "Binary Tree Level Order Traversal",
+    "leetcodeSlug": "binary-tree-level-order-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
+    "difficulty": "medium",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-103-binary-tree-level-order-traversal"
+  },
+  {
+    "id": "striver-143",
+    "sheetNumber": 143,
+    "title": "Maximum Depth of Binary Tree",
+    "leetcodeSlug": "maximum-depth-of-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+    "difficulty": "easy",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-107-maximum-depth-of-binary-tree"
+  },
+  {
+    "id": "striver-144",
+    "sheetNumber": 144,
+    "title": "Balanced Binary Tree",
+    "leetcodeSlug": "balanced-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/balanced-binary-tree/",
+    "difficulty": "easy",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-119-balanced-binary-tree"
+  },
+  {
+    "id": "striver-145",
+    "sheetNumber": 145,
+    "title": "Diameter Of Binary Tree",
+    "leetcodeSlug": "diameter-of-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/diameter-of-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-146",
+    "sheetNumber": 146,
+    "title": "Binary Tree Maximum Path Sum",
+    "leetcodeSlug": "binary-tree-maximum-path-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-147",
+    "sheetNumber": 147,
+    "title": "Same Tree",
+    "leetcodeSlug": "same-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/same-tree/",
+    "difficulty": "easy",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-102-same-tree"
+  },
+  {
+    "id": "striver-148",
+    "sheetNumber": 148,
+    "title": "Binary Tree Zigzag Level Order Traversal",
+    "leetcodeSlug": "binary-tree-zigzag-level-order-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
+    "difficulty": "medium",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-106-binary-tree-zigzag-level-order-traversal"
+  },
+  {
+    "id": "striver-149",
+    "sheetNumber": 149,
+    "title": "Boundary Of Binary Tree",
+    "leetcodeSlug": "boundary-of-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/boundary-of-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-150",
+    "sheetNumber": 150,
+    "title": "Vertical Order Traversal Of A Binary Tree",
+    "leetcodeSlug": "vertical-order-traversal-of-a-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-151",
+    "sheetNumber": 151,
+    "title": "Binary Tree Right Side View",
+    "leetcodeSlug": "binary-tree-right-side-view",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-tree-right-side-view/",
+    "difficulty": "medium",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-109-binary-tree-right-side-view"
+  },
+  {
+    "id": "striver-152",
+    "sheetNumber": 152,
+    "title": "Symmetric Tree",
+    "leetcodeSlug": "symmetric-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/symmetric-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-153",
+    "sheetNumber": 153,
+    "title": "Lowest Common Ancestor Of A Binary Tree",
+    "leetcodeSlug": "lowest-common-ancestor-of-a-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-154",
+    "sheetNumber": 154,
+    "title": "Maximum Width Of Binary Tree",
+    "leetcodeSlug": "maximum-width-of-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-width-of-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-155",
+    "sheetNumber": 155,
+    "title": "All Nodes Distance K In Binary Tree",
+    "leetcodeSlug": "all-nodes-distance-k-in-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-156",
+    "sheetNumber": 156,
+    "title": "Count Complete Tree Nodes",
+    "leetcodeSlug": "count-complete-tree-nodes",
+    "leetcodeUrl": "https://leetcode.com/problems/count-complete-tree-nodes/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-157",
+    "sheetNumber": 157,
+    "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+    "leetcodeSlug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+    "difficulty": "medium",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-100-construct-binary-tree-from-preorder-and-inorder-"
+  },
+  {
+    "id": "striver-158",
+    "sheetNumber": 158,
+    "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+    "leetcodeSlug": "construct-binary-tree-from-inorder-and-postorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/",
+    "difficulty": "medium",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees",
+    "practiceId": "bc-099-construct-binary-tree-from-inorder-and-postorder"
+  },
+  {
+    "id": "striver-159",
+    "sheetNumber": 159,
+    "title": "Serialize And Deserialize Binary Tree",
+    "leetcodeSlug": "serialize-and-deserialize-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-160",
+    "sheetNumber": 160,
+    "title": "Flatten Binary Tree To Linked List",
+    "leetcodeSlug": "flatten-binary-tree-to-linked-list",
+    "leetcodeUrl": "https://leetcode.com/problems/flatten-binary-tree-to-linked-list/",
+    "sectionId": "binary-trees",
+    "sectionTitle": "Binary Trees"
+  },
+  {
+    "id": "striver-161",
+    "sheetNumber": 161,
+    "title": "Search in a Binary Search Tree",
+    "leetcodeSlug": "search-in-a-binary-search-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/search-in-a-binary-search-tree/",
+    "difficulty": "easy",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-115-search-in-a-binary-search-tree"
+  },
+  {
+    "id": "striver-162",
+    "sheetNumber": 162,
+    "title": "Insert Into A Binary Search Tree",
+    "leetcodeSlug": "insert-into-a-binary-search-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/insert-into-a-binary-search-tree/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-163",
+    "sheetNumber": 163,
+    "title": "Delete Node In A Bst",
+    "leetcodeSlug": "delete-node-in-a-bst",
+    "leetcodeUrl": "https://leetcode.com/problems/delete-node-in-a-bst/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-164",
+    "sheetNumber": 164,
+    "title": "Kth Smallest Element In A Bst",
+    "leetcodeSlug": "kth-smallest-element-in-a-bst",
+    "leetcodeUrl": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-165",
+    "sheetNumber": 165,
+    "title": "Validate Binary Search Tree",
+    "leetcodeSlug": "validate-binary-search-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/validate-binary-search-tree/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-166",
+    "sheetNumber": 166,
+    "title": "Lowest Common Ancestor of a Binary Search Tree",
+    "leetcodeSlug": "lowest-common-ancestor-of-a-binary-search-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-112-lowest-common-ancestor-of-a-binary-search-tree"
+  },
+  {
+    "id": "striver-167",
+    "sheetNumber": 167,
+    "title": "Construct Binary Search Tree From Preorder Traversal",
+    "leetcodeSlug": "construct-binary-search-tree-from-preorder-traversal",
+    "leetcodeUrl": "https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-168",
+    "sheetNumber": 168,
+    "title": "Inorder Successor In Bst",
+    "leetcodeSlug": "inorder-successor-in-bst",
+    "leetcodeUrl": "https://leetcode.com/problems/inorder-successor-in-bst/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-169",
+    "sheetNumber": 169,
+    "title": "Binary Search Tree Iterator",
+    "leetcodeSlug": "binary-search-tree-iterator",
+    "leetcodeUrl": "https://leetcode.com/problems/binary-search-tree-iterator/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-170",
+    "sheetNumber": 170,
+    "title": "Two Sum Iv Input Is A Bst",
+    "leetcodeSlug": "two-sum-iv-input-is-a-bst",
+    "leetcodeUrl": "https://leetcode.com/problems/two-sum-iv-input-is-a-bst/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-171",
+    "sheetNumber": 171,
+    "title": "Recover Binary Search Tree",
+    "leetcodeSlug": "recover-binary-search-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/recover-binary-search-tree/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-172",
+    "sheetNumber": 172,
+    "title": "Maximum Sum Bst In Binary Tree",
+    "leetcodeSlug": "maximum-sum-bst-in-binary-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-173",
+    "sheetNumber": 173,
+    "title": "Number of Provinces",
+    "leetcodeSlug": "number-of-provinces",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-provinces/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-129-number-of-provinces"
+  },
+  {
+    "id": "striver-174",
+    "sheetNumber": 174,
+    "title": "Rotting Oranges",
+    "leetcodeSlug": "rotting-oranges",
+    "leetcodeUrl": "https://leetcode.com/problems/rotting-oranges/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-127-rotting-oranges"
+  },
+  {
+    "id": "striver-175",
+    "sheetNumber": 175,
+    "title": "Flood Fill",
+    "leetcodeSlug": "flood-fill",
+    "leetcodeUrl": "https://leetcode.com/problems/flood-fill/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-176",
+    "sheetNumber": 176,
+    "title": "Course Schedule",
+    "leetcodeSlug": "course-schedule",
+    "leetcodeUrl": "https://leetcode.com/problems/course-schedule/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-131-detect-cycle-in-an-undirected-graph"
+  },
+  {
+    "id": "striver-177",
+    "sheetNumber": 177,
+    "title": "01 Matrix",
+    "leetcodeSlug": "01-matrix",
+    "leetcodeUrl": "https://leetcode.com/problems/01-matrix/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-012-01-matrix"
+  },
+  {
+    "id": "striver-178",
+    "sheetNumber": 178,
+    "title": "Surrounded Regions",
+    "leetcodeSlug": "surrounded-regions",
+    "leetcodeUrl": "https://leetcode.com/problems/surrounded-regions/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-179",
+    "sheetNumber": 179,
+    "title": "Number of Enclaves",
+    "leetcodeSlug": "number-of-enclaves",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-enclaves/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-130-number-of-enclaves"
+  },
+  {
+    "id": "striver-180",
+    "sheetNumber": 180,
+    "title": "Word Ladder",
+    "leetcodeSlug": "word-ladder",
+    "leetcodeUrl": "https://leetcode.com/problems/word-ladder/",
+    "difficulty": "hard",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-128-word-ladder"
+  },
+  {
+    "id": "striver-181",
+    "sheetNumber": 181,
+    "title": "Word Ladder Ii",
+    "leetcodeSlug": "word-ladder-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/word-ladder-ii/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-182",
+    "sheetNumber": 182,
+    "title": "Number Of Islands",
+    "leetcodeSlug": "number-of-islands",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-islands/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-183",
+    "sheetNumber": 183,
+    "title": "Is Graph Bipartite",
+    "leetcodeSlug": "is-graph-bipartite",
+    "leetcodeUrl": "https://leetcode.com/problems/is-graph-bipartite/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-184",
+    "sheetNumber": 184,
+    "title": "Course Schedule II",
+    "leetcodeSlug": "course-schedule-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/course-schedule-ii/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-134-course-schedule-ii"
+  },
+  {
+    "id": "striver-185",
+    "sheetNumber": 185,
+    "title": "Find Eventual Safe States",
+    "leetcodeSlug": "find-eventual-safe-states",
+    "leetcodeUrl": "https://leetcode.com/problems/find-eventual-safe-states/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-135-find-eventual-safe-states"
+  },
+  {
+    "id": "striver-186",
+    "sheetNumber": 186,
+    "title": "Alien Dictionary",
+    "leetcodeSlug": "alien-dictionary",
+    "leetcodeUrl": "https://leetcode.com/problems/alien-dictionary/",
+    "difficulty": "hard",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-136-alien-dictionary"
+  },
+  {
+    "id": "striver-187",
+    "sheetNumber": 187,
+    "title": "Shortest P",
+    "leetcodeSlug": "shortest-p",
+    "leetcodeUrl": "https://leetcode.com/problems/shortest-p/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-188",
+    "sheetNumber": 188,
+    "title": "Path With Minimum Effort",
+    "leetcodeSlug": "path-with-minimum-effort",
+    "leetcodeUrl": "https://leetcode.com/problems/path-with-minimum-effort/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-139-path-with-minimum-effort"
+  },
+  {
+    "id": "striver-189",
+    "sheetNumber": 189,
+    "title": "Cheapest Flights Within K Stops",
+    "leetcodeSlug": "cheapest-flights-within-k-stops",
+    "leetcodeUrl": "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-140-cheapest-flights-within-k-stops"
+  },
+  {
+    "id": "striver-190",
+    "sheetNumber": 190,
+    "title": "Network Delay Time",
+    "leetcodeSlug": "network-delay-time",
+    "leetcodeUrl": "https://leetcode.com/problems/network-delay-time/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-137-network-delay-time"
+  },
+  {
+    "id": "striver-191",
+    "sheetNumber": 191,
+    "title": "Number of Ways to Arrive at Destination",
+    "leetcodeSlug": "number-of-ways-to-arrive-at-destination",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-146-number-of-ways-to-arrive-at-destination"
+  },
+  {
+    "id": "striver-192",
+    "sheetNumber": 192,
+    "title": "Find The City With The Smallest Number Of Neighbors At A Threshold Distance",
+    "leetcodeSlug": "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
+    "leetcodeUrl": "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-145-find-the-city-with-the-smallest-number-of-neighb"
+  },
+  {
+    "id": "striver-193",
+    "sheetNumber": 193,
+    "title": "Number Of Operations To Make Network Connected",
+    "leetcodeSlug": "number-of-operations-to-make-network-connected",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-operations-to-make-network-connected/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-194",
+    "sheetNumber": 194,
+    "title": "Most Stones Removed With Same Row Or Column",
+    "leetcodeSlug": "most-stones-removed-with-same-row-or-column",
+    "leetcodeUrl": "https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-195",
+    "sheetNumber": 195,
+    "title": "Accounts Merge",
+    "leetcodeSlug": "accounts-merge",
+    "leetcodeUrl": "https://leetcode.com/problems/accounts-merge/",
+    "difficulty": "medium",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees",
+    "practiceId": "bc-124-accounts-merge"
+  },
+  {
+    "id": "striver-196",
+    "sheetNumber": 196,
+    "title": "Number Of Islands Ii",
+    "leetcodeSlug": "number-of-islands-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-islands-ii/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-197",
+    "sheetNumber": 197,
+    "title": "Making A Large Island",
+    "leetcodeSlug": "making-a-large-island",
+    "leetcodeUrl": "https://leetcode.com/problems/making-a-large-island/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-198",
+    "sheetNumber": 198,
+    "title": "Swim In Rising Water",
+    "leetcodeSlug": "swim-in-rising-water",
+    "leetcodeUrl": "https://leetcode.com/problems/swim-in-rising-water/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-199",
+    "sheetNumber": 199,
+    "title": "Critical Connections In A Network",
+    "leetcodeSlug": "critical-connections-in-a-network",
+    "leetcodeUrl": "https://leetcode.com/problems/critical-connections-in-a-network/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-200",
+    "sheetNumber": 200,
+    "title": "Maximum Number Of Non Overlapping Substrings",
+    "leetcodeSlug": "maximum-number-of-non-overlapping-substrings",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-number-of-non-overlapping-substrings/",
+    "sectionId": "bst",
+    "sectionTitle": "Binary Search Trees"
+  },
+  {
+    "id": "striver-201",
+    "sheetNumber": 201,
+    "title": "Climbing Stairs",
+    "leetcodeSlug": "climbing-stairs",
+    "leetcodeUrl": "https://leetcode.com/problems/climbing-stairs/",
+    "difficulty": "easy",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-155-climbing-stairs"
+  },
+  {
+    "id": "striver-202",
+    "sheetNumber": 202,
+    "title": "House Robber",
+    "leetcodeSlug": "house-robber",
+    "leetcodeUrl": "https://leetcode.com/problems/house-robber/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-203",
+    "sheetNumber": 203,
+    "title": "House Robber Ii",
+    "leetcodeSlug": "house-robber-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/house-robber-ii/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-204",
+    "sheetNumber": 204,
+    "title": "Unique Paths",
+    "leetcodeSlug": "unique-paths",
+    "leetcodeUrl": "https://leetcode.com/problems/unique-paths/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-182-unique-paths"
+  },
+  {
+    "id": "striver-205",
+    "sheetNumber": 205,
+    "title": "Unique Paths II",
+    "leetcodeSlug": "unique-paths-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/unique-paths-ii/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-183-unique-paths-ii"
+  },
+  {
+    "id": "striver-206",
+    "sheetNumber": 206,
+    "title": "Minimum Path Sum",
+    "leetcodeSlug": "minimum-path-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-path-sum/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-184-minimum-path-sum"
+  },
+  {
+    "id": "striver-207",
+    "sheetNumber": 207,
+    "title": "Triangle",
+    "leetcodeSlug": "triangle",
+    "leetcodeUrl": "https://leetcode.com/problems/triangle/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-208",
+    "sheetNumber": 208,
+    "title": "Partition Equal Subset Sum",
+    "leetcodeSlug": "partition-equal-subset-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/partition-equal-subset-sum/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-166-partition-equal-subset-sum"
+  },
+  {
+    "id": "striver-209",
+    "sheetNumber": 209,
+    "title": "Partition Array Into Two Arrays To Minimize Sum Difference",
+    "leetcodeSlug": "partition-array-into-two-arrays-to-minimize-sum-difference",
+    "leetcodeUrl": "https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-210",
+    "sheetNumber": 210,
+    "title": "Coin Change",
+    "leetcodeSlug": "coin-change",
+    "leetcodeUrl": "https://leetcode.com/problems/coin-change/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-158-coin-change"
+  },
+  {
+    "id": "striver-211",
+    "sheetNumber": 211,
+    "title": "Target Sum",
+    "leetcodeSlug": "target-sum",
+    "leetcodeUrl": "https://leetcode.com/problems/target-sum/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-212",
+    "sheetNumber": 212,
+    "title": "Coin Change 2",
+    "leetcodeSlug": "coin-change-2",
+    "leetcodeUrl": "https://leetcode.com/problems/coin-change-2/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-213",
+    "sheetNumber": 213,
+    "title": "Longest Palindromic Subsequence",
+    "leetcodeSlug": "longest-palindromic-subsequence",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-palindromic-subsequence/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-172-longest-palindromic-subsequence"
+  },
+  {
+    "id": "striver-214",
+    "sheetNumber": 214,
+    "title": "Minimum Insertion Steps to Make a String Palindrome",
+    "leetcodeSlug": "minimum-insertion-steps-to-make-a-string-palindrome",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-173-minimum-insertion-steps-to-make-a-string-palindr"
+  },
+  {
+    "id": "striver-215",
+    "sheetNumber": 215,
+    "title": "Delete Operation For Two Strings",
+    "leetcodeSlug": "delete-operation-for-two-strings",
+    "leetcodeUrl": "https://leetcode.com/problems/delete-operation-for-two-strings/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-216",
+    "sheetNumber": 216,
+    "title": "Shortest Common Supersequence",
+    "leetcodeSlug": "shortest-common-supersequence",
+    "leetcodeUrl": "https://leetcode.com/problems/shortest-common-supersequence/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-217",
+    "sheetNumber": 217,
+    "title": "Distinct Subsequences",
+    "leetcodeSlug": "distinct-subsequences",
+    "leetcodeUrl": "https://leetcode.com/problems/distinct-subsequences/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-218",
+    "sheetNumber": 218,
+    "title": "Edit Distance",
+    "leetcodeSlug": "edit-distance",
+    "leetcodeUrl": "https://leetcode.com/problems/edit-distance/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-171-edit-distance"
+  },
+  {
+    "id": "striver-219",
+    "sheetNumber": 219,
+    "title": "Wildcard Matching",
+    "leetcodeSlug": "wildcard-matching",
+    "leetcodeUrl": "https://leetcode.com/problems/wildcard-matching/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-090-wildcard-matching"
+  },
+  {
+    "id": "striver-220",
+    "sheetNumber": 220,
+    "title": "Best Time to Buy and Sell Stock II",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-161-best-time-to-buy-and-sell-stock-ii"
+  },
+  {
+    "id": "striver-221",
+    "sheetNumber": 221,
+    "title": "Best Time to Buy and Sell Stock III",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock-iii",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-162-best-time-to-buy-and-sell-stock-iii"
+  },
+  {
+    "id": "striver-222",
+    "sheetNumber": 222,
+    "title": "Best Time to Buy and Sell Stock IV",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock-iv",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-163-best-time-to-buy-and-sell-stock-iv"
+  },
+  {
+    "id": "striver-223",
+    "sheetNumber": 223,
+    "title": "Best Time to Buy and Sell Stock with Cooldown",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock-with-cooldown",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-164-best-time-to-buy-and-sell-stock-with-cooldown"
+  },
+  {
+    "id": "striver-224",
+    "sheetNumber": 224,
+    "title": "Best Time to Buy and Sell Stock with Transaction Fee",
+    "leetcodeSlug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
+    "leetcodeUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-165-best-time-to-buy-and-sell-stock-with-transaction"
+  },
+  {
+    "id": "striver-225",
+    "sheetNumber": 225,
+    "title": "Largest Divisible Subset",
+    "leetcodeSlug": "largest-divisible-subset",
+    "leetcodeUrl": "https://leetcode.com/problems/largest-divisible-subset/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-175-largest-divisible-subset"
+  },
+  {
+    "id": "striver-226",
+    "sheetNumber": 226,
+    "title": "Longest String Chain",
+    "leetcodeSlug": "longest-string-chain",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-string-chain/",
+    "difficulty": "medium",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-176-longest-string-chain"
+  },
+  {
+    "id": "striver-227",
+    "sheetNumber": 227,
+    "title": "Number Of Longest Increasing Subsequence",
+    "leetcodeSlug": "number-of-longest-increasing-subsequence",
+    "leetcodeUrl": "https://leetcode.com/problems/number-of-longest-increasing-subsequence/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-228",
+    "sheetNumber": 228,
+    "title": "Minimum Cost to Cut a Stick",
+    "leetcodeSlug": "minimum-cost-to-cut-a-stick",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-cost-to-cut-a-stick/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-177-minimum-cost-to-cut-a-stick"
+  },
+  {
+    "id": "striver-229",
+    "sheetNumber": 229,
+    "title": "Burst Balloons",
+    "leetcodeSlug": "burst-balloons",
+    "leetcodeUrl": "https://leetcode.com/problems/burst-balloons/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-178-burst-balloons"
+  },
+  {
+    "id": "striver-230",
+    "sheetNumber": 230,
+    "title": "Parsing A Boolean Expression",
+    "leetcodeSlug": "parsing-a-boolean-expression",
+    "leetcodeUrl": "https://leetcode.com/problems/parsing-a-boolean-expression/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-179-parsing-a-boolean-expression"
+  },
+  {
+    "id": "striver-231",
+    "sheetNumber": 231,
+    "title": "Palindrome Partitioning II",
+    "leetcodeSlug": "palindrome-partitioning-ii",
+    "leetcodeUrl": "https://leetcode.com/problems/palindrome-partitioning-ii/",
+    "difficulty": "hard",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming",
+    "practiceId": "bc-180-palindrome-partitioning-ii"
+  },
+  {
+    "id": "striver-232",
+    "sheetNumber": 232,
+    "title": "Partition Array For Ma",
+    "leetcodeSlug": "partition-array-for-ma",
+    "leetcodeUrl": "https://leetcode.com/problems/partition-array-for-ma/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-233",
+    "sheetNumber": 233,
+    "title": "Count Square Submatrices With All Ones",
+    "leetcodeSlug": "count-square-submatrices-with-all-ones",
+    "leetcodeUrl": "https://leetcode.com/problems/count-square-submatrices-with-all-ones/",
+    "sectionId": "dynamic-programming",
+    "sectionTitle": "Dynamic Programming"
+  },
+  {
+    "id": "striver-234",
+    "sheetNumber": 234,
+    "title": "Implement Trie (Prefix Tree)",
+    "leetcodeSlug": "implement-trie-prefix-tree",
+    "leetcodeUrl": "https://leetcode.com/problems/implement-trie-prefix-tree/",
+    "difficulty": "medium",
+    "sectionId": "tries",
+    "sectionTitle": "Tries",
+    "practiceId": "bc-120-implement-trie-prefix-tree"
+  },
+  {
+    "id": "striver-235",
+    "sheetNumber": 235,
+    "title": "Maximum Xor Of Two Numbers In An Array",
+    "leetcodeSlug": "maximum-xor-of-two-numbers-in-an-array",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-236",
+    "sheetNumber": 236,
+    "title": "Maximum Xor With An Element From Array",
+    "leetcodeSlug": "maximum-xor-with-an-element-from-array",
+    "leetcodeUrl": "https://leetcode.com/problems/maximum-xor-with-an-element-from-array/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-237",
+    "sheetNumber": 237,
+    "title": "Minimum Add To Make Parentheses Valid",
+    "leetcodeSlug": "minimum-add-to-make-parentheses-valid",
+    "leetcodeUrl": "https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-238",
+    "sheetNumber": 238,
+    "title": "Count And Say",
+    "leetcodeSlug": "count-and-say",
+    "leetcodeUrl": "https://leetcode.com/problems/count-and-say/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-239",
+    "sheetNumber": 239,
+    "title": "Repeated String Match",
+    "leetcodeSlug": "repeated-string-match",
+    "leetcodeUrl": "https://leetcode.com/problems/repeated-string-match/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-240",
+    "sheetNumber": 240,
+    "title": "Implement Strstr",
+    "leetcodeSlug": "implement-strstr",
+    "leetcodeUrl": "https://leetcode.com/problems/implement-strstr/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-241",
+    "sheetNumber": 241,
+    "title": "Longest Happy Prefix",
+    "leetcodeSlug": "longest-happy-prefix",
+    "leetcodeUrl": "https://leetcode.com/problems/longest-happy-prefix/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  },
+  {
+    "id": "striver-242",
+    "sheetNumber": 242,
+    "title": "Count Palindromic Subsequences",
+    "leetcodeSlug": "count-palindromic-subsequences",
+    "leetcodeUrl": "https://leetcode.com/problems/count-palindromic-subsequences/",
+    "sectionId": "tries",
+    "sectionTitle": "Tries"
+  }
+]

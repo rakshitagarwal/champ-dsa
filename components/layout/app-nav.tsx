@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  Bookmark,
   Building2,
   Code2,
   FileCheck,
   FileText,
   Lightbulb,
+  List,
   PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const navLinks: {
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV & Jobs", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
-  { href: "/resources", label: "Resources", icon: Bookmark },
+  { href: "/dsa-sheet", label: "DSA Sheet", icon: List },
 ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean): boolean {

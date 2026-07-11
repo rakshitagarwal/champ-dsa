@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
-  Bookmark,
   Building2,
   CheckCircle2,
   Code2,
@@ -10,6 +9,7 @@ import {
   FileText,
   Globe,
   Layers,
+  List,
   PenLine,
   Play,
   Sparkles,
@@ -48,10 +48,10 @@ const EXPLORE = [
     accent: "from-blue-500/20 to-blue-500/5",
   },
   {
-    href: "/resources",
-    title: "Resources",
-    description: "Curated learning links for DSA, system design, languages, and DevOps.",
-    icon: Bookmark,
+    href: "/dsa-sheet",
+    title: "DSA Sheet",
+    description: "Striver A2Z sheet — 240+ LeetCode problems with topic filters and progress tracking.",
+    icon: List,
     accent: "from-teal-500/20 to-teal-500/5",
   },
   {
@@ -98,9 +98,9 @@ const EXPERIENCE = [
   },
   {
     num: "04",
-    title: "Resource hub",
-    body: "15 curated learning links across JavaScript, React, system design, DevOps, and more.",
-    icon: CheckCircle2,
+    title: "Striver DSA sheet",
+    body: "240+ LeetCode problems from Striver A2Z — filter by topic, track progress, cross-link to in-app solutions.",
+    icon: List,
   },
 ] as const;
 
@@ -157,7 +157,7 @@ export function MarketingLanding() {
           <Stat value="17" label="DSA patterns" />
           <Stat value="211" label="Practice problems" />
           <Stat value="214" label="Companies listed" />
-          <Stat value="15" label="Learning resources" />
+          <Stat value="242" label="Striver sheet (LC)" />
         </div>
       </section>
 
@@ -254,10 +254,10 @@ export function MarketingLanding() {
             />
             <StepCard
               step="4"
-              title="Explore resources"
-              body="Access curated learning links for DSA, system design, frontend, backend, DevOps, and more."
-              href="/resources"
-              cta="Browse resources"
+              title="Striver DSA sheet"
+              body="Work through Striver A2Z on LeetCode — filter by topic here and mark problems done as you go."
+              href="/dsa-sheet"
+              cta="Open DSA sheet"
             />
           </div>
         </div>

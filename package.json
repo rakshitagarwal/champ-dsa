@@ -21,6 +21,7 @@
     "resolve:leetcode": "node scripts/resolve-leetcode-slugs.mjs",
     "fetch:leetcode": "node scripts/fetch-leetcode-descriptions.mjs",
     "fetch:jsinfo": "node scripts/fetch-javascript-info.mjs",
+    "generate:striver-sheet": "node tools/import-striver-sheet/generate.mjs",
     "generate:job-tracker": "python tools/job-search/generate_tracker.py && python tools/job-search/verify_tracker.py"
   },
   "dependencies": {
