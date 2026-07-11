@@ -242,8 +242,7 @@ const ENGINEERING: Company[] = [
   { id: "tata-elxsi", name: "Tata Elxsi", description: "Design and engineering services for auto, media, healthcare.", careerUrl: "https://www.tataelxsi.com/careers", websiteUrl: "https://www.tataelxsi.com", category: "engineering" },
   { id: "kpit", name: "KPIT Technologies", description: "Automotive engineering and mobility software.", careerUrl: "https://www.kpit.com/careers/", websiteUrl: "https://www.kpit.com", category: "engineering" },
   { id: "ltts", name: "L&T Technology Services", description: "Engineering R&D and product engineering services.", careerUrl: "https://www.ltts.com/careers", websiteUrl: "https://www.ltts.com", category: "engineering" },
-  { id: "tata-technologies", name: "Tata Technologies", description: "Engineering and product development services.", careerUrl: "https://www.tatatechnologies.com/careers/", websiteUrl: "https://www.tatatechnologies.com", category: "engineering" },
-  { id: "cyient", name: "Cyient", description: "Engineering, manufacturing, and geospatial solutions.", careerUrl: "https://www.cyient.com/careers", websiteUrl: "https://www.cyient.com", category: "engineering" },
+
 ];
 
 const IT_SERVICES: Company[] = [
@@ -253,17 +252,7 @@ const IT_SERVICES: Company[] = [
   { id: "thoughtworks", name: "Thoughtworks", description: "Agile software development and consulting.", careerUrl: "https://www.thoughtworks.com/careers", websiteUrl: "https://www.thoughtworks.com", category: "it-services" },
   { id: "epam", name: "EPAM Systems", description: "Digital platform engineering and services.", careerUrl: "https://www.epam.com/careers", websiteUrl: "https://www.epam.com", category: "it-services" },
   { id: "globant", name: "Globant", description: "Digital product engineering and IT services.", careerUrl: "https://www.globant.com/careers", websiteUrl: "https://www.globant.com", category: "it-services" },
-  { id: "endava", name: "Endava", description: "Digital transformation and technology services.", careerUrl: "https://www.endava.com/careers", websiteUrl: "https://www.endava.com", category: "it-services" },
-  { id: "globallogic", name: "GlobalLogic (Hitachi)", description: "Product engineering and experience design.", careerUrl: "https://www.globallogic.com/careers/", websiteUrl: "https://www.globallogic.com", category: "it-services" },
-  { id: "ltimindtree", name: "LTIMindtree", description: "IT services and digital solutions.", careerUrl: "https://www.ltimindtree.com/careers/", websiteUrl: "https://www.ltimindtree.com", category: "it-services" },
-  { id: "coforge", name: "Coforge", description: "IT services and business process outsourcing.", careerUrl: "https://www.coforge.com/careers", websiteUrl: "https://www.coforge.com", category: "it-services" },
-  { id: "mphasis", name: "Mphasis", description: "IT services and cloud infrastructure solutions.", careerUrl: "https://careers.mphasis.com", websiteUrl: "https://www.mphasis.com", category: "it-services" },
-  { id: "hexaware", name: "Hexaware Technologies", description: "IT services and business process services.", careerUrl: "https://hexaware.com/careers/", websiteUrl: "https://www.hexaware.com", category: "it-services" },
-  { id: "zensar", name: "Zensar Technologies", description: "Digital transformation and IT services.", careerUrl: "https://www.zensar.com/careers", websiteUrl: "https://www.zensar.com", category: "it-services" },
-  { id: "sonata", name: "Sonata Software", description: "Software services and technology solutions.", careerUrl: "https://www.sonata-software.com/careers", websiteUrl: "https://www.sonata-software.com", category: "it-services" },
-  { id: "birlasoft", name: "Birlasoft", description: "IT consulting and digital services.", careerUrl: "https://www.birlasoft.com/careers", websiteUrl: "https://www.birlasoft.com", category: "it-services" },
-  { id: "virtusa", name: "Virtusa", description: "Digital engineering and IT services.", careerUrl: "https://www.virtusa.com/careers/", websiteUrl: "https://www.virtusa.com", category: "it-services" },
-  { id: "synechron", name: "Synechron", description: "Financial services technology and consulting.", careerUrl: "https://www.synechron.com/careers", websiteUrl: "https://www.synechron.com", category: "it-services" },
+
   { id: "capgemini", name: "Capgemini", description: "Global IT consulting and technology services.", careerUrl: "https://www.capgemini.com/careers/", websiteUrl: "https://www.capgemini.com", category: "it-services" },
   { id: "cognizant", name: "Cognizant", description: "IT services and business consulting.", careerUrl: "https://careers.cognizant.com", websiteUrl: "https://www.cognizant.com", category: "it-services" },
   { id: "infosys", name: "Infosys", description: "Global IT consulting and digital services.", careerUrl: "https://www.infosys.com/careers.html", websiteUrl: "https://www.infosys.com", category: "it-services" },
@@ -272,16 +261,10 @@ const IT_SERVICES: Company[] = [
   { id: "hcl", name: "HCLTech", description: "IT services and technology solutions.", careerUrl: "https://www.hcltech.com/careers", websiteUrl: "https://www.hcltech.com", category: "it-services" },
   { id: "tech-mahindra", name: "Tech Mahindra", description: "IT services and digital transformation.", careerUrl: "https://careers.techmahindra.com", websiteUrl: "https://www.techmahindra.com", category: "it-services" },
   { id: "accenture", name: "Accenture", description: "Global IT consulting and professional services.", careerUrl: "https://www.accenture.com/in-en/careers", websiteUrl: "https://www.accenture.com", category: "it-services" },
-  { id: "deloitte", name: "Deloitte (USI / Digital)", description: "Audit, consulting, and digital services.", careerUrl: "https://www.deloitte.com/global/en/careers.html", websiteUrl: "https://www.deloitte.com", category: "it-services" },
-  { id: "ey", name: "EY GDS", description: "Global delivery services for audit, tax, consulting.", careerUrl: "https://www.ey.com/en_in/careers", websiteUrl: "https://www.ey.com", category: "it-services" },
-  { id: "kpmg", name: "KPMG Global Services", description: "Professional services and business advisory.", careerUrl: "https://kpmg.com/in/en/careers.html", websiteUrl: "https://kpmg.com", category: "it-services" },
-  { id: "pwc", name: "PwC (Acceleration Center)", description: "Professional services and technology consulting.", careerUrl: "https://www.pwc.in/careers.html", websiteUrl: "https://www.pwc.in", category: "it-services" },
+
   { id: "ibm-consulting", name: "IBM Consulting", description: "Enterprise IT consulting and transformation.", careerUrl: "https://www.ibm.com/careers/consulting", websiteUrl: "https://www.ibm.com", category: "it-services" },
   { id: "genpact", name: "Genpact", description: "Business process outsourcing and transformation.", careerUrl: "https://www.genpact.com/careers", websiteUrl: "https://www.genpact.com", category: "it-services" },
-  { id: "wns", name: "WNS Global Services", description: "BPO and business process management.", careerUrl: "https://www.wns.com/careers", websiteUrl: "https://www.wns.com", category: "it-services" },
-  { id: "247-ai", name: "[24]7.ai", description: "Customer engagement and conversational AI.", careerUrl: "https://www.247.ai/careers", websiteUrl: "https://www.247.ai", category: "it-services" },
-  { id: "grid-dynamics", name: "Grid Dynamics", description: "Digital transformation and data engineering.", careerUrl: "https://www.griddynamics.com/careers", websiteUrl: "https://www.griddynamics.com", category: "it-services" },
-  { id: "dxc", name: "DXC Technology", description: "IT services and enterprise technology solutions.", careerUrl: "https://dxc.com/us/en/careers", websiteUrl: "https://dxc.com", category: "it-services" },
+
 ];
 
 export const COMPANIES: Company[] = [
