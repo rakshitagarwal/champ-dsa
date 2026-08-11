@@ -1,18 +1,20 @@
 import { DsaSheetShell } from "@/components/dsa-sheet/dsa-sheet-shell";
-import {
-  getStriverQuestions,
-  getStriverSections,
-} from "@/lib/dsa-sheet/loader";
+import { DsaSheetOverview } from "@/components/dsa-sheet/dsa-sheet-overview";
+import { getRoadmapPhases, getRoadmapStats } from "@/lib/dsa-sheet/loader";
 
 export const metadata = {
   title: "DSA Sheet",
   description:
-    "Striver A2Z DSA Sheet — LeetCode problems with topic filters and progress tracking.",
+    "ChampDSA interview roadmap — 14 phases from fundamentals to advanced DP, with expandable topics and subtopics.",
 };
 
 export default function DsaSheetPage() {
-  const sections = getStriverSections();
-  const questions = getStriverQuestions();
+  const phases = getRoadmapPhases();
+  const stats = getRoadmapStats();
 
-  return <DsaSheetShell sections={sections} questions={questions} />;
+  return (
+    <DsaSheetShell phases={phases}>
+      <DsaSheetOverview phases={phases} stats={stats} />
+    </DsaSheetShell>
+  );
 }

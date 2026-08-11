@@ -50,7 +50,7 @@ const EXPLORE = [
   {
     href: "/dsa-sheet",
     title: "DSA Sheet",
-    description: "Striver A2Z sheet — 240+ LeetCode problems with topic filters and progress tracking.",
+    description: "14-phase interview roadmap from fundamentals to advanced DP — expand topics and drill into subtopics.",
     icon: List,
     accent: "from-teal-500/20 to-teal-500/5",
   },
@@ -98,8 +98,8 @@ const EXPERIENCE = [
   },
   {
     num: "04",
-    title: "Striver DSA sheet",
-    body: "240+ LeetCode problems from Striver A2Z — filter by topic, track progress, cross-link to in-app solutions.",
+    title: "DSA roadmap sheet",
+    body: "Work phase by phase — open a topic accordion, scan subtopics, and progress from fundamentals through DP.",
     icon: List,
   },
 ] as const;
@@ -157,7 +157,7 @@ export function MarketingLanding() {
           <Stat value="17" label="DSA patterns" />
           <Stat value="211" label="Practice problems" />
           <Stat value="214" label="Companies listed" />
-          <Stat value="242" label="Striver sheet (LC)" />
+          <Stat value="14" label="DSA roadmap phases" />
         </div>
       </section>
 
@@ -254,8 +254,8 @@ export function MarketingLanding() {
             />
             <StepCard
               step="4"
-              title="Striver DSA sheet"
-              body="Work through Striver A2Z on LeetCode — filter by topic here and mark problems done as you go."
+              title="Follow the DSA sheet"
+              body="Move through 14 phases with expandable topics — from complexity basics to advanced dynamic programming."
               href="/dsa-sheet"
               cta="Open DSA sheet"
             />
@@ -317,6 +317,16 @@ export function MarketingLanding() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card py-8">
+        <div className="mx-auto max-w-6xl px-3 text-center sm:px-4 lg:px-6">
+          <p className="text-sm text-muted-foreground">
+            ChampDSA — developed by{" "}
+            <span className="font-medium text-foreground">Rakshit Agarwal</span>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

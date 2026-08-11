@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import type { StriverSectionMeta } from "@/types/dsa-sheet";
+import { usePathname } from "next/navigation";
+import type { RoadmapPhase } from "@/types/dsa-sheet";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  sections: StriverSectionMeta[];
-  totalCount: number;
+  phases: RoadmapPhase[];
   className?: string;
 };
 
-export function DsaSheetMobileNav({ sections, totalCount, className }: Props) {
-  const searchParams = useSearchParams();
-  const active = searchParams.get("section") ?? "all";
+export function DsaSheetMobileNav({ phases, className }: Props) {
+  const pathname = usePathname();
+  const isOverview = pathname === "/dsa-sheet";
 
   return (
     <div className={cn("flex gap-2 overflow-x-auto pb-1", className)}>
@@ -21,27 +20,31 @@ export function DsaSheetMobileNav({ sections, totalCount, className }: Props) {
         href="/dsa-sheet"
         className={cn(
           "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-          active === "all"
+          isOverview
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-muted-foreground",
         )}
       >
-        All ({totalCount})
+        All
       </Link>
-      {sections.map((section) => (
-        <Link
-          key={section.id}
-          href={`/dsa-sheet?section=${section.id}`}
-          className={cn(
-            "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-            active === section.id
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground",
-          )}
-        >
-          {section.title.split(" ")[0]} ({section.questionIds.length})
-        </Link>
-      ))}
+      {phases.map((phase) => {
+        const href = `/dsa-sheet/${phase.id}`;
+        const isActive = pathname === href;
+        return (
+          <Link
+            key={phase.id}
+            href={href}
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              isActive
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
+            {phase.phase}. {phase.shortTitle}
+          </Link>
+        );
+      })}
     </div>
   );
 }

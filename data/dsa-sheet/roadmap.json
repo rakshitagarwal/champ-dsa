@@ -1,0 +1,2212 @@
+[
+  {
+    "id": "phase-0",
+    "phase": 0,
+    "title": "Fundamentals",
+    "shortTitle": "Fundamentals",
+    "description": "Complexity, recursion basics, and the math you need before patterns.",
+    "topics": [
+      {
+        "id": "p0-complexity",
+        "title": "Complexity Analysis",
+        "children": [
+          {
+            "id": "p0-complexity-time",
+            "title": "Time Complexity"
+          },
+          {
+            "id": "p0-complexity-space",
+            "title": "Space Complexity"
+          },
+          {
+            "id": "p0-complexity-big-o",
+            "title": "Big-O / Big-Theta / Big-Omega"
+          },
+          {
+            "id": "p0-complexity-amortized",
+            "title": "Amortized Complexity"
+          }
+        ]
+      },
+      {
+        "id": "p0-recursion",
+        "title": "Recursion Basics",
+        "children": [
+          {
+            "id": "p0-recursion-base",
+            "title": "Base Case"
+          },
+          {
+            "id": "p0-recursion-case",
+            "title": "Recursive Case"
+          },
+          {
+            "id": "p0-recursion-stack",
+            "title": "Call Stack"
+          },
+          {
+            "id": "p0-recursion-param",
+            "title": "Parameterized Recursion"
+          },
+          {
+            "id": "p0-recursion-func",
+            "title": "Functional Recursion"
+          },
+          {
+            "id": "p0-recursion-multi",
+            "title": "Multiple Recursive Calls"
+          }
+        ]
+      },
+      {
+        "id": "p0-math",
+        "title": "Mathematical Basics",
+        "children": [
+          {
+            "id": "p0-math-gcd",
+            "title": "GCD / LCM"
+          },
+          {
+            "id": "p0-math-prime",
+            "title": "Prime Numbers"
+          },
+          {
+            "id": "p0-math-sieve",
+            "title": "Sieve of Eratosthenes"
+          },
+          {
+            "id": "p0-math-mod",
+            "title": "Modular Arithmetic"
+          },
+          {
+            "id": "p0-math-pow",
+            "title": "Fast Exponentiation"
+          },
+          {
+            "id": "p0-math-combo",
+            "title": "Basic Combinatorics"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-1",
+    "phase": 1,
+    "title": "Arrays & Strings",
+    "shortTitle": "Arrays & Strings",
+    "description": "Core array patterns — hashing, windows, prefixes, intervals, and matrices.",
+    "topics": [
+      {
+        "id": "p1-array-basics",
+        "title": "1. Array Basics",
+        "children": [
+          {
+            "id": "p1-array-traversal",
+            "title": "Traversal"
+          },
+          {
+            "id": "p1-array-inplace",
+            "title": "In-place Modification"
+          },
+          {
+            "id": "p1-array-freq",
+            "title": "Frequency Counting"
+          },
+          {
+            "id": "p1-array-minmax",
+            "title": "Min / Max"
+          },
+          {
+            "id": "p1-array-rotation",
+            "title": "Rotation"
+          },
+          {
+            "id": "p1-array-rearrange",
+            "title": "Rearrangement"
+          },
+          {
+            "id": "p1-array-matrix",
+            "title": "Matrix / 2D Arrays"
+          }
+        ]
+      },
+      {
+        "id": "p1-hashing",
+        "title": "2. Hashing",
+        "children": [
+          {
+            "id": "p1-hash-map",
+            "title": "HashMap"
+          },
+          {
+            "id": "p1-hash-set",
+            "title": "HashSet"
+          },
+          {
+            "id": "p1-hash-freq",
+            "title": "Frequency Map"
+          },
+          {
+            "id": "p1-hash-index",
+            "title": "Index Lookup"
+          },
+          {
+            "id": "p1-hash-complement",
+            "title": "Complement Lookup"
+          },
+          {
+            "id": "p1-hash-group",
+            "title": "Grouping"
+          },
+          {
+            "id": "p1-hash-dedupe",
+            "title": "Deduplication"
+          }
+        ]
+      },
+      {
+        "id": "p1-prefix",
+        "title": "3. Prefix Sum",
+        "children": [
+          {
+            "id": "p1-prefix-sum",
+            "title": "Prefix Sum"
+          },
+          {
+            "id": "p1-prefix-product",
+            "title": "Prefix Product"
+          },
+          {
+            "id": "p1-prefix-range",
+            "title": "Range Sum"
+          },
+          {
+            "id": "p1-prefix-hash",
+            "title": "Prefix Sum + HashMap"
+          },
+          {
+            "id": "p1-prefix-xor",
+            "title": "Prefix XOR"
+          },
+          {
+            "id": "p1-prefix-2d",
+            "title": "2D Prefix Sum"
+          }
+        ]
+      },
+      {
+        "id": "p1-diff",
+        "title": "4. Difference Array",
+        "children": [
+          {
+            "id": "p1-diff-updates",
+            "title": "Range Updates"
+          },
+          {
+            "id": "p1-diff-increment",
+            "title": "Range Increment"
+          },
+          {
+            "id": "p1-diff-prefix",
+            "title": "Difference Array + Prefix Sum"
+          }
+        ]
+      },
+      {
+        "id": "p1-two-pointers",
+        "title": "5. Two Pointers",
+        "children": [
+          {
+            "id": "p1-tp-opposite",
+            "title": "Opposite Direction"
+          },
+          {
+            "id": "p1-tp-same",
+            "title": "Same Direction"
+          },
+          {
+            "id": "p1-tp-fast-slow",
+            "title": "Fast / Slow Pointer"
+          },
+          {
+            "id": "p1-tp-sorted",
+            "title": "Sorted Array Pair Problems"
+          },
+          {
+            "id": "p1-tp-3sum",
+            "title": "3Sum / 4Sum"
+          },
+          {
+            "id": "p1-tp-partition",
+            "title": "Partitioning"
+          },
+          {
+            "id": "p1-tp-inplace",
+            "title": "In-place Array Problems"
+          }
+        ]
+      },
+      {
+        "id": "p1-sliding",
+        "title": "6. Sliding Window",
+        "children": [
+          {
+            "id": "p1-sw-fixed",
+            "title": "Fixed Size Window"
+          },
+          {
+            "id": "p1-sw-variable",
+            "title": "Variable Size Window"
+          },
+          {
+            "id": "p1-sw-expand",
+            "title": "Expand / Shrink"
+          },
+          {
+            "id": "p1-sw-freq",
+            "title": "Frequency Map Window"
+          },
+          {
+            "id": "p1-sw-char",
+            "title": "Character Window"
+          },
+          {
+            "id": "p1-sw-maxmin",
+            "title": "Maximum / Minimum Window"
+          },
+          {
+            "id": "p1-sw-deque",
+            "title": "Deque-based Window"
+          }
+        ]
+      },
+      {
+        "id": "p1-kadane",
+        "title": "7. Kadane / Subarray",
+        "children": [
+          {
+            "id": "p1-kadane-max",
+            "title": "Maximum Subarray"
+          },
+          {
+            "id": "p1-kadane-min",
+            "title": "Minimum Subarray"
+          },
+          {
+            "id": "p1-kadane-circular",
+            "title": "Maximum Circular Subarray"
+          },
+          {
+            "id": "p1-kadane-product",
+            "title": "Maximum Product Subarray"
+          },
+          {
+            "id": "p1-kadane-sum",
+            "title": "Subarray Sum Problems"
+          }
+        ]
+      },
+      {
+        "id": "p1-sorting",
+        "title": "8. Sorting",
+        "children": [
+          {
+            "id": "p1-sort-bubble",
+            "title": "Bubble Sort"
+          },
+          {
+            "id": "p1-sort-selection",
+            "title": "Selection Sort"
+          },
+          {
+            "id": "p1-sort-insertion",
+            "title": "Insertion Sort"
+          },
+          {
+            "id": "p1-sort-merge",
+            "title": "Merge Sort"
+          },
+          {
+            "id": "p1-sort-quick",
+            "title": "Quick Sort"
+          },
+          {
+            "id": "p1-sort-counting",
+            "title": "Counting Sort"
+          },
+          {
+            "id": "p1-sort-custom",
+            "title": "Custom Comparator"
+          },
+          {
+            "id": "p1-sort-pattern",
+            "title": "Sort + Pattern",
+            "children": [
+              {
+                "id": "p1-sort-pattern-tp",
+                "title": "Sort + Two Pointers"
+              },
+              {
+                "id": "p1-sort-pattern-greedy",
+                "title": "Sort + Greedy"
+              },
+              {
+                "id": "p1-sort-pattern-intervals",
+                "title": "Sort + Intervals"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "p1-intervals",
+        "title": "9. Intervals",
+        "children": [
+          {
+            "id": "p1-int-merge",
+            "title": "Merge Intervals"
+          },
+          {
+            "id": "p1-int-insert",
+            "title": "Insert Interval"
+          },
+          {
+            "id": "p1-int-overlap",
+            "title": "Overlapping Intervals"
+          },
+          {
+            "id": "p1-int-nonoverlap",
+            "title": "Non-overlapping Intervals"
+          },
+          {
+            "id": "p1-int-meeting",
+            "title": "Meeting Rooms"
+          },
+          {
+            "id": "p1-int-schedule",
+            "title": "Interval Scheduling"
+          },
+          {
+            "id": "p1-int-sweep",
+            "title": "Sweep Line"
+          }
+        ]
+      },
+      {
+        "id": "p1-matrices",
+        "title": "10. Matrices",
+        "children": [
+          {
+            "id": "p1-mat-traversal",
+            "title": "Matrix Traversal"
+          },
+          {
+            "id": "p1-mat-spiral",
+            "title": "Spiral Matrix"
+          },
+          {
+            "id": "p1-mat-rotate",
+            "title": "Rotate Matrix"
+          },
+          {
+            "id": "p1-mat-transpose",
+            "title": "Transpose"
+          },
+          {
+            "id": "p1-mat-search",
+            "title": "Search Matrix"
+          },
+          {
+            "id": "p1-mat-zeroes",
+            "title": "Set Matrix Zeroes"
+          },
+          {
+            "id": "p1-mat-grid",
+            "title": "Grid-based Problems"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-2",
+    "phase": 2,
+    "title": "Binary Search",
+    "shortTitle": "Binary Search",
+    "description": "Standard search, rotated arrays, and binary search on the answer space.",
+    "topics": [
+      {
+        "id": "p2-basic",
+        "title": "11. Basic Binary Search",
+        "children": [
+          {
+            "id": "p2-basic-standard",
+            "title": "Standard Binary Search"
+          },
+          {
+            "id": "p2-basic-first",
+            "title": "First Occurrence"
+          },
+          {
+            "id": "p2-basic-last",
+            "title": "Last Occurrence"
+          },
+          {
+            "id": "p2-basic-lower",
+            "title": "Lower Bound"
+          },
+          {
+            "id": "p2-basic-upper",
+            "title": "Upper Bound"
+          },
+          {
+            "id": "p2-basic-insert",
+            "title": "Search Insert Position"
+          }
+        ]
+      },
+      {
+        "id": "p2-modified",
+        "title": "12. Modified Binary Search",
+        "children": [
+          {
+            "id": "p2-mod-rotated",
+            "title": "Rotated Sorted Array"
+          },
+          {
+            "id": "p2-mod-min",
+            "title": "Find Minimum in Rotated Array"
+          },
+          {
+            "id": "p2-mod-peak",
+            "title": "Peak Element"
+          },
+          {
+            "id": "p2-mod-bitonic",
+            "title": "Bitonic Array"
+          },
+          {
+            "id": "p2-mod-nearly",
+            "title": "Nearly Sorted Array"
+          }
+        ]
+      },
+      {
+        "id": "p2-answer",
+        "title": "13. Binary Search on Answer",
+        "children": [
+          {
+            "id": "p2-ans-min",
+            "title": "Minimum Possible Answer"
+          },
+          {
+            "id": "p2-ans-max",
+            "title": "Maximum Possible Answer"
+          },
+          {
+            "id": "p2-ans-feasibility",
+            "title": "Feasibility Function"
+          },
+          {
+            "id": "p2-ans-capacity",
+            "title": "Capacity Problems"
+          },
+          {
+            "id": "p2-ans-allocation",
+            "title": "Allocation Problems"
+          },
+          {
+            "id": "p2-ans-koko",
+            "title": "Koko / Eating Problems"
+          },
+          {
+            "id": "p2-ans-aggressive",
+            "title": "Aggressive Placement Problems"
+          }
+        ]
+      },
+      {
+        "id": "p2-combo",
+        "title": "14. Binary Search + Other Patterns",
+        "children": [
+          {
+            "id": "p2-combo-greedy",
+            "title": "Binary Search + Greedy"
+          },
+          {
+            "id": "p2-combo-prefix",
+            "title": "Binary Search + Prefix Sum"
+          },
+          {
+            "id": "p2-combo-sort",
+            "title": "Binary Search + Sorting"
+          },
+          {
+            "id": "p2-combo-tp",
+            "title": "Binary Search + Two Pointers"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-3",
+    "phase": 3,
+    "title": "Linked List",
+    "shortTitle": "Linked List",
+    "description": "Pointers, reversal, merging, and classic linked-list designs.",
+    "topics": [
+      {
+        "id": "p3-basics",
+        "title": "15. Linked List Basics",
+        "children": [
+          {
+            "id": "p3-basics-traversal",
+            "title": "Traversal"
+          },
+          {
+            "id": "p3-basics-insert",
+            "title": "Insert"
+          },
+          {
+            "id": "p3-basics-delete",
+            "title": "Delete"
+          },
+          {
+            "id": "p3-basics-dummy",
+            "title": "Dummy Node"
+          }
+        ]
+      },
+      {
+        "id": "p3-fast-slow",
+        "title": "16. Fast / Slow Pointer",
+        "children": [
+          {
+            "id": "p3-fs-middle",
+            "title": "Find Middle"
+          },
+          {
+            "id": "p3-fs-cycle",
+            "title": "Cycle Detection"
+          },
+          {
+            "id": "p3-fs-start",
+            "title": "Find Cycle Start"
+          },
+          {
+            "id": "p3-fs-palindrome",
+            "title": "Palindrome"
+          }
+        ]
+      },
+      {
+        "id": "p3-reversal",
+        "title": "17. Reversal",
+        "children": [
+          {
+            "id": "p3-rev-entire",
+            "title": "Reverse Entire List"
+          },
+          {
+            "id": "p3-rev-between",
+            "title": "Reverse Between Positions"
+          },
+          {
+            "id": "p3-rev-k",
+            "title": "Reverse in K Groups"
+          },
+          {
+            "id": "p3-rev-alt",
+            "title": "Reverse Alternate Groups"
+          }
+        ]
+      },
+      {
+        "id": "p3-merging",
+        "title": "18. Merging",
+        "children": [
+          {
+            "id": "p3-merge-two",
+            "title": "Merge Two Sorted Lists"
+          },
+          {
+            "id": "p3-merge-k",
+            "title": "Merge K Sorted Lists"
+          },
+          {
+            "id": "p3-merge-sort",
+            "title": "Sort Linked List"
+          }
+        ]
+      },
+      {
+        "id": "p3-design",
+        "title": "19. Linked List Design",
+        "children": [
+          {
+            "id": "p3-design-intersection",
+            "title": "Intersection"
+          },
+          {
+            "id": "p3-design-nth",
+            "title": "Remove Nth Node"
+          },
+          {
+            "id": "p3-design-reorder",
+            "title": "Reorder List"
+          },
+          {
+            "id": "p3-design-clone",
+            "title": "Clone List with Random Pointer"
+          },
+          {
+            "id": "p3-design-lru",
+            "title": "LRU Cache"
+          },
+          {
+            "id": "p3-design-dll",
+            "title": "Doubly Linked List"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-4",
+    "phase": 4,
+    "title": "Stack & Queue",
+    "shortTitle": "Stack & Queue",
+    "description": "Stacks, monotonic stacks, queues, and deque window tricks.",
+    "topics": [
+      {
+        "id": "p4-stack",
+        "title": "20. Stack",
+        "children": [
+          {
+            "id": "p4-stack-basic",
+            "title": "Basic Stack"
+          },
+          {
+            "id": "p4-stack-parens",
+            "title": "Valid Parentheses"
+          },
+          {
+            "id": "p4-stack-min",
+            "title": "Min Stack"
+          },
+          {
+            "id": "p4-stack-expr",
+            "title": "Expression Evaluation"
+          },
+          {
+            "id": "p4-stack-notation",
+            "title": "Infix / Prefix / Postfix"
+          },
+          {
+            "id": "p4-stack-design",
+            "title": "Stack-based Design"
+          }
+        ]
+      },
+      {
+        "id": "p4-mono-stack",
+        "title": "21. Monotonic Stack",
+        "children": [
+          {
+            "id": "p4-ms-nge",
+            "title": "Next Greater Element"
+          },
+          {
+            "id": "p4-ms-nse",
+            "title": "Next Smaller Element"
+          },
+          {
+            "id": "p4-ms-pge",
+            "title": "Previous Greater Element"
+          },
+          {
+            "id": "p4-ms-pse",
+            "title": "Previous Smaller Element"
+          },
+          {
+            "id": "p4-ms-temp",
+            "title": "Daily Temperatures"
+          },
+          {
+            "id": "p4-ms-span",
+            "title": "Stock Span"
+          },
+          {
+            "id": "p4-ms-histogram",
+            "title": "Largest Rectangle in Histogram"
+          },
+          {
+            "id": "p4-ms-subarray-min",
+            "title": "Sum of Subarray Minimums"
+          },
+          {
+            "id": "p4-ms-rain",
+            "title": "Trapping Rain Water"
+          }
+        ]
+      },
+      {
+        "id": "p4-queue",
+        "title": "22. Queue",
+        "children": [
+          {
+            "id": "p4-queue-basic",
+            "title": "Basic Queue"
+          },
+          {
+            "id": "p4-queue-circular",
+            "title": "Circular Queue"
+          },
+          {
+            "id": "p4-queue-from-stack",
+            "title": "Queue using Stack"
+          },
+          {
+            "id": "p4-stack-from-queue",
+            "title": "Stack using Queue"
+          }
+        ]
+      },
+      {
+        "id": "p4-deque",
+        "title": "23. Deque / Monotonic Queue",
+        "children": [
+          {
+            "id": "p4-deque-max",
+            "title": "Sliding Window Maximum"
+          },
+          {
+            "id": "p4-deque-min",
+            "title": "Sliding Window Minimum"
+          },
+          {
+            "id": "p4-deque-neg",
+            "title": "First Negative in Window"
+          },
+          {
+            "id": "p4-deque-opt",
+            "title": "Monotonic Queue Optimization"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-5",
+    "phase": 5,
+    "title": "Recursion & Backtracking",
+    "shortTitle": "Recursion & BT",
+    "description": "Pick/skip trees, subsets, permutations, and constraint search.",
+    "topics": [
+      {
+        "id": "p5-patterns",
+        "title": "24. Recursion Patterns",
+        "children": [
+          {
+            "id": "p5-pat-pick",
+            "title": "Pick / Not Pick"
+          },
+          {
+            "id": "p5-pat-take",
+            "title": "Take / Skip"
+          },
+          {
+            "id": "p5-pat-multi",
+            "title": "Multiple Choices"
+          },
+          {
+            "id": "p5-pat-tree",
+            "title": "Recursive Tree"
+          },
+          {
+            "id": "p5-pat-state",
+            "title": "State Tracking"
+          }
+        ]
+      },
+      {
+        "id": "p5-subsets",
+        "title": "25. Subsets / Subsequences",
+        "children": [
+          {
+            "id": "p5-sub-subsets",
+            "title": "Subsets"
+          },
+          {
+            "id": "p5-sub-subsets2",
+            "title": "Subsets II"
+          },
+          {
+            "id": "p5-sub-seq",
+            "title": "Subsequences"
+          },
+          {
+            "id": "p5-sub-target",
+            "title": "Subsequence with Target"
+          },
+          {
+            "id": "p5-sub-combo",
+            "title": "Combination Sum"
+          }
+        ]
+      },
+      {
+        "id": "p5-perm",
+        "title": "26. Permutations",
+        "children": [
+          {
+            "id": "p5-perm-basic",
+            "title": "Permutations"
+          },
+          {
+            "id": "p5-perm-ii",
+            "title": "Permutations II"
+          },
+          {
+            "id": "p5-perm-swap",
+            "title": "Swap-based Permutation"
+          },
+          {
+            "id": "p5-perm-next",
+            "title": "Next Permutation"
+          }
+        ]
+      },
+      {
+        "id": "p5-backtrack",
+        "title": "27. Backtracking",
+        "children": [
+          {
+            "id": "p5-bt-combo",
+            "title": "Combination Problems"
+          },
+          {
+            "id": "p5-bt-nqueens",
+            "title": "N-Queens"
+          },
+          {
+            "id": "p5-bt-sudoku",
+            "title": "Sudoku"
+          },
+          {
+            "id": "p5-bt-word",
+            "title": "Word Search"
+          },
+          {
+            "id": "p5-bt-maze",
+            "title": "Maze Problems"
+          },
+          {
+            "id": "p5-bt-csp",
+            "title": "Constraint Satisfaction"
+          }
+        ]
+      },
+      {
+        "id": "p5-dac",
+        "title": "28. Divide & Conquer",
+        "children": [
+          {
+            "id": "p5-dac-merge",
+            "title": "Merge Sort"
+          },
+          {
+            "id": "p5-dac-quick",
+            "title": "Quick Sort"
+          },
+          {
+            "id": "p5-dac-inversions",
+            "title": "Count Inversions"
+          },
+          {
+            "id": "p5-dac-select",
+            "title": "QuickSelect"
+          },
+          {
+            "id": "p5-dac-bs",
+            "title": "Recursive Binary Search"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-6",
+    "phase": 6,
+    "title": "Trees",
+    "shortTitle": "Trees",
+    "description": "Traversals, properties, paths, views, and construction.",
+    "topics": [
+      {
+        "id": "p6-traversal",
+        "title": "29. Tree Traversal",
+        "children": [
+          {
+            "id": "p6-trav-pre",
+            "title": "Preorder"
+          },
+          {
+            "id": "p6-trav-in",
+            "title": "Inorder"
+          },
+          {
+            "id": "p6-trav-post",
+            "title": "Postorder"
+          },
+          {
+            "id": "p6-trav-iter",
+            "title": "Iterative Traversal"
+          },
+          {
+            "id": "p6-trav-morris",
+            "title": "Morris Traversal"
+          },
+          {
+            "id": "p6-trav-level",
+            "title": "Level Order / BFS"
+          }
+        ]
+      },
+      {
+        "id": "p6-props",
+        "title": "30. Tree Properties",
+        "children": [
+          {
+            "id": "p6-prop-max-depth",
+            "title": "Maximum Depth"
+          },
+          {
+            "id": "p6-prop-min-depth",
+            "title": "Minimum Depth"
+          },
+          {
+            "id": "p6-prop-balanced",
+            "title": "Balanced Tree"
+          },
+          {
+            "id": "p6-prop-diameter",
+            "title": "Diameter"
+          },
+          {
+            "id": "p6-prop-path-sum",
+            "title": "Maximum Path Sum"
+          }
+        ]
+      },
+      {
+        "id": "p6-paths",
+        "title": "31. Tree Path Patterns",
+        "children": [
+          {
+            "id": "p6-path-root-leaf",
+            "title": "Root → Leaf"
+          },
+          {
+            "id": "p6-path-root-node",
+            "title": "Root → Node"
+          },
+          {
+            "id": "p6-path-sum",
+            "title": "Path Sum"
+          },
+          {
+            "id": "p6-path-all",
+            "title": "All Paths"
+          },
+          {
+            "id": "p6-path-minmax",
+            "title": "Maximum / Minimum Path"
+          }
+        ]
+      },
+      {
+        "id": "p6-views",
+        "title": "32. Tree Views",
+        "children": [
+          {
+            "id": "p6-view-left",
+            "title": "Left View"
+          },
+          {
+            "id": "p6-view-right",
+            "title": "Right View"
+          },
+          {
+            "id": "p6-view-top",
+            "title": "Top View"
+          },
+          {
+            "id": "p6-view-bottom",
+            "title": "Bottom View"
+          },
+          {
+            "id": "p6-view-boundary",
+            "title": "Boundary Traversal"
+          }
+        ]
+      },
+      {
+        "id": "p6-relations",
+        "title": "33. Tree Relationships",
+        "children": [
+          {
+            "id": "p6-rel-lca",
+            "title": "Lowest Common Ancestor"
+          },
+          {
+            "id": "p6-rel-distance",
+            "title": "Distance Between Nodes"
+          },
+          {
+            "id": "p6-rel-ancestors",
+            "title": "Ancestors"
+          },
+          {
+            "id": "p6-rel-subtree",
+            "title": "Subtree Problems"
+          }
+        ]
+      },
+      {
+        "id": "p6-construct",
+        "title": "34. Tree Construction / Serialization",
+        "children": [
+          {
+            "id": "p6-con-ser",
+            "title": "Serialize / Deserialize"
+          },
+          {
+            "id": "p6-con-pre-in",
+            "title": "Construct from Preorder + Inorder"
+          },
+          {
+            "id": "p6-con-in-post",
+            "title": "Construct from Inorder + Postorder"
+          },
+          {
+            "id": "p6-con-flatten",
+            "title": "Flatten Binary Tree"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-7",
+    "phase": 7,
+    "title": "Binary Search Tree",
+    "shortTitle": "BST",
+    "description": "BST ops, order statistics, relationships, and iterators.",
+    "topics": [
+      {
+        "id": "p7-basics",
+        "title": "35. BST Basics",
+        "children": [
+          {
+            "id": "p7-basics-search",
+            "title": "Search"
+          },
+          {
+            "id": "p7-basics-insert",
+            "title": "Insert"
+          },
+          {
+            "id": "p7-basics-delete",
+            "title": "Delete"
+          },
+          {
+            "id": "p7-basics-validate",
+            "title": "Validate BST"
+          }
+        ]
+      },
+      {
+        "id": "p7-order",
+        "title": "36. BST Order",
+        "children": [
+          {
+            "id": "p7-order-kth-small",
+            "title": "Kth Smallest"
+          },
+          {
+            "id": "p7-order-kth-large",
+            "title": "Kth Largest"
+          },
+          {
+            "id": "p7-order-succ",
+            "title": "Inorder Successor"
+          },
+          {
+            "id": "p7-order-pred",
+            "title": "Inorder Predecessor"
+          }
+        ]
+      },
+      {
+        "id": "p7-relations",
+        "title": "37. BST Relationships",
+        "children": [
+          {
+            "id": "p7-rel-lca",
+            "title": "LCA in BST"
+          },
+          {
+            "id": "p7-rel-two-sum",
+            "title": "Two Sum in BST"
+          },
+          {
+            "id": "p7-rel-pair",
+            "title": "Pair with Given Sum"
+          }
+        ]
+      },
+      {
+        "id": "p7-design",
+        "title": "38. BST Design",
+        "children": [
+          {
+            "id": "p7-design-iter",
+            "title": "BST Iterator"
+          },
+          {
+            "id": "p7-design-balanced",
+            "title": "Balanced BST Concepts"
+          },
+          {
+            "id": "p7-design-convert",
+            "title": "Convert Sorted Array / List to BST"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-8",
+    "phase": 8,
+    "title": "Heap / Priority Queue",
+    "shortTitle": "Heap / PQ",
+    "description": "Heaps, Top-K, two-heap median, and k-way merge.",
+    "topics": [
+      {
+        "id": "p8-basics",
+        "title": "39. Heap Basics",
+        "children": [
+          {
+            "id": "p8-basics-min",
+            "title": "Min Heap"
+          },
+          {
+            "id": "p8-basics-max",
+            "title": "Max Heap"
+          },
+          {
+            "id": "p8-basics-insert",
+            "title": "Insert"
+          },
+          {
+            "id": "p8-basics-delete",
+            "title": "Delete"
+          },
+          {
+            "id": "p8-basics-heapify",
+            "title": "Heapify"
+          },
+          {
+            "id": "p8-basics-sort",
+            "title": "Heap Sort"
+          }
+        ]
+      },
+      {
+        "id": "p8-topk",
+        "title": "40. Top K Pattern",
+        "children": [
+          {
+            "id": "p8-topk-largest",
+            "title": "Kth Largest"
+          },
+          {
+            "id": "p8-topk-smallest",
+            "title": "Kth Smallest"
+          },
+          {
+            "id": "p8-topk-freq",
+            "title": "Top K Frequent"
+          },
+          {
+            "id": "p8-topk-closest",
+            "title": "K Closest"
+          },
+          {
+            "id": "p8-topk-pairs",
+            "title": "K Largest / Smallest Pairs"
+          }
+        ]
+      },
+      {
+        "id": "p8-two-heaps",
+        "title": "41. Two Heaps",
+        "children": [
+          {
+            "id": "p8-two-median",
+            "title": "Median from Data Stream"
+          },
+          {
+            "id": "p8-two-running",
+            "title": "Running Median"
+          },
+          {
+            "id": "p8-two-partition",
+            "title": "Partitioning Data"
+          }
+        ]
+      },
+      {
+        "id": "p8-kway",
+        "title": "42. K-Way Merge",
+        "children": [
+          {
+            "id": "p8-kway-lists",
+            "title": "Merge K Sorted Lists"
+          },
+          {
+            "id": "p8-kway-matrix",
+            "title": "Kth Smallest in Sorted Matrix"
+          },
+          {
+            "id": "p8-kway-range",
+            "title": "Smallest Range from K Lists"
+          }
+        ]
+      },
+      {
+        "id": "p8-greedy",
+        "title": "43. Heap + Greedy",
+        "children": [
+          {
+            "id": "p8-greedy-sched",
+            "title": "Scheduling"
+          },
+          {
+            "id": "p8-greedy-task",
+            "title": "Task Assignment"
+          },
+          {
+            "id": "p8-greedy-ropes",
+            "title": "Connect Ropes"
+          },
+          {
+            "id": "p8-greedy-stream",
+            "title": "Streaming Problems"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-9",
+    "phase": 9,
+    "title": "Graphs",
+    "shortTitle": "Graphs",
+    "description": "BFS/DFS, cycles, topo sort, shortest paths, MST, and DSU.",
+    "topics": [
+      {
+        "id": "p9-repr",
+        "title": "44. Graph Representation",
+        "children": [
+          {
+            "id": "p9-repr-matrix",
+            "title": "Adjacency Matrix"
+          },
+          {
+            "id": "p9-repr-list",
+            "title": "Adjacency List"
+          },
+          {
+            "id": "p9-repr-edge",
+            "title": "Edge List"
+          },
+          {
+            "id": "p9-repr-dir",
+            "title": "Directed / Undirected"
+          }
+        ]
+      },
+      {
+        "id": "p9-bfs",
+        "title": "45. BFS",
+        "children": [
+          {
+            "id": "p9-bfs-trav",
+            "title": "Graph Traversal"
+          },
+          {
+            "id": "p9-bfs-shortest",
+            "title": "Shortest Path — Unweighted"
+          },
+          {
+            "id": "p9-bfs-multi",
+            "title": "Multi-source BFS"
+          },
+          {
+            "id": "p9-bfs-grid",
+            "title": "Grid BFS"
+          },
+          {
+            "id": "p9-bfs-level",
+            "title": "Level-based Problems"
+          }
+        ]
+      },
+      {
+        "id": "p9-dfs",
+        "title": "46. DFS",
+        "children": [
+          {
+            "id": "p9-dfs-trav",
+            "title": "Graph Traversal"
+          },
+          {
+            "id": "p9-dfs-cc",
+            "title": "Connected Components"
+          },
+          {
+            "id": "p9-dfs-provinces",
+            "title": "Number of Provinces"
+          },
+          {
+            "id": "p9-dfs-grid",
+            "title": "Grid DFS"
+          },
+          {
+            "id": "p9-dfs-flood",
+            "title": "Flood Fill"
+          }
+        ]
+      },
+      {
+        "id": "p9-grid",
+        "title": "47. Grid as Graph",
+        "children": [
+          {
+            "id": "p9-grid-islands",
+            "title": "Number of Islands"
+          },
+          {
+            "id": "p9-grid-oranges",
+            "title": "Rotten Oranges"
+          },
+          {
+            "id": "p9-grid-flood",
+            "title": "Flood Fill"
+          },
+          {
+            "id": "p9-grid-surrounded",
+            "title": "Surrounded Regions"
+          },
+          {
+            "id": "p9-grid-shortest",
+            "title": "Shortest Path in Grid"
+          }
+        ]
+      },
+      {
+        "id": "p9-cycle",
+        "title": "48. Cycle Detection",
+        "children": [
+          {
+            "id": "p9-cycle-u-bfs",
+            "title": "Undirected — BFS"
+          },
+          {
+            "id": "p9-cycle-u-dfs",
+            "title": "Undirected — DFS"
+          },
+          {
+            "id": "p9-cycle-d-dfs",
+            "title": "Directed — DFS"
+          },
+          {
+            "id": "p9-cycle-d-kahn",
+            "title": "Directed — Kahn's Algorithm"
+          }
+        ]
+      },
+      {
+        "id": "p9-bipartite",
+        "title": "49. Bipartite Graph",
+        "children": [
+          {
+            "id": "p9-bip-bfs",
+            "title": "BFS Coloring"
+          },
+          {
+            "id": "p9-bip-dfs",
+            "title": "DFS Coloring"
+          }
+        ]
+      },
+      {
+        "id": "p9-topo",
+        "title": "50. Topological Sort",
+        "children": [
+          {
+            "id": "p9-topo-dfs",
+            "title": "DFS"
+          },
+          {
+            "id": "p9-topo-kahn",
+            "title": "Kahn's Algorithm"
+          },
+          {
+            "id": "p9-topo-course",
+            "title": "Course Schedule"
+          },
+          {
+            "id": "p9-topo-dep",
+            "title": "Dependency Problems"
+          }
+        ]
+      },
+      {
+        "id": "p9-sp",
+        "title": "51. Shortest Path",
+        "children": [
+          {
+            "id": "p9-sp-bfs",
+            "title": "BFS"
+          },
+          {
+            "id": "p9-sp-dijkstra",
+            "title": "Dijkstra"
+          },
+          {
+            "id": "p9-sp-bellman",
+            "title": "Bellman-Ford"
+          },
+          {
+            "id": "p9-sp-floyd",
+            "title": "Floyd-Warshall"
+          },
+          {
+            "id": "p9-sp-01",
+            "title": "0-1 BFS"
+          },
+          {
+            "id": "p9-sp-dag",
+            "title": "Shortest Path in DAG"
+          }
+        ]
+      },
+      {
+        "id": "p9-mst",
+        "title": "52. Minimum Spanning Tree",
+        "children": [
+          {
+            "id": "p9-mst-prim",
+            "title": "Prim's Algorithm"
+          },
+          {
+            "id": "p9-mst-kruskal",
+            "title": "Kruskal's Algorithm"
+          },
+          {
+            "id": "p9-mst-dsu",
+            "title": "MST + DSU"
+          }
+        ]
+      },
+      {
+        "id": "p9-dsu",
+        "title": "53. Disjoint Set Union",
+        "children": [
+          {
+            "id": "p9-dsu-find",
+            "title": "Find"
+          },
+          {
+            "id": "p9-dsu-union",
+            "title": "Union"
+          },
+          {
+            "id": "p9-dsu-path",
+            "title": "Path Compression"
+          },
+          {
+            "id": "p9-dsu-rank",
+            "title": "Union by Rank"
+          },
+          {
+            "id": "p9-dsu-size",
+            "title": "Union by Size"
+          },
+          {
+            "id": "p9-dsu-dynamic",
+            "title": "Dynamic Connectivity"
+          }
+        ]
+      },
+      {
+        "id": "p9-advanced",
+        "title": "54. Advanced Graph",
+        "children": [
+          {
+            "id": "p9-adv-bridges",
+            "title": "Bridges"
+          },
+          {
+            "id": "p9-adv-articulation",
+            "title": "Articulation Points"
+          },
+          {
+            "id": "p9-adv-scc",
+            "title": "Strongly Connected Components"
+          },
+          {
+            "id": "p9-adv-tarjan",
+            "title": "Tarjan's Algorithm"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-10",
+    "phase": 10,
+    "title": "Greedy",
+    "shortTitle": "Greedy",
+    "description": "Interval and scheduling greed, plus heap-backed greedy patterns.",
+    "topics": [
+      {
+        "id": "p10-basics",
+        "title": "55. Greedy Basics",
+        "children": [
+          {
+            "id": "p10-basics-local",
+            "title": "Local Optimal Choice"
+          },
+          {
+            "id": "p10-basics-sort",
+            "title": "Sorting + Greedy"
+          },
+          {
+            "id": "p10-basics-proof",
+            "title": "Proof / Exchange Argument"
+          }
+        ]
+      },
+      {
+        "id": "p10-interval",
+        "title": "56. Interval Greedy",
+        "children": [
+          {
+            "id": "p10-int-activity",
+            "title": "Activity Selection"
+          },
+          {
+            "id": "p10-int-meeting",
+            "title": "Meeting Rooms"
+          },
+          {
+            "id": "p10-int-nonoverlap",
+            "title": "Non-overlapping Intervals"
+          },
+          {
+            "id": "p10-int-arrows",
+            "title": "Minimum Arrows"
+          }
+        ]
+      },
+      {
+        "id": "p10-sched",
+        "title": "57. Scheduling Greedy",
+        "children": [
+          {
+            "id": "p10-sched-job",
+            "title": "Job Sequencing"
+          },
+          {
+            "id": "p10-sched-task",
+            "title": "Task Scheduling"
+          },
+          {
+            "id": "p10-sched-platforms",
+            "title": "Minimum Platforms"
+          },
+          {
+            "id": "p10-sched-cpu",
+            "title": "CPU Scheduling"
+          }
+        ]
+      },
+      {
+        "id": "p10-heap",
+        "title": "58. Greedy + Heap",
+        "children": [
+          {
+            "id": "p10-heap-task",
+            "title": "Task Scheduling"
+          },
+          {
+            "id": "p10-heap-ipo",
+            "title": "IPO / Capital Problems"
+          },
+          {
+            "id": "p10-heap-cost",
+            "title": "Minimum Cost Problems"
+          },
+          {
+            "id": "p10-heap-resource",
+            "title": "Resource Allocation"
+          }
+        ]
+      },
+      {
+        "id": "p10-other",
+        "title": "59. Other Greedy",
+        "children": [
+          {
+            "id": "p10-other-jump",
+            "title": "Jump Game"
+          },
+          {
+            "id": "p10-other-gas",
+            "title": "Gas Station"
+          },
+          {
+            "id": "p10-other-candy",
+            "title": "Candy"
+          },
+          {
+            "id": "p10-other-frac",
+            "title": "Fractional Knapsack"
+          },
+          {
+            "id": "p10-other-huffman",
+            "title": "Huffman Coding"
+          },
+          {
+            "id": "p10-other-ropes",
+            "title": "Connect Ropes"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-11",
+    "phase": 11,
+    "title": "Bit Manipulation",
+    "shortTitle": "Bit Manipulation",
+    "description": "Bit ops, XOR tricks, counting, and bitmask techniques.",
+    "topics": [
+      {
+        "id": "p11-basics",
+        "title": "60. Bit Basics",
+        "children": [
+          {
+            "id": "p11-basics-and",
+            "title": "AND"
+          },
+          {
+            "id": "p11-basics-or",
+            "title": "OR"
+          },
+          {
+            "id": "p11-basics-xor",
+            "title": "XOR"
+          },
+          {
+            "id": "p11-basics-not",
+            "title": "NOT"
+          },
+          {
+            "id": "p11-basics-lshift",
+            "title": "Left Shift"
+          },
+          {
+            "id": "p11-basics-rshift",
+            "title": "Right Shift"
+          }
+        ]
+      },
+      {
+        "id": "p11-ops",
+        "title": "61. Bit Operations",
+        "children": [
+          {
+            "id": "p11-ops-check",
+            "title": "Check Bit"
+          },
+          {
+            "id": "p11-ops-set",
+            "title": "Set Bit"
+          },
+          {
+            "id": "p11-ops-clear",
+            "title": "Clear Bit"
+          },
+          {
+            "id": "p11-ops-toggle",
+            "title": "Toggle Bit"
+          },
+          {
+            "id": "p11-ops-remove",
+            "title": "Remove Lowest Set Bit"
+          }
+        ]
+      },
+      {
+        "id": "p11-xor",
+        "title": "62. XOR Patterns",
+        "children": [
+          {
+            "id": "p11-xor-single",
+            "title": "Single Number"
+          },
+          {
+            "id": "p11-xor-missing",
+            "title": "Missing Number"
+          },
+          {
+            "id": "p11-xor-two",
+            "title": "Two Unique Numbers"
+          },
+          {
+            "id": "p11-xor-range",
+            "title": "XOR Range"
+          }
+        ]
+      },
+      {
+        "id": "p11-count",
+        "title": "63. Bit Counting",
+        "children": [
+          {
+            "id": "p11-count-set",
+            "title": "Count Set Bits"
+          },
+          {
+            "id": "p11-count-pow2",
+            "title": "Power of Two"
+          },
+          {
+            "id": "p11-count-pow4",
+            "title": "Power of Four"
+          },
+          {
+            "id": "p11-count-hamming",
+            "title": "Hamming Distance"
+          }
+        ]
+      },
+      {
+        "id": "p11-mask",
+        "title": "64. Bitmask",
+        "children": [
+          {
+            "id": "p11-mask-subsets",
+            "title": "Subsets using Bits"
+          },
+          {
+            "id": "p11-mask-submask",
+            "title": "Submask Enumeration"
+          },
+          {
+            "id": "p11-mask-state",
+            "title": "State Compression"
+          },
+          {
+            "id": "p11-mask-dp",
+            "title": "Bitmask DP"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-12",
+    "phase": 12,
+    "title": "Trie",
+    "shortTitle": "Trie",
+    "description": "Prefix trees, dictionary search, and binary XOR tries.",
+    "topics": [
+      {
+        "id": "p12-basics",
+        "title": "65. Trie Basics",
+        "children": [
+          {
+            "id": "p12-basics-insert",
+            "title": "Insert"
+          },
+          {
+            "id": "p12-basics-search",
+            "title": "Search"
+          },
+          {
+            "id": "p12-basics-starts",
+            "title": "Starts With"
+          },
+          {
+            "id": "p12-basics-delete",
+            "title": "Delete"
+          }
+        ]
+      },
+      {
+        "id": "p12-apps",
+        "title": "66. Trie Applications",
+        "children": [
+          {
+            "id": "p12-apps-prefix",
+            "title": "Prefix Search"
+          },
+          {
+            "id": "p12-apps-dict",
+            "title": "Word Dictionary"
+          },
+          {
+            "id": "p12-apps-lcp",
+            "title": "Longest Common Prefix"
+          },
+          {
+            "id": "p12-apps-word",
+            "title": "Word Search"
+          },
+          {
+            "id": "p12-apps-auto",
+            "title": "Autocomplete"
+          }
+        ]
+      },
+      {
+        "id": "p12-binary",
+        "title": "67. Binary Trie",
+        "children": [
+          {
+            "id": "p12-bin-max",
+            "title": "Maximum XOR"
+          },
+          {
+            "id": "p12-bin-min",
+            "title": "Minimum XOR"
+          },
+          {
+            "id": "p12-bin-pair",
+            "title": "XOR Pair Problems"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "phase-13",
+    "phase": 13,
+    "title": "Dynamic Programming",
+    "shortTitle": "Dynamic Programming",
+    "description": "From 1D and knapsack to strings, trees, bitmasks, and advanced DP.",
+    "topics": [
+      {
+        "id": "p13-fundamentals",
+        "title": "68. DP Fundamentals",
+        "children": [
+          {
+            "id": "p13-fund-state",
+            "title": "Identify State"
+          },
+          {
+            "id": "p13-fund-transition",
+            "title": "Identify Transition"
+          },
+          {
+            "id": "p13-fund-base",
+            "title": "Base Case"
+          },
+          {
+            "id": "p13-fund-memo",
+            "title": "Memoization"
+          },
+          {
+            "id": "p13-fund-tab",
+            "title": "Tabulation"
+          },
+          {
+            "id": "p13-fund-space",
+            "title": "Space Optimization"
+          }
+        ]
+      },
+      {
+        "id": "p13-1d",
+        "title": "69. 1D DP",
+        "children": [
+          {
+            "id": "p13-1d-fib",
+            "title": "Fibonacci"
+          },
+          {
+            "id": "p13-1d-stairs",
+            "title": "Climbing Stairs"
+          },
+          {
+            "id": "p13-1d-frog",
+            "title": "Frog Jump"
+          },
+          {
+            "id": "p13-1d-robber",
+            "title": "House Robber"
+          },
+          {
+            "id": "p13-1d-nonadj",
+            "title": "Maximum Non-Adjacent Sum"
+          },
+          {
+            "id": "p13-1d-cost",
+            "title": "Min Cost Problems"
+          }
+        ]
+      },
+      {
+        "id": "p13-grid",
+        "title": "70. Grid DP",
+        "children": [
+          {
+            "id": "p13-grid-unique",
+            "title": "Unique Paths"
+          },
+          {
+            "id": "p13-grid-unique2",
+            "title": "Unique Paths II"
+          },
+          {
+            "id": "p13-grid-min",
+            "title": "Minimum Path Sum"
+          },
+          {
+            "id": "p13-grid-obs",
+            "title": "Grid with Obstacles"
+          },
+          {
+            "id": "p13-grid-dungeon",
+            "title": "Dungeon Game"
+          }
+        ]
+      },
+      {
+        "id": "p13-knapsack",
+        "title": "71. Knapsack DP",
+        "children": [
+          {
+            "id": "p13-knap-01",
+            "title": "0/1 Knapsack"
+          },
+          {
+            "id": "p13-knap-unbounded",
+            "title": "Unbounded Knapsack"
+          },
+          {
+            "id": "p13-knap-subset",
+            "title": "Subset Sum"
+          },
+          {
+            "id": "p13-knap-partition",
+            "title": "Partition Equal Subset Sum"
+          },
+          {
+            "id": "p13-knap-coin",
+            "title": "Coin Change"
+          },
+          {
+            "id": "p13-knap-coin2",
+            "title": "Coin Change II"
+          },
+          {
+            "id": "p13-knap-target",
+            "title": "Target Sum"
+          }
+        ]
+      },
+      {
+        "id": "p13-subseq",
+        "title": "72. Subsequence DP",
+        "children": [
+          {
+            "id": "p13-sub-lcs",
+            "title": "Longest Common Subsequence"
+          },
+          {
+            "id": "p13-sub-lis",
+            "title": "Longest Increasing Subsequence"
+          },
+          {
+            "id": "p13-sub-lps",
+            "title": "Longest Palindromic Subsequence"
+          },
+          {
+            "id": "p13-sub-distinct",
+            "title": "Distinct Subsequences"
+          },
+          {
+            "id": "p13-sub-count",
+            "title": "Number of Subsequences"
+          }
+        ]
+      },
+      {
+        "id": "p13-string",
+        "title": "73. String DP",
+        "children": [
+          {
+            "id": "p13-str-edit",
+            "title": "Edit Distance"
+          },
+          {
+            "id": "p13-str-break",
+            "title": "Word Break"
+          },
+          {
+            "id": "p13-str-pal-part",
+            "title": "Palindrome Partitioning"
+          },
+          {
+            "id": "p13-str-wildcard",
+            "title": "Wildcard Matching"
+          }
+        ]
+      },
+      {
+        "id": "p13-stock",
+        "title": "74. Stock DP",
+        "children": [
+          {
+            "id": "p13-stock-one",
+            "title": "One Transaction"
+          },
+          {
+            "id": "p13-stock-unlimited",
+            "title": "Unlimited Transactions"
+          },
+          {
+            "id": "p13-stock-k",
+            "title": "At Most K Transactions"
+          },
+          {
+            "id": "p13-stock-cooldown",
+            "title": "Cooldown"
+          },
+          {
+            "id": "p13-stock-fee",
+            "title": "Transaction Fee"
+          }
+        ]
+      },
+      {
+        "id": "p13-interval",
+        "title": "75. Interval / Partition DP",
+        "children": [
+          {
+            "id": "p13-int-mcm",
+            "title": "Matrix Chain Multiplication"
+          },
+          {
+            "id": "p13-int-burst",
+            "title": "Burst Balloons"
+          },
+          {
+            "id": "p13-int-pal",
+            "title": "Palindrome Partitioning"
+          },
+          {
+            "id": "p13-int-partition",
+            "title": "Partition Problems"
+          }
+        ]
+      },
+      {
+        "id": "p13-tree",
+        "title": "76. Tree DP",
+        "children": [
+          {
+            "id": "p13-tree-binary",
+            "title": "DP on Binary Tree"
+          },
+          {
+            "id": "p13-tree-robber",
+            "title": "House Robber on Tree"
+          },
+          {
+            "id": "p13-tree-mis",
+            "title": "Maximum Independent Set"
+          },
+          {
+            "id": "p13-tree-reroot",
+            "title": "Rerooting Concept"
+          }
+        ]
+      },
+      {
+        "id": "p13-bitmask",
+        "title": "77. Bitmask DP",
+        "children": [
+          {
+            "id": "p13-bm-tsp",
+            "title": "TSP"
+          },
+          {
+            "id": "p13-bm-assign",
+            "title": "Assignment Problems"
+          },
+          {
+            "id": "p13-bm-subset",
+            "title": "Subset State"
+          },
+          {
+            "id": "p13-bm-compress",
+            "title": "State Compression"
+          }
+        ]
+      },
+      {
+        "id": "p13-advanced",
+        "title": "78. Advanced DP",
+        "children": [
+          {
+            "id": "p13-adv-digit",
+            "title": "Digit DP"
+          },
+          {
+            "id": "p13-adv-dag",
+            "title": "DP on DAG"
+          },
+          {
+            "id": "p13-adv-mono",
+            "title": "DP with Monotonic Queue"
+          },
+          {
+            "id": "p13-adv-opt",
+            "title": "DP Optimization"
+          },
+          {
+            "id": "p13-adv-dac",
+            "title": "Divide & Conquer DP"
+          },
+          {
+            "id": "p13-adv-knuth",
+            "title": "Knuth Optimization"
+          },
+          {
+            "id": "p13-adv-cht",
+            "title": "Convex Hull Trick"
+          }
+        ]
+      }
+    ]
+  }
+]
