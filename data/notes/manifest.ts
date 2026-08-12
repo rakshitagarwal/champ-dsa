@@ -50,13 +50,13 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
     slug: "system-design-lld",
     title: "System Design — LLD",
     description:
-      "Low-level design — SOLID, design patterns, API/DB contracts, and classic module design prompts.",
+      "Low-level / OOD interviews — SOLID, patterns, APIs, concurrency, and classic module designs (parking, elevator, Splitwise, rate limiter).",
   },
   {
     slug: "system-design-hld",
     title: "System Design — HLD",
     description:
-      "High-level design — scaling, caching, databases, queues, CAP, estimation, and architecture patterns.",
+      "Interview delivery framework, core building blocks, and company designs: URL shortener, WhatsApp, Twitter, Netflix, Uber.",
   },
   {
     slug: "ai-ml",

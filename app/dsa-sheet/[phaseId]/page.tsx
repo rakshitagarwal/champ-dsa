@@ -6,6 +6,7 @@ import {
   getRoadmapPhase,
   getRoadmapPhases,
 } from "@/lib/dsa-sheet/loader";
+import { getPracticeByLeafForPhase } from "@/lib/dsa-sheet/practice-for-phase";
 
 type Props = {
   params: Promise<{ phaseId: string }>;
@@ -31,11 +32,16 @@ export default async function DsaSheetPhasePage({ params }: Props) {
   if (!phase) notFound();
 
   const phases = getRoadmapPhases();
+  const practiceByLeaf = getPracticeByLeafForPhase(phase);
 
   return (
     <DsaSheetShell phases={phases}>
       <Suspense fallback={<p className="p-8 text-muted-foreground">Loading…</p>}>
-        <DsaSheetPhaseView phase={phase} phases={phases} />
+        <DsaSheetPhaseView
+          phase={phase}
+          phases={phases}
+          practiceByLeaf={practiceByLeaf}
+        />
       </Suspense>
     </DsaSheetShell>
   );

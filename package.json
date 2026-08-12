@@ -22,7 +22,8 @@
     "fetch:leetcode": "node scripts/fetch-leetcode-descriptions.mjs",
     "fetch:jsinfo": "node scripts/fetch-javascript-info.mjs",
     "generate:striver-sheet": "node tools/import-striver-sheet/generate.mjs",
-    "generate:roadmap-sheet": "node --experimental-strip-types -e \"import { DSA_ROADMAP } from './data/dsa-sheet/roadmap.ts'; import fs from 'fs'; fs.writeFileSync('data/dsa-sheet/roadmap.json', JSON.stringify(DSA_ROADMAP));\" && node scripts/build-roadmap-sheet.mjs",
+    "generate:roadmap-sheet": "node --experimental-strip-types -e \"import { DSA_ROADMAP } from './data/dsa-sheet/roadmap.ts'; import fs from 'fs'; fs.writeFileSync('data/dsa-sheet/roadmap.json', JSON.stringify(DSA_ROADMAP));\" && node scripts/sync-practice-map.mjs && node scripts/build-roadmap-sheet.mjs",
+    "sync:practice-map": "node scripts/sync-practice-map.mjs",
     "generate:job-tracker": "python tools/job-search/generate_tracker.py && python tools/job-search/verify_tracker.py"
   },
   "dependencies": {

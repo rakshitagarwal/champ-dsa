@@ -1,230 +1,237 @@
 # System Design — Low-Level Design (LLD)
 
-> **What seniors are evaluated on:** Can you design a **module** someone can build — clear entities, APIs, schema, error handling, and extension points? Hiring managers want ownership signal, not UML theater.
-
-For boxes-and-arrows architecture, see [System Design — HLD](/notes/system-design-hld).
-
----
-
-## 1. When LLD shows up
-
-| Round type | Typical prompt |
-|------------|----------------|
-| Mid/senior technical | "Design a parking lot / elevator / splitwise" |
-| Feature design | "Design the notification module for our app" |
-| API design | "Design REST APIs for an e-commerce checkout" |
-| Code review depth | "How would you structure this service layer?" |
-
-**Interview flow:** Clarify scope → identify entities → define APIs → schema → walk one happy path + one edge case → discuss concurrency if relevant.
+> **Goal:** Design a **module someone can build** — entities, APIs/methods, schema, concurrency, and extension points. Hiring signal is ownership and clarity, not UML art.
+>
+> Complements [HLD notes](/notes/system-design-hld) (boxes & arrows). LLD is what Hello Interview calls **object-oriented / class design** interviews — parking lot, elevator, rate limiter class, notification module, etc.
 
 ---
 
-## 2. SOLID (practical, not textbook)
+## 0. LLD interview flow
 
-| Principle | In practice (Node/TS) |
-|-----------|------------------------|
-| **S** — Single responsibility | `OrderService` creates orders; `PaymentService` charges — not one god class |
-| **O** — Open/closed | Add payment providers via interface + new class, not `if (type === 'razorpay')` everywhere |
-| **L** — Liskov substitution | Any `PaymentProvider` implementation works where the interface is expected |
-| **I** — Interface segregation | Split fat interfaces: `ReadableStore` vs `WritableStore` if callers differ |
-| **D** — Dependency inversion | Routes depend on `IOrderRepository`, not `MongoOrderRepository` directly |
+| Step | Do this |
+|------|---------|
+| 1. Clarify | Actors, scale of *objects* (floors, not millions of QPS unless asked), must-have vs out of scope |
+| 2. Entities | 4–8 classes / tables with clear responsibilities |
+| 3. Public API | Methods or REST endpoints the "client" of this module calls |
+| 4. Relationships | Who owns whom; enums for states |
+| 5. Happy path | Walk one scenario end-to-end |
+| 6. Edge + concurrency | Full lot, double book, payment fail, duplicate request |
+| 7. Extensibility | Strategy/Factory where rules will change |
 
-**Senior phrase:** *"I'd inject dependencies so we can swap the DB or payment gateway in tests without touching HTTP handlers."*
-
----
-
-## 3. Design patterns (when they actually help)
-
-| Pattern | Web app use case |
-|---------|------------------|
-| **Factory** | Create email/SMS/push notifiers from config |
-| **Strategy** | Pricing rules, tax calculation, shipping calculators |
-| **Observer** | Domain events: `OrderPlaced` → inventory + analytics listeners |
-| **Adapter** | Wrap third-party payment SDK behind your `PaymentProvider` interface |
-| **Repository** | Hide Mongo/SQL queries behind `UserRepository.findByEmail()` |
-| **Singleton** | DB connection pool — one per process, not per request |
-
-**Avoid:** Naming patterns without a problem. Interviewers prefer *"I'd use Strategy here because we have N pricing rules that change independently."*
+**Phrase:** *"I'll keep v1 scoped — we can add X later without rewriting the core interfaces."*
 
 ---
 
-## 4. Layered module design (MERN / Node)
+## 1. SOLID (say it with code intent)
 
-```
-HTTP (routes/controllers)
-  → Application services (use cases, transactions)
-    → Domain models + validation
-      → Repositories (data access)
-        → DB / external APIs
-```
+| | Practical meaning |
+|--|-------------------|
+| **S** | `OrderService` creates orders; `PaymentService` charges — no god class |
+| **O** | New payment provider = new class implementing `PaymentProvider`, not more `if`s |
+| **L** | Any `PaymentProvider` works wherever the interface is expected |
+| **I** | Don't force clients to depend on unused methods — split read/write interfaces if needed |
+| **D** | Depend on `IOrderRepository`, not `PostgresOrderRepository` in controllers |
 
-**Rules:**
-- Controllers: parse input, call service, map response — **no business logic**
-- Services: orchestrate, enforce invariants, handle transactions
-- Repositories: queries only — no HTTP concepts
-
-**Example structure:**
-
-```
-src/
-  modules/
-    orders/
-      order.routes.ts
-      order.controller.ts
-      order.service.ts
-      order.repository.ts
-      order.types.ts
-```
+**Senior line:** *"Handlers depend on interfaces so tests can mock the DB and payment gateway."*
 
 ---
 
-## 5. API contract design
+## 2. Patterns that actually show up
 
-### Resource modeling
-
-- Nouns, plural: `/orders`, `/users/:id/orders`
-- Version in path: `/v1/orders` when breaking changes ship
-
-### Idempotency
-
-Payment and create operations: accept `Idempotency-Key` header; store key + result for 24h; return same response on retry.
-
-### Error shape (consistent)
-
-```json
-{
-  "error": {
-    "code": "ORDER_NOT_FOUND",
-    "message": "Order 123 does not exist",
-    "requestId": "abc-xyz"
-  }
-}
-```
-
-### Status codes
-
-| Code | Use |
-|------|-----|
-| 200 | Success with body |
-| 201 | Created |
-| 204 | Success, no body |
-| 400 | Client validation error |
-| 401 | Not authenticated |
-| 403 | Authenticated but not allowed |
-| 404 | Resource missing |
-| 409 | Conflict (duplicate, version mismatch) |
-| 429 | Rate limited |
-| 500 | Server error (log details, generic message to client) |
-
-### Pagination
-
-Prefer **cursor-based** for feeds and real-time lists; offset OK for admin tables.
-
----
-
-## 6. Database schema design
-
-### Normalization vs denormalization
-
-- **Normalize** when writes are frequent and consistency matters (orders, payments)
-- **Denormalize** read models when joins are hot (user profile with display name on every comment)
-
-### Index for access patterns
-
-List queries you'll actually run:
-
-```sql
--- Feed by user, newest first
-CREATE INDEX idx_posts_user_created ON posts (user_id, created_at DESC);
-```
-
-**Covering index:** Include columns in index so query never hits table heap.
-
-### Soft deletes
-
-`deleted_at` column — filter in all queries or use views. Trade-off: unique constraints get harder.
-
----
-
-## 7. Concurrency basics (interview level)
-
-| Problem | Approach |
+| Pattern | Use when |
 |---------|----------|
-| Double booking | DB unique constraint + transaction; or optimistic locking (`version` column) |
-| Inventory oversell | `UPDATE stock SET qty = qty - 1 WHERE id = ? AND qty > 0` — check rows affected |
-| Race on read-modify-write | Row lock (`SELECT FOR UPDATE`) or atomic operations in Redis |
-| Distributed lock | Redis Redlock — use sparingly; prefer idempotent design |
+| **Strategy** | Pricing, fare, notification channel, slot search policy |
+| **Factory / Abstract Factory** | Create channel senders or vehicle types from config |
+| **Observer / events** | `OrderPlaced` → inventory, email, analytics |
+| **Adapter** | Wrap Stripe/Razorpay behind your interface |
+| **Repository** | Hide SQL/Mongo behind `findById` / `save` |
+| **Singleton** | Process-wide connection pool (not "every class") |
+| **State** | Elevator / trip lifecycle (`REQUESTED → ACCEPTED → …`) |
 
-**Senior phrase:** *"I'd make the operation idempotent first; locks are a last resort."*
-
----
-
-## 8. Classic LLD prompts — skeletons
-
-### Parking lot
-
-**Entities:** `ParkingLot`, `Floor`, `Slot` (type: compact/large/handicapped), `Ticket`, `Vehicle`, `Payment`
-
-**Operations:** `park(vehicle)` → assign slot → issue ticket; `unpark(ticketId)` → calculate fee → free slot
-
-**Design choices:** Singleton lot config; strategy for pricing (hourly vs flat); slot finder scans nearest free slot by type
-
-### Elevator system
-
-**Entities:** `Elevator`, `Floor`, `Request` (source, destination, direction)
-
-**Operations:** `requestElevator(floor, direction)`; scheduler picks elevator (SCAN algorithm mention is bonus)
-
-**Concurrency:** Queue requests per elevator; state machine: IDLE, MOVING, DOORS_OPEN
-
-### Split expense / bill split
-
-**Entities:** `User`, `Group`, `Expense`, `Split` (equal/exact/percentage)
-
-**Operations:** `addExpense(payer, splits)`, `getBalances(groupId)` — simplify debts optional
-
-**Schema:** `expenses`, `expense_splits` tables; balance = sum owed − sum paid
-
-### Notification service
-
-**Entities:** `Notification`, `Template`, `Channel` (email/push/sms), `UserPreference`
-
-**Operations:** `send(userId, templateId, payload)` → fan-out to channels user opted into
-
-**Async:** Queue per channel; retry with backoff; idempotency key per notification
+Don't name-drop patterns without the pain they solve.
 
 ---
 
-## 9. MERN example — order checkout module
+## 3. Layering (service module)
+
+```
+HTTP / CLI / RPC
+  → Application service (use case + transactions)
+    → Domain model (invariants)
+      → Ports (repositories, gateways)
+        → Adapters (Postgres, Redis, Stripe)
+```
+
+- Controllers: validate input, call service, map DTO — **no business rules**  
+- Services: orchestrate + enforce invariants  
+- Repositories: persistence only  
+
+---
+
+## 4. API & schema craft (module level)
+
+### REST habits
+- Plural nouns: `/orders`, `/users/{id}/orders`  
+- Auth user from **token**, never trust `userId` in body alone  
+- Idempotency-Key on payments / creates  
+- Consistent errors: `{ code, message, requestId }`  
+- Cursor pagination for feeds; offset OK for admin  
+
+### Schema
+- Model **access patterns** first; add indexes for real queries  
+- Normalize writes; denormalize read models when joins hurt  
+- Soft delete (`deleted_at`) if you need audit — plan unique constraints  
+
+### Concurrency cheatsheet
+
+| Problem | Fix |
+|---------|-----|
+| Double booking | Unique constraint + transaction; optimistic `version` |
+| Oversell stock | `UPDATE … WHERE qty >= :n` check rowcount |
+| Read-modify-write | `SELECT FOR UPDATE` or atomic Redis ops |
+| Distributed lock | Last resort; prefer idempotent retries |
+
+---
+
+## 5. Classic LLD prompts (skeletons)
+
+### 5.1 Parking lot
+
+**Entities:** `ParkingLot`, `Floor`, `ParkingSpot` (type), `Vehicle`, `Ticket`, `Payment`, `PricingStrategy`
 
 **API:**
+- `park(vehicle) → Ticket`  
+- `unpark(ticketId) → Receipt`  
+- `getAvailability(spotType)?`
 
-- `POST /v1/carts/:id/checkout` — body: `{ addressId, paymentMethodId }`
-- `GET /v1/orders/:id`
+**Design notes:** Spot finder Strategy (nearest / any); fee Strategy (hourly / flat); spot state FREE/OCCUPIED; ticket stores entry time + spotId.
 
-**Service flow:**
-
-1. Validate cart not empty, items in stock
-2. Begin transaction
-3. Reserve inventory
-4. Create order + line items
-5. Call payment provider
-6. On payment success → commit; on fail → release inventory, rollback
-
-**Validation layer:** Zod/Joi at controller boundary — never trust client.
-
-**Testing hooks:** Mock `PaymentProvider` and `InventoryRepository` in unit tests.
+**Edge:** Lot full; wrong vehicle type; lost ticket.
 
 ---
 
-## 10. LLD interview checklist
+### 5.2 Elevator system
 
-- [ ] Named 3–5 core entities
-- [ ] Defined main APIs or public methods
-- [ ] Sketched schema or class relationships
-- [ ] Walked one happy path end-to-end
-- [ ] Handled one failure (payment fail, slot full, duplicate request)
-- [ ] Mentioned how you'd test it
-- [ ] Kept scope bounded — "v1 doesn't need multi-currency"
+**Entities:** `Elevator`, `ElevatorController`, `Request` (floor, direction), `ElevatorState` (IDLE, MOVING_UP, MOVING_DOWN, DOORS_OPEN)
 
-**Next:** Architecture trade-offs → [HLD notes](/notes/system-design-hld)
+**API:**
+- `requestElevator(floor, direction)`  
+- `requestFloor(elevatorId, floor)` (inside panel)  
+- `step()` / tick simulation for interviews  
+
+**Design notes:** Per-elevator request queues; scheduler assigns closest elevator moving that direction (SCAN/LOOK mention = bonus). Thread-safety if multi-threaded sim.
+
+---
+
+### 5.3 Splitwise / expense split
+
+**Entities:** `User`, `Group`, `Expense`, `ExpenseSplit` (EQUAL / EXACT / PERCENT), `Balance`
+
+**API:**
+- `addExpense(groupId, payerId, amount, splits)`  
+- `getBalances(groupId)`  
+- `settle(from, to, amount)` optional  
+
+**Invariant:** Sum of splits == expense amount. Balances = net of paid vs owed. Optional debt simplification (min cash flow) as stretch.
+
+---
+
+### 5.4 Rate limiter (library / service)
+
+**Entities:** `RateLimiter` interface; `TokenBucket` / `SlidingWindow` impl; storage backend (memory / Redis)
+
+**API:**
+- `allow(key: string): boolean` or `allow(key) → { allowed, retryAfterMs }`
+
+**Design notes:** Interface so algorithm is swappable; Redis for multi-instance; return 429 at gateway. Mention burst vs steady rate.
+
+---
+
+### 5.5 Notification module
+
+**Entities:** `Notification`, `Template`, `Channel` (EMAIL/PUSH/SMS), `UserPreference`, `DeliveryAttempt`
+
+**API:**
+- `send(userId, templateId, data)`  
+- Preferences: `updatePreferences(userId, channels)`
+
+**Flow:** Resolve template → filter channels by prefs → enqueue per channel → workers send with retry/backoff → idempotency key per notification.
+
+**Patterns:** Strategy per channel; Observer if domain events trigger sends.
+
+---
+
+### 5.6 Snake & ladder / board game (OOD)
+
+**Entities:** `Board`, `Cell`, `Snake`, `Ladder`, `Player`, `Dice`, `Game`
+
+**API:** `start(players)`, `rollDice()`, `getStatus()`
+
+**Invariant:** Snakes/ladders map start→end; win at exact final cell (or configurable). Good for showing clean state machine.
+
+---
+
+### 5.7 Bookstore / library
+
+**Entities:** `Book` (ISBN), `BookItem` (barcode, status), `Member`, `Loan`, `Reservation`
+
+**API:** `checkout`, `returnBook`, `reserve`, `search`
+
+**Invariant:** One loan per item; overdue fees Strategy; catalog vs physical copy separation.
+
+---
+
+### 5.8 Chess / tic-tac-toe (game rules)
+
+**Entities:** `Board`, `Piece` hierarchy, `Move`, `Game`, `Player`
+
+**Focus:** Polymorphism for piece moves; validate check/checkmate as stretch; keep UI out of domain.
+
+---
+
+## 6. Mini case — Order checkout (service LLD)
+
+**Endpoints:**
+- `POST /v1/carts/{id}/checkout` `{ addressId, paymentMethodId, idempotencyKey }`  
+- `GET /v1/orders/{id}`
+
+**Service steps:**
+1. Validate cart + stock  
+2. Begin transaction / reserve inventory  
+3. Create order + lines  
+4. Charge payment (idempotent)  
+5. Commit on success; release stock + mark failed on payment fail  
+
+**Tests:** Mock `PaymentProvider` + `InventoryRepository`; cover payment fail and duplicate idempotency key.
+
+---
+
+## 7. Mapping LLD ↔ HLD company topics
+
+When HLD interview deep-dives a component, switch to LLD thinking:
+
+| HLD system | LLD-shaped deep dive |
+|------------|----------------------|
+| URL shortener | Key generator interface, collision handling, encoder |
+| WhatsApp | Message service, ACK state machine, presence TTL |
+| Twitter | Feed service API, fan-out worker, ranking Strategy |
+| Netflix | Transcode job state machine, playlist generator |
+| Uber | Matching service, trip state enum, surge Strategy |
+
+Keep drawing the **class/module** boundaries even inside a big HLD.
+
+---
+
+## 8. LLD checklist
+
+- [ ] Scope locked (v1 features listed)  
+- [ ] 4–8 entities with responsibilities  
+- [ ] Public methods / APIs named  
+- [ ] Happy path walked  
+- [ ] One failure + one concurrency case  
+- [ ] One extension point (Strategy/Factory/event)  
+- [ ] Testing approach mentioned  
+
+**Next:** Distributed architecture & company designs → [HLD notes](/notes/system-design-hld)
+
+**References:** [Hello Interview — System Design](https://www.hellointerview.com/learn/courses/system-design) (LLD vs product design split), [Karan Pratap Singh — System Design](https://www.karanpratapsingh.com/courses/system-design) (APIs & data models inside each case study).

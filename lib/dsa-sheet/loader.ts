@@ -2,10 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { DSA_ROADMAP } from "@/data/dsa-sheet/roadmap";
 import { STRIVER_SECTIONS } from "@/data/dsa-sheet/manifest";
+import practiceMap from "@/data/dsa-sheet/practice-map.json";
 import {
   countPhaseSubtopics,
 } from "@/lib/dsa-sheet/roadmap-utils";
 import type {
+  PracticeEntry,
+  PracticeQuestion,
   RoadmapPhase,
   StriverQuestion,
   StriverSectionMeta,
@@ -16,6 +19,8 @@ export {
   countPhaseTopics,
   countPhaseSubtopics,
 } from "@/lib/dsa-sheet/roadmap-utils";
+
+const PRACTICE = practiceMap as Record<string, PracticeEntry>;
 
 export function getRoadmapPhases(): RoadmapPhase[] {
   return DSA_ROADMAP;
@@ -32,6 +37,16 @@ export function getRoadmapStats() {
   const topics = phases.reduce((sum, p) => sum + p.topics.length, 0);
   const subtopics = phases.reduce((sum, p) => sum + countPhaseSubtopics(p), 0);
   return { phases: phases.length, topics, subtopics };
+}
+
+export function getPracticeEntry(leafId: string): PracticeEntry | undefined {
+  return PRACTICE[leafId];
+}
+
+export function getPracticeQuestions(leafId: string): PracticeQuestion[] {
+  const entry = PRACTICE[leafId];
+  if (!entry || entry.kind !== "questions") return [];
+  return entry.questions;
 }
 
 /* --- Legacy Striver helpers (data kept for LeetCode overlap mapping) --- */
