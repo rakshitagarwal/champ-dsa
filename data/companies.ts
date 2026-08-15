@@ -534,6 +534,20 @@ const PROFILES: Record<string, LinkedInProfile> = {
   "Accenture": { recruiter: "https://linkedin.com/in/bharath-kumar-492a0a84", swe: "https://linkedin.com/in/sarvesh-singh-914238b9" },
   "Genpact": { recruiter: "https://linkedin.com/in/rakesh-arora-3528b122", swe: "https://linkedin.com/in/surajsingh-" },
   "IBM Consulting": { recruiter: "https://www.linkedin.com/in/angelaholleran", swe: "https://www.linkedin.com/in/john-williams-a679bb18a" },
+  "Yudiz Solutions": { recruiter: "https://linkedin.com/in/khushbu-patel-12723a212", recruiter2: "https://linkedin.com/in/vishal-lohar698", recruiter3: "https://linkedin.com/in/yashi-kudi-620ab314a" },
+  "TatvaSoft": { recruiter: "https://linkedin.com/in/himani-s-ab8ab4210", recruiter2: "https://in.linkedin.com/in/avanitatvasoft", recruiter3: "https://linkedin.com/in/mahi-pandya-0b8a54234" },
+  "Radixweb": { recruiter: "https://linkedin.com/in/ajaykumarjoshi", recruiter2: "https://in.linkedin.com/in/sujata-joshi-62279a31", recruiter3: "https://linkedin.com/in/mayur-r-61019940" },
+  "Simform": { recruiter: "https://linkedin.com/in/mittaldodiya", recruiter2: "https://linkedin.com/in/riddhi-mehta-96b061103", recruiter3: "https://linkedin.com/in/ravidhingani" },
+  "Bacancy Technology": { recruiter: "https://linkedin.com/in/tehzun-vasanwala", recruiter2: "https://linkedin.com/in/archie-shah-5a4557214", recruiter3: "https://in.linkedin.com/in/neha-patel-b057097b" },
+  "OpenXcell": { recruiter: "https://linkedin.com/in/priya-vora-6925581b8", recruiter2: "https://linkedin.com/in/hr-megha-soni", recruiter3: "https://linkedin.com/in/preeti-sharma-baa375252" },
+  "Hidden Brains": { recruiter: "https://linkedin.com/in/dharmendrachauhan1", recruiter2: "https://in.linkedin.com/in/nishant-brahmbhatt-116211109", recruiter3: "https://linkedin.com/in/shashank-parmar-7ba611a7" },
+  "Crest Data Systems": { recruiter: "https://linkedin.com/in/rabindra-mishra", recruiter2: "https://linkedin.com/in/yash-somani-05502ab2", recruiter3: "https://linkedin.com/in/rohit-j-248a64252" },
+  "Brainvire Infotech": { recruiter: "https://linkedin.com/in/preeti-singh-16618426a", recruiter2: "https://linkedin.com/in/richa-vaghela-4bb4bb242", recruiter3: "https://linkedin.com/in/hrnidhi-suthar" },
+  "Cygnet.One": { recruiter: "https://linkedin.com/in/rafiq-chunara-73411165", recruiter2: "https://linkedin.com/in/ravi-parmar-5492b1190", recruiter3: "https://linkedin.com/in/pravin-ghanchi-a77206101" },
+  "Rishabh Software": { recruiter: "https://linkedin.com/in/sharda-zala-419a92146", recruiter2: "https://linkedin.com/in/shivani-bhatt-5a11736b", recruiter3: "https://linkedin.com/in/sanjay-patel-313486142" },
+  "eInfochips": { recruiter: "https://linkedin.com/in/kunal-chokshi-b21292112", recruiter2: "https://linkedin.com/in/poorva-sharma-a288a797", recruiter3: "https://linkedin.com/in/arti-bavaria-533594142" },
+  "SoluLab": { recruiter: "https://in.linkedin.com/in/gaurav-pal-6848a0200", recruiter2: "https://linkedin.com/in/jayashri-patil-a8755537a", recruiter3: "https://linkedin.com/in/aditii-singh-163468197" },
+  "Konstant Infosolutions": { recruiter: "https://linkedin.com/in/chanchal-a-4a873392", recruiter2: "https://linkedin.com/in/ruchi-a-1a959542", recruiter3: "https://in.linkedin.com/in/jiya-singh-1b32a1b5" },
 };
 
 export function getCompanyProfile(name: string): LinkedInProfile {
