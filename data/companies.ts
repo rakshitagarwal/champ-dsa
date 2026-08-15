@@ -267,6 +267,59 @@ const IT_SERVICES: Company[] = [
 
 ];
 
+export const AHMEDABAD_IT: Company[] = [
+  { id: "yudiz", name: "Yudiz Solutions", description: "Game, blockchain, and mobile app development.", careerUrl: "https://www.yudiz.com/join-our-team/", websiteUrl: "https://www.yudiz.com", category: "it-services" },
+  { id: "ecosmob", name: "Ecosmob Technologies", description: "Telecom software, VoIP, and unified communications.", careerUrl: "https://www.ecosmob.com/careers/", websiteUrl: "https://www.ecosmob.com", category: "it-services" },
+  { id: "york-ie", name: "York IE", description: "Product engineering and growth consultancy.", careerUrl: "https://york.ie/careers/", websiteUrl: "https://york.ie", category: "it-services" },
+  { id: "it-path", name: "IT Path Solutions", description: "Custom software and mobile app development.", careerUrl: "https://www.itpathsolutions.com/career/", websiteUrl: "https://www.itpathsolutions.com", category: "it-services" },
+  { id: "tatvasoft", name: "TatvaSoft", description: "Custom software development and IT consulting.", careerUrl: "https://www.tatvasoft.com/careers/", websiteUrl: "https://www.tatvasoft.com", category: "it-services" },
+  { id: "radixweb", name: "Radixweb", description: "Software product engineering and digital solutions.", careerUrl: "https://radixweb.com/careers", websiteUrl: "https://radixweb.com", category: "it-services" },
+  { id: "simform", name: "Simform", description: "Digital engineering and cloud-native software.", careerUrl: "https://www.simform.com/careers/", websiteUrl: "https://www.simform.com", category: "it-services" },
+  { id: "bacancy", name: "Bacancy Technology", description: "Custom software and dedicated development teams.", careerUrl: "https://www.bacancytechnology.com/career", websiteUrl: "https://www.bacancytechnology.com", category: "it-services" },
+  { id: "openxcell", name: "OpenXcell", description: "AI, mobile, and enterprise software development.", careerUrl: "https://www.openxcell.com/careers/", websiteUrl: "https://www.openxcell.com", category: "it-services" },
+  { id: "hyperlink", name: "Hyperlink InfoSystem", description: "Mobile app and software development.", careerUrl: "https://www.hyperlinkinfosystem.com/career.html", websiteUrl: "https://www.hyperlinkinfosystem.com", category: "it-services" },
+  { id: "hidden-brains", name: "Hidden Brains", description: "Web, mobile, and enterprise software solutions.", careerUrl: "https://www.hiddenbrains.com/careers.html", websiteUrl: "https://www.hiddenbrains.com", category: "it-services" },
+  { id: "indianic", name: "IndiaNIC", description: "Digital product engineering and IT services.", careerUrl: "https://www.indianic.com/careers/", websiteUrl: "https://www.indianic.com", category: "it-services" },
+  { id: "space-o", name: "Space-O Technologies", description: "Mobile app and software product development.", careerUrl: "https://www.spaceotechnologies.com/careers/", websiteUrl: "https://www.spaceotechnologies.com", category: "it-services" },
+  { id: "peerbits", name: "Peerbits", description: "Mobile, web, and IoT software development.", careerUrl: "https://www.peerbits.com/career.html", websiteUrl: "https://www.peerbits.com", category: "it-services" },
+  { id: "agile-infoways", name: "Agile Infoways", description: "Custom software, mobile, and blockchain development.", careerUrl: "https://www.agileinfoways.com/careers/", websiteUrl: "https://www.agileinfoways.com", category: "it-services" },
+  { id: "addweb", name: "AddWeb Solution", description: "Drupal, web, and digital product development.", careerUrl: "https://addwebsolution.com/career", websiteUrl: "https://addwebsolution.com", category: "it-services" },
+  { id: "krishaweb", name: "KrishaWeb", description: "Web, eCommerce, and custom software development.", careerUrl: "https://www.krishaweb.com/career/", websiteUrl: "https://www.krishaweb.com", category: "it-services" },
+  { id: "spec-india", name: "SPEC INDIA", description: "Enterprise software and product engineering.", careerUrl: "https://www.spec-india.com/career", websiteUrl: "https://www.spec-india.com", category: "it-services" },
+  { id: "esparkbiz", name: "eSparkBiz", description: "Mobile app and software development.", careerUrl: "https://www.esparkinfo.com/career.html", websiteUrl: "https://www.esparkinfo.com", category: "it-services" },
+  { id: "solulab", name: "SoluLab", description: "Blockchain, AI, and custom software development.", careerUrl: "https://www.solulab.com/careers/", websiteUrl: "https://www.solulab.com", category: "it-services" },
+  { id: "ais-technolabs", name: "AIS Technolabs", description: "Game, mobile, and web development.", careerUrl: "https://www.aistechnolabs.com/career/", websiteUrl: "https://www.aistechnolabs.com", category: "it-services" },
+  { id: "manektech", name: "ManekTech", description: "Custom software and digital transformation.", careerUrl: "https://www.manektech.com/career", websiteUrl: "https://www.manektech.com", category: "it-services" },
+  { id: "crest-data", name: "Crest Data Systems", description: "Observability, SRE, and data engineering.", careerUrl: "https://www.crestdata.ai/careers", websiteUrl: "https://www.crestdata.ai", category: "it-services" },
+  { id: "brainvire", name: "Brainvire Infotech", description: "Digital commerce and enterprise software.", careerUrl: "https://www.brainvire.com/careers/", websiteUrl: "https://www.brainvire.com", category: "it-services" },
+  { id: "softweb", name: "Softweb Solutions", description: "IoT, AI, and Microsoft technology solutions.", careerUrl: "https://www.softwebsolutions.com/careers.html", websiteUrl: "https://www.softwebsolutions.com", category: "it-services" },
+  { id: "cygnet", name: "Cygnet.One", description: "Tax tech, digital transformation, and enterprise IT.", careerUrl: "https://www.cygnet.one/careers", websiteUrl: "https://www.cygnet.one", category: "it-services" },
+  { id: "silver-touch", name: "Silver Touch Technologies", description: "IT services and digital transformation.", careerUrl: "https://www.silvertouch.com/careers/", websiteUrl: "https://www.silvertouch.com", category: "it-services" },
+  { id: "gateway-technolabs", name: "Gateway Technolabs", description: "SAP, Oracle, and enterprise IT services.", careerUrl: "https://www.gatewaytechnolabs.com/careers/", websiteUrl: "https://www.gatewaytechnolabs.com", category: "it-services" },
+  { id: "mindinventory", name: "MindInventory", description: "Mobile, web, and AI product development.", careerUrl: "https://www.mindinventory.com/career.php", websiteUrl: "https://www.mindinventory.com", category: "it-services" },
+  { id: "albiorix", name: "Albiorix Technology", description: "Custom software and mobile app development.", careerUrl: "https://www.albiorixtech.com/career/", websiteUrl: "https://www.albiorixtech.com", category: "it-services" },
+  { id: "viitorcloud", name: "ViitorCloud Technologies", description: "Cloud, AI, and digital product engineering.", careerUrl: "https://viitorcloud.com/career", websiteUrl: "https://viitorcloud.com", category: "it-services" },
+  { id: "moon-technolabs", name: "Moon Technolabs", description: "Mobile, web, and blockchain development.", careerUrl: "https://www.moontechnolabs.com/career/", websiteUrl: "https://www.moontechnolabs.com", category: "it-services" },
+  { id: "amar-infotech", name: "Amar InfoTech", description: "Web, mobile, and eCommerce development.", careerUrl: "https://www.amarinfotech.com/career", websiteUrl: "https://www.amarinfotech.com", category: "it-services" },
+  { id: "excellent-webworld", name: "Excellent Webworld", description: "Mobile app and software development.", careerUrl: "https://www.excellentwebworld.com/career/", websiteUrl: "https://www.excellentwebworld.com", category: "it-services" },
+  { id: "rishabh-software", name: "Rishabh Software", description: "Custom software and enterprise IT services.", careerUrl: "https://www.rishabhsoft.com/careers", websiteUrl: "https://www.rishabhsoft.com", category: "it-services" },
+  { id: "sigma-info", name: "Sigma Infosolutions", description: "Digital product engineering and IT services.", careerUrl: "https://www.sigmainfo.net/careers", websiteUrl: "https://www.sigmainfo.net", category: "it-services" },
+  { id: "einfochips", name: "eInfochips", description: "Product engineering and semiconductor design services.", careerUrl: "https://www.einfochips.com/careers/", websiteUrl: "https://www.einfochips.com", category: "it-services" },
+  { id: "cignex", name: "CIGNEX Technologies", description: "Open source and digital experience solutions.", careerUrl: "https://www.cignex.com/careers", websiteUrl: "https://www.cignex.com", category: "it-services" },
+  { id: "elsner", name: "Elsner Technologies", description: "Salesforce, Magento, and custom software.", careerUrl: "https://www.elsner.com/career/", websiteUrl: "https://www.elsner.com", category: "it-services" },
+  { id: "elitecore", name: "Elitecore Technologies", description: "BSS, OSS, and telecom software.", careerUrl: "https://www.elitecore.com/careers", websiteUrl: "https://www.elitecore.com", category: "it-services" },
+  { id: "cmarix", name: "CMARIX InfoTech", description: "Mobile, web, and custom software development.", careerUrl: "https://www.cmarix.com/career.html", websiteUrl: "https://www.cmarix.com", category: "it-services" },
+  { id: "vidhema", name: "Vidhema Technologies", description: "Web, mobile, and digital product development.", careerUrl: "https://www.vidhema.com/career", websiteUrl: "https://www.vidhema.com", category: "it-services" },
+  { id: "positiwise", name: "Positiwise Software", description: "Custom software and mobile app development.", careerUrl: "https://www.positiwise.com/career", websiteUrl: "https://www.positiwise.com", category: "it-services" },
+  { id: "techuz", name: "Techuz InfoWeb", description: "Web, mobile, and software product development.", careerUrl: "https://www.techuz.com/career", websiteUrl: "https://www.techuz.com", category: "it-services" },
+  { id: "ifour", name: "iFour Technolab", description: "Microsoft, AI, and custom software development.", careerUrl: "https://www.ifourtechnolab.com/career", websiteUrl: "https://www.ifourtechnolab.com", category: "it-services" },
+  { id: "codiant", name: "Codiant Software Technologies", description: "Mobile app and software development.", careerUrl: "https://www.codiant.com/career", websiteUrl: "https://www.codiant.com", category: "it-services" },
+  { id: "nexsoftsys", name: "Nexsoftsys", description: "Custom software and enterprise IT solutions.", careerUrl: "https://www.nexsoftsys.com/career", websiteUrl: "https://www.nexsoftsys.com", category: "it-services" },
+  { id: "web-idea", name: "Web Idea Solution", description: "Web, mobile, and digital product development.", careerUrl: "https://www.webideasolution.com/career", websiteUrl: "https://www.webideasolution.com", category: "it-services" },
+  { id: "vervelogic", name: "Vervelogic", description: "Custom software and IT consulting.", careerUrl: "https://www.vervelogic.com/career", websiteUrl: "https://www.vervelogic.com", category: "it-services" },
+  { id: "konstant", name: "Konstant Infosolutions", description: "Mobile, web, and enterprise software development.", careerUrl: "https://www.konstantinfo.com/career.php", websiteUrl: "https://www.konstantinfo.com", category: "it-services" },
+];
+
 export const COMPANIES: Company[] = [
   ...GLOBAL_TECH,
   ...HIGH_COMP,
@@ -280,7 +333,12 @@ export const COMPANIES: Company[] = [
   ...IT_SERVICES,
 ];
 
-type LinkedInProfile = { recruiter?: string; swe?: string };
+type LinkedInProfile = {
+  recruiter?: string;
+  recruiter2?: string;
+  recruiter3?: string;
+  swe?: string;
+};
 
 const PROFILES: Record<string, LinkedInProfile> = {
   "Microsoft": { recruiter: "https://www.linkedin.com/in/jsaxfield", swe: "https://www.linkedin.com/in/anujns" },
