@@ -1,73 +1,56 @@
 # Prefix Sum
 
-Precompute running totals so a range becomes `pref[r] - pref[l - 1]`. With a map of prefix values you count subarrays whose sum is k in one pass.
+I precompute running totals so I do not keep re-adding the same slice. Range is `pref[right] - pref[left - 1]`. If I also store how many times each running total appeared, I can count subarrays that sum to k.
 
 ```js
-// Prefix sum skeleton
+// Prefix skeleton
 const pref = [0];
 for (const x of nums) pref.push(pref.at(-1) + x);
-// range i..j inclusive: pref[j + 1] - pref[i]
+// sum of i..j = pref[j + 1] - pref[i]
 ```
 
-## Range sum
+## Product of Array Except Self
 
-Build once, query O(1) — [Range Sum Query Immutable](https://leetcode.com/problems/range-sum-query-immutable/).
+Left-to-right: product of everything before `i`. Right-to-left: product of everything after `i`. Multiply. No division, so zeros are fine.
 
-```js
-// Prefix sum — build then query
-// LC: https://leetcode.com/problems/range-sum-query-immutable/
-function NumArray(nums) {
-  this.pref = [0];
-  for (const x of nums) this.pref.push(this.pref.at(-1) + x);
-}
-NumArray.prototype.sumRange = function (left, right) {
-  // range left..right
-  return this.pref[right + 1] - this.pref[left];
-};
-```
-
-## Subarray sum equals k
-
-Map of prefix counts — [Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/).
+[Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 ```js
-// Prefix sum — count prefixes that equal current - k
-// LC: https://leetcode.com/problems/subarray-sum-equals-k/
-function subarraySum(nums, k) {
-  const seen = new Map([[0, 1]]); // prefix 0 seen once
-  let sum = 0, count = 0;
-  for (const x of nums) {
-    sum += x;
-    // lookup: how many prefixes equal sum - k?
-    count += seen.get(sum - k) || 0;
-    // store this prefix
-    seen.set(sum, (seen.get(sum) || 0) + 1);
-  }
-  return count;
-}
-```
-
-## Product except self
-
-Prefix from left, suffix from right — [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/).
-
-```js
-// Prefix / suffix products (same idea as prefix sums)
+// Prefix / suffix products
 // LC: https://leetcode.com/problems/product-of-array-except-self/
 function productExceptSelf(nums) {
   const n = nums.length, out = Array(n).fill(1);
   let left = 1;
   for (let i = 0; i < n; i++) {
-    out[i] *= left; // product of everything before i
+    out[i] *= left;
     left *= nums[i];
   }
   let right = 1;
   for (let i = n - 1; i >= 0; i--) {
-    out[i] *= right; // product of everything after i
+    out[i] *= right;
     right *= nums[i];
   }
   return out;
 }
 ```
 
-**More:** [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/), [Contiguous Array](https://leetcode.com/problems/contiguous-array/), [Running Sum](https://leetcode.com/problems/running-sum-of-1d-array/).
+## Subarray Sum Equals K
+
+Not on the PDF list, but this is the other half of prefix sums. `count += how many times I have already seen (sum - k)`.
+
+[Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+
+```js
+// Prefix + map
+// LC: https://leetcode.com/problems/subarray-sum-equals-k/
+function subarraySum(nums, k) {
+  const seen = new Map([[0, 1]]);
+  let sum = 0, count = 0;
+  for (const x of nums) {
+    sum += x;
+    count += seen.get(sum - k) || 0;
+    seen.set(sum, (seen.get(sum) || 0) + 1);
+  }
+  return count;
+}
+```

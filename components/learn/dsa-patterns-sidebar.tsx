@@ -3,25 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { DsaNoteMeta } from "@/data/dsa/manifest";
-import { TIER_LABELS } from "@/data/dsa/manifest";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type Props = {
   notes: DsaNoteMeta[];
   className?: string;
 };
-
-function tierBadgeClass(tier: DsaNoteMeta["tier"]): string {
-  switch (tier) {
-    case "foundation":
-      return "bg-muted text-muted-foreground";
-    case "core":
-      return "bg-primary/10 text-primary";
-    case "optional":
-      return "bg-amber-500/10 text-amber-700 dark:text-amber-400";
-  }
-}
 
 export function DsaPatternsSidebar({ notes, className }: Props) {
   const pathname = usePathname();
@@ -59,19 +46,13 @@ export function DsaPatternsSidebar({ notes, className }: Props) {
                 <Link
                   href={href}
                   className={cn(
-                    "flex items-center justify-between gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "block truncate rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-primary/15 text-primary"
                       : "text-foreground hover:bg-accent/50",
                   )}
                 >
-                  <span className="min-w-0 truncate">{note.title}</span>
-                  <Badge
-                    variant="secondary"
-                    className={cn("shrink-0 px-1.5 py-0 text-[10px]", tierBadgeClass(note.tier))}
-                  >
-                    {TIER_LABELS[note.tier]}
-                  </Badge>
+                  {note.title}
                 </Link>
               </li>
             );

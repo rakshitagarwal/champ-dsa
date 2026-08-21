@@ -1,90 +1,105 @@
-/** Recognition cues surfaced at the top of each DSA pattern page. */
+/** Recognition cues surfaced at the top of each DSA pattern page. Plain-language “if I read this, I reach for…” */
 
 export const DSA_RECOGNITION_CUES: Record<string, string[]> = {
-  "arrays-strings": [
-    "If the problem is a basic scan, reverse, rotate, or in-place filter on an array or string",
-    "If you need character frequency counting with a fixed alphabet (26 letters)",
-    "Skim this if you already know two pointers, sliding window, and prefix sum",
-  ],
   hashing: [
-    "If you need O(1) existence checks, duplicate detection, or complement lookup (Two Sum)",
-    "If you group elements by a computed key (anagrams, frequency signature)",
-    "If brute force would use nested loops over the same array",
+    "I need to know if I already saw this value, this pair, or this group",
+    "Brute force would be two loops over the same list",
+    "Anagrams, frequency, complements, longest streak of numbers that exist",
   ],
-  "two-pointers": [
-    "If the input is sorted and you need a pair or triplet with a target sum",
-    "If you reverse, partition, or remove duplicates in-place with O(1) space",
-    "If opposite ends or slow/fast pointers can eliminate candidates each step",
-  ],
-  "sliding-window": [
-    "If the answer is a contiguous subarray or substring with a sum/length constraint",
-    "If fixed window size k — add right element, remove left in O(1)",
-    "If you expand right and shrink left while a validity condition holds",
+  "arrays-strings": [
+    "In-place rewrite: reverse, move zeroes, rotate",
+    "Best contiguous sum (Kadane) — one pass, running total that can restart",
+    "No extra data structure, just indices",
   ],
   "prefix-sum": [
-    "If you count subarrays with sum exactly k (negatives allowed)",
-    "If range-sum queries repeat on the same static array",
-    "If you track running totals and look up (currentSum - k) in a map",
-  ],
-  "binary-search": [
-    "If the input is sorted and you need O(log n) search or insertion position",
-    "If the answer space is monotonic (first true / last true boundary)",
-    "If you can binary search on the answer (capacity, speed, minimum days)",
+    "Range sum / product of everything except me",
+    "Count subarrays whose sum is k (negatives allowed) — map of running totals",
+    "I would otherwise re-sum the same slice again and again",
   ],
   sorting: [
-    "If ordering unlocks a greedy or two-pointer approach (intervals, pair sums)",
-    "If you need to find duplicates, kth largest, or merge sorted streams",
-    "If O(n log n) is acceptable and simplifies the invariant",
+    "A list of intervals — overlap, insert, merge",
+    "If I sort by start or by end, the rest is one linear pass",
+    "Sweep left to right and only care about the last kept interval",
   ],
-  "linked-list": [
-    "If nodes have .next pointers and you reverse, merge, or detect cycles",
-    "If slow/fast pointers find the middle or cycle entrance",
-    "If in-place pointer rewiring beats array indexing",
+  "two-pointers": [
+    "Sorted array, pair or water-between-lines, expand around a center",
+    "Two indices that only move forward — never rewind",
+    "Trapping water, palindrome from the middle, opposite ends",
+  ],
+  "sliding-window": [
+    "Longest / shortest contiguous substring or subarray with a rule",
+    "Fixed size k, or grow until invalid then shrink",
+    "Sliding window maximum — deque of useful indices",
   ],
   "stack-queue": [
-    "If you need LIFO (matching brackets, undo) or FIFO (BFS level order)",
-    "If you process elements in arrival order with deferred handling",
-    "If a monotonic stack variant does not apply yet",
+    "Brackets, nesting, undo, min-so-far while pushing/popping",
+    "Last in first out feels like the call stack",
+    "Not next-greater (that is monotonic stack)",
   ],
   "monotonic-stack": [
-    "If each index needs the next greater or smaller element to the right",
-    "If you maintain a decreasing/increasing stack of indices while scanning",
-    "If histogram area or daily temperatures style problems appear",
+    "For each day/bar, when is the next bigger or next smaller?",
+    "Histogram area, daily temperatures, next greater element",
+    "Stack of indices that stays increasing or decreasing",
   ],
-  heap: [
-    "If you need the top K or smallest K elements in a stream",
-    "If you merge K sorted lists or run Dijkstra with a priority queue",
-    "If a full sort is overkill but you need repeated min/max extraction",
+  "linked-list": [
+    "Nodes with .next, maybe .random",
+    "Reverse, merge, nth from end, cycle entrance, copy",
+    "Dummy node if the head might disappear",
+  ],
+  "binary-search": [
+    "Sorted array, or the answer itself is a number I can binary search (speed, capacity)",
+    "Rotated sorted array — still two sorted halves",
+    "Pow(x, n) by halving n",
   ],
   trees: [
-    "If the input is a binary tree and you need depth, path sum, or traversal order",
-    "If DFS recursion or iterative BFS level-order fits naturally",
-    "If subtrees share structure — recurse on left and right children",
+    "Binary tree: depth, diameter, path sum, LCA, serialize, BST validate",
+    "DFS: left and right, then combine",
+    "BFS: queue, one level = queue.length",
+  ],
+  heap: [
+    "Top K, k-way merge, running median",
+    "I keep throwing away everything worse than the kth",
+    "Two heaps: small half vs big half",
   ],
   graphs: [
-    "If nodes and edges form a network — connectivity, cycles, or shortest path",
-    "If BFS finds shortest steps in an unweighted grid or graph",
-    "If DFS explores components, topological order, or island counting",
+    "Grid or nodes+edges: islands, clone, rotting, word ladder, topo",
+    "Unweighted shortest steps → BFS; weighted delay → Dijkstra",
+    "Courses with prereqs → in-degree queue",
   ],
   "union-find": [
-    "If edges are added incrementally and you query connectivity",
-    "If Kruskal MST or redundant connection detection is required",
-    "If merging groups by equivalence is cheaper than full graph rebuild",
+    "Keep merging sets, ask if two things are already connected",
+    "Extra edge that makes a cycle, MST with Kruskal",
+    "Same parent = same group",
   ],
   backtracking: [
-    "If you enumerate all subsets, permutations, or combinations",
-    "If you try a choice, recurse, then undo (choose / explore / unchoose)",
-    "If pruning invalid branches early reduces the search tree",
-  ],
-  greedy: [
-    "If a local optimal choice leads to global optimum (interval scheduling)",
-    "If sorting by end time or ratio unlocks a one-pass greedy proof",
-    "Skip if coin systems or knapsack need DP instead",
+    "All subsets, perms, combinations, N-queens, word on a grid",
+    "Choose, recurse, pop — that is the whole move",
+    "Prune when the path is already illegal",
   ],
   dp: [
-    "If the problem asks for min/max/count ways with overlapping subproblems",
-    "If a recurrence relates dp[i] to dp[i-1], dp[i-2], or dp[i - coin]",
-    "If brute-force recursion revisits the same states repeatedly",
+    "Min / max / number of ways, and the same state shows up twice",
+    "House robber, coins, grid paths, LCS, LIS, edit distance, word break, burst balloons",
+    "Write dp[i] in English first, then the loop",
+  ],
+  greedy: [
+    "Jump as far as I can, gas station tank, partition labels, task cooldown",
+    "Sort then take the one that finishes first / jumps farthest",
+    "If I cannot explain why the local choice is safe, it is probably DP",
+  ],
+  bits: [
+    "XOR, count bits, power of two, missing number in 0..n",
+    "Pairs cancel with XOR; n & (n-1) drops the lowest 1-bit",
+    "I do not need an extra array if bits already store the answer",
+  ],
+  trie: [
+    "Prefix of words, autocomplete, search many words in a grid",
+    "Each character is an edge; share the start of the word",
+    "Word Search II — trie + DFS so I do not restart every word",
+  ],
+  "range-queries": [
+    "Update one index, then ask sum of a range, many times",
+    "Fenwick / BIT, or merge sort if I am counting smaller on the right",
+    "Prefix array is not enough because values keep changing",
   ],
 };
 

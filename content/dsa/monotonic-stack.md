@@ -1,14 +1,14 @@
 # Monotonic Stack
 
-Keep a stack of indices whose values are strictly increasing or decreasing. When the new value breaks the order, pop — that pop is "next greater/smaller".
+I keep a stack of indexes whose values only go down (or only go up). When a new value breaks that, I pop. The thing that popped just found its “next greater” (or next smaller). One pass.
 
 ```js
-// Monotonic stack skeleton (next greater to the right)
-const stack = []; // indices, values decreasing
+// Monotonic stack — next greater to the right
+const stack = [];
 const ans = Array(n).fill(-1);
 for (let i = 0; i < n; i++) {
   while (stack.length && nums[i] > nums[stack.at(-1)]) {
-    ans[stack.pop()] = nums[i]; // i is next greater
+    ans[stack.pop()] = nums[i];
   }
   stack.push(i);
 }
@@ -16,17 +16,19 @@ for (let i = 0; i < n; i++) {
 
 ## Daily Temperatures
 
-Next warmer day — [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/).
+When today is warmer than the day on the stack, that old day waited `i - j` days. Stack stays decreasing.
+
+[Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 ```js
-// Monotonic stack — next greater (distance)
+// Monotonic stack — next warmer
 // LC: https://leetcode.com/problems/daily-temperatures/
 function dailyTemperatures(temps) {
   const n = temps.length, ans = Array(n).fill(0), stack = [];
   for (let i = 0; i < n; i++) {
     while (stack.length && temps[i] > temps[stack.at(-1)]) {
       const j = stack.pop();
-      ans[j] = i - j; // days until warmer
+      ans[j] = i - j;
     }
     stack.push(i);
   }
@@ -34,32 +36,17 @@ function dailyTemperatures(temps) {
 }
 ```
 
-## Next Greater Element I
-
-Map from nums2, then lookup — [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/).
-
-```js
-// Monotonic stack — next greater, then map
-// LC: https://leetcode.com/problems/next-greater-element-i/
-function nextGreaterElement(nums1, nums2) {
-  const next = new Map(), stack = [];
-  for (const x of nums2) {
-    while (stack.length && x > stack.at(-1)) next.set(stack.pop(), x);
-    stack.push(x);
-  }
-  return nums1.map((x) => next.get(x) ?? -1);
-}
-```
-
 ## Largest Rectangle in Histogram
 
-Nearest smaller left and right — [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/).
+For each bar, I need the first shorter bar on the left and on the right — that is the width I can stretch. Stack of increasing heights. A sentinel 0 at the end flushes the stack.
+
+[Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
 
 ```js
 // Monotonic stack — nearest smaller, then width * height
 // LC: https://leetcode.com/problems/largest-rectangle-in-histogram/
 function largestRectangleArea(heights) {
-  const stack = [-1]; // sentinel
+  const stack = [-1];
   let best = 0;
   for (let i = 0; i <= heights.length; i++) {
     const h = i === heights.length ? 0 : heights[i];
@@ -73,5 +60,3 @@ function largestRectangleArea(heights) {
   return best;
 }
 ```
-
-**More:** [Next Greater Element II](https://leetcode.com/problems/next-greater-element-ii/), [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/), [Online Stock Span](https://leetcode.com/problems/online-stock-span/).

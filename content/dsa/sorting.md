@@ -1,21 +1,26 @@
-# Sorting
+# Intervals
 
-Sort so the next pass is linear: merge overlaps, partition 3 colors, greedy intervals.
+Sort, then walk left to right. I only look at the last interval I kept. If the new one overlaps, stretch the end. If I am inserting, find the hole and merge whatever I swallow.
 
 ```js
-// Sort-first skeleton
-items.sort((a, b) => a.start - b.start);
-for (const x of items) {
-  // merge / pick / skip using the last kept item
+// Interval skeleton
+items.sort((a, b) => a[0] - b[0]);
+const out = [items[0]];
+for (const cur of items.slice(1)) {
+  const last = out.at(-1);
+  if (cur[0] <= last[1]) last[1] = Math.max(last[1], cur[1]);
+  else out.push(cur);
 }
 ```
 
 ## Merge Intervals
 
-Sort by start, merge if overlap — [Merge Intervals](https://leetcode.com/problems/merge-intervals/).
+Sort by start. Overlap means `start <= lastEnd`. Then the new end is the max of the two ends.
+
+[Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 ```js
-// Sort — then merge overlaps
+// Intervals — merge overlaps
 // LC: https://leetcode.com/problems/merge-intervals/
 function merge(intervals) {
   intervals.sort((a, b) => a[0] - b[0]);
@@ -23,55 +28,34 @@ function merge(intervals) {
   for (let i = 1; i < intervals.length; i++) {
     const last = out[out.length - 1];
     const [s, e] = intervals[i];
-    if (s <= last[1]) last[1] = Math.max(last[1], e); // overlap → extend
+    if (s <= last[1]) last[1] = Math.max(last[1], e);
     else out.push([s, e]);
   }
   return out;
 }
 ```
 
-## Sort Colors
+## Insert Interval
 
-Dutch flag: lo / mid / hi — [Sort Colors](https://leetcode.com/problems/sort-colors/).
+Walk existing intervals. Copy the ones that end before the new start. Merge everything that overlaps the new one. Copy the rest.
 
-```js
-// Sort — three-way partition
-// LC: https://leetcode.com/problems/sort-colors/
-function sortColors(nums) {
-  let lo = 0, mid = 0, hi = nums.length - 1;
-  while (mid <= hi) {
-    if (nums[mid] === 0) {
-      [nums[lo], nums[mid]] = [nums[mid], nums[lo]];
-      lo++;
-      mid++;
-    } else if (nums[mid] === 1) {
-      mid++;
-    } else {
-      [nums[mid], nums[hi]] = [nums[hi], nums[mid]];
-      hi--;
-    }
-  }
-}
-```
-
-## Non-overlapping Intervals
-
-Sort by end, keep what finishes first — [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/).
+[Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 ```js
-// Sort — greedy keep earliest finish
-// LC: https://leetcode.com/problems/non-overlapping-intervals/
-function eraseOverlapIntervals(intervals) {
-  intervals.sort((a, b) => a[1] - b[1]);
-  let keep = 0, end = -Infinity;
-  for (const [s, e] of intervals) {
-    if (s >= end) {
-      keep++;
-      end = e; // take this interval
-    }
+// Intervals — insert then merge
+// LC: https://leetcode.com/problems/insert-interval/
+function insert(intervals, newInterval) {
+  const out = [];
+  let i = 0, n = intervals.length;
+  let [ns, ne] = newInterval;
+  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // before
+  while (i < n && intervals[i][0] <= ne) {
+    ns = Math.min(ns, intervals[i][0]);
+    ne = Math.max(ne, intervals[i][1]);
+    i++;
   }
-  return intervals.length - keep; // removals
+  out.push([ns, ne]);
+  while (i < n) out.push(intervals[i++]); // after
+  return out;
 }
 ```
-
-**More:** [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/), [Sort an Array](https://leetcode.com/problems/sort-an-array/), [Largest Number](https://leetcode.com/problems/largest-number/).

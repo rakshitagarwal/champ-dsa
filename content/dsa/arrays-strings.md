@@ -1,18 +1,20 @@
-# Arrays & Strings
+# Arrays
 
-Scan, swap in place, or count a fixed alphabet. No fancy structure — just indices.
+These are the “just walk the array” problems. Reverse, compact, rotate, or keep a running best sum. If I need a hash map, I am on the hashing page instead.
 
 ```js
-// Array scan skeleton
+// Array skeleton — read / write pointers
 let write = 0;
 for (let read = 0; read < arr.length; read++) {
-  // maybe copy / swap arr[read] into arr[write]
+  // maybe copy arr[read] into arr[write]
 }
 ```
 
 ## Reverse String
 
-Two ends swap inward — [Reverse String](https://leetcode.com/problems/reverse-string/).
+Two ends, swap, walk in. Same as swapping two cups until they meet.
+
+[Reverse String](https://leetcode.com/problems/reverse-string/)
 
 ```js
 // Arrays — reverse in place
@@ -31,18 +33,17 @@ function reverseString(s) {
 
 ## Move Zeroes
 
-Slow write pointer, fast reader — [Move Zeroes](https://leetcode.com/problems/move-zeroes/).
+Copy every non-zero forward. Then fill the tail with zeroes. Order of the real numbers stays.
+
+[Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 ```js
-// Arrays — compact non-zeros then fill
+// Arrays — compact then fill
 // LC: https://leetcode.com/problems/move-zeroes/
 function moveZeroes(nums) {
   let write = 0;
   for (let read = 0; read < nums.length; read++) {
-    if (nums[read] !== 0) {
-      nums[write] = nums[read];
-      write++;
-    }
+    if (nums[read] !== 0) nums[write++] = nums[read];
   }
   while (write < nums.length) nums[write++] = 0;
 }
@@ -50,10 +51,12 @@ function moveZeroes(nums) {
 
 ## Rotate Array
 
-Reverse whole, then each part — [Rotate Array](https://leetcode.com/problems/rotate-array/).
+`k %= n`. Reverse the whole array, reverse the first `k`, reverse the rest. That is rotate right.
+
+[Rotate Array](https://leetcode.com/problems/rotate-array/)
 
 ```js
-// Arrays — reverse trick for rotate
+// Arrays — reverse trick
 // LC: https://leetcode.com/problems/rotate-array/
 function rotate(nums, k) {
   k %= nums.length;
@@ -64,10 +67,27 @@ function rotate(nums, k) {
       r--;
     }
   };
-  rev(0, nums.length - 1); // reverse all
-  rev(0, k - 1);           // reverse first k
-  rev(k, nums.length - 1); // reverse rest
+  rev(0, nums.length - 1);
+  rev(0, k - 1);
+  rev(k, nums.length - 1);
 }
 ```
 
-**More:** [Remove Element](https://leetcode.com/problems/remove-element/), [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/), [Valid Anagram](https://leetcode.com/problems/valid-anagram/).
+## Maximum Subarray
+
+Kadane: keep a running sum. If it goes negative, drop it and start at the next number. Track the best running sum. Negatives are allowed — start `best` at `-Infinity`.
+
+[Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+
+```js
+// Arrays — Kadane
+// LC: https://leetcode.com/problems/maximum-subarray/
+function maxSubArray(nums) {
+  let run = 0, best = -Infinity;
+  for (const x of nums) {
+    run = Math.max(x, run + x); // restart or continue
+    best = Math.max(best, run);
+  }
+  return best;
+}
+```

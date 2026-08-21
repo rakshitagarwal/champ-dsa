@@ -1,15 +1,6 @@
-# Heap (Priority Queue)
+# Heap
 
-Always pull min or max in O(log n). JS has no built-in heap — interviewers accept a sorted array for n ≤ a few thousand, or describe a binary heap. Below uses a tiny min-heap helper.
-
-```js
-// Heap skeleton (k smallest / k largest)
-const heap = [];
-for (const x of nums) {
-  heapPush(heap, x);
-  if (heap.length > k) heapPop(heap);
-}
-```
+A heap always gives me the current smallest (or largest) in log time. For “top K” I keep a heap of size k and throw away anything worse. JS has no built-in heap — the helpers below are the ones I paste in an interview. Merge k lists is here, not on the linked-list page.
 
 ```js
 function heapPush(h, val, less = (a, b) => a < b) {
@@ -39,29 +30,33 @@ function heapPop(h, less = (a, b) => a < b) {
 }
 ```
 
-## Kth Largest
+## Kth Largest Element in an Array
 
-Min-heap of size k — [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/).
+Min-heap of size k. The top is the kth largest. Everything smaller got popped.
+
+[Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 
 ```js
-// Heap — keep k largest, top is kth
+// Heap — keep k largest
 // LC: https://leetcode.com/problems/kth-largest-element-in-an-array/
 function findKthLargest(nums, k) {
   const h = [];
   for (const x of nums) {
     heapPush(h, x);
-    if (h.length > k) heapPop(h); // drop the smallest extra
+    if (h.length > k) heapPop(h);
   }
   return h[0];
 }
 ```
 
-## Top K Frequent
+## Top K Frequent Elements
 
-Count, then heap by frequency — [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/).
+Count first. Then a min-heap of `[freq, num]` of size k.
+
+[Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
-// Heap — frequency then top k
+// Heap — by frequency
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
 function topKFrequent(nums, k) {
   const freq = new Map();
@@ -76,12 +71,38 @@ function topKFrequent(nums, k) {
 }
 ```
 
-## Merge K Sorted Lists
+## Find Median from Data Stream
 
-Min-heap of list heads — [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/).
+Two heaps: max-heap for the smaller half, min-heap for the bigger half. Size differs by at most 1. Median is the middle top, or the average of both tops.
+
+[Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ```js
-// Heap — always take the smallest current head
+// Heap — two heaps
+// LC: https://leetcode.com/problems/find-median-from-data-stream/
+function MedianFinder() {
+  this.lo = []; // max-heap of smaller half (store negated)
+  this.hi = []; // min-heap of larger half
+}
+MedianFinder.prototype.addNum = function (num) {
+  heapPush(this.lo, -num);
+  heapPush(this.hi, -heapPop(this.lo));
+  if (this.hi.length > this.lo.length) heapPush(this.lo, -heapPop(this.hi));
+};
+MedianFinder.prototype.findMedian = function () {
+  if (this.lo.length > this.hi.length) return -this.lo[0];
+  return (-this.lo[0] + this.hi[0]) / 2;
+};
+```
+
+## Merge k Sorted Lists
+
+Put every list head in a min-heap. Pop the smallest, push its `.next`. Dummy tail like merge two lists.
+
+[Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
+
+```js
+// Heap — k-way merge
 // LC: https://leetcode.com/problems/merge-k-sorted-lists/
 function mergeKLists(lists) {
   const h = [];
@@ -98,5 +119,3 @@ function mergeKLists(lists) {
   return dummy.next;
 }
 ```
-
-**More:** [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/), [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/), [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/).

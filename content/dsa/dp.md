@@ -1,30 +1,50 @@
-# DP (1D)
+# Dynamic Programming
 
-Answer at i is built from earlier answers. Define `dp[i]`, the transition, and the base case. Scan left to right.
+If I would recurse on the same `(i, remain)` twice, I save it. I say the meaning of `dp[i]` in English first, then write the loop. Climbing stairs is Fibonacci. House robber is take/skip. Coins are unbounded knapsack. Grid is “from left + from above.”
 
 ```js
-// 1D DP skeleton
 const dp = Array(n + 1).fill(0);
 dp[0] = base;
 for (let i = 1; i <= n; i++) {
-  // dp[i] = f(dp[i - 1], dp[i - 2], ...)
+  // dp[i] = f(earlier states)
 }
 return dp[n];
 ```
 
-## House Robber
+## Climbing Stairs
 
-Take or skip — [House Robber](https://leetcode.com/problems/house-robber/).
+Ways to reach i = ways to i-1 + ways to i-2.
+
+[Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 ```js
-// 1D DP — take vs skip
+// DP — Fibonacci
+// LC: https://leetcode.com/problems/climbing-stairs/
+function climbStairs(n) {
+  if (n <= 2) return n;
+  let a = 1, b = 2;
+  for (let i = 3; i <= n; i++) {
+    const c = a + b;
+    a = b;
+    b = c;
+  }
+  return b;
+}
+```
+
+## House Robber
+
+At each house: rob it (then I skipped the previous) or skip it. Two variables are enough.
+
+[House Robber](https://leetcode.com/problems/house-robber/)
+
+```js
+// DP — take or skip
 // LC: https://leetcode.com/problems/house-robber/
 function rob(nums) {
   let prev2 = 0, prev1 = 0;
   for (const x of nums) {
-    const take = prev2 + x;   // rob this, skip previous
-    const skip = prev1;       // skip this
-    const cur = Math.max(take, skip);
+    const cur = Math.max(prev1, prev2 + x);
     prev2 = prev1;
     prev1 = cur;
   }
@@ -34,41 +54,203 @@ function rob(nums) {
 
 ## Coin Change
 
-Unbounded knapsack on amount — [Coin Change](https://leetcode.com/problems/coin-change/).
+`dp[a]` = fewest coins to make amount a. Try each coin. Unbounded, so inner loop can reuse a coin.
+
+[Coin Change](https://leetcode.com/problems/coin-change/)
 
 ```js
-// 1D DP — min coins to make amount
+// DP — unbounded knapsack
 // LC: https://leetcode.com/problems/coin-change/
 function coinChange(coins, amount) {
   const dp = Array(amount + 1).fill(Infinity);
-  dp[0] = 0; // base: 0 coins to make 0
+  dp[0] = 0;
   for (let a = 1; a <= amount; a++) {
     for (const c of coins) {
-      if (c > a) continue;
-      // transition: use coin c
-      dp[a] = Math.min(dp[a], dp[a - c] + 1);
+      if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);
     }
   }
   return dp[amount] === Infinity ? -1 : dp[amount];
 }
 ```
 
-## Unique Paths
+## Partition Equal Subset Sum
 
-Grid DP, only right/down — [Unique Paths](https://leetcode.com/problems/unique-paths/).
+Can I pick a subset that sums to total/2? 0/1 knapsack on a boolean array.
+
+[Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
 
 ```js
-// 1D/2D DP — paths from left and above
+// DP — 0/1 knapsack boolean
+// LC: https://leetcode.com/problems/partition-equal-subset-sum/
+function canPartition(nums) {
+  const total = nums.reduce((a, b) => a + b, 0);
+  if (total % 2) return false;
+  const target = total / 2;
+  const dp = Array(target + 1).fill(false);
+  dp[0] = true;
+  for (const x of nums) {
+    for (let s = target; s >= x; s--) dp[s] = dp[s] || dp[s - x];
+  }
+  return dp[target];
+}
+```
+
+## Unique Paths
+
+Only right and down. `dp[c] += dp[c - 1]` while scanning a row.
+
+[Unique Paths](https://leetcode.com/problems/unique-paths/)
+
+```js
+// DP — grid paths
 // LC: https://leetcode.com/problems/unique-paths/
 function uniquePaths(m, n) {
-  const dp = Array(n).fill(1); // first row is all 1s
+  const dp = Array(n).fill(1);
   for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) {
-      dp[c] += dp[c - 1]; // from above (dp[c]) + from left (dp[c - 1])
-    }
+    for (let c = 1; c < n; c++) dp[c] += dp[c - 1];
   }
   return dp[n - 1];
 }
 ```
 
-**More:** [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/), [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/), [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/), [Decode Ways](https://leetcode.com/problems/decode-ways/).
+## Longest Common Subsequence
+
+`dp[i][j]` = LCS of first i chars of text1 and first j of text2. Equal → diagonal + 1. Else max of skip either.
+
+[Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
+
+```js
+// DP — LCS
+// LC: https://leetcode.com/problems/longest-common-subsequence/
+function longestCommonSubsequence(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+```
+
+## Longest Increasing Subsequence
+
+`dp[i]` = LIS ending at i. Check all j < i. Patience-sort binary search is faster; the O(n²) loop is the one I can explain in an interview without sweating.
+
+[Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
+
+```js
+// DP — LIS O(n^2)
+// LC: https://leetcode.com/problems/longest-increasing-subsequence/
+function lengthOfLIS(nums) {
+  const dp = Array(nums.length).fill(1);
+  let best = 1;
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+    }
+    best = Math.max(best, dp[i]);
+  }
+  return best;
+}
+```
+
+## Edit Distance
+
+`dp[i][j]` = min ops to turn first i of word1 into first j of word2. Insert, delete, replace.
+
+[Edit Distance](https://leetcode.com/problems/edit-distance/)
+
+```js
+// DP — insert / delete / replace
+// LC: https://leetcode.com/problems/edit-distance/
+function minDistance(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+      else dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+```
+
+## Word Break
+
+`dp[i]` = true if `s.slice(0, i)` can be split into dictionary words. Try every break j.
+
+[Word Break](https://leetcode.com/problems/word-break/)
+
+```js
+// DP — prefix can be segmented
+// LC: https://leetcode.com/problems/word-break/
+function wordBreak(s, wordDict) {
+  const dict = new Set(wordDict);
+  const dp = Array(s.length + 1).fill(false);
+  dp[0] = true;
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && dict.has(s.slice(j, i))) {
+        dp[i] = true;
+        break;
+      }
+    }
+  }
+  return dp[s.length];
+}
+```
+
+## Decode Ways
+
+`dp[i]` = ways to decode first i chars. One digit 1-9, or two digits 10-26.
+
+[Decode Ways](https://leetcode.com/problems/decode-ways/)
+
+```js
+// DP — 1 or 2 digits
+// LC: https://leetcode.com/problems/decode-ways/
+function numDecodings(s) {
+  const n = s.length;
+  const dp = Array(n + 1).fill(0);
+  dp[0] = 1;
+  for (let i = 1; i <= n; i++) {
+    if (s[i - 1] !== "0") dp[i] += dp[i - 1];
+    if (i >= 2) {
+      const two = Number(s.slice(i - 2, i));
+      if (two >= 10 && two <= 26) dp[i] += dp[i - 2];
+    }
+  }
+  return dp[n];
+}
+```
+
+## Burst Balloons
+
+Interval DP. `dp[l][r]` = best coins bursting balloons strictly inside (l, r). Last balloon k in that gap scores `nums[l] * nums[k] * nums[r]`. Pad the array with 1s.
+
+[Burst Balloons](https://leetcode.com/problems/burst-balloons/)
+
+```js
+// DP — interval, last balloon k
+// LC: https://leetcode.com/problems/burst-balloons/
+function maxCoins(nums) {
+  const a = [1, ...nums, 1];
+  const n = a.length;
+  const dp = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let len = 2; len < n; len++) {
+    for (let l = 0; l + len < n; l++) {
+      const r = l + len;
+      for (let k = l + 1; k < r; k++) {
+        dp[l][r] = Math.max(dp[l][r], a[l] * a[k] * a[r] + dp[l][k] + dp[k][r]);
+      }
+    }
+  }
+  return dp[0][n - 1];
+}
+```

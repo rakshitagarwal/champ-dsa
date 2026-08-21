@@ -1,19 +1,20 @@
 # Two Pointers
 
-Two indices move toward each other, or one chases the other. Each step throws away a candidate. Sorted input (or a palindrome / in-place rewrite) is the usual tell.
+I put two fingers on the array and only move them forward. Opposite ends for a sorted pair or for water. Expand from a center for palindromes. Never rewind — that is why it stays O(n).
 
 ```js
 // Two pointers skeleton — opposite ends
 let left = 0, right = arr.length - 1;
 while (left < right) {
-  // compare arr[left] and arr[right]
-  // move the pointer that cannot be in the answer
+  // move the side that cannot be in a better answer
 }
 ```
 
-## Pair sum on a sorted array
+## Two Sum II
 
-Opposite ends — [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/).
+Sorted, so if the sum is too small I need a bigger left. Too big, smaller right. 1-based indexes on the return.
+
+[Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 ```js
 // Two pointers — opposite ends
@@ -23,64 +24,63 @@ function twoSum(numbers, target) {
   while (left < right) {
     const sum = numbers[left] + numbers[right];
     if (sum === target) return [left + 1, right + 1];
-    // too small → need a bigger left
     if (sum < target) left++;
-    // too big → need a smaller right
     else right--;
   }
 }
 ```
 
-## Container With Most Water
+## Longest Palindromic Substring
 
-Move the shorter wall — [Container With Most Water](https://leetcode.com/problems/container-with-most-water/).
+Every palindrome has a center. I expand while left and right match. Do it for odd (`i,i`) and even (`i,i+1`) centers. Keep the longest slice.
+
+[Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
-// Two pointers — opposite ends, drop the worse side
-// LC: https://leetcode.com/problems/container-with-most-water/
-function maxArea(height) {
-  let left = 0, right = height.length - 1, best = 0;
-  while (left < right) {
-    const h = Math.min(height[left], height[right]);
-    // record area
-    best = Math.max(best, h * (right - left));
-    // move the shorter line (width will shrink anyway)
-    if (height[left] < height[right]) left++;
-    else right--;
+// Two pointers — expand around center
+// LC: https://leetcode.com/problems/longest-palindromic-substring/
+function longestPalindrome(s) {
+  let best = "";
+  const grow = (l, r) => {
+    while (l >= 0 && r < s.length && s[l] === s[r]) {
+      l--;
+      r++;
+    }
+    return s.slice(l + 1, r);
+  };
+  for (let i = 0; i < s.length; i++) {
+    const odd = grow(i, i);
+    const even = grow(i, i + 1);
+    const cur = odd.length > even.length ? odd : even;
+    if (cur.length > best.length) best = cur;
   }
   return best;
 }
 ```
 
-## 3Sum
+## Trapping Rain Water
 
-Fix one index, two-pointer the rest — [3Sum](https://leetcode.com/problems/3sum/).
+Water at `i` is min(tallest on left, tallest on right) minus height[i]. Two pointers: I always move the shorter side, because that side’s bound is the one that limits water right now.
+
+[Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
-// Two pointers — outer fix + inner opposite pair
-// LC: https://leetcode.com/problems/3sum/
-function threeSum(nums) {
-  nums.sort((a, b) => a - b);
-  const out = [];
-  for (let i = 0; i < nums.length - 2; i++) {
-    // skip duplicate anchors
-    if (i > 0 && nums[i] === nums[i - 1]) continue;
-    let left = i + 1, right = nums.length - 1;
-    while (left < right) {
-      const sum = nums[i] + nums[left] + nums[right];
-      if (sum === 0) {
-        out.push([nums[i], nums[left], nums[right]]);
-        left++;
-        right--;
-        // skip duplicate inner values
-        while (left < right && nums[left] === nums[left - 1]) left++;
-        while (left < right && nums[right] === nums[right + 1]) right--;
-      } else if (sum < 0) left++;
-      else right--;
+// Two pointers — water limited by the shorter wall
+// LC: https://leetcode.com/problems/trapping-rain-water/
+function trap(height) {
+  let left = 0, right = height.length - 1;
+  let leftMax = 0, rightMax = 0, water = 0;
+  while (left < right) {
+    if (height[left] < height[right]) {
+      leftMax = Math.max(leftMax, height[left]);
+      water += leftMax - height[left];
+      left++;
+    } else {
+      rightMax = Math.max(rightMax, height[right]);
+      water += rightMax - height[right];
+      right--;
     }
   }
-  return out;
+  return water;
 }
 ```
-
-**More:** [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/), [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/), [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/).

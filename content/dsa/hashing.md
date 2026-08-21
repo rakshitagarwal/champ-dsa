@@ -1,30 +1,30 @@
 # Hashing
 
-Map or set for O(1) lookup. Scan once, store what you will need later.
+When I read a problem and think “I wish I could remember what I already saw,” I reach for a map or a set. One pass: look up, then store. That is Two Sum, anagrams, and the consecutive-sequence trick.
 
 ```js
 // Hashing skeleton
 const seen = new Map(); // or Set
 for (const x of nums) {
-  // lookup: have we seen the complement / key?
-  // store: record x (or its group)
+  // lookup: is the partner / group already here?
+  // store: remember x
 }
 ```
 
 ## Two Sum
 
-Complement lookup — [Two Sum](https://leetcode.com/problems/two-sum/).
+I would remember each number’s index. When `target - nums[i]` is already in the map, I am done.
+
+[Two Sum](https://leetcode.com/problems/two-sum/)
 
 ```js
-// Hashing — complement lookup
+// Hashing — complement
 // LC: https://leetcode.com/problems/two-sum/
 function twoSum(nums, target) {
-  const seen = new Map(); // value -> index
+  const seen = new Map();
   for (let i = 0; i < nums.length; i++) {
     const need = target - nums[i];
-    // lookup
     if (seen.has(need)) return [seen.get(need), i];
-    // store
     seen.set(nums[i], i);
   }
 }
@@ -32,7 +32,9 @@ function twoSum(nums, target) {
 
 ## Group Anagrams
 
-Group by a computed key — [Group Anagrams](https://leetcode.com/problems/group-anagrams/).
+Same letters sorted become the same key. Bucket words by that key.
+
+[Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
 // Hashing — group by signature
@@ -40,9 +42,7 @@ Group by a computed key — [Group Anagrams](https://leetcode.com/problems/group
 function groupAnagrams(strs) {
   const groups = new Map();
   for (const s of strs) {
-    // key: sorted letters (or 26-count string)
     const key = [...s].sort().join("");
-    // store into bucket
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(s);
   }
@@ -50,26 +50,45 @@ function groupAnagrams(strs) {
 }
 ```
 
-## Longest Consecutive Sequence
+## Valid Anagram
 
-Set membership, then only start a streak at the left edge — [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/).
+Count letters of `s`, subtract letters of `t`. If anything is left, they are not anagrams.
+
+[Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
-// Hashing — existence then grow a streak
+// Hashing — frequency cancel
+// LC: https://leetcode.com/problems/valid-anagram/
+function isAnagram(s, t) {
+  if (s.length !== t.length) return false;
+  const count = Object.create(null);
+  for (const ch of s) count[ch] = (count[ch] || 0) + 1;
+  for (const ch of t) {
+    if (!count[ch]) return false;
+    count[ch]--;
+  }
+  return true;
+}
+```
+
+## Longest Consecutive Sequence
+
+Put everything in a set. Only start counting at a number that has no `n - 1`. Then walk `n + 1`, `n + 2`, … That way each number is touched about twice, not n².
+
+[Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+
+```js
+// Hashing — only start a streak at the left edge
 // LC: https://leetcode.com/problems/longest-consecutive-sequence/
 function longestConsecutive(nums) {
   const set = new Set(nums);
   let best = 0;
   for (const n of set) {
-    // skip if n is not a streak start
     if (set.has(n - 1)) continue;
     let len = 1;
-    // grow while next exists
     while (set.has(n + len)) len++;
     best = Math.max(best, len);
   }
   return best;
 }
 ```
-
-**More:** [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/), [Valid Anagram](https://leetcode.com/problems/valid-anagram/), [First Unique Character](https://leetcode.com/problems/first-unique-character-in-a-string/).

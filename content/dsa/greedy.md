@@ -1,9 +1,8 @@
 # Greedy
 
-Sort or scan, take the locally best choice that you can prove is safe. If you cannot prove it, it is probably DP.
+I take the choice that looks safest right now — farthest jump, earliest finish, fill the tank until it goes negative. If I cannot say why that is never wrong, it is probably DP instead.
 
 ```js
-// Greedy skeleton
 items.sort(byKey);
 let last = sentinel;
 for (const x of items) {
@@ -13,7 +12,9 @@ for (const x of items) {
 
 ## Jump Game
 
-Farthest reach so far — [Jump Game](https://leetcode.com/problems/jump-game/).
+I track the farthest index I can still reach. If I walk past that, I am stuck.
+
+[Jump Game](https://leetcode.com/problems/jump-game/)
 
 ```js
 // Greedy — running max reach
@@ -21,39 +22,43 @@ Farthest reach so far — [Jump Game](https://leetcode.com/problems/jump-game/).
 function canJump(nums) {
   let reach = 0;
   for (let i = 0; i < nums.length; i++) {
-    if (i > reach) return false; // stuck
+    if (i > reach) return false;
     reach = Math.max(reach, i + nums[i]);
   }
   return true;
 }
 ```
 
-## Non-overlapping Intervals
+## Jump Game II
 
-Earliest finish time — [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/).
+I jump in windows: current end of this jump, farthest I can see. When i hits the end, I must jump, and the new end is that farthest.
+
+[Jump Game II](https://leetcode.com/problems/jump-game-ii/)
 
 ```js
-// Greedy — sort by end, take if no overlap
-// LC: https://leetcode.com/problems/non-overlapping-intervals/
-function eraseOverlapIntervals(intervals) {
-  intervals.sort((a, b) => a[1] - b[1]);
-  let kept = 0, end = -Infinity;
-  for (const [s, e] of intervals) {
-    if (s >= end) {
-      kept++;
-      end = e;
+// Greedy — jumps by window
+// LC: https://leetcode.com/problems/jump-game-ii/
+function jump(nums) {
+  let jumps = 0, end = 0, far = 0;
+  for (let i = 0; i < nums.length - 1; i++) {
+    far = Math.max(far, i + nums[i]);
+    if (i === end) {
+      jumps++;
+      end = far;
     }
   }
-  return intervals.length - kept;
+  return jumps;
 }
 ```
 
 ## Gas Station
 
-If total gas < total cost, impossible. Otherwise start after the worst deficit — [Gas Station](https://leetcode.com/problems/gas-station/).
+If total gas < total cost, impossible. Otherwise the unique start is the station after the worst prefix (tank went negative, reset).
+
+[Gas Station](https://leetcode.com/problems/gas-station/)
 
 ```js
-// Greedy — unique start if total is enough
+// Greedy — unique start if total works
 // LC: https://leetcode.com/problems/gas-station/
 function canCompleteCircuit(gas, cost) {
   let total = 0, tank = 0, start = 0;
@@ -62,7 +67,7 @@ function canCompleteCircuit(gas, cost) {
     total += d;
     tank += d;
     if (tank < 0) {
-      start = i + 1; // cannot start anywhere in [old start..i]
+      start = i + 1;
       tank = 0;
     }
   }
@@ -70,4 +75,47 @@ function canCompleteCircuit(gas, cost) {
 }
 ```
 
-**More:** [Jump Game II](https://leetcode.com/problems/jump-game-ii/), [Assign Cookies](https://leetcode.com/problems/assign-cookies/), [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) (Kadane is greedy-shaped DP).
+## Partition Labels
+
+Last index of each letter. Grow `end` to that last index while I scan. When i hits end, that is one part.
+
+[Partition Labels](https://leetcode.com/problems/partition-labels/)
+
+```js
+// Greedy — last occurrence of each letter
+// LC: https://leetcode.com/problems/partition-labels/
+function partitionLabels(s) {
+  const last = Array(26).fill(0);
+  for (let i = 0; i < s.length; i++) last[s.charCodeAt(i) - 97] = i;
+  const out = [];
+  let start = 0, end = 0;
+  for (let i = 0; i < s.length; i++) {
+    end = Math.max(end, last[s.charCodeAt(i) - 97]);
+    if (i === end) {
+      out.push(end - start + 1);
+      start = i + 1;
+    }
+  }
+  return out;
+}
+```
+
+## Task Scheduler
+
+Count the most frequent task. I need `(maxFreq - 1) * (n + 1) + howManyHaveMaxFreq` slots, or just tasks.length if that is bigger (the idle formula can undercount when the array is packed).
+
+[Task Scheduler](https://leetcode.com/problems/task-scheduler/)
+
+```js
+// Greedy — idle from the most frequent task
+// LC: https://leetcode.com/problems/task-scheduler/
+function leastInterval(tasks, n) {
+  const freq = Array(26).fill(0);
+  for (const t of tasks) freq[t.charCodeAt(0) - 65]++;
+  freq.sort((a, b) => b - a);
+  const max = freq[0];
+  let extra = 0;
+  for (const f of freq) if (f === max) extra++;
+  return Math.max(tasks.length, (max - 1) * (n + 1) + extra);
+}
+```
