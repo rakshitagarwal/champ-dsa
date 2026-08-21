@@ -1,100 +1,74 @@
-# Dynamic Programming
+# DP (1D)
 
-Dynamic Programming (DP) solves problems by breaking them into overlapping subproblems indexed by a single integer state, storing results in an array `dp` to avoid recomputation. The core idea is to identify a recurrence relation where `dp[i]` depends on one or more previous entries (`dp[i-1]`, `dp[i-2]`, etc.) and compute iteratively from base cases upward. This transforms exponential recursive solutions into polynomial-time ones.
-
-The key insight is **optimal substructure**: the optimal solution for problem size `i` can be built from optimal solutions of smaller subproblems. Combined with **overlapping subproblems** (the same subproblems are solved repeatedly in a naive recursion), memoization or tabulation yields dramatic speedups. 1D DP appears in counting problems (how many ways), optimization (min/max cost), and decision problems (is it possible). The state typically represents a prefix of the input, the remaining capacity, or the current position.
-
-Kadane's algorithm is a special case of DP where the state is compressed to a single variable. The recurrence `dp[i] = max(nums[i], dp[i-1] + nums[i])` finds the maximum subarray sum in O(n) time with O(1) space — the classic "Maximum Subarray" problem. The algorithm decides at each position whether to extend the existing subarray (add the current element) or start a new subarray from the current element alone. If the previous subarray's sum is negative, extending it would only make things worse, so starting fresh is better.
-
-![Dynamic programming — overlapping subproblems and DP table](/images/dsa/dp.svg)
-
-## When to use
-
-- Problem asks for count, min, or max of ways to achieve something with sequential decisions
-- A brute-force recursion produces a tree that revisits the same subproblems repeatedly
-- You can define a recurrence relation over a single integer parameter (index, amount, length)
-- The decision at step `i` depends only on a bounded window of previous steps (e.g., last 1, 2, or k states)
-- Input size is moderate (n up to 10^5) so O(n) or O(n log n) is feasible
-- Finding the maximum sum of a contiguous subarray
-- Stock-profit problems where you buy low and sell high on a single transaction
-- Problems requiring not just the sum but also the subarray boundaries
-
-## How it works
-
-### Core concept
-
-Define a 1D array `dp` where `dp[i]` represents the optimal solution for a subproblem of size `i`. The recurrence expresses `dp[i]` in terms of earlier entries. For counting problems, `dp[i]` sums the ways to reach `i` from all valid previous states. For optimization, `dp[i]` takes a min or max over choices. The base case(s) are initialized first, then iteration fills the array forward. The answer is either `dp[n]` or an aggregate over the array.
-
-The intuition mirrors real-world decision-making: "if I know the best outcome for every smaller version of this problem, I can combine those to solve the current version." Space optimization often applies — if the recurrence only looks back a constant number of steps, you can replace the full array with rolling variables. Kadane's algorithm takes this to the extreme: only two variables are needed (`currentMax` and `globalMax`).
-
-A common subtle point is handling arrays where all elements are negative. In this case, Kadane's algorithm correctly returns the largest element (the least negative number) because the `max(nums[i], currentMax + nums[i])` recurrence will pick the larger of two negatives at each step. This differs from the variant initialized to 0, which would incorrectly return 0 for all-negative input.
-
-### Step-by-step approach
-
-1. **Define the state**: Decide what `dp[i]` represents — e.g., "maximum sum we can get from the first `i` elements" or "number of ways to reach step `i`". The state must be complete (no additional information needed to compute future states).
-2. **Establish the recurrence**: Write how `dp[i]` relates to smaller indices. Draw decision trees for small `n` to spot the pattern.
-3. **Initialize base cases**: Set `dp[0]`, `dp[1]`, etc. according to the problem definition. These terminate the recurrence so it doesn't index out of bounds.
-4. **Iterate and compute**: Loop from the smallest non-base index up to `n`, applying the recurrence. Choose between bottom-up tabulation (iterative) or top-down memoization (recursive with cache).
-5. **Extract the answer**: Return `dp[n]` or the relevant aggregate. Sometimes you need `Math.max(...dp)` or to reconstruct the path by storing choices.
-
-### Complexity
-
-- **Time:** O(n) for standard linear DP, O(n^2) for LIS-style nested loops
-- **Space:** O(n) for the dp array, can often be reduced to O(1) (rolling variables) or O(k) when only k previous states are needed
+Answer at i is built from earlier answers. Define `dp[i]`, the transition, and the base case. Scan left to right.
 
 ```js
-// House Robber: maximum sum with no two adjacent elements
+// 1D DP skeleton
+const dp = Array(n + 1).fill(0);
+dp[0] = base;
+for (let i = 1; i <= n; i++) {
+  // dp[i] = f(dp[i - 1], dp[i - 2], ...)
+}
+return dp[n];
+```
+
+## House Robber
+
+Take or skip — [House Robber](https://leetcode.com/problems/house-robber/).
+
+```js
+// 1D DP — take vs skip
+// LC: https://leetcode.com/problems/house-robber/
 function rob(nums) {
-  if (nums.length === 0) return 0;
-  if (nums.length === 1) return nums[0];
-  let prev2 = nums[0], prev1 = Math.max(nums[0], nums[1]);
-  for (let i = 2; i < nums.length; i++) {
-    const curr = Math.max(prev1, prev2 + nums[i]);
+  let prev2 = 0, prev1 = 0;
+  for (const x of nums) {
+    const take = prev2 + x;   // rob this, skip previous
+    const skip = prev1;       // skip this
+    const cur = Math.max(take, skip);
     prev2 = prev1;
-    prev1 = curr;
+    prev1 = cur;
   }
   return prev1;
 }
+```
 
-// Kadane's: maximum subarray sum
-function maxSubarraySum(nums) {
-  let cur = nums[0], best = nums[0];
-  for (let i = 1; i < nums.length; i++) {
-    cur = Math.max(nums[i], cur + nums[i]);
-    best = Math.max(best, cur);
+## Coin Change
+
+Unbounded knapsack on amount — [Coin Change](https://leetcode.com/problems/coin-change/).
+
+```js
+// 1D DP — min coins to make amount
+// LC: https://leetcode.com/problems/coin-change/
+function coinChange(coins, amount) {
+  const dp = Array(amount + 1).fill(Infinity);
+  dp[0] = 0; // base: 0 coins to make 0
+  for (let a = 1; a <= amount; a++) {
+    for (const c of coins) {
+      if (c > a) continue;
+      // transition: use coin c
+      dp[a] = Math.min(dp[a], dp[a - c] + 1);
+    }
   }
-  return best;
+  return dp[amount] === Infinity ? -1 : dp[amount];
 }
 ```
 
-## Variations
+## Unique Paths
 
-- **Unbounded Knapsack (Coin Change):** `dp[i] = Math.min(dp[i], dp[i - coin] + 1)` — each item can be reused any number of times
-- **0/1 Knapsack:** Each item used at most once — iterate target backward to prevent reuse
-- **Longest Increasing Subsequence:** O(n^2) DP or O(n log n) patience sorting
-- **Palindromic Substrings:** 1D DP with expanding centers or 2D DP for longest palindromic subsequence
-- **Decode Ways:** `dp[i] = dp[i-1] (+ dp[i-2] if two-char code valid)` — mapping digits to letters
-- **Maximum product subarray:** Track both max and min products ending at current position because a negative can flip a large negative into a large positive
-- **Maximum sum circular subarray:** Standard Kadane's plus total sum minus minimum subarray sum
-- **2D Kadane's (maximum sum rectangle):** Collapse rows into 1D array for each pair of top/bottom rows, then run 1D Kadane's
+Grid DP, only right/down — [Unique Paths](https://leetcode.com/problems/unique-paths/).
 
-## Edge cases
+```js
+// 1D/2D DP — paths from left and above
+// LC: https://leetcode.com/problems/unique-paths/
+function uniquePaths(m, n) {
+  const dp = Array(n).fill(1); // first row is all 1s
+  for (let r = 1; r < m; r++) {
+    for (let c = 1; c < n; c++) {
+      dp[c] += dp[c - 1]; // from above (dp[c]) + from left (dp[c - 1])
+    }
+  }
+  return dp[n - 1];
+}
+```
 
-- **Empty input:** Return 0, null, or `[]` depending on problem. Always guard `nums.length === 0`.
-- **Single element:** Base case often differs from recurrence — handle separately.
-- **All negative numbers (Kadane's):** Initialize both `cur` and `best` to `nums[0]`, not 0, to return the largest element.
-- **Zero values in counting problems:** If a step contributes 0 ways, it shouldn't break the recurrence — initialize dp with 0.
-- **Negative numbers in optimization:** Initialize dp with -Infinity (for max) or Infinity (for min) rather than 0.
-- **Integer overflow:** Use `BigInt` in JS or modulo if the problem specifies it (e.g., `% (10**9 + 7)`).
-
-## Practice problems
-
-- [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/) — Classic 1D DP, `dp[i] = dp[i-1] + dp[i-2]`
-- [House Robber](https://leetcode.com/problems/house-robber/) — Adjacent constraint; `dp[i] = Math.max(dp[i-1], dp[i-2] + nums[i])`
-- [Coin Change](https://leetcode.com/problems/coin-change/) — Unbounded knapsack; minimize coins to reach amount
-- [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/) — LIS ending at index i
-- [Decode Ways](https://leetcode.com/problems/decode-ways/) — Linear DP with two-digit decoding constraints
-- [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) — Kadane's algorithm, `dp[i] = max(nums[i], dp[i-1] + nums[i])`
-- [Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/) — Kadane's plus minimum subarray for wrap-around
-- [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) — Kadane's extended to products; track max and min
-- [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/) — Kadane-like on price differences
+**More:** [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/), [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/), [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/), [Decode Ways](https://leetcode.com/problems/decode-ways/).
