@@ -19,7 +19,9 @@ export async function generateResumeReview(
         systemPrompt: RESUME_REVIEW_SYSTEM,
         userPrompt: buildResumeReviewPrompt(req),
         temperature: 0.35,
-        maxTokens: 8192,
+        // Groq free/on_demand TPM for gpt-oss is 8k and counts input + max_tokens.
+        // 8192 reserved output tokens alone already exceeds that cap.
+        maxTokens: 2048,
       },
       parseResumeReviewJson,
     );

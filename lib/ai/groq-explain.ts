@@ -46,6 +46,9 @@ export function formatGroqError(err: unknown): string {
   if (raw.includes("GROQ_API_KEY is not configured")) {
     return raw;
   }
+  if (raw.toLowerCase().includes("request too large")) {
+    return "Groq rejected the request as too large for your plan (tokens-per-minute cap). This is still Groq — model ids like openai/gpt-oss-120b are hosted by Groq, not the OpenAI API. Try a shorter resume or retry; fallbacks should pick a model with more headroom.";
+  }
   return raw.length > 280 ? `${raw.slice(0, 280)}…` : raw;
 }
 

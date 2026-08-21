@@ -22,13 +22,22 @@ function resolveModelCandidates(): string[] {
   return [...new Set(ordered)];
 }
 
+function isRequestTooLarge(status: number, body: string): boolean {
+  return (
+    status === 413 ||
+    body.toLowerCase().includes("request too large")
+  );
+}
+
 function isRetryableModelError(status: number, body: string): boolean {
   return (
     status === 429 ||
+    status === 413 ||
     status === 503 ||
     status === 502 ||
     body.toLowerCase().includes("overloaded") ||
-    body.toLowerCase().includes("unavailable")
+    body.toLowerCase().includes("unavailable") ||
+    body.toLowerCase().includes("request too large")
   );
 }
 
@@ -55,6 +64,7 @@ function shouldTryAnotherAttempt(status: number, msg: string): boolean {
   return (
     isRetryableModelError(status, msg) ||
     isJsonModeFailure(msg) ||
+    isRequestTooLarge(status, msg) ||
     status === 400
   );
 }

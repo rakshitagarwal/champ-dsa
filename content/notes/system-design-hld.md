@@ -82,6 +82,8 @@ Aim for a **working system first**, then deepen. Suggested ~45 min flow:
 
 ### 1.4 Async & messaging
 
+Full notes → [Message brokers & queues](/notes/message-brokers) (RabbitMQ, Kafka, NATS JetStream, pub/sub).
+
 | Tool | Use |
 |------|-----|
 | **Queue** (SQS/Rabbit) | Work distribution, retries, buffering uploads |
@@ -293,6 +295,6 @@ These are the classic case studies from Karan's course. Memorize **requirements 
 - [ ] One failure story (retry, DLQ, multi-AZ)  
 - [ ] Didn't boil the ocean — scoped v1  
 
-**Next:** Module/class design → [LLD notes](/notes/system-design-lld)
+**Next:** Module/class design → [LLD notes](/notes/system-design-lld). Messaging deep dive → [Message brokers & queues](/notes/message-brokers).
 
 **Sources to revisit:** [karanpratapsingh.com/courses/system-design](https://www.karanpratapsingh.com/courses/system-design) (Ch I–V), [hellointerview.com system design](https://www.hellointerview.com/learn/courses/system-design) (delivery + core concepts + patterns).

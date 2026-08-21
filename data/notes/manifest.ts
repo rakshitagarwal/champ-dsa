@@ -59,6 +59,12 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Interview delivery framework, core building blocks, and company designs: URL shortener, WhatsApp, Twitter, Netflix, Uber.",
   },
   {
+    slug: "message-brokers",
+    title: "Message brokers & queues",
+    description:
+      "Queues, pub/sub, delivery guarantees, and when to use RabbitMQ, Kafka, or NATS JetStream.",
+  },
+  {
     slug: "ai-ml",
     title: "AI & ML for engineers",
     description:
