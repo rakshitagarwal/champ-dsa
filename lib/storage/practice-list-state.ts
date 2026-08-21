@@ -1,20 +1,13 @@
-import { sheetSections } from "@/data/questions/sheet-meta";
+import { PRACTICE_SHEET } from "@/data/practice/leetcode-sheet";
 
 const EXPANDED_SUB_KEY = "champdsa-practice-expanded-sub";
-
-export function findSubsectionIdForQuestion(questionId: string): string | null {
-  for (const section of sheetSections) {
-    for (const sub of section.subsections) {
-      if (sub.questionIds.includes(questionId)) return sub.id;
-    }
-  }
-  return null;
-}
 
 export function loadPracticeExpandedSub(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return sessionStorage.getItem(EXPANDED_SUB_KEY);
+    const id = sessionStorage.getItem(EXPANDED_SUB_KEY);
+    if (!id || !isKnownPracticeSubsection(id)) return null;
+    return id;
   } catch {
     return null;
   }
@@ -33,4 +26,10 @@ export function scrollPracticeSubsectionIntoView(subsectionId: string): void {
   const el = document.getElementById(subsectionId);
   if (!el) return;
   el.scrollIntoView({ block: "center", behavior: "auto" });
+}
+
+export function isKnownPracticeSubsection(id: string): boolean {
+  return PRACTICE_SHEET.some((group) =>
+    group.subsections.some((sub) => sub.id === id),
+  );
 }

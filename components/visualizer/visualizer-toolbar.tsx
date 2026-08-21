@@ -39,10 +39,10 @@ export function VisualizerToolbar({
 
         {questionContext && (
           <Link
-            href={`/practice/${questionContext.questionId}/notes`}
+            href="/patterns"
             className="ml-auto text-xs text-primary hover:underline"
           >
-            Notes
+            Pattern notes
           </Link>
         )}
       </div>

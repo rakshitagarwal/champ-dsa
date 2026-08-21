@@ -27,10 +27,10 @@ export function QuestionDetail({ question }: { question: Question }) {
     <article className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <div>
         <Link
-          href={`/practice/${question.id}`}
+          href="/practice"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Back to practice
+          ← Back to Solve
         </Link>
         <h1 className="mt-2 text-2xl font-bold">{question.title}</h1>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -64,10 +64,13 @@ export function QuestionDetail({ question }: { question: Question }) {
 
       <div className="flex flex-wrap gap-3">
         <Link
-          href={`/practice/${question.id}`}
+          href={question.leetcodeUrl ?? "/practice"}
+          {...(question.leetcodeUrl
+            ? { target: "_blank", rel: "noopener noreferrer" }
+            : {})}
           className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Open practice
+          Open on LeetCode
         </Link>
         <Button variant="outline" onClick={() => markRemembered(question.id)}>
           I remember this

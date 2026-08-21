@@ -2,6 +2,7 @@ import { getStore } from "@/lib/storage/learning-store";
 
 const VIZ_KEY = "champdsa-used-visualizer";
 const TIPS_KEY = "champdsa-read-tips";
+const PRACTICE_KEY = "champdsa-visited-practice";
 const DISMISS_KEY = "champdsa-onboarding-dismissed";
 
 export type ChecklistItem = {
@@ -22,6 +23,11 @@ export function markTipsVisited(): void {
   window.dispatchEvent(new Event("champdsa-tips-visited"));
 }
 
+export function markPracticeVisited(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PRACTICE_KEY, "1");
+}
+
 export function isOnboardingDismissed(): boolean {
   if (typeof window === "undefined") return false;
   return localStorage.getItem(DISMISS_KEY) === "1";
@@ -35,11 +41,8 @@ export function dismissOnboarding(): void {
 export function getOnboardingChecklist(): ChecklistItem[] {
   const store = getStore();
   const readPattern = Object.values(store.patterns).some((p) => p.conceptDone);
-  const solvedPractice = Object.values(store.questions).some(
-    (q) => q.status === "solved",
-  );
-  const triedVisualizer =
-    typeof window !== "undefined" && localStorage.getItem(VIZ_KEY) === "1";
+  const openedSolve =
+    typeof window !== "undefined" && localStorage.getItem(PRACTICE_KEY) === "1";
   const readTips =
     typeof window !== "undefined" && localStorage.getItem(TIPS_KEY) === "1";
 
@@ -51,16 +54,10 @@ export function getOnboardingChecklist(): ChecklistItem[] {
       done: readPattern,
     },
     {
-      id: "explain",
-      label: "Fill a solution and open Explain",
-      href: "/practice",
-      done: triedVisualizer,
-    },
-    {
       id: "practice",
-      label: "Solve one practice problem",
+      label: "Open the LeetCode sheet on Solve",
       href: "/practice",
-      done: solvedPractice,
+      done: openedSolve,
     },
     {
       id: "tips",

@@ -23,7 +23,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/bank/:patternSlug/:questionId",
-        destination: "/practice/:questionId/notes",
+        destination: "/practice",
+        permanent: false,
+      },
+      {
+        source: "/practice/:questionId/notes",
+        destination: "/practice",
+        permanent: false,
+      },
+      {
+        source: "/practice/:questionId",
+        destination: "/practice",
         permanent: false,
       },
       {

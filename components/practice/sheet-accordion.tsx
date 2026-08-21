@@ -3,16 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ExternalLink, Search } from "lucide-react";
-import { sheetSections } from "@/data/questions/sheet-meta";
-import { getQuestionById, getSheetQuestions } from "@/data/questions";
-import { stripSheetSectionNumber } from "@/lib/sheet-display";
+import { BookOpen, ExternalLink, Search } from "lucide-react";
+import {
+  PRACTICE_SHEET,
+  getAllPracticeProblems,
+  leetcodeUrl,
+  type LcDifficulty,
+  type LcProblem,
+} from "@/data/practice/leetcode-sheet";
 import {
   loadPracticeExpandedSub,
-  findSubsectionIdForQuestion,
   savePracticeExpandedSub,
   scrollPracticeSubsectionIntoView,
 } from "@/lib/storage/practice-list-state";
+import { markPracticeVisited } from "@/lib/onboarding/checklist";
 import {
   Accordion,
   AccordionContent,
@@ -20,20 +24,37 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-function sectionOpenForSub(
-  section: (typeof sheetSections)[number],
-  expandedSubId: string | null,
-): string | null {
-  if (!expandedSubId) return null;
-  return section.subsections.some((sub) => sub.id === expandedSubId)
-    ? expandedSubId
-    : null;
-}
+const DIFFICULTY_CLASS: Record<LcDifficulty, string> = {
+  easy: "border-emerald-500/30 bg-emerald-500/15 text-emerald-400",
+  medium: "border-amber-500/30 bg-amber-500/15 text-amber-300",
+  hard: "border-rose-500/30 bg-rose-500/15 text-rose-400",
+};
 
-function onQuestionNavigate(questionId: string) {
-  const subsectionId = findSubsectionIdForQuestion(questionId);
-  if (subsectionId) savePracticeExpandedSub(subsectionId);
+function ProblemRow({ problem }: { problem: LcProblem }) {
+  return (
+    <a
+      href={leetcodeUrl(problem.slug)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+    >
+      <span className="font-medium">{problem.title}</span>
+      <span className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <ExternalLink className="h-3 w-3" />
+          LeetCode
+        </span>
+        <Badge
+          variant="outline"
+          className={cn("shrink-0 capitalize", DIFFICULTY_CLASS[problem.difficulty])}
+        >
+          {problem.difficulty}
+        </Badge>
+      </span>
+    </a>
+  );
 }
 
 export function SheetAccordion() {
@@ -44,6 +65,7 @@ export function SheetAccordion() {
   );
 
   useEffect(() => {
+    markPracticeVisited();
     if (pathname !== "/practice") return;
     const saved = loadPracticeExpandedSub();
     if (!saved) return;
@@ -57,8 +79,8 @@ export function SheetAccordion() {
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return null;
-    return getSheetQuestions().filter((question) =>
-      question.title.toLowerCase().includes(q),
+    return getAllPracticeProblems().filter((problem) =>
+      problem.title.toLowerCase().includes(q),
     );
   }, [query]);
 
@@ -84,6 +106,20 @@ export function SheetAccordion() {
         ) : null}
       </div>
 
+      {!searchResults ? (
+        <nav className="flex flex-wrap gap-2" aria-label="Jump to topic">
+          {PRACTICE_SHEET.map((group) => (
+            <a
+              key={group.id}
+              href={`#${group.id}`}
+              className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              {group.title}
+            </a>
+          ))}
+        </nav>
+      ) : null}
+
       {searchResults ? (
         searchResults.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
@@ -91,111 +127,79 @@ export function SheetAccordion() {
           </p>
         ) : (
           <ul className="space-y-2">
-            {searchResults.map((q) => (
-              <li key={q.id}>
-                <Link
-                  href={`/practice/${q.id}`}
-                  onClick={() => onQuestionNavigate(q.id)}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
-                >
-                  <span className="font-medium">{q.title}</span>
-                  <span className="flex items-center gap-2">
-                    {q.leetcodeUrl ? (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          window.open(q.leetcodeUrl!, "_blank", "noopener,noreferrer");
-                        }}
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        title="Open on LeetCode"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        LeetCode
-                      </button>
-                    ) : null}
-                    <Badge variant="outline" className="shrink-0">
-                      {q.difficulty}
-                    </Badge>
-                  </span>
-                </Link>
+            {searchResults.map((problem) => (
+              <li key={problem.slug}>
+                <ProblemRow problem={problem} />
               </li>
             ))}
           </ul>
         )
       ) : (
         <div className="space-y-10">
-          {sheetSections.map((section) => (
-            <section key={section.id} className="space-y-4">
-              <h2 className="text-xl font-bold tracking-tight">
-                {stripSheetSectionNumber(section.title)}
-              </h2>
-              <Accordion
-                open={sectionOpenForSub(section, expandedSubId)}
-                onOpenChange={(id) => {
-                  if (id) {
-                    savePracticeExpandedSub(id);
-                    setExpandedSubId(id);
-                  } else if (expandedSubId && sectionOpenForSub(section, expandedSubId)) {
-                    setExpandedSubId(null);
-                  }
-                }}
-              >
-                {section.subsections.map((sub) => (
-                  <AccordionItem key={sub.id} id={sub.id}>
-                    <AccordionTrigger id={sub.id}>
-                      <div className="flex flex-1 items-center justify-between gap-2 pr-2">
-                        <span className="font-medium">{sub.title}</span>
-                        <Badge variant="outline">
-                          {sub.questionIds.length}
-                        </Badge>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent id={sub.id}>
-                      <ul className="space-y-2">
-                        {sub.questionIds.map((qid) => {
-                          const q = getQuestionById(qid);
-                          if (!q) return null;
-                          return (
-                            <li key={qid}>
-                              <Link
-                                href={`/practice/${qid}`}
-                                onClick={() => onQuestionNavigate(qid)}
-                                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
-                              >
-                                <span className="font-medium">{q.title}</span>
-                                <span className="flex items-center gap-2">
-                                  {q.leetcodeUrl ? (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        window.open(q.leetcodeUrl!, "_blank", "noopener,noreferrer");
-                                      }}
-                                      className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                      title="Open on LeetCode"
-                                    >
-                                      <ExternalLink className="h-3 w-3" />
-                                      LeetCode
-                                    </button>
-                                  ) : null}
-                                  <Badge variant="outline" className="shrink-0">
-                                    {q.difficulty}
-                                  </Badge>
-                                </span>
-                              </Link>
+          {PRACTICE_SHEET.map((group) => {
+            const n = group.subsections.reduce(
+              (sum, sub) => sum + sub.problems.length,
+              0,
+            );
+            const openInThisGroup =
+              expandedSubId &&
+              group.subsections.some((sub) => sub.id === expandedSubId)
+                ? expandedSubId
+                : null;
+            return (
+              <section key={group.id} id={group.id} className="scroll-mt-20 space-y-4">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight">{group.title}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">{group.blurb}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{n}</Badge>
+                    {group.patternSlug ? (
+                      <Link
+                        href={`/patterns/${group.patternSlug}`}
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <BookOpen className="h-3 w-3" />
+                        Pattern notes
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+                <Accordion
+                  open={openInThisGroup}
+                  onOpenChange={(id) => {
+                    if (id) {
+                      savePracticeExpandedSub(id);
+                      setExpandedSubId(id);
+                    } else if (openInThisGroup) {
+                      setExpandedSubId(null);
+                    }
+                  }}
+                >
+                  {group.subsections.map((sub) => (
+                    <AccordionItem key={sub.id} id={sub.id}>
+                      <AccordionTrigger id={sub.id}>
+                        <div className="flex flex-1 items-center justify-between gap-2 pr-2">
+                          <span className="font-medium">{sub.title}</span>
+                          <Badge variant="outline">{sub.problems.length}</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent id={sub.id}>
+                        <ul className="space-y-2">
+                          {sub.problems.map((problem) => (
+                            <li key={`${sub.id}-${problem.slug}`}>
+                              <ProblemRow problem={problem} />
                             </li>
-                          );
-                        })}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </section>
-          ))}
+                          ))}
+                        </ul>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </section>
+            );
+          })}
         </div>
       )}
     </div>

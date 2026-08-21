@@ -158,10 +158,10 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
           </pre>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href={`/bank/patterns/${pattern.slug}/practice`}
+              href="/practice"
               className="inline-flex h-11 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Practice this pattern
+              Practice on LeetCode
             </Link>
             <Link
               href="/practice"

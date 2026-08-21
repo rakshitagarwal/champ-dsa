@@ -15,7 +15,12 @@ export function QuestionCard({ question }: { question: Question }) {
 
   return (
     <Link
-      href={`/practice/${question.id}`}
+      href={
+        question.leetcodeUrl ?? "/practice"
+      }
+      {...(question.leetcodeUrl
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {})}
       className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50 hover:bg-accent/5"
     >
       <div className="mb-2 flex items-start justify-between gap-2">

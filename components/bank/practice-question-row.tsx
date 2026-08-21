@@ -44,16 +44,19 @@ export function PracticeQuestionRow({ question }: { question: Question }) {
         </div>
         <div className="flex w-full shrink-0 flex-col gap-2 sm:w-48">
           <Link
-            href={`/practice/${question.id}`}
+            href={question.leetcodeUrl ?? "/practice"}
+            {...(question.leetcodeUrl
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Solve
+            Open on LeetCode
           </Link>
           <Link
-            href={`/bank/${question.patternSlug}/${question.id}`}
+            href={`/patterns/${question.patternSlug}`}
             className="inline-flex h-9 items-center justify-center rounded-md border border-border text-sm hover:bg-accent"
           >
-            Notes & revision
+            Pattern notes
           </Link>
         </div>
       </div>

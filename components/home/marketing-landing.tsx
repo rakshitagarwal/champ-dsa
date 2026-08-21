@@ -13,6 +13,7 @@ import {
   Play,
   Sparkles,
 } from "lucide-react";
+import { getPracticeProblemCount } from "@/data/practice/leetcode-sheet";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,14 +21,14 @@ const EXPLORE = [
   {
     href: "/patterns",
     title: "DSA patterns",
-    description: "17 core patterns with LeetCode practice links for revision.",
+    description: "Recognition cues, JS examples, and the pattern behind common LeetCode problems.",
     icon: BookOpen,
     accent: "from-emerald-500/20 to-emerald-500/5",
   },
   {
     href: "/practice",
     title: "Practice",
-    description: "Study solutions for 211 problems with pattern explanations.",
+    description: "Curated LeetCode problems grouped by DSA pattern — open them on LeetCode.",
     icon: PenLine,
     accent: "from-violet-500/20 to-violet-500/5",
   },
@@ -84,8 +85,8 @@ const EXPERIENCE = [
   },
   {
     num: "02",
-    title: "Study mode practice",
-    body: "Every problem shows a read-only solution with AI explanations — understand the why, not just the answer.",
+    title: "LeetCode sheet",
+    body: "Open popular interview problems on LeetCode, grouped by the same patterns as the notes.",
     icon: Layers,
   },
   {
@@ -152,8 +153,8 @@ export function MarketingLanding() {
         </p>
 
         <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat value="17" label="DSA patterns" />
-          <Stat value="211" label="Practice problems" />
+          <Stat value="20" label="DSA patterns" />
+          <Stat value={String(getPracticeProblemCount())} label="LeetCode problems" />
           <Stat value="214" label="Companies listed" />
           <Stat value="14" label="DSA roadmap phases" />
         </div>

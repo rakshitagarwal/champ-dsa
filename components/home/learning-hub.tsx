@@ -99,7 +99,7 @@ export function LearningHub() {
             <Link
               href={
                 getStore().profile.lastVisited?.type === "question"
-                  ? `/practice/${getStore().profile.lastVisited?.slugOrId}`
+                  ? "/practice"
                   : getStore().profile.lastVisited?.type === "pattern"
                     ? `/patterns/${getStore().profile.lastVisited?.slugOrId}`
                     : "/tips"
