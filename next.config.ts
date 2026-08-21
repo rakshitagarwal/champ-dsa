@@ -28,12 +28,42 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/resources",
-        destination: "/dsa-sheet",
+        destination: "/system-design",
+        permanent: false,
+      },
+      {
+        source: "/dsa-sheet",
+        destination: "/system-design",
+        permanent: false,
+      },
+      {
+        source: "/dsa-sheet/:path*",
+        destination: "/system-design",
         permanent: false,
       },
       {
         source: "/notes/system-design",
-        destination: "/notes/system-design-hld",
+        destination: "/system-design/introduction",
+        permanent: false,
+      },
+      {
+        source: "/notes/system-design-hld",
+        destination: "/system-design/introduction",
+        permanent: false,
+      },
+      {
+        source: "/notes/system-design-lld",
+        destination: "/system-design/introduction",
+        permanent: false,
+      },
+      {
+        source: "/notes/message-brokers",
+        destination: "/system-design/kafka",
+        permanent: false,
+      },
+      {
+        source: "/notes/data-stores",
+        destination: "/system-design/redis",
         permanent: false,
       },
       {

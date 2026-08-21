@@ -2,7 +2,7 @@
 
 > **What seniors are evaluated on:** You measure before optimizing, fix the bottleneck users feel, and can explain trade-offs in production — not premature `useMemo` everywhere.
 
-Related: caching → [HLD](/notes/system-design-hld) and [Redis / Dynamo / ES](/notes/data-stores). Shipping and alerts → [production notes](/notes/advanced-topics).
+Related: caching → [Redis](/system-design/redis) and [distributed cache](/system-design/distributed-cache). Shipping and alerts → [production notes](/notes/advanced-topics).
 
 ---
 
@@ -94,10 +94,10 @@ Never `SELECT *` unbounded. Cursor-based for feeds; `LIMIT` + index on sort colu
 ### Caching layers
 
 1. In-process (short TTL, single instance only)
-2. Redis (shared, TTL, cache-aside pattern) — [data stores](/notes/data-stores)
+2. Redis (shared, TTL, cache-aside pattern) — [Redis](/system-design/redis)
 3. CDN (static + cacheable API responses)
 
-See [HLD caching section](/notes/system-design-hld) for strategies.
+See [Redis](/system-design/redis) and [distributed cache](/system-design/distributed-cache) for strategies.
 
 ### Async I/O
 
@@ -126,7 +126,7 @@ Prefer non-blocking I/O; parallelize independent calls with `Promise.all` — no
 - **HTTP/2** — multiplexing reduces connection overhead
 - **Timeouts** — client and server; fail fast, don't hang thread pools
 - **Retries** — exponential backoff + jitter; only on idempotent ops
-- **Circuit breaker** — stop hammering failing downstream (see HLD)
+- **Circuit breaker** — stop hammering failing downstream (see [API gateway](/system-design/api-gateway))
 - **Payload size** — return only fields client needs; GraphQL/DataLoader or field selection
 
 ---

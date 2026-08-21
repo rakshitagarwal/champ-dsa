@@ -9,7 +9,7 @@ import {
   FileCheck,
   FileText,
   Lightbulb,
-  List,
+  Network,
   PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const navLinks: {
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV & Jobs", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
-  { href: "/dsa-sheet", label: "DSA Sheet", icon: List },
+  { href: "/system-design", label: "System Design", icon: Network },
 ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean): boolean {

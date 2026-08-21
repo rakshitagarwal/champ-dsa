@@ -1,6 +1,6 @@
 # Node.js Interview Notes
 
-> Runtime, event loop, Express, and production Node. Types → [TypeScript](/notes/typescript). Cache and sessions → [Redis notes](/notes/data-stores). Shipping → [Docker & CI/CD](/notes/advanced-topics).
+> Runtime, event loop, Express, and production Node. Types → [TypeScript](/notes/typescript). Cache and sessions → [Redis](/system-design/redis). Shipping → [Docker & CI/CD](/notes/advanced-topics).
 
 ---
 
@@ -681,7 +681,7 @@ const cached = await client.get("key");
 
 Cache-aside pattern: check cache → on miss, hit DB → store in cache → return.
 
-Patterns, stampede, TTL, and when Redis is the wrong database → [Redis, DynamoDB & search](/notes/data-stores).
+Patterns, stampede, TTL, and when Redis is the wrong database → [Redis](/system-design/redis).
 
 ---
 
@@ -844,7 +844,7 @@ process.on("SIGTERM", () => {
 - Scale across cores → `cluster` or PM2
 - Run shell command → `child_process.exec`
 - Large file transfer → streams + pipe
-- Shared session/cache → Redis (see [data stores](/notes/data-stores))
+- Shared session/cache → Redis (see [Redis](/system-design/redis))
 - Reuse DB connections → connection pooling
 
 ---

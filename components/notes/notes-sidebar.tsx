@@ -33,7 +33,7 @@ export function NotesSidebar({ notes, className }: Props) {
           Notes
         </Link>
         <p className="mt-1 text-xs text-muted-foreground">
-          One page per topic — add a .md file to grow the list
+          Language, framework, and production notes
         </p>
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 scrollbar-hide">

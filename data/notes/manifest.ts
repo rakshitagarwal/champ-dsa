@@ -53,30 +53,6 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Senior revision — Core Web Vitals, profiling, Node/DB bottlenecks, and production checklists.",
   },
   {
-    slug: "system-design-lld",
-    title: "System Design — LLD",
-    description:
-      "Low-level / OOD interviews — SOLID, patterns, APIs, concurrency, and classic module designs (parking, elevator, Splitwise, rate limiter).",
-  },
-  {
-    slug: "system-design-hld",
-    title: "System Design — HLD",
-    description:
-      "Interview delivery framework, core building blocks, and company designs: URL shortener, WhatsApp, Twitter, Netflix, Uber.",
-  },
-  {
-    slug: "message-brokers",
-    title: "Message brokers & queues",
-    description:
-      "Queues, pub/sub, delivery guarantees, and when to use RabbitMQ, Kafka, or NATS JetStream.",
-  },
-  {
-    slug: "data-stores",
-    title: "Redis, DynamoDB & search",
-    description:
-      "Redis cache patterns, DynamoDB keys and hot partitions, Elasticsearch vs a real database.",
-  },
-  {
     slug: "advanced-topics",
     title: "Docker, CI/CD & production",
     description:

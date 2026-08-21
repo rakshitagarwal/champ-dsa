@@ -1,6 +1,6 @@
 # SQL & DBMS Interview Notes
 
-> Relational queries, indexes, and transactions. Redis, DynamoDB, and Elasticsearch → [data stores](/notes/data-stores).
+> Relational queries, indexes, and transactions. Redis, DynamoDB, and Elasticsearch → [system design](/system-design/postgresql).
 
 ---
 
@@ -921,7 +921,7 @@ WHERE id NOT IN (
 | Best for | Structured data, complex queries | Unstructured data, high write volume, flexibility |
 | Examples | MySQL, PostgreSQL, SQLite | MongoDB, Redis, Cassandra, DynamoDB |
 
-Redis / Dynamo / Elasticsearch in depth → [data stores](/notes/data-stores). How to ship schema changes → [production notes](/notes/advanced-topics).
+Redis / Dynamo / Elasticsearch in depth → [Redis](/system-design/redis), [DynamoDB](/system-design/dynamodb), [Elasticsearch](/system-design/elasticsearch). How to ship schema changes → [production notes](/notes/advanced-topics).
 
 ---
 
@@ -1016,7 +1016,7 @@ Opening DB connections is expensive. Pool reuses connections across requests. Tu
 
 ### Q17. CAP theorem (DBMS interview angle)
 
-Distributed DB picks two of Consistency, Availability, Partition tolerance. Network partitions are inevitable → choose CP (strong consistency, may reject writes) or AP (eventual consistency, stays available). See also [System Design — HLD](/notes/system-design-hld).
+Distributed DB picks two of Consistency, Availability, Partition tolerance. Network partitions are inevitable → choose CP (strong consistency, may reject writes) or AP (eventual consistency, stays available). See also [system design](/system-design/introduction).
 
 ### Q18. When SQL vs NoSQL?
 

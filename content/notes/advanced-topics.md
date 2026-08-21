@@ -1,6 +1,6 @@
 # Shipping software (Docker, CI/CD, production)
 
-> **Goal:** Pass the "how do you actually ship?" half of a senior interview. Mid-level finishes the feature. Senior gets it to production **safely**, sees it break, and can roll it back. Related: [Performance](/notes/performance), [HLD](/notes/system-design-hld), [Data stores](/notes/data-stores).
+> **Goal:** Pass the "how do you actually ship?" half of a senior interview. Mid-level finishes the feature. Senior gets it to production **safely**, sees it break, and can roll it back. Related: [Performance](/notes/performance), [system design](/system-design/introduction), [Redis](/system-design/redis).
 
 ---
 
@@ -356,4 +356,4 @@ Prepare **one real example** each. If you lack prod stories, describe what you *
 - [ ] Alert on error rate / latency, not noise
 - [ ] Authz check on every resource, not only login
 
-**Related:** [Data stores](/notes/data-stores), [Message brokers](/notes/message-brokers), [TypeScript](/notes/typescript) (`strict` in CI).
+**Related:** [Redis](/system-design/redis), [Kafka](/system-design/kafka), [TypeScript](/notes/typescript) (`strict` in CI).

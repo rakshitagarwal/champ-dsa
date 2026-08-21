@@ -309,7 +309,7 @@ Check TTFB (RSC payload), Client JS bundle size, `next/image`, caching strategy,
 
 - React fundamentals → [React js](/notes/react)
 - Node runtime, Express → [Node js](/notes/node)
-- Caching at scale → [System Design — HLD](/notes/system-design-hld) and [Redis / Dynamo / ES](/notes/data-stores)
+- Caching at scale → [Redis](/system-design/redis) and [distributed cache](/system-design/distributed-cache)
 - Core Web Vitals → [Performance optimization](/notes/performance)
 - Docker & CI/CD → [production notes](/notes/advanced-topics)
 - TypeScript → [TypeScript notes](/notes/typescript)

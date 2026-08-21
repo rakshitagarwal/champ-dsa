@@ -9,7 +9,7 @@ export default function PracticePage() {
     <div className="w-full space-y-10 px-4 py-8 lg:px-10">
       <header className="max-w-4xl">
         <div className="mt-4">
-          <Badge>DSA Sheet</Badge>
+          <Badge>Practice</Badge>
         </div>
         <h1 className="mt-3 text-4xl font-bold">Practice ({count} problems)</h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">

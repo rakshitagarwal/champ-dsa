@@ -21,7 +21,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/visualizer") ||
     pathname.startsWith("/jobs") ||
     pathname.startsWith("/companies") ||
-    pathname.startsWith("/dsa-sheet");
+    pathname.startsWith("/system-design");
 
   useEffect(() => {
     if (searchParams.get("desktop") === "1") {

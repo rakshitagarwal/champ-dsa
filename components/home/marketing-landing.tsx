@@ -3,17 +3,15 @@ import {
   ArrowRight,
   BookOpen,
   Building2,
-  CheckCircle2,
   Code2,
   FileCheck,
   FileText,
   Globe,
   Layers,
-  List,
+  Network,
   PenLine,
   Play,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,7 +34,7 @@ const EXPLORE = [
   {
     href: "/notes",
     title: "Notes",
-    description: "JavaScript, TypeScript, React, Node, Redis/Dynamo/search, system design, Docker/CI/CD, and senior engineering notes.",
+    description: "JavaScript, TypeScript, React, Node, SQL, Docker/CI/CD, and senior engineering notes.",
     icon: FileText,
     accent: "from-amber-500/20 to-amber-500/5",
   },
@@ -48,10 +46,10 @@ const EXPLORE = [
     accent: "from-blue-500/20 to-blue-500/5",
   },
   {
-    href: "/dsa-sheet",
-    title: "DSA Sheet",
-    description: "14-phase interview roadmap from fundamentals to advanced DP — expand topics and drill into subtopics.",
-    icon: List,
+    href: "/system-design",
+    title: "System Design",
+    description: "Key technologies and interview breakdowns — Bitly, WhatsApp, Uber, YouTube, and more.",
+    icon: Network,
     accent: "from-teal-500/20 to-teal-500/5",
   },
   {
@@ -98,9 +96,9 @@ const EXPERIENCE = [
   },
   {
     num: "04",
-    title: "DSA roadmap sheet",
-    body: "Work phase by phase — open a topic accordion, scan subtopics, and progress from fundamentals through DP.",
-    icon: List,
+    title: "System design notes",
+    body: "Hello Interview–style breakdowns: Redis, Kafka, and how to design Bitly, Uber, YouTube, and similar products.",
+    icon: Network,
   },
 ] as const;
 
@@ -254,10 +252,10 @@ export function MarketingLanding() {
             />
             <StepCard
               step="4"
-              title="Follow the DSA sheet"
-              body="Move through 14 phases with expandable topics — from complexity basics to advanced dynamic programming."
-              href="/dsa-sheet"
-              cta="Open DSA sheet"
+              title="Study system design"
+              body="Work through key technologies, then product designs — requirements, boxes, and the deep dive interviewers actually probe."
+              href="/system-design"
+              cta="Open system design"
             />
           </div>
         </div>
