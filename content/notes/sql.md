@@ -1,5 +1,7 @@
 # SQL & DBMS Interview Notes
 
+> Relational queries, indexes, and transactions. Redis, DynamoDB, and Elasticsearch → [data stores](/notes/data-stores).
+
 ---
 
 ## 1. What is SQL?
@@ -918,6 +920,8 @@ WHERE id NOT IN (
 | Transactions | Full ACID | Varies (MongoDB has multi-doc ACID since v4) |
 | Best for | Structured data, complex queries | Unstructured data, high write volume, flexibility |
 | Examples | MySQL, PostgreSQL, SQLite | MongoDB, Redis, Cassandra, DynamoDB |
+
+Redis / Dynamo / Elasticsearch in depth → [data stores](/notes/data-stores). How to ship schema changes → [production notes](/notes/advanced-topics).
 
 ---
 

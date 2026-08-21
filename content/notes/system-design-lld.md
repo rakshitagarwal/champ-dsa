@@ -2,7 +2,7 @@
 
 > **Goal:** Design a **module someone can build** — entities, APIs/methods, schema, concurrency, and extension points. Hiring signal is ownership and clarity, not UML art.
 >
-> Complements [HLD notes](/notes/system-design-hld) (boxes & arrows). LLD is what Hello Interview calls **object-oriented / class design** interviews — parking lot, elevator, rate limiter class, notification module, etc.
+> Complements [HLD notes](/notes/system-design-hld) (boxes & arrows). LLD is what Hello Interview calls **object-oriented / class design** interviews — parking lot, elevator, rate limiter class, notification module, etc. Redis-backed limiter → [data stores](/notes/data-stores).
 
 ---
 
@@ -232,6 +232,6 @@ Keep drawing the **class/module** boundaries even inside a big HLD.
 - [ ] One extension point (Strategy/Factory/event)  
 - [ ] Testing approach mentioned  
 
-**Next:** Distributed architecture & company designs → [HLD notes](/notes/system-design-hld)
+**Next:** Distributed architecture & company designs → [HLD notes](/notes/system-design-hld). Redis / Dynamo / search → [data stores](/notes/data-stores).
 
 **References:** [Hello Interview — System Design](https://www.hellointerview.com/learn/courses/system-design) (LLD vs product design split), [Karan Pratap Singh — System Design](https://www.karanpratapsingh.com/courses/system-design) (APIs & data models inside each case study).

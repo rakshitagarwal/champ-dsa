@@ -1,192 +1,359 @@
-# Advanced topics
+# Shipping software (Docker, CI/CD, production)
 
-> **What seniors are evaluated on:** You don't just build features — you **ship safely**, debug production, and improve release confidence. Mid-level writes code; senior owns delivery and operability.
-
-Related: observability metrics in [Performance](/notes/performance) and [HLD monitoring](/notes/system-design-hld).
+> **Goal:** Pass the "how do you actually ship?" half of a senior interview. Mid-level finishes the feature. Senior gets it to production **safely**, sees it break, and can roll it back. Related: [Performance](/notes/performance), [HLD](/notes/system-design-hld), [Data stores](/notes/data-stores).
 
 ---
 
-## 1. CI/CD pipeline mental model
+## What "senior" means here
 
-```
-Commit → Lint → Unit tests → Build → Integration tests → Deploy staging → E2E (optional) → Deploy prod
-```
+You are not graded on memorizing kubectl flags. You are graded on owning **delivery**:
 
-| Stage | Purpose |
-|-------|---------|
-| **Lint / format** | Catch style and static errors early |
-| **Unit tests** | Fast feedback on logic |
-| **Build** | Artifact: Docker image, `next build`, bundle |
-| **Integration** | API + DB, contract tests |
-| **Deploy** | Rolling, blue-green, or canary |
+- a change is **tested** before users see it
+- a change can be **undone** in minutes
+- when it fails, you can **see** why (`requestId`, metrics, traces)
+- secrets are not in Git
+- you can tell a short story of an incident without blaming a person
 
-### GitHub Actions (conceptual)
-
-- **Workflow** — triggered on `push`, `pull_request`, `schedule`
-- **Jobs** — parallel or sequential steps on runners
-- **Secrets** — API keys in GitHub Secrets, never in YAML plaintext
-
-**Senior phrase:** *"Every PR runs lint + tests; main branch auto-deploys to staging; prod needs approval or tag."*
-
-### Branching (pragmatic)
-
-| Model | When |
-|-------|------|
-| **Trunk-based** | Small team, continuous deploy, feature flags |
-| **GitFlow lite** | `main` + short-lived feature branches + PR review |
-
-Avoid long-lived branches that diverge for weeks.
+The rest of this page is those habits, in simple language.
 
 ---
 
-## 2. Containers & Docker
+## CI/CD
 
-**Image** — immutable snapshot (app + runtime + deps).
-**Container** — running instance of an image.
+**CI (continuous integration)** — every push is built and tested automatically. "Works on my machine" is not a release process.
 
-**Dockerfile basics:**
+**CD (continuous delivery / deployment)** — a green build **can** go to production (delivery) or **does** go (deployment) without a human copying files.
+
+Picture a kitchen pass:
+
+```
+Commit → lint → unit tests → build image → integration tests → staging → (approve) → production
+```
+
+If lint fails, the plate never leaves the pass. That is the whole point.
+
+### What each stage is for
+
+| Stage | Question it answers | Keep it |
+|-------|---------------------|---------|
+| **Lint / typecheck** | Is this even valid? | Seconds. Fail fast. |
+| **Unit tests** | Does this function lie? | Fast, no real network |
+| **Build** | Can we make an artifact? | Docker image or `next build` |
+| **Integration** | Does API + DB still talk? | Real Postgres in CI (container) |
+| **E2E** | Can a user log in and pay? | Few journeys, not every click |
+| **Deploy** | Is it running in an environment? | Staging first |
+
+**PR pipeline** (every branch): lint + unit + build.  
+**Main pipeline:** also deploy staging.  
+**Production:** tag, button, or automatic after staging soak — team choice. Say yours.
+
+### GitHub Actions (mental model)
+
+- **Workflow** — a YAML file. Starts on `push`, `pull_request`, cron, or a button
+- **Job** — a machine (runner). Jobs can run in parallel
+- **Step** — one command (`npm test`)
+- **Secrets** — `GROQ_API_KEY` lives in GitHub Secrets, **not** in the YAML
+
+```yaml
+# idea, not a full file
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test
+```
+
+**Senior habits:**
+
+- Cache `node_modules` / npm cache so CI is minutes, not 15
+- Pin action versions (`@v4`), do not float on `main`
+- Protected `main`: no force-push, required checks green
+- Same commands locally (`npm test`) so CI is not a surprise
+
+### Branching without religion
+
+| Model | How | When |
+|-------|-----|------|
+| **Trunk-based** | Short branches, merge daily, flags hide unfinished work | Teams that deploy often |
+| **GitFlow lite** | `main` + feature PRs | Most product teams |
+
+Long-lived branches that diverge for three weeks are how merge hell and "works on staging only" happen.
+
+**Interview phrase:** *"Every PR runs lint and tests. Main deploys to staging. Production is a tag or an approval, and we can roll back the previous image."*
+
+---
+
+## Docker
+
+A **container** is your app plus just enough OS to run it, isolated from the laptop. A **Docker image** is the **recipe** (immutable snapshot). A **container** is **one cooking** of that recipe.
+
+| | Image | Container |
+|--|-------|-----------|
+| Picture | Recipe / meal kit | The meal on the table |
+| Changes | You build a new one | You throw it away and start another |
+| Store | Registry (Docker Hub, ECR, GHCR) | Runs on a machine |
+
+Why seniors like this: **dev, CI, and prod run the same artifact**. "Works on my machine" becomes "runs this image digest."
+
+### A Dockerfile that shows you know layers
+
+Docker caches **each line**. If `package.json` did not change, it reuses `npm ci`. Copy source **after** install so code edits do not redo the slow step.
 
 ```dockerfile
-FROM node:20-alpine
+FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --omit=dev
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN adduser -D appuser
+COPY --from=build /app ./
+USER appuser
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
 ```
 
-**Best practices:**
-- Multi-stage builds — smaller prod image (build stage + slim runtime)
-- `.dockerignore` — exclude `node_modules`, `.git`
-- Non-root user in container
-- Pin base image versions
+**Multi-stage:** compile in a fat image, ship a thin one. Smaller = faster deploys, smaller attack surface.
 
-**Docker Compose** — local dev: app + Postgres + Redis on one command.
+### Habits that show seniority
 
-**Interview level:** Explain image vs container, why immutability helps deploys, not Kubernetes certification.
+- **`.dockerignore`** — skip `node_modules`, `.git`, `.env` (secrets do not belong in layers)
+- **Pin versions** — `node:20-alpine`, not `node:latest` (yesterday's latest is not today's)
+- **Non-root user** — if the process is owned, damage is smaller
+- **One process per container** — app here, Redis in another container
+- **Healthcheck** — so orchestrators stop sending traffic to a dead process
+
+**Docker Compose** — a YAML file that starts app + Postgres + Redis on one laptop. Great for local and CI. Not a substitute for Kubernetes in a 50-service company, and not required for a monolith on one VM.
+
+**Interview phrase:** *"An image is immutable. We promote the same digest from staging to prod instead of rebuilding on the server."*
 
 ---
 
-## 3. Deployment strategies
+## Kubernetes (only what interviews ask)
 
-| Strategy | How | Risk |
-|----------|-----|------|
-| **Rolling** | Replace instances gradually | Mixed versions briefly |
-| **Blue-green** | Two identical envs; switch traffic | Double infra cost |
-| **Canary** | 5% traffic to new version, then ramp | Needs metrics + fast rollback |
-| **Feature flags** | Deploy code dark; enable per user | Decouples deploy from release |
+**Kubernetes (K8s)** is a manager for many containers: keep N copies running, replace dead ones, roll out new images, give them a stable name on the network.
 
-**Rollback:** Keep previous image tag; revert traffic or flag in minutes — practice this.
+You do not need to pass CKA. You need this vocabulary:
 
-**Senior story template:** *"We canaried the payment refactor at 10% traffic, watched error rate and p95 for 30 minutes, then full rollout — rollback was flipping the flag."*
+| Object | Job |
+|--------|-----|
+| **Pod** | Smallest unit — one or more containers that share a network |
+| **Deployment** | "I want 3 copies of this image"; handles rolling update |
+| **Service** | Stable DNS/IP in front of pods that come and go |
+| **Ingress** | HTTP routes from the internet into services |
+| **ConfigMap** | Non-secret config (feature names, log level) |
+| **Secret** | Passwords, tokens (still encrypt and restrict who can read) |
+| **HPA** | Add pods when CPU / custom metrics rise |
 
----
+**Why it exists:** VMs + SSH + "please restart the box" does not scale to many services. K8s **self-heals** (pod dies → new pod) and **rolls** (new version, old version drains).
 
-## 4. Testing pyramid
-
-```
-        / E2E \          few, slow, brittle — critical user journeys only
-       / integration \   API + DB, contracts
-      /   unit tests   \  many, fast, isolated
-```
-
-| Layer | What to test | Tools (examples) |
-|-------|--------------|------------------|
-| **Unit** | Pure functions, service logic with mocks | Vitest, Jest |
-| **Integration** | Routes + real/test DB | Supertest, testcontainers |
-| **E2E** | Login → checkout flow | Playwright, Cypress |
-
-**Senior expectation:** Advocate tests where failures are expensive; don't chase 100% coverage on UI boilerplate.
+**When you do not need it:** one Node app on a PaaS (Railway, Render, ECS, Cloud Run). Saying "we'll Kubernetes it" for a 2-person startup is a smell. Say that.
 
 ---
 
-## 5. Observability
+## How we ship versions
 
-| Pillar | Question | Examples |
+Building is not releasing. These are the patterns:
+
+| Strategy | How | Cost / risk |
+|----------|-----|-------------|
+| **Rolling** | Replace instances a few at a time | Cheap; mixed versions for a bit |
+| **Blue-green** | Two full environments; switch the load balancer | Double cost; instant switch |
+| **Canary** | 5% of users on new code, then 25%, then all | Needs metrics; best default for risky changes |
+| **Feature flag** | Code is in prod but off; flip per user | Deploy ≠ release. Best friend of trunk-based |
+
+**Rollback:** keep the previous **image digest**. Revert the Deployment or the flag. A rollback you have never practiced is a wish.
+
+**Migrations:** expand schema **before** the new code needs it (add column nullable → deploy app → backfill → constrain). Never "deploy code that requires a column that does not exist yet" if two versions run during a roll.
+
+**Senior story:** *"We canaried payments at 10%, watched error rate and p95 for 30 minutes, then 100%. Rollback was the flag, not a 40-minute rebuild."*
+
+---
+
+## Testing (what to test, not 100%)
+
+```
+        / E2E \           few, slow — checkout, login
+       / integration \    API + real test DB
+      /   unit tests   \  lots, fast — pricing, permissions
+```
+
+| Layer | Good test | Bad test |
+|-------|-----------|----------|
+| **Unit** | Discount math, RBAC helper | Asserting that React rendered a `<div>` |
+| **Integration** | POST /orders writes a row and publishes outbox | Mocking the entire world so nothing is real |
+| **E2E** | User signs in and sees their order | Clicking every pixel in the design system |
+
+**Coverage %** is a vanity metric if it is all snapshots. Seniors protect **money paths** and **auth**. Flaky E2E is worse than no E2E — people ignore the red build.
+
+Contract tests (OpenAPI / Pact) help when two teams own API and client.
+
+---
+
+## Observability and on-call
+
+If you cannot see it, you cannot own it.
+
+| Pillar | Question | Practice |
 |--------|----------|----------|
-| **Logs** | What happened? | Structured JSON, `requestId`, levels |
-| **Metrics** | How much / how fast? | Prometheus, Datadog, CloudWatch |
-| **Traces** | Where in the chain? | OpenTelemetry, Jaeger |
+| **Logs** | What happened to request X? | JSON, `level`, `requestId`, user id (careful with PII) |
+| **Metrics** | Is it bad *right now*? | QPS, error rate, p95 latency, queue depth |
+| **Traces** | Which hop was slow? | OpenTelemetry across API → DB → Redis |
 
-**RED method (services):** Rate, Errors, Duration.
+**RED** (services): Rate, Errors, Duration.  
+**USE** (machines): Utilization, Saturation, Errors.
 
-**USE method (resources):** Utilization, Saturation, Errors.
+**SLI** — what you measure (p99 latency).  
+**SLO** — the target (99.9% of reads < 200 ms).  
+**SLA** — the contract with a customer (money if you miss).
 
-### On-call basics
+Alert on **symptoms** (error rate, SLO burn), not "CPU is 61%." Every alert needs a **runbook**: first three commands, who to ping, how to roll back.
 
-- **Alert** on symptoms (error rate, SLO burn) not every log line
-- **Runbook** — first steps for common alerts
-- **Postmortem** — blameless, action items, timeline
+**Postmortem:** timeline, impact, what went well, action items. Blame-free. The action is "add a timeout," not "be more careful."
 
----
+**Health vs ready:**
 
-## 6. Kubernetes (interview overview)
+- **Liveness** — process is not deadlocked. Fail → restart the container
+- **Readiness** — can this instance take traffic (DB pool up)? Fail → stop sending requests, do not necessarily kill
 
-| Object | Role |
-|--------|------|
-| **Pod** | One or more containers, smallest deploy unit |
-| **Deployment** | Desired replica count, rolling updates |
-| **Service** | Stable network endpoint to pods |
-| **Ingress** | HTTP routing into cluster |
-| **ConfigMap / Secret** | Config and sensitive data |
-
-**You should explain:** Why orchestration (scale, self-heal, rolling deploy) — not operate a prod cluster solo in interview.
+**Graceful shutdown:** on `SIGTERM`, stop the load balancer / fail readiness, finish in-flight requests, close DB, then exit. Kubernetes sends SIGTERM, then SIGKILL after `terminationGracePeriodSeconds`. If you ignore SIGTERM, users see cut connections.
 
 ---
 
-## 7. Security essentials
+## Auth (sessions, JWT, OAuth)
 
-| Area | Practice |
-|------|----------|
-| **Secrets** | Vault, env vars, rotation — never commit `.env` |
-| **Dependencies** | `npm audit`, Dependabot, pin versions |
-| **OWASP top risks** | Injection, broken auth, XSS, SSRF — know one mitigation each |
-| **Auth** | JWT short expiry + refresh; httpOnly cookies for sessions |
+**Authentication** — who are you?  
+**Authorization** — what may you do? (RBAC: admin / member / viewer)
+
+### Sessions
+
+Server stores a session id (`sid_…`) in an **httpOnly, Secure, SameSite** cookie. Redis or Postgres holds `{ userId, expires }`. Logout = delete the session. Easy to revoke.
+
+Works well for browsers on **your** domain.
+
+### JWT
+
+A JWT is three Base64 pieces: `header.payload.signature`. The server **signs** it; later it **verifies** without a DB lookup. That is why people like it for APIs and microservices.
+
+**Problems seniors mention:**
+
+- You cannot revoke easily unless you keep a blocklist (then it is not purely stateless)
+- Putting secrets in the payload is public (it is encoded, not encrypted)
+- `localStorage` + JWT = XSS can steal it. Prefer **httpOnly cookies** or short-lived memory
+
+**Pattern that actually ships:** **access token** (5–15 min) + **refresh token** (longer, rotated, stored server-side or httpOnly). On leak, refresh rotation detects reuse.
+
+Node examples → [Node JWT](/notes/node).
+
+### OAuth 2.0 / OIDC (the 30-second version)
+
+User clicks "Sign in with Google." Your app **never sees their Google password**.
+
+1. Redirect to Google with your **client id** and a **redirect URI**
+2. User consents
+3. Google sends an **authorization code** to your backend
+4. Backend trades the code for tokens (this step uses **client secret** — only on the server)
+5. You create **your** session
+
+**OIDC** is OAuth plus an **ID token** (who the user is).  
+**Never** do the code exchange in a public SPA with a secret in the JavaScript bundle.
+
+**API keys** for server-to-server: hashed at rest, shown once, scoped, rotatable.
+
+**Interview phrase:** *"Browser apps: httpOnly session or short JWT in cookie. Revocation matters for support. OAuth for 'login with X' — secrets stay on the server."*
+
+---
+
+## API habits seniors get asked
+
+**Idempotency:** `POST /payments` with header `Idempotency-Key: uuid`. Same key + same body = one charge, even if the client retries. Store the key.
+
+**Pagination:** offset is simple and breaks on inserts. **Cursor** (`createdAt + id`) is the feed pattern.
+
+**Versioning:** `/v1/` when you will break clients. Prefer additive fields as long as you can.
+
+**Timeouts and retries:** every outbound call has a timeout. Retry **only** idempotent operations, with backoff and jitter. Pair with a **circuit breaker** (stop calling a sick dependency).
+
+**Webhooks:** verify **signatures**, return 2xx fast, do the work async, tolerate **retries** (idempotent handlers). Stripe-style.
+
+**Rate limit:** Redis counter, 429, `Retry-After`. Protect login and expensive search first.
+
+**Pagination, gzip, field filtering** — [Performance notes](/notes/performance).
+
+---
+
+## Security (the boring list that gets you hired)
+
+| Risk | Simple defense |
+|------|----------------|
+| **Injection** | Parameterized SQL; never string-build queries. ORM still needs care |
+| **XSS** | Framework escaping; CSP; no `dangerouslySetInnerHTML` with user HTML |
+| **CSRF** | SameSite cookies; CSRF token on cookie-based session mutating routes |
+| **SSRF** | Do not fetch user-supplied URLs without an allowlist |
+| **Auth holes** | Check **authorization** on every object (`order.userId === me`), not just "is logged in" |
+| **Secrets** | Env / secret manager; rotate; never commit `.env`; never log tokens |
+| **Dependencies** | lockfile, `npm audit` / Dependabot, pin images |
 | **HTTPS** | TLS everywhere; HSTS in prod |
-| **Least privilege** | IAM roles per service, not shared admin creds |
+| **PII** | Least data; encrypt at rest if required; do not log full cards or OTPs |
 
-**Supply chain:** Lockfiles, verify CI only deploys from protected branches.
+**Least privilege:** the API role can `UPDATE orders`, not `DROP DATABASE`. IAM per service.
 
----
-
-## 8. Automation beyond CI
-
-| Automation | Example |
-|------------|---------|
-| **Cron jobs** | Nightly reports, cleanup, reconciliation |
-| **IaC** | Terraform/Pulumi for cloud resources (interview awareness) |
-| **Scripts** | Idempotent deploy hooks, DB migration runner |
-| **Webhooks** | GitHub → Slack on failed build |
-
-**Idempotent:** Running twice produces same result — critical for deploy and payment scripts.
+**Supply chain:** CI deploys from **protected main**, not from a random fork. Images scanned.
 
 ---
 
-## 9. Senior talking points (STAR-ready)
+## Config, migrations, automation
 
-Prepare one story each:
+**12-factor config:** environment variables for `DATABASE_URL`, not a `prod.json` in Git. Same image, different env.
 
-| Theme | Prompt |
-|-------|--------|
-| **Release confidence** | "How did you improve deploy safety?" — tests, canary, flags |
-| **Incident response** | "Tell me about a production outage" — detect, mitigate, postmortem |
-| **MTTR** | "How did you reduce time to recover?" — better logs, runbooks, rollback |
-| **Tech debt** | "How do you balance features vs reliability?" — error budget, prioritization |
-| **Mentoring** | "How do you raise team quality?" — reviews, standards, pairing |
+**Migrations:** numbered, in Git, run by CI/CD or a job (`Prisma migrate`, Flyway). Expand/contract. Never hand-edit prod.
 
-**Phrase:** *"I treat production as a feature — observability and rollback path ship with the code."*
+**IaC (Terraform / Pulumi):** cloud boxes described as code, reviewed in PRs. Interview awareness is enough unless the role is platform.
+
+**Cron:** nightly cleanup, reconciliation ("charges without orders"). Make jobs **idempotent**. Alert if they skip a night.
+
+**Feature flags:** launch darkly / homemade table. Kill switch for a bad feature without a rollback of the whole app.
 
 ---
 
-## 10. Checklist before calling yourself "production-ready"
+## Stories interviewers want (STAR)
 
-- [ ] CI runs on every PR
-- [ ] Secrets not in repo
-- [ ] Health check endpoint (`/health`)
-- [ ] Structured logging with request IDs
-- [ ] DB migrations versioned and automated
-- [ ] Rollback procedure documented and tested once
-- [ ] Alerts on error rate and latency SLO
-- [ ] Dependency scanning enabled
+Prepare **one real example** each. If you lack prod stories, describe what you **would** have done on a project they can see (this repo's CI, Docker, health checks).
+
+| Theme | Shape of the answer |
+|-------|---------------------|
+| **Safer deploys** | Tests + canary or flag + rollback path |
+| **Incident** | Detect (alert) → mitigate (roll back / feature off) → postmortem → one fix |
+| **MTTR** | requestId, runbook, previous image tagged |
+| **Tech debt** | error budget / "this path has no test and handles money" |
+| **Mentoring** | review checklist, pairing on CI, written runbook |
+
+**Phrase:** *"Production is part of the feature. Observability and rollback ship in the same PR as the code."*
+
+---
+
+## Checklist before you call it production
+
+- [ ] CI on every PR (lint, types, tests)
+- [ ] Secrets not in the repo; prod keys in a manager
+- [ ] Docker image pinned and non-root (or a PaaS that is equivalent)
+- [ ] `/health` (live) and `/ready` (DB reachable)
+- [ ] Structured logs with `requestId`
+- [ ] Timeouts on outbound HTTP
+- [ ] Migrations in Git, expand-then-contract
+- [ ] Rollback: previous image or flag, practiced once
+- [ ] Alert on error rate / latency, not noise
+- [ ] Authz check on every resource, not only login
+
+**Related:** [Data stores](/notes/data-stores), [Message brokers](/notes/message-brokers), [TypeScript](/notes/typescript) (`strict` in CI).

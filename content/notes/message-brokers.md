@@ -463,4 +463,4 @@ These show up in HLD interviews more often than broker brand names.
 - [ ] Avoided dual-write (**outbox**) if DB and broker must stay in sync
 - [ ] Did not put Kafka on a 100 QPS CRUD service
 
-**Maps to Karan's course:** [Message Brokers](https://www.karanpratapsingh.com/courses/system-design/message-brokers), [Message Queues](https://www.karanpratapsingh.com/courses/system-design/message-queues), [Publish-Subscribe](https://www.karanpratapsingh.com/courses/system-design/publish-subscribe). Company designs that use this: chat notifications, Twitter fan-out, Netflix transcode pipeline — see [HLD notes](/notes/system-design-hld).
+**Maps to Karan's course:** [Message Brokers](https://www.karanpratapsingh.com/courses/system-design/message-brokers), [Message Queues](https://www.karanpratapsingh.com/courses/system-design/message-queues), [Publish-Subscribe](https://www.karanpratapsingh.com/courses/system-design/publish-subscribe). Company designs that use this: chat notifications, Twitter fan-out, Netflix transcode pipeline — see [HLD notes](/notes/system-design-hld). Redis as a tiny queue vs a real broker → [data stores](/notes/data-stores).

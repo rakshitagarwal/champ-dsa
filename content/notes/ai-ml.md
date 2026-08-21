@@ -2,7 +2,7 @@
 
 > **What seniors are evaluated on:** Can you ship AI **features** responsibly — RAG, APIs, cost/latency trade-offs — without claiming you're an ML researcher? Product teams hire engineers who integrate models, not train them from scratch.
 
-Deployment and observability → [Advanced topics](/notes/advanced-topics).
+Deployment and observability → [Docker, CI/CD & production](/notes/advanced-topics).
 
 ---
 

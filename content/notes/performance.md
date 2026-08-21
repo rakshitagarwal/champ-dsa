@@ -2,7 +2,7 @@
 
 > **What seniors are evaluated on:** You measure before optimizing, fix the bottleneck users feel, and can explain trade-offs in production — not premature `useMemo` everywhere.
 
-Related: caching and scaling → [System Design — HLD](/notes/system-design-hld).
+Related: caching → [HLD](/notes/system-design-hld) and [Redis / Dynamo / ES](/notes/data-stores). Shipping and alerts → [production notes](/notes/advanced-topics).
 
 ---
 
@@ -94,7 +94,7 @@ Never `SELECT *` unbounded. Cursor-based for feeds; `LIMIT` + index on sort colu
 ### Caching layers
 
 1. In-process (short TTL, single instance only)
-2. Redis (shared, TTL, cache-aside pattern)
+2. Redis (shared, TTL, cache-aside pattern) — [data stores](/notes/data-stores)
 3. CDN (static + cacheable API responses)
 
 See [HLD caching section](/notes/system-design-hld) for strategies.
@@ -141,7 +141,7 @@ Prefer non-blocking I/O; parallelize independent calls with `Promise.all` — no
 
 **Alert on:** SLO burn rate, error spike, queue depth, disk full — not every slow request.
 
-Details → [Advanced topics — Observability](/notes/advanced-topics).
+Details → [Docker, CI/CD & production — Observability](/notes/advanced-topics).
 
 ---
 

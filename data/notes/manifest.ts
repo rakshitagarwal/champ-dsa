@@ -11,6 +11,12 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
     description: "Interview revision — types, closures, event loop, promises, and more.",
   },
   {
+    slug: "typescript",
+    title: "TypeScript",
+    description:
+      "Types, narrowing, generics, utilities, strict tsconfig, and runtime validation at the edges.",
+  },
+  {
     slug: "react",
     title: "React js",
     description:
@@ -65,15 +71,21 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Queues, pub/sub, delivery guarantees, and when to use RabbitMQ, Kafka, or NATS JetStream.",
   },
   {
+    slug: "data-stores",
+    title: "Redis, DynamoDB & search",
+    description:
+      "Redis cache patterns, DynamoDB keys and hot partitions, Elasticsearch vs a real database.",
+  },
+  {
+    slug: "advanced-topics",
+    title: "Docker, CI/CD & production",
+    description:
+      "Containers, pipelines, Kubernetes vocabulary, deploys, auth, observability, and how seniors ship.",
+  },
+  {
     slug: "ai-ml",
     title: "AI & ML for engineers",
     description:
       "Product-engineer depth — LLMs, embeddings, RAG, integrations, and interview talking points.",
-  },
-  {
-    slug: "advanced-topics",
-    title: "Advanced topics",
-    description:
-      "Senior revision — CI/CD, Docker, deploy strategies, observability, testing, and security.",
   },
 ];

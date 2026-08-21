@@ -51,6 +51,8 @@ Aim for a **working system first**, then deepen. Suggested ~45 min flow:
 
 ### 1.2 Caching
 
+Full notes → [Redis, DynamoDB & search](/notes/data-stores).
+
 **Default pattern:** Cache-aside (Redis). Read → cache → miss → DB → populate + TTL.
 
 | Strategy | Idea |
@@ -65,6 +67,8 @@ Aim for a **working system first**, then deepen. Suggested ~45 min flow:
 **CDN:** Images, video chunks, JS/CSS at the edge. Not a substitute for app Redis.
 
 ### 1.3 Databases
+
+Full notes → [SQL](/notes/sql) and [DynamoDB / search](/notes/data-stores).
 
 | | SQL (Postgres) | NoSQL (Cassandra / Dynamo / Mongo) |
 |--|----------------|-------------------------------------|
@@ -98,7 +102,7 @@ Full notes → [Message brokers & queues](/notes/message-brokers) (RabbitMQ, Kaf
 - **Rate limiting** — token bucket / sliding window in Redis; return 429  
 - **Circuit breaker** — stop calling sick dependencies  
 - **Object storage (S3)** — blobs; app DB stores metadata + URLs  
-- **Search (Elasticsearch)** — full-text; accept slight lag via async index  
+- **Search (Elasticsearch)** — full-text; accept slight lag via async index. Deep dive → [data stores](/notes/data-stores)  
 - **SLA / SLO / SLI** — promise / target / measured (e.g. p99 latency)  
 
 ### 1.6 Numbers worth knowing (order of magnitude)
@@ -295,6 +299,6 @@ These are the classic case studies from Karan's course. Memorize **requirements 
 - [ ] One failure story (retry, DLQ, multi-AZ)  
 - [ ] Didn't boil the ocean — scoped v1  
 
-**Next:** Module/class design → [LLD notes](/notes/system-design-lld). Messaging deep dive → [Message brokers & queues](/notes/message-brokers).
+**Next:** Module/class design → [LLD notes](/notes/system-design-lld). Messaging → [Message brokers](/notes/message-brokers). Redis / Dynamo / ES → [Data stores](/notes/data-stores). Shipping → [Docker, CI/CD & production](/notes/advanced-topics).
 
 **Sources to revisit:** [karanpratapsingh.com/courses/system-design](https://www.karanpratapsingh.com/courses/system-design) (Ch I–V), [hellointerview.com system design](https://www.hellointerview.com/learn/courses/system-design) (delivery + core concepts + patterns).

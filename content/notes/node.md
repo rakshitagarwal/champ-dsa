@@ -1,5 +1,7 @@
 # Node.js Interview Notes
 
+> Runtime, event loop, Express, and production Node. Types → [TypeScript](/notes/typescript). Cache and sessions → [Redis notes](/notes/data-stores). Shipping → [Docker & CI/CD](/notes/advanced-topics).
+
 ---
 
 ## 1. What is Node.js?
@@ -605,6 +607,8 @@ function authenticate(req, res, next) {
 - Store tokens in `httpOnly` cookies (XSS-safe) or memory (not localStorage)
 - **Access token** (short-lived, 15min) + **Refresh token** (long-lived, stored securely)
 
+Sessions vs JWT vs OAuth, revocation, cookies → [Docker, CI/CD & production — Auth](/notes/advanced-topics).
+
 ---
 
 ## 24. Streams & Piping in HTTP
@@ -676,6 +680,8 @@ const cached = await client.get("key");
 ```
 
 Cache-aside pattern: check cache → on miss, hit DB → store in cache → return.
+
+Patterns, stampede, TTL, and when Redis is the wrong database → [Redis, DynamoDB & search](/notes/data-stores).
 
 ---
 
@@ -838,7 +844,7 @@ process.on("SIGTERM", () => {
 - Scale across cores → `cluster` or PM2
 - Run shell command → `child_process.exec`
 - Large file transfer → streams + pipe
-- Shared session/cache → Redis
+- Shared session/cache → Redis (see [data stores](/notes/data-stores))
 - Reuse DB connections → connection pooling
 
 ---

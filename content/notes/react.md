@@ -640,6 +640,8 @@ interface Props {
 function MyComponent({ name, age, onClick }: Props) {}
 ```
 
+Full types, generics, and strict config → [TypeScript notes](/notes/typescript).
+
 ---
 
 ## 33. Fragment

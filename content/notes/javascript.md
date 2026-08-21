@@ -1,5 +1,7 @@
 # JavaScript Interview Notes
 
+> Types, closures, event loop, and more. After this, read [TypeScript notes](/notes/typescript) — same language, compile-time contracts.
+
 ---
 
 ## 1. Data Types
