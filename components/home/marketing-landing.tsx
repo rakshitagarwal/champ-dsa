@@ -55,8 +55,8 @@ const EXPLORE = [
   },
   {
     href: "/jobs",
-    title: "CV & Jobs",
-    description: "Upload your resume for an ATS score, then search jobs on LinkedIn, Naukri, Greenhouse, and more.",
+    title: "CV Analyzer",
+    description: "Upload your resume for an ATS score, keyword gaps, and line-level rewrites.",
     icon: FileCheck,
     accent: "from-rose-500/20 to-rose-500/5",
   },
@@ -239,10 +239,10 @@ export function MarketingLanding() {
             />
             <StepCard
               step="2"
-              title="Check CV & Jobs"
-              body="Upload your resume for an ATS score, then search jobs across Naukri, LinkedIn, Greenhouse, Lever, and more."
+              title="Score your resume"
+              body="Upload a PDF, get an ATS score, missing keywords, and suggested rewrites — then apply."
               href="/jobs"
-              cta="Score my resume"
+              cta="Open CV Analyzer"
             />
             <StepCard
               step="3"

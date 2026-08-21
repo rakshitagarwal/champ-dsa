@@ -1,94 +1,107 @@
 # Referral strategy
 
-Referrals are the highest-converting application channel. A warm intro bypasses ATS filters and lands your resume in front of a real human who already has context on you.
+> **Recruiter reality:** A referral is a **named req + a human who will click submit**. "Can you refer me to anything?" dies in the DMs. Make the paste so easy they do it on their phone.
 
-## Why referrals work
+## Do this today
 
-- **10× higher interview rate** compared to cold applications
-- **Faster pipeline** — referred candidates are usually contacted within a week
-- **Internal advocate** — your referrer nudges the recruiter and vouches for your fit
-- **Higher offer rate** — referred candidates already have a trust signal
+- [ ] Pick **one** live job (title + URL) at a company from [Companies](/companies)
+- [ ] Write a **4-line blurb** they can paste (template below)
+- [ ] Ask **one** person (ex-colleague > college > weak LinkedIn tie)
+- [ ] Attach the **same** PDF you scored on the [CV Analyzer](/jobs)
 
-## Who to ask
+## Why this channel
 
-Build a tiered list:
+Referrals skip a chunk of ATS lottery. They do **not** skip interviews. Your [system design](/system-design) and [DSA](/patterns) still have to land.
 
-1. **Tier 1 — Strong ties**: former colleagues, managers, batchmates who know your work well
-2. **Tier 2 — Weak ties**: acquaintances from conferences, hackathons, LinkedIn groups, alumni networks
-3. **Tier 3 — Cold reach**: people in your target role/company you have something in common with (same school, past company, shared interest)
+Treat it as **10× more likely to get a screen**, not a guaranteed offer.
 
-**Prioritise Tier 2.** They are more likely to refer you (less awkwardness about "not knowing you well enough") and they expand your network beyond your immediate circle.
+## Who to ask (in this order)
 
-## How to ask (the right way)
+1. **People who saw you ship** — old teammates, EM, PM who can say "they owned X"
+2. **Weak ties** — same college, same previous company, community. Often **more** willing than close friends (less awkward)
+3. **Cold** — only after a real comment or a Version B [email](/tips?tab=email). Do not DM 40 strangers "pls refer"
 
-### Step 1: Do your homework
+If you job-hopped, **prioritise people from the role where you have the strongest metric**. They vouch for impact, not tenure length.
 
-Before reaching out, be clear on:
-- Which specific role / team you want
-- Why you are a good fit (2-3 bullet points)
-- A short blurb the referrer can paste into the referral form
+## Make it easy (non-negotiable)
 
-Do NOT ask "Can you refer me to any role?" — be specific.
+Never ask without:
 
-### Step 2: Make it easy
+- Role name + link
+- Why you fit in **3 bullets** (stack + one system + notice/city)
+- Paste-ready **referral blurb**
+- PDF
 
-Your message should include:
-- A clear ask (role name + link)
-- 2-3 sentences on why you are a fit
-- A pre-written referral blurb they can copy-paste
-- Your updated resume (PDF)
+If they have to write the form from scratch, they will not.
 
-### Step 3: Templates
+## Blurb they can paste
 
-**Warm connection (Tier 1):**
+```
+{{Your name}} is a full-stack engineer (NestJS, Next.js, TypeScript) with 3+ years on multi-tenant SaaS — API gateway, async events, and payments/realtime when relevant. I worked with them on {{project or team}}. They are applying for {{Role}} ({{link}}). Notice {{X}} weeks, open to {{cities}}. Strong on owning a service, not only UI tickets.
+```
 
-> Hi [Name],
->
-> Hope you are doing well! I am applying for the [Role] role at [Company] and was wondering if you would feel comfortable referring me.
->
-> I have attached my resume and a short blurb you can use. Let me know if you need anything else from my side!
->
-> Thanks either way.
+Edit the middle sentence so it is **true**. Fake "I managed them" gets everyone in trouble.
 
-**Weak tie / cold (Tier 2 or 3):**
+## Message — people who know your work
 
-> Hi [Name],
->
-> I am a [your background] exploring the [Role] position at [Company]. I noticed you work there and would love to hear about your experience.
->
-> If you think I would be a good fit, would you be open to referring me? I have attached my resume and a ready-to-paste blurb to keep it easy.
->
-> Either way, appreciate you reading this!
+```
+Hi {{Name}},
 
-## After they agree
+Applying for {{Role}} at {{Company}}: {{link}}
 
-1. **Apply through their referral link** immediately (some referrals expire after 48 hours)
-2. **Send a thank-you** — a genuine note, not just "thanks"
-3. **Keep them updated** — share when you hear back, when you interview, when you get an offer
-4. **Close the loop** — whether you accept or decline, let them know the outcome
+Would you be comfortable referring me? Resume attached. Blurb you can paste:
 
-## Common mistakes
+{{blurb}}
+
+No stress if not — thanks either way.
+```
+
+## Message — weak tie
+
+```
+Hi {{Name}},
+
+I am a full-stack engineer (Nest/Next, event-driven SaaS) looking at {{Role}} on your team: {{link}}
+
+We overlap via {{college / old company / community}}. If the fit seems reasonable, would you refer? I attached a resume and a paste-ready blurb so it is a 2-minute job.
+
+Totally fine to say no.
+```
+
+## After they say yes
+
+1. Apply on **their link** the same day (many expire in 48h)
+2. Thank them once, like a human
+3. Update them on screen / onsite / offer — short
+4. If you accept or decline, **tell them**. Ghosting a referrer ends the network
+
+## Follow-up
+
+If they said "send me the JD" and went quiet: **one** ping at day 5. Then stop.
+
+If they said no: thank them, do not argue.
+
+## Mistakes
 
 | Mistake | Fix |
-|---|---|
-| Asking without a specific role | Always mention the job title and link |
-| Sending a generic message | Personalise — mention something you admire about their work |
-| Forgetting to apply | Apply within 24 hours of their agreement |
-| Not following up | Check in after 5-7 days if you haven't heard back |
-| Burning bridges | Always be gracious, even if they say no |
+|---------|-----|
+| "Any role is fine" | One req, one link |
+| Novel-length DM | Blurb + PDF |
+| Forget to apply | Same day |
+| Demand a referral | Ask as a favour |
+| Use them as a therapist about hopping | Keep hopping for [interview prep](/tips?tab=interview), not the DM |
 
-## Referral etiquette
+## Timing
 
-- **Never demand** a referral — always ask as a favour, not an expectation
-- **Accept "no" gracefully** — thank them and move on
-- **Refer others** when you can — pay it forward
-- **Update your referrer** on every stage — it makes them feel invested in your success
-- **Send a handwritten thank-you** if you get the job — it goes a long way
+Tue–Thu morning IST. Avoid Monday pile-up and Friday disappear.
 
-## Pro tips
+Track: company, req, person, date asked, yes/no, applied Y/N.
 
-- **LinkedIn "open to work"** — recruiters at your target company may reach out first; mention you would love a referral in your response
-- **Alumni directories** — use your school's alumni portal or LinkedIn alum filter to find referrers
-- **Mutual connections** — ask a mutual contact for a warm intro instead of a cold message
-- **Timing** — ask Tue-Thu morning; avoid Monday rushes and Friday wind-down
-- **Track everything** — maintain a simple spreadsheet with company, role, referrer name, date asked, status
+## If you have no network yet
+
+1. [LinkedIn](/tips?tab=linkedin) comments that show engineering judgment
+2. Version B emails to EMs
+3. Alumni filter: `{College} {{Company}}`
+4. Then ask — after they have seen you think, not before
+
+**Next:** one specific ask today · [Companies](/companies)

@@ -1,89 +1,98 @@
 # LinkedIn updates
 
-> **Recruiter reality:** They search `("full stack" OR "software engineer") AND React AND Bangalore`. Your **headline is your SEO** — not your personality essay.
+> **Recruiter reality:** They search `("senior software engineer" OR "SDE 2" OR "full stack") AND (NestJS OR Node) AND (Bangalore OR remote)`. Your **headline is SEO**. Your About is the 10-second pitch.
 
 ## Do this today (15 min)
 
-- [ ] Turn on **Open to Work** (visible to recruiters only, if you prefer)
-- [ ] Update headline to match **job titles you apply for** (see formula)
-- [ ] View 5 recruiter profiles at a target company — they see you viewed
-- [ ] Leave **one** thoughtful comment on a post in your domain
+- [ ] Set **Open to Work** to recruiters only (unless you want the green banner)
+- [ ] Headline = titles they type + stack + **one proof** (formula below)
+- [ ] About: 2-line hook + 3 proof bullets + **city + notice**
+- [ ] View **5** recruiter or EM profiles at companies from [Companies](/companies)
 
 ## Headline formula
 
 ```
-Job title recruiters search | Core stack | Proof line | Open to [locations]
+{Title they search} | {Stack} | {Proof} | Open to {cities}
 ```
 
-**Example:**
-`Full Stack Engineer | React, Node, TypeScript | Shipped fintech features at scale | Open to Bangalore, Hyderabad, Remote India`
+**Use:**
 
-Use the **exact title** from job posts you want (Software Engineer vs SDE vs Full Stack Engineer — pick one lane).
+`Full-Stack Engineer | NestJS, Next.js, TypeScript | Multi-tenant SaaS, events, payments | Open to Bangalore, Hyderabad, Remote India`
 
-Keep under 220 characters. No buzzword soup.
+**Also fine:** `SDE-2 | Node, React, Postgres | Realtime + API platform work | Open to …`
+
+**Avoid:** `Senior Software Engineer` in the headline if your last title is Software Engineer and LinkedIn Experience does not match. Recruiters compare. Put Senior in **Open to** job titles instead.
+
+Keep under 220 characters. One lane: Full Stack / SDE-2, not "Full Stack + DevOps + Data Scientist + AI Engineer".
 
 ## About section (3 blocks)
 
-**Block 1 — Hook (2 lines):**
-What you build, for whom, years of experience. Match the role family you're targeting.
+**Hook (2 lines):** Years, product type, stack. "Full-stack engineer, 3+ years, NestJS/Next SaaS — tenants, gateways, async events, Stripe."
 
-**Block 2 — Proof (3 bullets):**
-- One **metric** from work (users, latency, revenue, release frequency)
-- Stack depth aligned to JDs you apply to
-- Domain if relevant (fintech, B2B SaaS, payments)
+**Proof (3 bullets):**
 
-**Block 3 — Ask (1 line):**
-`Open to full-stack roles in [cities] and remote India. Notice period: [X weeks].`
+- One **system** metric (latency, events/day, tenants, uptime)
+- One **money or user** metric if you have it (transactions, MAU)
+- Stack you will actually interview in (TypeScript, Postgres, Redis, AWS or GCP — pick the true one)
 
-Recruiters message candidates who state **location + notice** upfront.
+**Ask (1 line):** `Open to SDE-2 / Senior Full Stack in [cities] and remote India. Notice: [X weeks].`
 
-## Featured section
+Recruiters message people who state **notice + location**. Missing both = extra email they will not send.
 
-Pin:
+## Featured
 
-1. **Resume PDF** (latest — same version as applications)
-2. **Best project** — live demo or GitHub with a caption: what problem it solves
+Pin in this order:
 
-Skip pinning certificates unless the role requires them.
+1. **Resume PDF** — same file you attach to applications
+2. **Best live project** (caption: problem + stack + one number)
+3. Optional: a short post about a **production trade-off** (NATS vs REST, why an API gateway). One post beats ten "I'm excited to share" banners
 
-## Weekly rhythm (repeat every Monday)
+Skip certificate PDFs.
+
+## Experience on LinkedIn
+
+Mirror the resume. Same titles, same dates, **shorter** bullets. If LinkedIn is a novel and the PDF is a page, they assume the PDF is lying.
+
+Turn **off** "share job changes" while you edit, so you do not spam your network with 12 title tweaks.
+
+## Weekly rhythm (Monday, 20 min)
 
 | Task | Time | Target |
 |------|------|--------|
-| Align headline with this week's applications | 5 min | When focus shifts |
-| View recruiter/EM profiles at 5 companies | 5 min | 5/week |
-| Comment on 1 relevant post | 5 min | 1/week |
-| Apply to 5–10 roles | 30–60 min | Volume beats lurking |
+| Align headline with this week's JDs | 5 min | When the target city/stack shifts |
+| View 5 TA / EM profiles at target companies | 5 min | 5/week |
+| One comment with an engineering opinion | 5 min | 1/week |
+| Apply + [cold email](/tips?tab=email) | rest of the hour | Volume |
 
-## Find recruiters (people search)
+Comment example: a sentence on **idempotent consumers** or **why you would not put business logic in the gateway** — not "Great post!"
 
-```
-{Company name} recruiter OR "talent acquisition" OR "technical recruiter"
-```
-
-Example: `Razorpay recruiter OR talent acquisition`
-
-Use your list on [Companies →](/companies). **Follow** company pages — recruiters sometimes post reqs there first.
-
-## Connection note (short)
+## Recruiter search (people)
 
 ```
-Hi {Name}, I'm a full-stack engineer exploring {domain} roles in {city}. Would love to connect.
+{Company} ("technical recruiter" OR "talent acquisition" OR "engineering manager")
 ```
 
-No job ask in the connection request. After accept, use cold email templates if they post hiring content.
+Example: `Razorpay "talent acquisition"` or `Postman recruiter`
 
-## What recruiters ignore
+Follow the company page. Some reqs land there before job boards.
 
-- Generic "open to opportunities" with no stack
-- Headline: "Student | Learner | Aspiring developer"
-- No profile photo (optional in some markets, but India recruiters often expect one)
-- Zero activity for 12+ months while "actively looking"
+## Connection note
 
-## Stop overthinking
+```
+Hi {Name} — full-stack engineer (Nest/Next, event-driven SaaS). Exploring SDE-2 / Senior roles in {city}. Would be good to connect.
+```
 
-- Headline + about + featured + Open to Work = enough to start
-- Imperfect visibility beats perfect invisibility
-- **Applying** matters more than another profile rewrite
+No job ask in the request. After they accept, use [email templates](/tips?tab=email) or a short DM with a **req link**.
 
-**Next step:** [Browse companies →](/companies)
+## What they ignore
+
+- Headline: "Passionate developer | Open to opportunities" with no stack
+- About that lists every course
+- Dead GitHub in Featured
+- "Open to work" with no notice period and no city
+
+## Stop polishing the banner
+
+Headline + About + Featured + Open to Work + **applications this week** is enough. A third rewrite of the banner is procrastination.
+
+**Next:** [Browse companies](/companies)

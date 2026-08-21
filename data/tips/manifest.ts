@@ -16,33 +16,38 @@ export const TIPS_CATALOG: TipsTabMeta[] = [
   {
     slug: "resume",
     title: "Resume optimise",
-    description: "ATS-friendly structure, metrics, and when to stop tweaking.",
+    description:
+      "Senior / SDE-2 screen: title, tenure story, architecture bullets, and when to stop rewriting.",
   },
   {
     slug: "linkedin",
     title: "LinkedIn updates",
-    description: "Headline, about section, and a 15-minute weekly rhythm.",
+    description:
+      "Headline SEO for Senior Full Stack / SDE-2, About that proves ownership, weekly recruiter rhythm.",
   },
   {
     slug: "projects",
     title: "Project work",
     description:
-      "What to build so recruiters and hiring managers take your profile seriously.",
+      "What to show besides job bullets — one shipped product, not a fourth clone.",
   },
   {
     slug: "interview",
     title: "Interview questions",
-    description: "STAR answers, prep routine, and day-of checklists.",
+    description:
+      "Senior loop: behavioral ownership, DSA, system design, and the hopping question.",
   },
   {
     slug: "email",
     title: "Cold email strategy",
-    description: "Templates, hooks, follow-ups, and weekly send targets.",
+    description:
+      "Subject lines and templates for recruiters and EMs hiring Senior / SDE-2.",
   },
   {
     slug: "referral",
     title: "Referral strategy",
-    description: "How to ask for referrals without feeling awkward and maximise your odds.",
+    description:
+      "Ask for a specific role, give them a paste-ready blurb, close the loop.",
   },
 ];
 

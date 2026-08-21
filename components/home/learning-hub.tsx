@@ -128,9 +128,9 @@ export function LearningHub() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="font-semibold">CV & Jobs</h2>
+        <h2 className="font-semibold">CV Analyzer</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload your resume for an ATS score, then search jobs across LinkedIn, Naukri, Greenhouse, and more.
+          Upload your resume for an ATS score, keyword gaps, and line-level rewrites.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

@@ -41,7 +41,7 @@ function TipsPageContent({ tips }: TipsPageProps) {
         />
         <p>
           <strong className="font-medium text-foreground">
-            Momentum beats perfection.
+            Senior loops reward a pipeline, not a perfect PDF.
           </strong>{" "}
           Pick one action from this tab and do it in the next 15 minutes.
         </p>

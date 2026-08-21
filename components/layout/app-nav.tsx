@@ -25,7 +25,7 @@ const navLinks: {
   { href: "/tips", label: "Tips & Tricks", icon: Lightbulb },
   { href: "/compiler", label: "Compiler", icon: Code2 },
   { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/jobs", label: "CV & Jobs", icon: FileCheck },
+  { href: "/jobs", label: "CV Analyzer", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/system-design", label: "System Design", icon: Network },
 ];

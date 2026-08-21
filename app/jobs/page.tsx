@@ -1,21 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
-import {
-  CvAnalyzerHeader,
-  type AnalyzerStep,
-} from "@/components/jobs/cv-analyzer-header";
+import { CvAnalyzerHeader } from "@/components/jobs/cv-analyzer-header";
 import { AnalysisProgress } from "@/components/jobs/analysis-progress";
 import { ExperienceSelect } from "@/components/jobs/experience-select";
 import { ResumeUploadZone } from "@/components/jobs/resume-upload-zone";
 import { ResumeScorePanel } from "@/components/jobs/resume-score-panel";
 import { ResumeHandoffActions } from "@/components/jobs/resume-handoff-actions";
-import { JobSearchPanel } from "@/components/jobs/job-search-panel";
 import { Button } from "@/components/ui/button";
 import {
-  consumeJobsHandoff,
   getFixedSinceLastReview,
   getScoreDelta,
   loadResumeAttempts,
@@ -24,17 +18,7 @@ import {
 import type { ExperienceLevel } from "@/types/job-search";
 import type { ResumeReviewResult } from "@/types/resume-review";
 
-function parseStep(raw: string | null): AnalyzerStep {
-  if (raw === "analyzing" || raw === "report" || raw === "jobs") return raw;
-  return "upload";
-}
-
-export default function AtsScorePage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const stepParam = searchParams.get("step");
-
-  const [step, setStep] = useState<AnalyzerStep>(() => parseStep(stepParam));
+export default function CvAnalyzerPage() {
   const [resumeText, setResumeText] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState("");
   const [experienceLevel, setExperienceLevel] =
@@ -42,38 +26,7 @@ export default function AtsScorePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ResumeReviewResult | null>(null);
-  const [attempts, setAttempts] = useState(loadResumeAttempts());
-  const [handoffKeywords, setHandoffKeywords] = useState<string[]>([]);
-  const [handoffTitles, setHandoffTitles] = useState<string[]>([]);
-
-  const navigateStep = useCallback(
-    (next: AnalyzerStep) => {
-      setStep(next);
-      router.replace(`/jobs?step=${next}`, { scroll: false });
-    },
-    [router],
-  );
-
-  useEffect(() => {
-    const parsed = parseStep(stepParam);
-    setStep(parsed);
-  }, [stepParam]);
-
-  useEffect(() => {
-    const handoff = consumeJobsHandoff();
-    if (!handoff?.fromReview) return;
-
-    if (handoff.resumeText) setResumeText(handoff.resumeText);
-    if (handoff.jobTitle) setJobTitle(handoff.jobTitle);
-    if (handoff.experienceLevel) setExperienceLevel(handoff.experienceLevel);
-    if (handoff.missingKeywords) setHandoffKeywords(handoff.missingKeywords);
-    if (handoff.suggestedTitles) setHandoffTitles(handoff.suggestedTitles);
-    if (handoff.primaryKeywords) {
-      setHandoffKeywords((prev) =>
-        prev.length > 0 ? prev : handoff.primaryKeywords!.split(" "),
-      );
-    }
-  }, []);
+  const [attempts, setAttempts] = useState(loadResumeAttempts);
 
   const review = useCallback(async () => {
     if (!resumeText || resumeText.length < 200) {
@@ -82,7 +35,7 @@ export default function AtsScorePage() {
     }
     setLoading(true);
     setError(null);
-    navigateStep("analyzing");
+    setResult(null);
 
     try {
       const res = await fetch("/api/ai/resume-review", {
@@ -97,42 +50,33 @@ export default function AtsScorePage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Review failed.");
-        navigateStep("upload");
         return;
       }
       const reviewResult = data as ResumeReviewResult;
       setResult(reviewResult);
-      const updatedAttempts = saveResumeAttempt(reviewResult);
-      setAttempts(updatedAttempts);
-      navigateStep("report");
+      setAttempts(saveResumeAttempt(reviewResult));
     } catch {
       setError("Network error. Try again.");
-      navigateStep("upload");
     } finally {
       setLoading(false);
     }
-  }, [resumeText, jobTitle, experienceLevel, navigateStep]);
+  }, [resumeText, jobTitle, experienceLevel]);
 
   const scoreDelta = getScoreDelta(attempts);
   const fixedSinceLastReview = getFixedSinceLastReview(attempts);
-  const hasReport = Boolean(result);
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-        <CvAnalyzerHeader
-          activeStep={step}
-          hasReport={hasReport}
-          onStepClick={navigateStep}
-        />
+        <CvAnalyzerHeader />
 
-        {step === "upload" ? (
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="space-y-4">
             <ResumeUploadZone
               onTextExtracted={(text) => {
                 setResumeText(text);
                 setError(null);
+                setResult(null);
               }}
               onClear={() => {
                 setResumeText(null);
@@ -153,7 +97,7 @@ export default function AtsScorePage() {
                   id="target-title"
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
-                  placeholder="e.g. Full Stack Developer"
+                  placeholder="e.g. Senior Full Stack Engineer"
                   className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
@@ -187,41 +131,21 @@ export default function AtsScorePage() {
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
           </div>
         </div>
-      ) : null}
 
-      {step === "analyzing" && loading ? (
-        <AnalysisProgress active={loading} />
-      ) : null}
+        {loading ? <AnalysisProgress active={loading} /> : null}
 
-      {step === "report" && result ? (
-        <div className="min-h-0 space-y-6 overflow-y-auto overscroll-contain">
-          <ResumeScorePanel
-            result={result}
-            jobTitle={jobTitle.trim() || undefined}
-            attempts={attempts}
-            scoreDelta={scoreDelta}
-            fixedSinceLastReview={fixedSinceLastReview}
-          />
-          {resumeText ? (
-            <ResumeHandoffActions
+        {!loading && result ? (
+          <div className="space-y-6">
+            <ResumeScorePanel
               result={result}
-              resumeText={resumeText}
-              jobTitle={jobTitle}
-              experienceLevel={experienceLevel}
+              jobTitle={jobTitle.trim() || undefined}
+              attempts={attempts}
+              scoreDelta={scoreDelta}
+              fixedSinceLastReview={fixedSinceLastReview}
             />
-          ) : null}
-        </div>
-      ) : null}
-
-      {step === "jobs" ? (
-        <JobSearchPanel
-          resumeText={resumeText ?? ""}
-          initialJobTitle={jobTitle}
-          initialExperience={experienceLevel}
-          initialKeywords={handoffKeywords}
-          initialSuggestedTitles={handoffTitles}
-        />
-      ) : null}
+            <ResumeHandoffActions result={result} jobTitle={jobTitle} />
+          </div>
+        ) : null}
       </div>
     </div>
   );

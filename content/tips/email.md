@@ -1,126 +1,126 @@
 # Cold email strategy
 
-> **Recruiter reality:** Inboxes are flooded. Subject line + first sentence decide open rate. **Specific role or stack + city** beats clever wordplay.
+> **Recruiter reality:** Subject + first line decide. **SDE-2 / Senior Full Stack + Nest/Next + city** gets searched in the inbox. Clever jokes do not.
 
 ## Do this today
 
-- [ ] Pick 3 companies from [Companies](/companies)
-- [ ] Find a **live job post** or recruiter for each — reference it in subject line
-- [ ] Copy Version A or B, add one hook, attach resume PDF
-- [ ] Send **3 emails** before optimizing anything else
+- [ ] Pick 3 companies from [Companies](/companies) with a **live req**
+- [ ] Find recruiter or EM — subject must name **role + stack + city**
+- [ ] Send **3 emails** with resume PDF before editing the template again
 
 ## Weekly targets
 
 | Metric | Target |
 |--------|--------|
-| New cold emails | 10/week |
-| Follow-ups (5 days later) | 2–5/week |
-| Time per email | 5–10 min max |
-| Personalized hook | 1 sentence minimum |
+| New emails | 10/week |
+| Follow-up (day 5) | 1 per unanswered thread |
+| Time each | 5–10 min |
+| Hook | One specific sentence |
 
-Track sends: `npm run generate:job-tracker`
+Volume fills the pipeline. Perfect copy does not.
 
-## Subject lines that get opened
+## Subject lines
 
-**Weak:** `Opportunity` · `Resume` · `Job application`
+**Weak:** `Opportunity` · `Resume attached` · `Job application`
 
 **Strong:**
-- `Full-stack engineer — React/Node — Bangalore — quick question`
-- `Re: [Job title] req on Greenhouse — [Your name]`
-- `Advice on engineering at {{Company}}? (full-stack, 4 YOE)`
 
-Recruiters search inbox by **role title and location**.
+- `SDE-2 / Full-stack (NestJS, Next) — Bangalore — {{Company}}`
+- `Re: Senior Full Stack req — {{Your name}} — Node/TypeScript`
+- `Full-stack, 3+ YOE, event-driven SaaS — quick note`
 
-## Version A — Recruiters / Talent Acquisition
+Recruiters search the inbox by **title and location**.
 
-Attach **resume PDF**. Many will not reply without it.
+## Version A — Recruiter / TA
+
+Attach the **same PDF** you scored on the [CV Analyzer](/jobs).
 
 ```
-Subject: Full-stack engineer (React/Node) — {{City}} — {{Company}}
+Subject: Full-stack (NestJS/Next) — {{City}} — {{Company}}
 
 Hi {{First Name}},
 
 {{Hook}}
 
-I'm a full-stack engineer with [X] years on [stack], currently in [city] with [notice period] notice. I'm applying to [specific role title or req link if you have it] and wanted to reach out directly.
+I am a full-stack engineer with [X] years on NestJS, Next.js, and TypeScript — multi-tenant SaaS, API gateways, and async events. Notice period: [X weeks], based in [city], open to [Bangalore / Hyderabad / remote India].
 
-Happy to share more context in a 15-minute call if there's alignment.
+I am applying to [exact role title + link]. Resume is attached. Happy to do 15 minutes if there is a fit.
 
 Best,
-[Your Name]
-[Phone] · [LinkedIn]
-[Resume attached]
+{{Name}}
+{{Phone}} · {{LinkedIn}}
 ```
 
-## Version B — Engineering Managers (advice framing)
+## Version B — Engineering manager (advice first)
 
-Higher reply rate when you are not asking for a job in line one.
+Do not ask for a job in sentence one.
 
 ```
-Subject: 10 min advice on engineering at {{Company}}?
+Subject: 10 min on what SDE-2 looks like at {{Company}}?
 
 Hi {{First Name}},
 
 {{Hook}}
 
-I'm a full-stack engineer with ~[X] years on [stack], shipping [domain] products. I'm not asking for a referral — I'd value your perspective on what strong mid-level engineers look like on your team and how you'd suggest someone with my background approach {{Company}}.
+I am a full-stack engineer (~[X] YOE) on Nest/Next, shipping [tenancy / payments / realtime]. I am not asking you to refer me in this note — I want to know what "owns a service" means on your team and whether someone with my background is even close.
 
-I can keep it to 10 minutes async or on a call — whichever is easier.
+10 minutes async or a call, your choice.
 
 Thanks,
-[Your Name]
-[LinkedIn]
+{{Name}}
+{{LinkedIn}}
 ```
 
-## Example hooks (replace {{Hook}})
+If they reply warmly, **then** send the req link and [referral blurb](/tips?tab=referral).
 
-One **specific** sentence — product, tech blog, funding news, or feature you used:
+## Hooks (one sentence, not a paragraph)
 
-1. **Razorpay:** "Your merchant onboarding docs are unusually clear — that's the product quality bar I want to build toward."
-2. **Freshworks:** "I've followed Freshworks' Chennai-to-global product story and want to contribute to that kind of B2B velocity."
-3. **Juspay:** "Checkout reliability at the scale Juspay operates is the fintech depth I'm targeting next."
+Must prove you **used the product or read something real**:
 
-Generic "I admire your company" gets deleted.
+1. A reliability / checkout / API story from their engineering blog
+2. A feature you use (payments, observability, docs)
+3. A req line you actually match: "Your posting asks for event-driven services — that is the work I have been doing."
 
-## Follow-up (5 days, no reply)
+**Dead:** "I have always admired your culture."
+
+## Follow-up (day 5)
 
 ```
-Subject: Re: [same subject as original]
+Subject: Re: [same subject]
 
 Hi {{First Name}},
 
-Bumping my note from last week — totally understand if you're swamped.
+Bumping last week's note — I know inboxes are brutal.
 
-Still interested in [role/team] if there's fit. Happy to keep this to a short reply or call.
+Still interested in [role]. Glad to keep this to a yes/no.
 
-Best,
-[Your Name]
+{{Name}}
 ```
 
-**One** follow-up only. More than that risks spam reports.
+**One** bump. A third email is spam.
 
-## What recruiters do with cold email
+## What reads as senior vs junior
 
-| Good signal | Bad signal |
-|-------------|------------|
-| Role + location in subject | No attachment when they asked for resume |
-| Short, scannable body | 400-word life story |
-| Hook shows you know the company | Mass BCC to 50 people |
-| Polite single follow-up | Daily pings |
+| Senior | Junior |
+|--------|--------|
+| Role + stack + notice in 6 lines | Life story, 400 words |
+| One system you owned | "I am proficient in 20 technologies" |
+| PDF attached, filename `FirstLast_Resume.pdf` | `final_final_resume2.pdf` |
+| Specific req | "Any opening in your company" |
 
-## Anti-overthinking rules
+## Do not wait for
 
-| Don't | Do instead |
-|-------|------------|
-| Research 30 min before writing | Find req + 1 hook + send |
-| Wait for perfect company list | Start with 3, expand weekly |
-| Skip follow-up | One bump at day 5 |
-| Send 0 because inbox is quiet | 10/week — pipeline needs volume |
+| Don't | Do |
+|-------|----|
+| 30 min research per company | Req + one hook + send |
+| Perfect list of 50 companies | 3 today, 10 this week |
+| Ghosting = "templates are bad" | 10/week anyway |
+| Asking for Senior in the subject while the PDF says intern-level bullets | Fix [resume](/tips?tab=resume) first |
 
-## Find contacts
+## Find people
 
-LinkedIn: `{Company} recruiter OR talent acquisition`
+LinkedIn: `{Company} ("technical recruiter" OR "talent acquisition")`
 
-Or open roles on Greenhouse/Lever from [Companies](/companies) — email recruiter listed on posting when available.
+Or the name on a Greenhouse / Lever posting from [Companies](/companies).
 
-**Next step:** `npm run generate:job-tracker` in `tools/job-search/`
+**Next:** 3 sends today. Tracker if you use one: `npm run generate:job-tracker`

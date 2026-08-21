@@ -1,99 +1,108 @@
 # Interview questions
 
-> **Recruiter reality:** They debrief hiring managers with: *"Can they communicate? Do they own outcomes? Any red flags?"* Your stories should make that summary easy.
+> **Recruiter reality:** The debrief is: *"Can they own a system? Do they communicate? Any tenure or honesty flags?"* Senior loops add **system design**. Silent coding and fuzzy job dates fail more people than a missed DP trick.
 
 ## Do this today
 
-- [ ] Write a 60-second "Tell me about yourself" script (template below)
-- [ ] Pick **one** behavioral question and draft 4 STAR bullets
-- [ ] Solve **one** practice problem on [Solve →](/practice)
-
-## STAR template (use for every behavioral)
-
-| Letter | What to write |
-|--------|----------------|
-| **S** | Situation — 1 sentence context |
-| **T** | Task — **your** responsibility, not the team's |
-| **A** | Action — what **you** did, with technical detail if relevant |
-| **R** | Result — metric, shipped date, or behavior change |
-
-Keep each answer **90 seconds max**. Hiring managers tune out after that.
+- [ ] Write a 60-second "Tell me about yourself" with **SDE-2 / Senior** as the ask
+- [ ] Draft STAR for **one** production story (gateway, events, payments, realtime lock)
+- [ ] Draft a **45-second tenure story** if you have short stints (template below)
+- [ ] Skim [System Design intro](/system-design/introduction) — 10 minutes
 
 ## "Tell me about yourself" (60 seconds)
 
 ```
-I'm a [role] with [X years] building [type of product] using [stack].
-Most recently at [Company], I [top achievement with metric].
-Before that, I [second highlight].
-I'm now looking for [target role] where I can [impact you want to make].
+I'm a full-stack engineer with [X] years shipping [SaaS / fintech / realtime] on NestJS and Next.js.
+Most recently I [one system + metric — tenants, events, latency, or money].
+Before that I [second highlight — locking, payments, or a user-facing loop].
+I'm looking for SDE-2 / Senior Full Stack where I own a service end to end, not only tickets.
 ```
 
-No life story. No school details unless fresher.
+No college story. No tool laundry list.
 
-## Core behavioral questions (prepare 1 story each)
+## STAR (every behavioral)
 
-1. **Challenging bug or production issue** — show debugging process, not heroics
-2. **Disagreed with teammate or PM** — data and user impact, not drama
-3. **Project you're proud of** — tie to [project work](/tips?tab=projects) depth
-4. **Failure and what you learned** — ownership, no blaming
-5. **Tight deadline** — how you cut scope or communicated risk early
-6. **Mentoring or unblocking someone** — leadership signal for mid-level
-7. **Why leaving / why this company?** — positive forward look; never trash current employer
-8. **3-year growth** — deeper craft (system design, ownership), not "I want to be VP"
+| Letter | Do this |
+|--------|---------|
+| S | One sentence context |
+| T | **Your** job, not "the team" |
+| A | What you did — name the box (Redis lock, outbox, gateway) |
+| R | Metric or a behavior that changed |
 
-## What recruiters flag as red flags
+**90 seconds max.** They stop listening.
 
-- Cannot explain resume bullets in detail
-- Blames previous team/manager for everything
-- No questions for the interviewer ("I don't have any" = low interest)
-- Badmouths current company when asked why leaving
-- Coding interview: silent for 10+ minutes without clarifying or talking through approach
+## Stories you must have (one each)
 
-## Safe framing for hard questions
+1. **Production incident** — how you found it, mitigated, prevented the next one
+2. **Design trade-off** — sync vs NATS/Kafka, Mongo vs Postgres, gateway vs service logic
+3. **Disagreement** — PM or teammate, decided with user/latency/cost, not ego
+4. **Cut scope** — what you dropped to hit a date, how you told stakeholders
+5. **Mentoring or review bar** — even informal: you raised a PR standard
+6. **Why this company / why leave** — forward, never trash the current employer
+7. **Tenure / hopping** — if dates are tight, this is not optional
 
-**Weakness:** Real gap + active fix. *"I used to jump into code before aligning on requirements — now I write a one-paragraph spec and confirm with PM first."*
+## The hopping question (practice out loud)
 
-**Failure:** Own it, learning, changed behavior.
+They will ask. Answer in **four beats**:
 
-**Conflict:** User impact and trade-offs, not personalities.
+1. **True constraint:** product consulting / project end / better ownership — one sentence, no novel
+2. **What you shipped in that window:** one metric
+3. **What you want now:** stay and own a platform for years
+4. **Proof you are not a flight risk:** notice period, what you would own in 90 days here
 
-**Gap in employment:** Brief honest reason + what you did (projects, upskilling, family) — then pivot to readiness now.
+**Weak:** "I like to learn new stacks."
+**Strong:** "The engagement ended after we shipped X. I am targeting a product team where I can sit on one domain for years — that is why I am talking to you."
 
-## Technical prep rhythm (weekly)
+Do not invent overlapping jobs. Do not badmouth.
 
-| Day | Focus | Link |
-|-----|-------|------|
-| Mon–Wed | Read 1 pattern + recognition cues | [DSA Patterns](/patterns) |
-| Thu–Fri | Solve 2–3 problems in study mode | [Solve](/practice) |
-| Weekend | 1 mock or explain a solution aloud | — |
+## Why Senior / SDE-2 (if they push years)
 
-Hiring managers care more about **structured thinking** than 200 LeetCode solves. Depth on 15 patterns beats random grinding.
+"I am applying at this level because I have already split services, run async at tens of thousands of events, and owned payment or realtime paths. I want the **scope** of SDE-2 — design + on-call + mentoring — not a title on a visiting card."
 
-## Questions to ask them (shows you researched)
+If they only hire Senior at 7 YOE, take SDE-2 and win inside. Do not argue the JD.
 
-Pick 2 — recruiters notice when candidates ask smart questions:
+## Technical loop (what to study)
 
-- "What does success look like in the first 90 days for this role?"
-- "How is the team split between feature work and tech debt?"
-- "What's the on-call or production ownership expectation?"
-- "How do you approach code review and deployment frequency?"
+| Round | What "good" looks like | Prep |
+|-------|------------------------|------|
+| DSA | Talk, brute force, then cut. JS is fine if they allow it | [Patterns](/patterns) + [Solve](/practice) |
+| System design | Requirements, APIs, boxes, **one** deep dive | [System Design](/system-design) — Bitly, WhatsApp, rate limiter first |
+| Hiring manager | Ownership, conflict, 90-day plan | Stories above |
+| Bar raiser / skip | Honesty on gaps, how you debug | Incident story |
 
-## Day-before checklist
+Weekly rhythm:
 
-- [ ] Re-read job description — note 3 keywords to mention naturally
-- [ ] Prepare 2 questions to ask them
-- [ ] Test camera/mic if virtual
-- [ ] Sleep — tired brains fail easy questions
+| When | Do |
+|------|----|
+| 3 weekdays | 1 pattern or 2 LeetCode from the sheet |
+| 2 weekdays | 1 design page: requirements → boxes → phrase |
+| Weekend | 45 min mock: talk a design on a whiteboard or paper |
 
-## Day-of checklist
+Depth on **15 patterns + 8 designs** beats 300 random LC.
+
+## Questions to ask them (pick 2)
+
+- What does a strong SDE-2 own in the first 90 days?
+- How is on-call and who is paged for a customer-facing incident?
+- Service vs monolith — what is actually in production?
+- How do you review designs — RFC, Slack, or the loudest senior?
+
+## Day-before
+
+- [ ] JD: 3 keywords you will say naturally (tenancy, Kafka, Stripe — only if true)
+- [ ] 2 questions for them
+- [ ] Camera / mic if virtual
+- [ ] Sleep
+
+## Day-of
 
 - [ ] Join 2 minutes early
-- [ ] Think aloud during coding — silence reads as stuck
-- [ ] If stuck: clarify input, brute force first, then optimize
-- [ ] Send a **short thank-you** within 24h if you have interviewer emails (optional but memorable)
+- [ ] Coding: think aloud; brute force first if stuck
+- [ ] Design: write requirements before boxes
+- [ ] Optional thank-you in 24h if you have email
 
-## Motivation (read when anxious)
+## When a round goes badly
 
-- Companies reject **fit for a role**, not your worth as a person
-- A bad interview is practice data — note one thing to improve, move on
-- **Showing up consistently** is what you control
+Note **one** fix. Apply again the same week. Companies reject **fit for a req**, not your career.
+
+**Next:** [DSA Patterns](/patterns) · [System Design](/system-design)
