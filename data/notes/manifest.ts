@@ -53,6 +53,12 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Senior revision — Core Web Vitals, profiling, Node/DB bottlenecks, and production checklists.",
   },
   {
+    slug: "web-optimisation",
+    title: "Web Optimisation",
+    description:
+      "Web-focused revision — CRP, Core Web Vitals, bundling, images, fonts, caching, CDN, and RUM.",
+  },
+  {
     slug: "advanced-topics",
     title: "Docker, CI/CD & production",
     description:
