@@ -72,3 +72,65 @@ function subarraySum(nums, k) {
   return count;
 }
 ```
+
+## Range Sum Query - Immutable
+
+Baar-baar range sum pucha jayega. Prefix banao, fir `sum(l,r)=pref[r+1]-pref[l]` O(1) me.
+
+[Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
+
+```js
+// Hinglish: prefix jod — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/range-sum-query-immutable/
+function NumArray(nums) {
+  // Hinglish: prefix banao
+  this.pref = [0];
+  for (const x of nums) this.pref.push(this.pref.at(-1)+x);
+}
+NumArray.prototype.sumRange = function(l, r) {
+  return this.pref[r+1] - this.pref[l]; // Hinglish: O(1) range
+};
+```
+
+## Find Pivot Index
+
+Pivot jahan left sum == right sum. Total sum se left nikalte jao.
+
+[Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
+
+```js
+// Hinglish: prefix jod — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/find-pivot-index/
+function pivotIndex(nums) {
+  // Hinglish: total sum
+  const total = nums.reduce((a,b)=>a+b, 0);
+  let left = 0;
+  for (let i=0;i<nums.length;i++) {
+    if (left === total - left - nums[i]) return i; // Hinglish: left == right?
+    left += nums[i]; // Hinglish: left badhao
+  }
+  return -1;
+}
+```
+
+## Contiguous Array
+
+0 ko -1 banao, fir prefix sum zero wala longest. Hash map me pehli occurrence yaad rakho.
+
+[Contiguous Array](https://leetcode.com/problems/contiguous-array/)
+
+```js
+// Hinglish: prefix jod — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/contiguous-array/
+function findMaxLength(nums) {
+  // Hinglish: 0 -> -1, sum 0 matlab equal 0/1
+  const first = new Map([[0,-1]]); // Hinglish: sum 0 pehle -1 pe dekha
+  let sum=0, best=0;
+  for (let i=0;i<nums.length;i++) {
+    sum += nums[i]===0 ? -1 : 1;
+    if (first.has(sum)) best = Math.max(best, i - first.get(sum)); // Hinglish: pehle dekha to length nikalo
+    else first.set(sum, i); // Hinglish: pehli baar dekha yaad rakho
+  }
+  return best;
+}
+```

@@ -70,3 +70,70 @@ function largestRectangleArea(heights) {
   return best;
 }
 ```
+
+## Next Greater Element I
+
+Map se next greater nikalo. Stack decreasing rakho, pop hote hi answer pata chalta hai.
+
+[Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
+
+```js
+// Hinglish: stack se next greater — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/next-greater-element-i/
+function nextGreaterElement(nums1, nums2) {
+  // Hinglish: nums2 ka next greater map
+  const mp=new Map(), st=[];
+  for (const x of nums2) {
+    while(st.length && x > st.at(-1)) { const y=st.pop(); mp.set(y, x); } // Hinglish: bada mila to pop ka answer
+    st.push(x);
+  }
+  for (const y of st) mp.set(y, -1); // Hinglish: bacha to -1
+  return nums1.map(x=> mp.get(x));
+}
+```
+
+## Online Stock Span
+
+Har din ka span = kitne consecutive peeche wale days price <= aaj. Stack me [price, span] rakho.
+
+[Online Stock Span](https://leetcode.com/problems/online-stock-span/)
+
+```js
+// Hinglish: stack se next greater — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/online-stock-span/
+function StockSpanner() { this.st=[]; } // [price, span]
+StockSpanner.prototype.next = function(price) {
+  // Hinglish: chhote prices ko kha jao
+  let span=1;
+  while(this.st.length && this.st.at(-1)[0] <= price) { span += this.st.pop()[1]; } // Hinglish: combine span
+  this.st.push([price, span]);
+  return span;
+};
+```
+
+## Trapping Rain Water (Monotonic Stack Variant)
+
+Stack se pits dhoondo. Har pop ke baad bounded height nikal ke water jodo.
+
+[Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+
+```js
+// Hinglish: stack se next greater — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/trapping-rain-water/ (stack variant, two-pointer bhi dekho)
+function trap(height) {
+  // Hinglish: decreasing stack
+  let ans=0; const st=[];
+  for (let i=0;i<height.length;i++) {
+    while(st.length && height[i] > height[st.at(-1)]) {
+      const mid=st.pop();
+      if (!st.length) break;
+      const left=st.at(-1);
+      const h = Math.min(height[left], height[i]) - height[mid]; // Hinglish: bounded height
+      const w = i - left - 1;
+      ans += h * w;
+    }
+    st.push(i);
+  }
+  return ans;
+}
+```

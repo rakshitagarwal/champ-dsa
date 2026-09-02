@@ -107,3 +107,74 @@ function maxSlidingWindow(nums, k) {
   return out;
 }
 ```
+
+## Longest Repeating Character Replacement
+
+Window me sabse zyada frequent char `maxF`, window size - maxF <= k to valid. Nahi to left shrink karo.
+
+[Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
+
+```js
+// Hinglish: window slide karo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/longest-repeating-character-replacement/
+function characterReplacement(s, k) {
+  // Hinglish: freq map + max count
+  const freq={}; let left=0, maxF=0, best=0;
+  for (let right=0; right<s.length; right++) {
+    const ch=s[right];
+    freq[ch]=(freq[ch]||0)+1;
+    maxF = Math.max(maxF, freq[ch]); // Hinglish: ab tak ka max freq
+    while ((right-left+1) - maxF > k) { // Hinglish: zyada replacement lage to shrink
+      freq[s[left]]--; left++;
+    }
+    best = Math.max(best, right-left+1);
+  }
+  return best;
+}
+```
+
+## Permutation in String
+
+`s1` ka permutation `s2` me hai kya? Sliding window + frequency compare.
+
+[Permutation in String](https://leetcode.com/problems/permutation-in-string/)
+
+```js
+// Hinglish: window slide karo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/permutation-in-string/
+function checkInclusion(s1, s2) {
+  // Hinglish: s1 ka freq
+  if (s1.length > s2.length) return false;
+  const need=Array(26).fill(0), win=Array(26).fill(0);
+  for (let i=0;i<s1.length;i++) { need[s1.charCodeAt(i)-97]++; win[s2.charCodeAt(i)-97]++; }
+  const same=()=> need.every((v,i)=>v===win[i]);
+  if (same()) return true;
+  for (let i=s1.length;i<s2.length;i++) {
+    win[s2.charCodeAt(i)-97]++; // Hinglish: naya add
+    win[s2.charCodeAt(i-s1.length)-97]--; // Hinglish: purana hatao
+    if (same()) return true;
+  }
+  return false;
+}
+```
+
+## Maximum Average Subarray I
+
+Size `k` ki window me max sum / k. Fixed sliding window.
+
+[Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
+
+```js
+// Hinglish: window slide karo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/maximum-average-subarray-i/
+function findMaxAverage(nums, k) {
+  // Hinglish: pehle k ka sum
+  let sum=0; for(let i=0;i<k;i++) sum+=nums[i];
+  let best=sum;
+  for(let i=k;i<nums.length;i++) {
+    sum += nums[i] - nums[i-k]; // Hinglish: slide — add naya, hatao purana
+    best = Math.max(best, sum);
+  }
+  return best / k;
+}
+```

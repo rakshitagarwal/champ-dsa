@@ -117,3 +117,77 @@ function longestConsecutive(nums) {
   return best;
 }
 ```
+
+## Contains Duplicate
+
+Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing check.
+
+[Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
+
+```js
+// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/contains-duplicate/
+function containsDuplicate(nums) {
+  // Hinglish: set me pehle se hai kya?
+  const seen = new Set();
+  for (const x of nums) {
+    if (seen.has(x)) return true; // Hinglish: duplicate mil gaya
+    seen.add(x); // Hinglish: yaad rakho
+  }
+  return false;
+}
+```
+
+## Valid Sudoku
+
+Har row, column, aur 3x3 box me 1-9 ek baar hi aana chahiye. Hash set se check karo.
+
+[Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)
+
+```js
+// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/valid-sudoku/
+function isValidSudoku(board) {
+  // Hinglish: 3 tarah ke set — row, col, box
+  const rows = Array.from({length:9}, ()=> new Set());
+  const cols = Array.from({length:9}, ()=> new Set());
+  const boxes = Array.from({length:9}, ()=> new Set());
+  for (let r=0; r<9; r++) {
+    for (let c=0; c<9; c++) {
+      const v = board[r][c];
+      if (v === ".") continue;
+      const b = Math.floor(r/3)*3 + Math.floor(c/3); // Hinglish: box index
+      if (rows[r].has(v) || cols[c].has(v) || boxes[b].has(v)) return false; // Hinglish: pehle se hai to invalid
+      rows[r].add(v); cols[c].add(v); boxes[b].add(v); // Hinglish: yaad rakho
+    }
+  }
+  return true;
+}
+```
+
+## Top K Frequent Elements
+
+Frequency gino, fir heap / bucket se top K nikalo. Hashing + heap combo ka classic.
+
+[Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
+
+```js
+// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/top-k-frequent-elements/
+function topKFrequent(nums, k) {
+  // Hinglish: pehle frequency map banao
+  const freq = new Map();
+  for (const x of nums) freq.set(x, (freq.get(x)||0)+1);
+  // Hinglish: frequency ke hisaab se bucket
+  const bucket = Array(nums.length+1).fill(0).map(()=>[]);
+  for (const [num, f] of freq) bucket[f].push(num); // Hinglish: f wali bucket me daalo
+  const ans = [];
+  for (let f=bucket.length-1; f>=0 && ans.length < k; f--) {
+    for (const n of bucket[f]) {
+      ans.push(n);
+      if (ans.length===k) break;
+    }
+  }
+  return ans;
+}
+```

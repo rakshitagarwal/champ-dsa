@@ -71,3 +71,63 @@ function insert(intervals, newInterval) {
   return out;
 }
 ```
+
+## Non-overlapping Intervals
+
+Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy rakho.
+
+[Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
+
+```js
+// Hinglish: sort karke merge — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/non-overlapping-intervals/
+function eraseOverlapIntervals(intervals) {
+  // Hinglish: end se sort, jaldi khatam wala pehle
+  intervals.sort((a,b)=>a[1]-b[1]);
+  let kept = 0, lastEnd = -Infinity;
+  for (const [s,e] of intervals) {
+    if (s >= lastEnd) { kept++; lastEnd = e; } // Hinglish: overlap nahi to rakho
+    // warna hatao
+  }
+  return intervals.length - kept; // Hinglish: hatane wale
+}
+```
+
+## Meeting Rooms (Can Attend All Meetings)
+
+Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
+
+[Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
+
+```js
+// Hinglish: sort karke merge — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/meeting-rooms/ (premium, lintcode 920)
+function canAttendMeetings(intervals) {
+  // Hinglish: start se sort
+  intervals.sort((a,b)=>a[0]-b[0]);
+  for (let i=1;i<intervals.length;i++) {
+    if (intervals[i][0] < intervals[i-1][1]) return false; // Hinglish: overlap to nahi kar sakte
+  }
+  return true;
+}
+```
+
+## Sort Colors (Dutch Flag)
+
+0,1,2 ko ek pass me sort karo. Low, mid, high pointer.
+
+[Sort Colors](https://leetcode.com/problems/sort-colors/)
+
+```js
+// Hinglish: sort karke merge — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/sort-colors/
+function sortColors(nums) {
+  // Hinglish: 0 left, 2 right
+  let lo=0, mid=0, hi=nums.length-1;
+  while (mid <= hi) {
+    if (nums[mid]===0) [nums[lo++], nums[mid++]] = [nums[mid], nums[lo]]; // Hinglish: 0 ko aage bhejo
+    else if (nums[mid]===1) mid++; // Hinglish: 1 to sahi jagah
+    else [nums[mid], nums[hi--]] = [nums[hi], nums[mid]]; // Hinglish: 2 ko piche bhejo
+  }
+}
+```

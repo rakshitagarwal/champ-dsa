@@ -133,3 +133,45 @@ function mergeKLists(lists) {
   return dummy.next;
 }
 ```
+
+## K Closest Points to Origin
+
+Distance se min-heap. Top K nikal lo.
+
+[K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)
+
+```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/k-closest-points-to-origin/
+function kClosest(points, k) {
+  // Hinglish: distance = x*x + y*y
+  points.sort((a,b)=> (a[0]*a[0]+a[1]*a[1]) - (b[0]*b[0]+b[1]*b[1])); // Hinglish: sort karke top K (quick)
+  return points.slice(0,k);
+  // Heap se bhi: heapPush distance, size>k to pop
+}
+```
+
+## Last Stone Weight
+
+Har baar 2 sabse heavy lo, takrao, bacha to wapas daalo. Max-heap.
+
+[Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
+
+```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/last-stone-weight/
+function lastStoneWeight(stones) {
+  // Hinglish: max-heap banane ke liye sort + pop (ok for interview)
+  stones.sort((a,b)=>a-b);
+  while (stones.length>1) {
+    const b=stones.pop(), a=stones.pop(); // Hinglish: 2 bade
+    if (a!==b) {
+      const diff = b-a;
+      // Hinglish: insert sorted
+      let i=0; while(i<stones.length && stones[i]<diff) i++;
+      stones.splice(i,0,diff);
+    }
+  }
+  return stones[0]||0;
+}
+```

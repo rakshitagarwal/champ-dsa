@@ -293,3 +293,64 @@ function maxCoins(nums) {
   return dp[0][n - 1];
 }
 ```
+
+## House Robber II (Circular)
+
+Ghar gol me hain, pehla aur aakhri saath nahi loot sakte. Do cases: [0..n-2] aur [1..n-1] me se best.
+
+[House Robber II](https://leetcode.com/problems/house-robber-ii/)
+
+```js
+// Hinglish: dp state bharo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/house-robber-ii/
+function rob2(nums) {
+  // Hinglish: single to wahi
+  if(nums.length===1) return nums[0];
+  const robRange=(l,r)=>{
+    let prev2=0, prev1=0;
+    for(let i=l;i<=r;i++){ const cur=Math.max(prev1, prev2+nums[i]); prev2=prev1; prev1=cur; } // Hinglish: loot ya chhodo
+    return prev1;
+  };
+  return Math.max(robRange(0, nums.length-2), robRange(1, nums.length-1)); // Hinglish: pehla chhodo ya aakhri chhodo
+}
+```
+
+## Longest Palindromic Subsequence
+
+`dp` me LCS string aur uske reverse ka. Ya `dp[i][j]` interval DP.
+
+[Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
+
+```js
+// Hinglish: dp state bharo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/longest-palindromic-subsequence/
+function longestPalindromeSubseq(s) {
+  // Hinglish: reverse se LCS
+  const t=[...s].reverse().join("");
+  const n=s.length, dp=Array.from({length:n+1},()=>Array(n+1).fill(0));
+  for(let i=1;i<=n;i++) for(let j=1;j<=n;j++){
+    if(s[i-1]===t[j-1]) dp[i][j]=dp[i-1][j-1]+1; // Hinglish: match to +1
+    else dp[i][j]=Math.max(dp[i-1][j], dp[i][j-1]); // Hinglish: ek chhodo
+  }
+  return dp[n][n];
+}
+```
+
+## Coin Change II (Number of Ways)
+
+Kitne tareeke se amount banao? Order nahi count karna, coin loop bahar.
+
+[Coin Change II](https://leetcode.com/problems/coin-change-2/)
+
+```js
+// Hinglish: dp state bharo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/coin-change-2/
+function change(amount, coins) {
+  // Hinglish: dp[a] = tareeke
+  const dp=Array(amount+1).fill(0); dp[0]=1; // Hinglish: 0 ka 1 tareeka
+  for(const c of coins){
+    for(let a=c;a<=amount;a++) dp[a]+=dp[a-c]; // Hinglish: c wala use karo
+  }
+  return dp[amount];
+}
+```

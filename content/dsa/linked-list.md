@@ -163,3 +163,60 @@ function copyRandomList(head) {
   return map.get(head);
 }
 ```
+
+## Middle of the Linked List
+
+Fast 2x, slow 1x. Fast khatam to slow middle par.
+
+[Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
+
+```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/middle-of-the-linked-list/
+function middleNode(head) {
+  // Hinglish: fast double
+  let slow=head, fast=head;
+  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; } // Hinglish: slow 1, fast 2
+  return slow;
+}
+```
+
+## Palindrome Linked List
+
+Middle dhoondo, second half reverse karo, fir dono half compare karo.
+
+[Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
+
+```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/palindrome-linked-list/
+function isPalindrome(head) {
+  // Hinglish: middle
+  let slow=head, fast=head;
+  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; }
+  // Hinglish: reverse second half
+  let prev=null, cur=slow;
+  while (cur) { const nxt=cur.next; cur.next=prev; prev=cur; cur=nxt; }
+  // Hinglish: compare
+  let p1=head, p2=prev;
+  while (p2) { if (p1.val!==p2.val) return false; p1=p1.next; p2=p2.next; }
+  return true;
+}
+```
+
+## Intersection of Two Linked Lists
+
+Do pointers, end par dusri list pe switch karo. Milenge to intersection.
+
+[Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
+
+```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/intersection-of-two-linked-lists/
+function getIntersectionNode(headA, headB) {
+  // Hinglish: dono switch karte hain
+  let a=headA, b=headB;
+  while (a!==b) { a = a ? a.next : headB; b = b ? b.next : headA; } // Hinglish: end par dusri list
+  return a;
+}
+```

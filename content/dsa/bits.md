@@ -114,3 +114,61 @@ function isPowerOfTwo(n) {
   return n > 0 && (n & (n - 1)) === 0;
 }
 ```
+
+## Single Number II
+
+Har number 3 baar, ek single. Bits count mod 3 se nikalo.
+
+[Single Number II](https://leetcode.com/problems/single-number-ii/)
+
+```js
+// Hinglish: bit hatana — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/single-number-ii/
+function singleNumberII(nums) {
+  // Hinglish: har bit 0..31 gin ke mod 3
+  let ans=0;
+  for(let b=0;b<32;b++){
+    let cnt=0;
+    for(const x of nums) if((x>>b)&1) cnt++; // Hinglish: b-th bit kitni baar 1
+    if(cnt%3) ans |= (1<<b); // Hinglish: single ka bit
+  }
+  return ans;
+}
+```
+
+## Reverse Bits
+
+32-bit unsigned integer ke bits ulta karo.
+
+[Reverse Bits](https://leetcode.com/problems/reverse-bits/)
+
+```js
+// Hinglish: bit hatana — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/reverse-bits/
+function reverseBits(n) {
+  // Hinglish: har bit utha ke result me aage daalo
+  let res=0;
+  for(let i=0;i<32;i++){
+    res = (res<<1) | (n & 1); // Hinglish: last bit lo, left shift
+    n >>>= 1; // Hinglish: unsigned shift
+  }
+  return res >>> 0;
+}
+```
+
+## Hamming Distance
+
+Do numbers me kitne bits alag? XOR karke set bits gino.
+
+[Hamming Distance](https://leetcode.com/problems/hamming-distance/)
+
+```js
+// Hinglish: bit hatana — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/hamming-distance/
+function hammingDistance(x, y) {
+  // Hinglish: XOR me 1 = alag
+  let z = x ^ y, cnt=0;
+  while(z){ z &= z-1; cnt++; } // Hinglish: ek 1 hataya
+  return cnt;
+}
+```

@@ -142,3 +142,72 @@ function leastInterval(tasks, n) {
   return Math.max(tasks.length, (max - 1) * (n + 1) + extra);
 }
 ```
+
+## Minimum Number of Arrows to Burst Balloons
+
+Balloon = interval. End se sort karo, ek arrow jahan tak cover kare rakho.
+
+[Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
+
+```js
+// Hinglish: local best lo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/
+function findMinArrowShots(points) {
+  // Hinglish: end se sort
+  points.sort((a,b)=>a[1]-b[1]);
+  let arrows=0, last=-Infinity;
+  for(const [s,e] of points){
+    if(s>last){ arrows++; last=e; } // Hinglish: naya arrow chahiye
+  }
+  return arrows;
+}
+```
+
+## Lemonade Change
+
+5,10,20 notes. Greedy: 20 aaye to 10+5 do, nahi to 5+5+5.
+
+[Lemonade Change](https://leetcode.com/problems/lemonade-change/)
+
+```js
+// Hinglish: local best lo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/lemonade-change/
+function lemonadeChange(bills) {
+  // Hinglish: 5 aur 10 ka count
+  let five=0, ten=0;
+  for(const b of bills){
+    if(b===5) five++; // Hinglish: 5 aaya
+    else if(b===10){ if(!five) return false; five--; ten++; } // Hinglish: 5 do
+    else { // 20
+      if(ten && five){ ten--; five--; } // Hinglish: 10+5 best
+      else if(five>=3) five-=3; // Hinglish: 5x3
+      else return false;
+    }
+  }
+  return true;
+}
+```
+
+## Valid Parenthesis String (with *)
+
+`*` ko `(`, `)` ya empty maan sakte hain. Greedy range `low..high` open count ka.
+
+[Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/)
+
+```js
+// Hinglish: local best lo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/valid-parenthesis-string/
+function checkValidString(s) {
+  // Hinglish: low = min open, high = max open
+  let low=0, high=0;
+  for(const ch of s){
+    if(ch==='('){ low++; high++; }
+    else if(ch===')'){ low=Math.max(0, low-1); high--; }
+    else { // *
+      low=Math.max(0, low-1); high++; // Hinglish: * ko close ya open
+    }
+    if(high<0) return false; // Hinglish: zyada close
+  }
+  return low===0;
+}
+```

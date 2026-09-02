@@ -226,3 +226,60 @@ function kthSmallest(root, k) {
   return ans;
 }
 ```
+
+## Invert Binary Tree
+
+Har node ke left/right swap karo. Recursion se dono subtree invert.
+
+[Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
+
+```js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/invert-binary-tree/
+function invertTree(root) {
+  // Hinglish: null to wapas
+  if (!root) return null;
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Hinglish: swap
+  return root;
+}
+```
+
+## Same Tree
+
+Dono trees ka structure aur value same hai kya? Dono null to true, ek null to false.
+
+[Same Tree](https://leetcode.com/problems/same-tree/)
+
+```js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/same-tree/
+function isSameTree(p, q) {
+  // Hinglish: dono null to same
+  if (!p && !q) return true;
+  if (!p || !q) return false;
+  if (p.val!==q.val) return false; // Hinglish: value alag to false
+  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Hinglish: dono side check
+}
+```
+
+## Subtree of Another Tree
+
+`s` me `t` jaisa subtree hai kya? Har node ko root maan ke sameTree check.
+
+[Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
+
+```js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/subtree-of-another-tree/
+function isSubtree(root, subRoot) {
+  // Hinglish: same tree helper
+  const same=(a,b)=>{
+    if(!a&&!b) return true;
+    if(!a||!b||a.val!==b.val) return false;
+    return same(a.left,b.left) && same(a.right,b.right);
+  };
+  if (!root) return false;
+  if (same(root, subRoot)) return true; // Hinglish: yahan se match?
+  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Hinglish: left/right me dhoondo
+}
+```

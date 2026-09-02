@@ -111,3 +111,55 @@ function findWords(board, words) {
   return ans;
 }
 ```
+
+## Design Add and Search Words Data Structure
+
+Trie me `.` wildcard search bhi chahiye. DFS se har child try karo.
+
+[Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
+
+```js
+// Hinglish: trie walk — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/design-add-and-search-words-data-structure/
+function WordDictionary(){ this.root={kids:{}, end:false}; }
+WordDictionary.prototype.addWord=function(word){
+  // Hinglish: insert
+  let cur=this.root;
+  for(const ch of word){ if(!cur.kids[ch]) cur.kids[ch]={kids:{}, end:false}; cur=cur.kids[ch]; }
+  cur.end=true; // Hinglish: khatam
+};
+WordDictionary.prototype.search=function(word){
+  // Hinglish: DFS
+  const dfs=(node,i)=>{
+    if(i===word.length) return node.end;
+    const ch=word[i];
+    if(ch==='.'){ for(const kid in node.kids) if(dfs(node.kids[kid], i+1)) return true; return false; } // Hinglish: har rasta try
+    if(!node.kids[ch]) return false;
+    return dfs(node.kids[ch], i+1);
+  };
+  return dfs(this.root,0);
+};
+```
+
+## Longest Word in Dictionary
+
+Sab prefixes wale words me se sabse lamba (lexicographically chhota tie me). Trie/ Set se check.
+
+[Longest Word in Dictionary](https://leetcode.com/problems/longest-word-in-dictionary/)
+
+```js
+// Hinglish: trie walk — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/longest-word-in-dictionary/
+function longestWord(words) {
+  // Hinglish: set me saare words
+  const set=new Set(words);
+  let best="";
+  for(const w of words){
+    let ok=true;
+    for(let i=1;i<w.length;i++) if(!set.has(w.slice(0,i))) ok=false; // Hinglish: har prefix hai kya?
+    if(!ok) continue;
+    if(w.length>best.length || (w.length===best.length && w<best)) best=w; // Hinglish: lamba ya lexicographically chhota
+  }
+  return best;
+}
+```

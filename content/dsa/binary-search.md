@@ -208,3 +208,49 @@ function myPow(x, n) {
   return n % 2 === 0 ? half * half : half * half * x;
 }
 ```
+
+## Search Insert Position
+
+Target kahan insert hoga wahi lower_bound hai. Binary search se `lo` hi answer.
+
+[Search Insert Position](https://leetcode.com/problems/search-insert-position/)
+
+```js
+// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/search-insert-position/
+function searchInsert(nums, target) {
+  // Hinglish: lower bound
+  let lo=0, hi=nums.length;
+  while (lo<hi) {
+    const mid = lo + ((hi-lo)>>1);
+    if (nums[mid] < target) lo=mid+1; // Hinglish: chhota to right
+    else hi=mid; // Hinglish: bada/equal to left me rakho
+  }
+  return lo;
+}
+```
+
+## Find First and Last Position of Element in Sorted Array
+
+Lower bound aur upper bound ka khel. Do binary search.
+
+[Find First and Last Position](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+```js
+// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
+function searchRange(nums, target) {
+  // Hinglish: first >= target
+  const lower = ()=>{
+    let lo=0, hi=nums.length;
+    while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<target) lo=mid+1; else hi=mid; }
+    return lo;
+  };
+  const l = lower();
+  if (l===nums.length || nums[l]!==target) return [-1,-1]; // Hinglish: mila hi nahi
+  // Hinglish: first > target -1 = last
+  let lo=0, hi=nums.length;
+  while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<=target) lo=mid+1; else hi=mid; }
+  return [l, lo-1];
+}
+```

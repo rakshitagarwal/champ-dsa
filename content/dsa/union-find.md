@@ -79,3 +79,57 @@ function minCostConnectPoints(points) {
   return cost;
 }
 ```
+
+## Number of Provinces (Union-Find)
+
+Union-Find se bhi provinces gin sakte hain. Connected cities ko union karo.
+
+[Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
+
+```js
+// Hinglish: find-union — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/number-of-provinces/
+function findCircleNumUF(isConnected) {
+  // Hinglish: DSU
+  const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
+  const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
+  const union=(a,b)=>{
+    a=find(a); b=find(b); if(a===b) return;
+    if(rank[a]<rank[b]) [a,b]=[b,a];
+    p[b]=a; if(rank[a]===rank[b]) rank[a]++;
+  };
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j); // Hinglish: juda to union
+  const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
+  return roots.size;
+}
+```
+
+## Accounts Merge
+
+Same email wale accounts merge karo. Email ko node, account ke emails ko union karo.
+
+[Accounts Merge](https://leetcode.com/problems/accounts-merge/)
+
+```js
+// Hinglish: find-union — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/accounts-merge/
+function accountsMerge(accounts) {
+  // Hinglish: email -> id
+  const id=new Map(); let eid=0;
+  for(const acc of accounts) for(let i=1;i<acc.length;i++) if(!id.has(acc[i])) id.set(acc[i], eid++);
+  const p=Array.from({length:eid},(_,i)=>i), rank=Array(eid).fill(0);
+  const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
+  const union=(a,b)=>{ a=find(a); b=find(b); if(a===b) return; if(rank[a]<rank[b]) [a,b]=[b,a]; p[b]=a; if(rank[a]===rank[b]) rank[a]++; };
+  for(const acc of accounts) for(let i=2;i<acc.length;i++) union(id.get(acc[1]), id.get(acc[i])); // Hinglish: ek account ke emails union
+  const groups=new Map();
+  for(const [email,i] of id) { const r=find(i); if(!groups.has(r)) groups.set(r, []); groups.get(r).push(email); }
+  const ans=[];
+  for(const emails of groups.values()){ emails.sort(); // Hinglish: sort
+    // naam dhoondo
+    let name="";
+    for(const acc of accounts) if(acc.includes(emails[0])){ name=acc[0]; break; }
+    ans.push([name, ...emails]);
+  }
+  return ans;
+}
+```

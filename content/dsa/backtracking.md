@@ -203,3 +203,110 @@ function solveNQueens(n) {
   return ans;
 }
 ```
+
+## Subsets II (Duplicates)
+
+Duplicate numbers ke saath subsets, duplicate subsets avoid karo. Sort karke `i>start && nums[i]==nums[i-1]` skip karo.
+
+[Subsets II](https://leetcode.com/problems/subsets-ii/)
+
+```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/subsets-ii/
+function subsetsWithDup(nums) {
+  // Hinglish: sort karke duplicate pakdo
+  nums.sort((a,b)=>a-b);
+  const ans=[];
+  const dfs=(start, path)=>{
+    ans.push([...path]); // Hinglish: har path save
+    for(let i=start;i<nums.length;i++){
+      if(i>start && nums[i]===nums[i-1]) continue; // Hinglish: duplicate skip
+      path.push(nums[i]); // Hinglish: choice liya
+      dfs(i+1, path);
+      path.pop(); // Hinglish: wapas hataya (backtrack)
+    }
+  };
+  dfs(0, []);
+  return ans;
+}
+```
+
+## Combination Sum II
+
+Har coin ek baar, duplicate combos nahi. Sort + skip `i>start && same`.
+
+[Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
+
+```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/combination-sum-ii/
+function combinationSum2(candidates, target) {
+  // Hinglish: sort
+  candidates.sort((a,b)=>a-b);
+  const ans=[];
+  const dfs=(start, remain, path)=>{
+    if(remain===0){ ans.push([...path]); return; } // Hinglish: mil gaya
+    if(remain<0) return; // Hinglish: overshoot
+    for(let i=start;i<candidates.length;i++){
+      if(i>start && candidates[i]===candidates[i-1]) continue; // Hinglish: duplicate skip
+      path.push(candidates[i]); // Hinglish: choice liya
+      dfs(i+1, remain-candidates[i], path);
+      path.pop(); // Hinglish: backtrack
+    }
+  };
+  dfs(0, target, []);
+  return ans;
+}
+```
+
+## Palindrome Partitioning
+
+String ko tukdon me kaato jahan har tukda palindrome ho. Backtrack se cut try karo.
+
+[Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)
+
+```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/palindrome-partitioning/
+function partition(s) {
+  // Hinglish: palindrome check
+  const isPal=(l,r)=>{ while(l<r){ if(s[l++]!==s[r--]) return false; } return true; };
+  const ans=[];
+  const dfs=(start, path)=>{
+    if(start===s.length){ ans.push([...path]); return; } // Hinglish: pura kaat liya
+    for(let end=start; end<s.length; end++){
+      if(!isPal(start,end)) continue; // Hinglish: palindrome nahi to skip
+      path.push(s.slice(start,end+1)); // Hinglish: choice liya
+      dfs(end+1, path);
+      path.pop(); // Hinglish: backtrack
+    }
+  };
+  dfs(0, []);
+  return ans;
+}
+```
+
+## Letter Combinations of a Phone Number
+
+Phone digits se saare letter combos. Har digit ke letters pe loop.
+
+[Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
+
+```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+function letterCombinations(digits) {
+  // Hinglish: empty to []
+  if(!digits) return [];
+  const mp={2:"abc",3:"def",4:"ghi",5:"jkl",6:"mno",7:"pqrs",8:"tuv",9:"wxyz"};
+  const ans=[];
+  const dfs=(i, path)=>{
+    if(i===digits.length){ ans.push(path); return; } // Hinglish: pura ban gaya
+    for(const ch of mp[digits[i]]){
+      dfs(i+1, path+ch); // Hinglish: har letter try
+    }
+  };
+  dfs(0, "");
+  return ans;
+}
+```

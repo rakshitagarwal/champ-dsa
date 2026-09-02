@@ -79,3 +79,75 @@ MinStack.prototype.getMin = function () {
   return this.mins.at(-1);
 };
 ```
+
+## Evaluate Reverse Polish Notation
+
+Stack me number push, operator aaye to top 2 pop karke compute karke wapas push karo.
+
+[Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
+
+```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/evaluate-reverse-polish-notation/
+function evalRPN(tokens) {
+  // Hinglish: stack me numbers
+  const st=[];
+  for (const t of tokens) {
+    if (["+","-","*","/"].includes(t)) {
+      const b=st.pop(), a=st.pop(); // Hinglish: do nikal ke compute
+      let v=0;
+      if (t==='+') v=a+b; else if (t==='-') v=a-b; else if (t==='*') v=a*b; else v=Math.trunc(a/b); // Hinglish: divide truncate
+      st.push(v);
+    } else st.push(Number(t)); // Hinglish: number push
+  }
+  return st[0];
+}
+```
+
+## Daily Temperatures (Stack)
+
+Monotonic decreasing stack se next warmer day ka wait nikalo. (Monotonic page se link)
+
+[Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
+
+```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/daily-temperatures/
+function dailyTemperatures(temps) {
+  // Hinglish: decreasing stack
+  const n=temps.length, ans=Array(n).fill(0), st=[];
+  for (let i=0;i<n;i++) {
+    while(st.length && temps[i] > temps[st.at(-1)]) {
+      const j=st.pop(); ans[j]=i-j; // Hinglish: garam mila to wait pata chala
+    }
+    st.push(i);
+  }
+  return ans;
+}
+```
+
+## Asteroid Collision
+
+Asteroid left/right move karte hain. Stack me rakho, opposite direction aaye to takkar.
+
+[Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
+
+```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/asteroid-collision/
+function asteroidCollision(asteroids) {
+  // Hinglish: stack me survivors
+  const st=[];
+  for (const a of asteroids) {
+    let cur=a;
+    while (st.length && cur<0 && st.at(-1)>0) {
+      const top=st.at(-1);
+      if (Math.abs(top) < Math.abs(cur)) { st.pop(); continue; } // Hinglish: top chhota to gaya
+      else if (Math.abs(top) === Math.abs(cur)) { st.pop(); cur=0; break; } // Hinglish: dono gaye
+      else { cur=0; break; } // Hinglish: cur chhota to cur gaya
+    }
+    if (cur!==0) st.push(cur);
+  }
+  return st;
+}
+```

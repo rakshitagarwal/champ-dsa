@@ -120,3 +120,82 @@ function maxSubArray(nums) {
   return best;
 }
 ```
+
+## Best Time to Buy and Sell Stock
+
+Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek scan me min price track karo.
+
+[Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
+
+```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+function maxProfit(prices) {
+  // Hinglish: sabse kam price yaad rakho
+  let best = 0, minPrice = Infinity;
+  for (const p of prices) {
+    minPrice = Math.min(minPrice, p); // Hinglish: sasta mila to update
+    best = Math.max(best, p - minPrice); // Hinglish: bech ke dekho profit
+  }
+  return best;
+}
+```
+
+## Remove Duplicates from Sorted Array
+
+Sorted hai to duplicates bagal me honge. Write pointer se unique hi rakho, length return karo.
+
+[Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+
+```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/remove-duplicates-from-sorted-array/
+function removeDuplicates(nums) {
+  // Hinglish: write = unique ka end
+  if (!nums.length) return 0;
+  let write = 1;
+  for (let read=1; read<nums.length; read++) {
+    if (nums[read] !== nums[read-1]) nums[write++] = nums[read]; // Hinglish: naya unique mila to copy
+  }
+  return write; // Hinglish: naya length
+}
+```
+
+## Majority Element
+
+Boyer-Moore voting — candidate rakho, count badhao/ghatao. End me candidate hi majority.
+
+[Majority Element](https://leetcode.com/problems/majority-element/)
+
+```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/majority-element/
+function majorityElement(nums) {
+  // Hinglish: vote karo
+  let cand = 0, count = 0;
+  for (const x of nums) {
+    if (count===0) cand = x; // Hinglish: naya candidate
+    count += (x===cand ? 1 : -1); // Hinglish: same to +1 warna -1
+  }
+  return cand;
+}
+```
+
+## Merge Sorted Array
+
+Do sorted arrays, piche se bharo taaki overwrite na ho. `m+n` jagah pehle se hai.
+
+[Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
+
+```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/merge-sorted-array/
+function merge(nums1, m, nums2, n) {
+  // Hinglish: piche se bharo
+  let i=m-1, j=n-1, k=m+n-1;
+  while (j>=0) {
+    if (i>=0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--]; // Hinglish: bada wala piche
+    else nums1[k--] = nums2[j--];
+  }
+}
+```

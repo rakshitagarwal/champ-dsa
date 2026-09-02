@@ -297,3 +297,51 @@ function findCheapestPrice(n, flights, src, dst, k) {
   return dist[dst] === Infinity ? -1 : dist[dst];
 }
 ```
+
+## Surrounded Regions
+
+Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
+
+[Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/surrounded-regions/
+function solve(board) {
+  // Hinglish: border O ko mark karo
+  const R=board.length, C=board[0].length;
+  const dfs=(r,c)=>{
+    if(r<0||c<0||r>=R||c>=C||board[r][c]!=='O') return;
+    board[r][c]='S'; // Hinglish: safe mark
+    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
+  };
+  for(let r=0;r<R;r++){ dfs(r,0); dfs(r,C-1); }
+  for(let c=0;c<C;c++){ dfs(0,c); dfs(R-1,c); }
+  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+    if(board[r][c]==='O') board[r][c]='X'; // Hinglish: surrounded to X
+    else if(board[r][c]==='S') board[r][c]='O'; // Hinglish: safe wapas O
+  }
+}
+```
+
+## Number of Provinces
+
+Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
+
+[Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/number-of-provinces/
+function findCircleNum(isConnected) {
+  // Hinglish: visited + DFS
+  const n=isConnected.length, seen=Array(n).fill(false);
+  let provinces=0;
+  const dfs=(u)=>{
+    seen[u]=true;
+    for(let v=0; v<n; v++) if(isConnected[u][v] && !seen[v]) dfs(v); // Hinglish: juda hai to jao
+  };
+  for(let i=0;i<n;i++) if(!seen[i]){ dfs(i); provinces++; } // Hinglish: naya component
+  return provinces;
+}
+```

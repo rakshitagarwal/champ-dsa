@@ -102,3 +102,73 @@ function trap(height) {
   return water;
 }
 ```
+
+## Container With Most Water
+
+Do pointer, jo height chhoti usko move karo. Area = min(h[l],h[r]) * width, best rakho.
+
+[Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+
+```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/container-with-most-water/
+function maxArea(height) {
+  // Hinglish: dono end se start
+  let l=0, r=height.length-1, best=0;
+  while (l < r) {
+    const area = Math.min(height[l], height[r]) * (r - l); // Hinglish: current area
+    best = Math.max(best, area);
+    if (height[l] < height[r]) l++; // Hinglish: chhoti height hatayi, badi ka chance
+    else r--;
+  }
+  return best;
+}
+```
+
+## 3Sum
+
+Sort karke har `i` ko fix karo, fir `l,r` se 2-sum dhoondo. Duplicate skip karo.
+
+[3Sum](https://leetcode.com/problems/3sum/)
+
+```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/3sum/
+function threeSum(nums) {
+  // Hinglish: pehle sort
+  nums.sort((a,b)=>a-b);
+  const ans=[];
+  for (let i=0;i<nums.length-2;i++) {
+    if (i>0 && nums[i]===nums[i-1]) continue; // Hinglish: duplicate i skip
+    let l=i+1, r=nums.length-1;
+    while (l<r) {
+      const sum = nums[i]+nums[l]+nums[r];
+      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // Hinglish: mila to dono move + duplicate skip
+      else if (sum<0) l++; // Hinglish: chhota to left badhao
+      else r--;
+    }
+  }
+  return ans;
+}
+```
+
+## Valid Palindrome
+
+String ko alphanum karke lower case, do pointer se palindrome check karo.
+
+[Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
+
+```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/valid-palindrome/
+function isPalindrome(s) {
+  // Hinglish: sirf alphanum, lower
+  s = s.toLowerCase().replace(/[^a-z0-9]/g,"");
+  let l=0, r=s.length-1;
+  while (l<r) {
+    if (s[l]!==s[r]) return false; // Hinglish: mismatch to false
+    l++; r--;
+  }
+  return true;
+}
+```
