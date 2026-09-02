@@ -1,11 +1,25 @@
 # Bit Manipulation
 
-Bits are tiny flags. XOR cancels a pair (`a ^ a = 0`). `n & (n - 1)` drops the lowest 1-bit. I use this when the problem is “every number twice except one” or “how many 1s.”
+**Definition:** Bit manipulation operates directly on binary representation. Each integer is 32 (or 64) flags. Core identities: `a ^ a = 0`, `a ^ 0 = a`, `n & (n - 1)` clears the lowest set `1`, and `n & -n` isolates it.
+
+**When to use:** "Every number appears twice except one," count set bits, power-of-two test, missing number, or when you need `O(1)` space tricks for flags/subsets.
+
+**How it works:** XOR cancels pairs; `n & (n-1)` loop counts bits in `O(popcount)`; bit DP uses `dp[i] = dp[i>>1] + (i&1)`. Time `O(n)` or `O(1)` per op, space `O(1)`.
 
 ```js
-x ^= y;           // toggle / cancel pairs
-n & (n - 1);      // clear lowest set bit
-(n & (n - 1)) === 0; // power of two (n > 0)
+// Bit skeleton — core identities
+x ^= y;                // toggle / cancel pairs
+n & (n - 1);           // clear lowest set bit
+(n & (n - 1)) === 0;   // power of two (n > 0)
+n & -n;                // lowest set bit value
+
+// Count bits skeleton
+let c = 0, m = n;
+while (m) { m &= m - 1; c++; }
+
+// Single number skeleton (pairs cancel)
+let xor = 0;
+for (const v of nums) xor ^= v; // answer is xor
 ```
 
 ## Single Number

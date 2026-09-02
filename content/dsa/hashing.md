@@ -1,13 +1,29 @@
 # Hashing
 
-When I read a problem and think “I wish I could remember what I already saw,” I reach for a map or a set. One pass: look up, then store. That is Two Sum, anagrams, and the consecutive-sequence trick.
+**Definition:** Hashing (hash map `Map` / hash set `Set`) gives average `O(1)` lookup, insert, and delete by hashing keys to buckets. It trades space for time by remembering what was already seen.
+
+**When to use:** You think "I wish I could remember what I already saw" — complement search (Two Sum), grouping by signature (anagrams), frequency counts, dedup, or longest consecutive trick (only start at streak left edge).
+
+**How it works:** One pass: look up whether the needed partner/group exists, then store the current element. For grouping, build a canonical key (sorted string). Time `O(n)` average, space `O(n)`.
 
 ```js
-// Hashing skeleton
+// Hashing skeleton — lookup then store (Two Sum / pair)
 const seen = new Map(); // or Set
 for (const x of nums) {
-  // lookup: is the partner / group already here?
-  // store: remember x
+  if (seen.has(needFor(x))) return found; // lookup partner/group
+  seen.set(keyFor(x), x);                 // store current
+}
+
+// Frequency skeleton
+const freq = new Map();
+for (const ch of s) freq.set(ch, (freq.get(ch) || 0) + 1);
+
+// Group-by-key skeleton
+const groups = new Map();
+for (const s of strs) {
+  const key = [...s].sort().join("");
+  if (!groups.has(key)) groups.set(key, []);
+  groups.get(key).push(s);
 }
 ```
 

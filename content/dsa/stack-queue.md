@@ -1,14 +1,25 @@
 # Stack & Queue
 
-A stack is a pile of plates — last one I put is the first I take. Brackets and “min so far” live here. A queue is a line — first in, first out. BFS uses a queue; that is on the trees/graphs pages.
+**Definition:** A **stack** is LIFO (last-in, first-out) — like a pile of plates; push/pop at one end, `O(1)`. A **queue** is FIFO (first-in, first-out) — like a line; enqueue at tail, dequeue at head. Stacks handle nesting/undo; queues handle ordering/levels.
+
+**When to use:** Stack → valid brackets, min so far, evaluate RPN, DFS recursion, monotonic next greater (separate page). Queue → BFS levels, sliding window deque, task scheduling.
+
+**How it works:** Stack: push opens, pop on matching close; check empty/mismatch. Queue in JS is array with `push`/`shift` (or deque pointer). For min-stack keep parallel stack of minima. Time `O(n)`, space `O(n)`.
 
 ```js
-// Stack skeleton
+// Stack skeleton — brackets / nesting
 const stack = [];
 for (const ch of s) {
-  // if this closes something, pop
-  // else push
+  if (isOpen(ch)) stack.push(ch);
+  else {
+    if (!stack.length || !matches(stack.pop(), ch)) return false;
+  }
 }
+if (stack.length) return false;
+
+// Queue skeleton — BFS uses queue (see Trees/Graphs)
+const q = [start];
+while (q.length) { const x = q.shift(); /* ... q.push(neighbors) */ }
 ```
 
 ## Valid Parentheses

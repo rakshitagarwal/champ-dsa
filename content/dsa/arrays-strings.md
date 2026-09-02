@@ -1,12 +1,31 @@
 # Arrays
 
-These are the “just walk the array” problems. Reverse, compact, rotate, or keep a running best sum. If I need a hash map, I am on the hashing page instead.
+**Definition:** An array (and a string, which is an array of characters) stores elements contiguously in memory with `O(1)` random access by index. Most array problems are about transforming the array *in place* without extra space — reordering, compacting, or scanning for an optimal subarray.
+
+**When to use:** You need to reverse, rotate, remove duplicates/zeroes in place, or track a running best (Kadane's maximum subarray). If the task is "rearrange with `O(1)` extra space" or "one linear scan," it lives here. If you need to remember past values by key, use Hashing instead.
+
+**How it works:** Use read/write pointers, two ends moving inward, or a running accumulator. Each element is visited once or twice. Time is `O(n)`, space `O(1)` extra.
 
 ```js
-// Array skeleton — read / write pointers
+// Array skeleton — read / write pointers (in-place compact/filter)
 let write = 0;
 for (let read = 0; read < arr.length; read++) {
-  // maybe copy arr[read] into arr[write]
+  if (shouldKeep(arr[read])) arr[write++] = arr[read];
+}
+// arr.length = write  (or fill tail)
+
+// Two-ends skeleton (reverse / swap)
+let l = 0, r = arr.length - 1;
+while (l < r) {
+  [arr[l], arr[r]] = [arr[r], arr[l]];
+  l++; r--;
+}
+
+// Running best skeleton (Kadane)
+let run = 0, best = -Infinity;
+for (const x of arr) {
+  run = Math.max(x, run + x);
+  best = Math.max(best, run);
 }
 ```
 

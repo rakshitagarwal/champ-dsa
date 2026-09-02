@@ -1,14 +1,21 @@
 # Intervals
 
-Sort, then walk left to right. I only look at the last interval I kept. If the new one overlaps, stretch the end. If I am inserting, find the hole and merge whatever I swallow.
+**Definition:** Sorting arranges elements by a comparator (`O(n log n)`). The *Intervals* pattern is the most common use of sorting in interviews: sort intervals by start (or end), then sweep left-to-right merging overlaps. It also covers insert-interval and erase-overlaps.
+
+**When to use:** Input is `[start, end]` pairs (meetings, ranges) and you need to merge, insert, or count overlaps/removals. Sort first if the input is unsorted — the sweep only works on sorted order.
+
+**How it works:** Sort by `a[0] - b[0]`. Keep the last merged interval `last`. For each `cur`, if `cur[0] <= last[1]` it overlaps → `last[1] = max(last[1], cur[1])`; else push `cur`. For insert, copy "before", merge "overlapping", copy "after". Time `O(n log n)` for sort + `O(n)` sweep, space `O(n)` for output.
 
 ```js
-// Interval skeleton
+// Sorting skeleton
+nums.sort((a, b) => a - b); // O(n log n)
+
+// Interval skeleton — sort then linear merge
 items.sort((a, b) => a[0] - b[0]);
 const out = [items[0]];
 for (const cur of items.slice(1)) {
   const last = out.at(-1);
-  if (cur[0] <= last[1]) last[1] = Math.max(last[1], cur[1]);
+  if (cur[0] <= last[1]) last[1] = Math.max(last[1], cur[1]); // overlap → stretch
   else out.push(cur);
 }
 ```

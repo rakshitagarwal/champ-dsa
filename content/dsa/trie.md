@@ -1,10 +1,29 @@
 # Trie
 
-A trie is a tree of letters. Kids share prefixes so `"app"` and `"apple"` share `a-p-p`. Each node has a map of next letters and a flag “a word ends here.”
+**Definition:** A trie (prefix tree) is a rooted tree where each edge is a character and each path from the root spells a prefix. Nodes share prefixes — `"app"` and `"apple"` share `a-p-p`. Each node has a `children` map and an `isEnd` flag ("a word ends here").
+
+**When to use:** Prefix search, autocomplete, word dictionary with `.` wildcard, or counting words with a given prefix. Faster than hashing for prefix ops — `O(L)` per word (`L` = length).
+
+**How it works:** `insert(word)` walks/creates nodes per character; `search(word)` needs `isEnd`; `startsWith(prefix)` only needs the walk to succeed. For board search, DFS follows trie edges and collects words. Time `O(L)` per op, space `O(total chars)`.
 
 ```js
-function node() {
-  return { kids: Object.create(null), end: false };
+// Trie skeleton — node + insert / search / startsWith
+function node() { return { kids: Object.create(null), end: false }; }
+const root = node();
+function insert(word) {
+  let cur = root;
+  for (const ch of word) { if (!cur.kids[ch]) cur.kids[ch] = node(); cur = cur.kids[ch]; }
+  cur.end = true;
+}
+function search(word) {
+  let cur = root;
+  for (const ch of word) { if (!cur.kids[ch]) return false; cur = cur.kids[ch]; }
+  return cur.end;
+}
+function startsWith(pref) {
+  let cur = root;
+  for (const ch of pref) { if (!cur.kids[ch]) return false; cur = cur.kids[ch]; }
+  return true;
 }
 ```
 

@@ -1,16 +1,30 @@
 # Binary Search
 
-If I can ask a yes/no that only flips once (too small → too big), I can cut the range in half. Same loop for “find this value” and “what is the smallest speed that still works.” Pow(x, n) is the same idea: halve n.
+**Definition:** Binary search finds a target in a sorted/monotonic space by halving the search interval each step — `O(log n)`. Generalization: find the *first* `x` where a monotonic predicate `good(x)` flips `false → true`. Value search and "minimum feasible answer" are the same loop.
+
+**When to use:** Sorted array lookup, search in rotated array, or "smallest speed/capacity that still works" (if `k` works, any larger `k` works). Also power/exponent halving `Pow(x,n)`.
+
+**How it works:** Maintain half-open `[lo, hi)` invariant. `mid = lo + ((hi-lo)>>1)`. If `good(mid)` then `hi = mid` else `lo = mid+1`. For exact value, use `lo <= hi` with equality check. Time `O(log n)`, space `O(1)`.
 
 ```js
-// Binary search skeleton (first true)
-let lo = 0, hi = n;
+// Binary search skeleton — first true (lower bound / answer search)
+let lo = 0, hi = n; // hi exclusive
 while (lo < hi) {
   const mid = lo + ((hi - lo) >> 1);
   if (good(mid)) hi = mid;
   else lo = mid + 1;
 }
-return lo;
+return lo; // first good, or n if none
+
+// Exact value skeleton
+let l = 0, r = nums.length - 1;
+while (l <= r) {
+  const m = l + ((r - l) >> 1);
+  if (nums[m] === target) return m;
+  else if (nums[m] < target) l = m + 1;
+  else r = m - 1;
+}
+return -1;
 ```
 
 ## Binary Search

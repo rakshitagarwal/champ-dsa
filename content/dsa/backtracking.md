@@ -1,16 +1,29 @@
 # Backtracking
 
-I try a choice, recurse, then undo it (`pop`). That is subsets, perms, combinations, N-queens, word on a grid. If the path is already illegal, I return early — that is pruning.
+**Definition:** Backtracking is a systematic depth-first search over a *state space tree* — I build candidates one choice at a time and abandon a partial candidate ("backtrack") as soon as I know it cannot lead to a valid solution. It is brute force with pruning.
+
+**When to use:** The problem asks for *all* subsets / permutations / combinations, all ways to place items (N-Queens), or existence of a path in a grid/word search with constraints. If you can phrase it as "try a choice, see if it works, then undo it," think backtracking.
+
+**How it works:** Recursive `choose → explore → unchoose` (also called `push → recurse → pop`). I keep a `path` (current partial solution) and an `ans` collection. At each call I either record the path, check if it violates constraints (prune/return), then loop over next choices. Time is usually exponential `O(k^n)` but pruning cuts branches early; space is `O(n)` recursion depth + path.
 
 ```js
-function dfs(start, path) {
-  ans.push([...path]);
+// Backtracking skeleton — choose / explore / unchoose
+function backtrack(start, path) {
+  // 1) record or check complete/valid
+  ans.push([...path]); // or: if (isSolution(path)) ans.push([...path]); return
+
+  // 2) prune — stop this branch early
+  // if (!isValid(path)) return;
+
+  // 3) try every next choice
   for (let i = start; i < nums.length; i++) {
-    path.push(nums[i]); // choose
-    dfs(i + 1, path);   // explore
-    path.pop();         // unchoose
+    path.push(nums[i]);      // choose
+    backtrack(i + 1, path);  // explore (i+1 = no reuse, i = reuse allowed)
+    path.pop();              // unchoose (backtrack)
   }
 }
+const ans = [];
+backtrack(0, []);
 ```
 
 ## Subsets

@@ -1,24 +1,27 @@
 # Union Find
 
-Each node points at a parent. `find` walks to the boss (and flattens the path). `union` hangs one boss under the other. If two nodes already share a boss, this edge would make a cycle.
+**Definition:** Union-Find (Disjoint Set Union, DSU) maintains a partition of nodes into disjoint sets with near-`O(α(n))` `find` (with path compression) and `union` (by rank/size). Each node points to a parent; the root is the representative ("boss").
+
+**When to use:** "Are these connected?", dynamically merging groups, cycle detection in an undirected graph, counting components, or MST (Kruskal — union cheapest edge if not already connected).
+
+**How it works:** `find(x)` walks to the root and flattens the path (`p[x]=p[p[x]]`). `union(a,b)` attaches smaller-rank root under larger. If `find(a)===find(b)` they are already connected → edge would create a cycle. Time `O(α(n))` amortized, space `O(n)`.
 
 ```js
+// Union-Find skeleton — path compression + union by rank
 function find(p, x) {
-  while (p[x] !== x) {
-    p[x] = p[p[x]];
-    x = p[x];
-  }
+  while (p[x] !== x) { p[x] = p[p[x]]; x = p[x]; }
   return x;
 }
 function union(p, rank, a, b) {
-  a = find(p, a);
-  b = find(p, b);
-  if (a === b) return false;
+  a = find(p, a); b = find(p, b);
+  if (a === b) return false; // already connected / cycle
   if (rank[a] < rank[b]) [a, b] = [b, a];
   p[b] = a;
   if (rank[a] === rank[b]) rank[a]++;
   return true;
 }
+const p = Array.from({length: n}, (_, i) => i);
+const rank = Array(n).fill(0);
 ```
 
 ## Redundant Connection

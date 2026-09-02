@@ -1,12 +1,25 @@
 # Two Pointers
 
-I put two fingers on the array and only move them forward. Opposite ends for a sorted pair or for water. Expand from a center for palindromes. Never rewind — that is why it stays O(n).
+**Definition:** Two pointers places two indices on a sequence and moves them only forward (or toward each other) to scan in `O(n)` without extra space.
+
+**When to use:** Sorted array pair sum, container with most water, removing duplicates in place, or expanding around a center for palindromes. If sorting first would help and you can decide which pointer to move from the current sum/value, think two pointers.
+
+**How it works:** Opposite-ends for sorted/pair problems (move the side that cannot be in a better answer); same-direction / center-expand for palindromes. Never rewind → `O(n)`, `O(1)` space.
 
 ```js
-// Two pointers skeleton — opposite ends
+// Two pointers skeleton — opposite ends (sorted array)
 let left = 0, right = arr.length - 1;
 while (left < right) {
-  // move the side that cannot be in a better answer
+  const sum = arr[left] + arr[right];
+  if (sum === target) break;
+  else if (sum < target) left++;
+  else right--;
+}
+
+// Center-expand skeleton (palindrome)
+for (let center = 0; center < n; center++) {
+  let l = center, r = center; // odd; use (center, center+1) for even
+  while (l >= 0 && r < n && s[l] === s[r]) { l--; r++; }
 }
 ```
 

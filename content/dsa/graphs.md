@@ -1,23 +1,35 @@
 # Graphs
 
-I treat the input as “nodes and neighbors.” Grid cells with 4 sides count. Mark visited so I do not loop. BFS if I care about number of steps. DFS if I just need to paint a whole blob. Courses: queue of nodes with in-degree 0.
+**Definition:** A graph is nodes (vertices) + edges (neighbors). Represented as adjacency list, matrix, or implicit grid (4-neighbor cells). Traversals are **DFS** (stack/recursion — deep, good for components/painting) and **BFS** (queue — shortest steps in unweighted graph). Mark `visited` to avoid cycles; topological sort (Kahn) handles ordering.
+
+**When to use:** "Can I reach?", "how many islands/components?", "shortest path in steps" (BFS), or "order courses" (in-degree queue). Grid = graph where each cell connects to 4 neighbors.
+
+**How it works:** Build `graph[node] = [neighbors]`. DFS recurses on unvisited neighbors; BFS queues `[start]` and expands level by level; Kahn queues nodes with in-degree 0. Time `O(V+E)`, space `O(V)`.
 
 ```js
-function dfs(r, c) {
-  if (out || seen) return;
-  seen = true;
-  for (const [nr, nc] of neighbors) dfs(nr, nc);
+// Graph skeleton — DFS (paint / components)
+const seen = new Set();
+function dfs(u) {
+  if (seen.has(u)) return;
+  seen.add(u);
+  for (const v of graph[u]) dfs(v);
 }
 
+// Graph skeleton — BFS (shortest steps, unweighted)
 const queue = [start], visited = new Set([start]);
+let steps = 0;
 while (queue.length) {
-  const node = queue.shift();
-  for (const nxt of graph[node]) {
-    if (visited.has(nxt)) continue;
-    visited.add(nxt);
-    queue.push(nxt);
+  const n = queue.length;
+  for (let i = 0; i < n; i++) {
+    const node = queue.shift();
+    for (const nxt of graph[node]) if (!visited.has(nxt)) { visited.add(nxt); queue.push(nxt); }
   }
+  steps++;
 }
+
+// Topological skeleton (Kahn)
+const q = nodes.filter(n => indeg[n] === 0);
+while (q.length) { const u = q.shift(); for (const v of graph[u]) if (--indeg[v] === 0) q.push(v); }
 ```
 
 ## Number of Islands

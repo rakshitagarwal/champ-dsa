@@ -1,12 +1,25 @@
 # Prefix Sum
 
-I precompute running totals so I do not keep re-adding the same slice. Range is `pref[right] - pref[left - 1]`. If I also store how many times each running total appeared, I can count subarrays that sum to k.
+**Definition:** A prefix sum `pref[i] = nums[0] + ... + nums[i-1]` (with `pref[0]=0`) precomputes running totals so any range sum `[l..r]` is `pref[r+1]-pref[l]` in `O(1)`. Hashing prefix frequencies counts subarrays with a target sum.
+
+**When to use:** Many range-sum queries, subarray sum equals K, product except self (prefix × suffix), or 2D prefix for submatrix sums.
+
+**How it works:** Build `pref` in one pass. For "count subarrays sum == k": scan once with `seen` map of prefix frequencies — `need = cur - k`, `ans += seen.get(need)`. Time `O(n)`, space `O(n)` (or `O(1)` for bare range).
 
 ```js
-// Prefix skeleton
+// Prefix skeleton — build and query
 const pref = [0];
 for (const x of nums) pref.push(pref.at(-1) + x);
-// sum of i..j = pref[j + 1] - pref[i]
+// sum of [l..r] inclusive = pref[r+1] - pref[l]
+
+// Count subarrays sum == k (hashing prefix)
+let cur = 0, ans = 0;
+const seen = new Map([[0, 1]]);
+for (const x of nums) {
+  cur += x;
+  ans += seen.get(cur - k) || 0;
+  seen.set(cur, (seen.get(cur) || 0) + 1);
+}
 ```
 
 ## Product of Array Except Self

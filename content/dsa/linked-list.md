@@ -1,16 +1,30 @@
 # Linked List
 
-I only have `.next` (sometimes `.random`). Dummy node when the head might change. Fast/slow when I need the middle or a cycle. Merge k lists is on the Heap page — same merge idea, many lists.
+**Definition:** A linked list is a chain of nodes where each node holds a value and a pointer `next` (sometimes `random`) to the next node. No random access — to reach position `i` you walk `i` steps. Strength: `O(1)` splice/insert if you have the pointer.
+
+**When to use:** You must reverse pointers, detect a cycle, find the middle, merge sorted lists, or remove the N-th from the end — all with `O(1)` extra space and by rewiring `next`.
+
+**How it works:** Key tricks: (1) **Dummy node** `dummy.next = head` when the head itself can change; (2) **Fast/slow pointers** — fast moves 2 steps, slow 1 — to find middle/cycle; (3) **Gap of `n`** between two pointers for "Nth from end." Time `O(n)`, space `O(1)`.
 
 ```js
-// Linked list skeleton
+// Linked list skeleton — traverse and rewire
 let prev = null, curr = head;
 while (curr) {
-  const next = curr.next;
-  // rewire
+  const next = curr.next; // save
+  // curr.next = prev;    // rewire (e.g. reverse)
   prev = curr;
   curr = next;
 }
+
+// Dummy skeleton (head may change)
+const dummy = { val: 0, next: head };
+let tail = dummy;
+// ... tail.next = ...
+// return dummy.next;
+
+// Fast / slow skeleton (middle / cycle)
+let slow = head, fast = head;
+while (fast && fast.next) { slow = slow.next; fast = fast.next.next; }
 ```
 
 ## Reverse Linked List

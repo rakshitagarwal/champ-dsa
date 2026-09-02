@@ -1,14 +1,30 @@
 # Dynamic Programming
 
-If I would recurse on the same `(i, remain)` twice, I save it. I say the meaning of `dp[i]` in English first, then write the loop. Climbing stairs is Fibonacci. House robber is take/skip. Coins are unbounded knapsack. Grid is “from left + from above.”
+**Definition:** Dynamic Programming solves a problem by breaking it into overlapping subproblems, defining `dp[state]` ("best/ways/count up to i") in English, and reusing saved answers instead of recomputing. Two forms: top-down memoization (recurse + cache) and bottom-up tabulation (loop).
+
+**When to use:** You would recurse on the same `(i, remain, index)` twice — climbing stairs (Fibonacci), house robber (take/skip), coin change/knapsack, grid paths ("from left + from above"), LIS/LCS, edit distance.
+
+**How it works:** Define meaning, write recurrence `dp[i] = f(earlier states)`, set base case, iterate. For 2D `dp[i][j]`. Optimize space if recurrence is local. Time often `O(n * choices)`, space `O(n)`.
 
 ```js
+// DP skeleton — bottom-up tabulation
 const dp = Array(n + 1).fill(0);
 dp[0] = base;
 for (let i = 1; i <= n; i++) {
-  // dp[i] = f(earlier states)
+  dp[i] = combine(dp[i-1], dp[i-2] /* ... earlier states */);
 }
 return dp[n];
+
+// Memo skeleton (top-down)
+const memo = new Map();
+function solve(i, remain) {
+  const key = i + "," + remain;
+  if (memo.has(key)) return memo.get(key);
+  if (isBase(i, remain)) return baseVal;
+  let best = -Infinity;
+  for (const choice of choices) best = Math.max(best, solve(next, remain-choice) + gain);
+  memo.set(key, best); return best;
+}
 ```
 
 ## Climbing Stairs

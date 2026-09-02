@@ -1,12 +1,24 @@
 # Greedy
 
-I take the choice that looks safest right now — farthest jump, earliest finish, fill the tank until it goes negative. If I cannot say why that is never wrong, it is probably DP instead.
+**Definition:** A greedy algorithm builds a solution step-by-step by picking the *locally optimal* choice at each step (earliest finish time, farthest jump, largest gap) and never revisits it. It works only when a *greedy-choice property* holds — the local choice can be proven never to hurt the global optimum — and the problem has *optimal substructure*.
+
+**When to use:** You can sort by a key (earliest end, smallest cost) and a single left-to-right pass yields the answer (Jump Game, Gas Station, Partition Labels, Task Scheduler). If you cannot prove the greedy choice is safe, it is probably DP/backtracking instead.
+
+**How it works:** Sort by the decisive key, then scan once maintaining the best state so far (`reach`, `end`, `tank`, `last`). Time is `O(n log n)` for sort + `O(n)` scan; space `O(1)`.
 
 ```js
-items.sort(byKey);
-let last = sentinel;
+// Greedy skeleton — sort by key, then one pass
+items.sort(byKey); // e.g. by end time, by position
+let last = sentinel; // best state so far (reach, end, tank …)
 for (const x of items) {
-  if (canTake(x, last)) last = take(x);
+  if (canTake(x, last)) last = take(x); // take if safe
+}
+
+// Concrete example — farthest reach (Jump Game)
+let reach = 0;
+for (let i = 0; i < nums.length; i++) {
+  if (i > reach) break; // cannot get here
+  reach = Math.max(reach, i + nums[i]);
 }
 ```
 

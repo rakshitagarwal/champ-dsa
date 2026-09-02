@@ -1,17 +1,20 @@
 # Range Queries
 
-Prefix sums die when values keep changing. Fenwick (BIT) lets me add to one index and ask sum of 1..i in log time. Counting smaller numbers on the right is the same idea as “merge sort, and while I merge I know how many from the right went before me.”
+**Definition:** Range-query problems need both point updates ("add v at i") and range queries ("sum of [l..r]") in `O(log n)`. Prefix sums die on updates (`O(n)` rebuild). **Fenwick Tree (BIT)** and **Segment Tree** fix this; merge-sort counting handles "count smaller on right".
+
+**When to use:** Frequent `update(i, delta)` + `query(l,r)` interleaved; count of smaller elements after self / reverse pairs; range minimum with updates.
+
+**How it works:** Fenwick is a `bit[1..n]` where `add(i)` climbs `i += i&-i` and `sum(i)` descends `i -= i&-i`; range = `sum(r)-sum(l-1)`. Merge-sort count: when a right element is placed before remaining left elements, those left elements each gain. Time `O(log n)` per op, space `O(n)`.
 
 ```js
-// Fenwick: add at i, prefix sum 1..i (1-based)
-function bitAdd(bit, i, v) {
-  for (; i < bit.length; i += i & -i) bit[i] += v;
-}
-function bitSum(bit, i) {
-  let s = 0;
-  for (; i > 0; i -= i & -i) s += bit[i];
-  return s;
-}
+// Fenwick (BIT) skeleton — 1-based
+function bitAdd(bit, i, v) { for (; i < bit.length; i += i & -i) bit[i] += v; }
+function bitSum(bit, i) { let s = 0; for (; i > 0; i -= i & -i) s += bit[i]; return s; }
+const bit = Array(n + 1).fill(0);
+// range sum [l..r] = bitSum(bit, r) - bitSum(bit, l-1)
+
+// Count smaller after self — merge-sort counting sketch
+// during merge: if right[j] < left[i], count left.remaining += 1
 ```
 
 ## Range Sum Query Mutable

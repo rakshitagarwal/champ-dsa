@@ -1,16 +1,27 @@
 # Sliding Window
 
-A window is just two indexes on a string or array that must stay contiguous. I always grow `right`. I shrink `left` when the window breaks the rule. Each index enters and leaves at most once.
+**Definition:** A sliding window is a contiguous range `[left, right]` over an array/string that slides forward in `O(n)`. You expand `right` and shrink `left` to maintain an invariant (all unique, sum ≤ k, covers t). Each index enters and leaves at most once.
+
+**When to use:** Longest/shortest *contiguous* subarray/substring under a constraint — no repeats, at most K distinct, minimum window covering t, or maximum of each window of size k (deque variant).
+
+**How it works:** Variable-size: grow `right`, `while(invalid) shrink left`, record best. Fixed-size k: add `right`, remove `left-k` when `i ≥ k`, front of monotonic deque = max. Time `O(n)`, space `O(1)` plus frequency map/deque.
 
 ```js
-// Sliding window skeleton
+// Sliding window skeleton — variable size
 let left = 0;
 for (let right = 0; right < n; right++) {
   // expand: add s[right]
-  while (invalid) {
-    // shrink: drop s[left], left++
+  while (invalid(window)) {
+    // shrink: remove s[left], left++
   }
   // record best
+}
+
+// Fixed-size k skeleton
+for (let i = 0; i < n; i++) {
+  // add nums[i]
+  if (i >= k) { /* remove nums[i-k] */ }
+  if (i >= k - 1) { /* window [i-k+1..i] ready */ }
 }
 ```
 

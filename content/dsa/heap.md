@@ -1,8 +1,13 @@
 # Heap
 
-A heap always gives me the current smallest (or largest) in log time. For “top K” I keep a heap of size k and throw away anything worse. JS has no built-in heap — the helpers below are the ones I paste in an interview. Merge k lists is here, not on the linked-list page.
+**Definition:** A heap (priority queue) is a complete binary tree where parent ≤ children (min-heap) or ≥ (max-heap), giving `O(log n)` push/pop and `O(1)` peek of the smallest/largest. JS has no built-in heap — the helpers below are the copy-paste implementation.
+
+**When to use:** "Top K", "K-th largest/smallest", "always pick current best", or "merge K sorted lists/arrays." Keep heap size = K and evict anything worse.
+
+**How it works:** Array-backed binary heap with `heapPush` (bubble up) and `heapPop` (bubble down). For top-K smallest keep a max-heap of size K. Merge K lists: push each head, repeatedly pop min and push its `next`. Time `O(n log K)`, space `O(K)`.
 
 ```js
+// Heap skeleton — copy into interview (min-heap by default)
 function heapPush(h, val, less = (a, b) => a < b) {
   h.push(val);
   let i = h.length - 1;
@@ -28,6 +33,10 @@ function heapPop(h, less = (a, b) => a < b) {
   }
   return top;
 }
+
+// Top-K skeleton
+const heap = [];
+for (const x of nums) { heapPush(heap, x); if (heap.length > k) heapPop(heap); }
 ```
 
 ## Kth Largest Element in an Array

@@ -1,21 +1,31 @@
 # Trees (DFS/BFS)
 
-A tree question is almost always: look at left, look at right, combine. That is DFS. If the problem says “level” or “closest to the root in steps,” I use a queue and drain `queue.length` — that is one level.
+**Definition:** A tree is a connected acyclic graph with a root; each node has `left`/`right` (or children) pointers. Two traversals: **DFS** (depth-first, recursion/stack — go deep) and **BFS** (breadth-first, queue — go level by level).
+
+**When to use:** "Look at left, look at right, combine" (max depth, path sum, invert, diameter) → DFS recursion. "Level", "closest to root", "right side view", "shortest steps in unweighted tree" → BFS by draining `queue.length` per level.
+
+**How it works:** DFS returns `combine(node, dfs(left), dfs(right))` with `null → base`. BFS pushes root, then while queue non-empty processes `n = queue.length` nodes as one level. Time `O(n)`, space `O(h)` DFS / `O(w)` BFS.
 
 ```js
+// Tree skeleton — DFS (post-order combine)
 function dfs(node) {
   if (!node) return base;
-  return combine(node, dfs(node.left), dfs(node.right));
+  const left = dfs(node.left);
+  const right = dfs(node.right);
+  return combine(node, left, right);
 }
 
+// Tree skeleton — BFS level order
 const queue = [root];
+let depth = 0;
 while (queue.length) {
-  const n = queue.length;
+  const n = queue.length; // one level
   for (let i = 0; i < n; i++) {
     const node = queue.shift();
     if (node.left) queue.push(node.left);
     if (node.right) queue.push(node.right);
   }
+  depth++;
 }
 ```
 

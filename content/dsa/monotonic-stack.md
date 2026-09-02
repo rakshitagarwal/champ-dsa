@@ -1,17 +1,23 @@
 # Monotonic Stack
 
-I keep a stack of indexes whose values only go down (or only go up). When a new value breaks that, I pop. The thing that popped just found its “next greater” (or next smaller). One pass.
+**Definition:** A monotonic stack keeps indices whose values are strictly increasing (or decreasing). When a new value breaks monotonicity, you pop — the popped element just found its next greater/smaller element. Each index is pushed/popped once → `O(n)`.
+
+**When to use:** "Next greater/smaller to left/right", daily temperatures, stock span, histogram largest rectangle, or trapping rain water.
+
+**How it works:** Scan once. While `stack not empty && nums[i] > nums[stack.top]` (for next greater) pop and record `ans[popped] = nums[i]` or `i`. Push `i`. Flip `>` to `<` for next smaller. Time `O(n)`, space `O(n)`.
 
 ```js
-// Monotonic stack — next greater to the right
-const stack = [];
+// Monotonic stack skeleton — next greater to the right
+const stack = []; // indices, values decreasing
 const ans = Array(n).fill(-1);
 for (let i = 0; i < n; i++) {
   while (stack.length && nums[i] > nums[stack.at(-1)]) {
-    ans[stack.pop()] = nums[i];
+    ans[stack.pop()] = nums[i]; // or i
   }
   stack.push(i);
 }
+
+// Next smaller skeleton: while (stack.length && nums[i] < nums[stack.at(-1)])
 ```
 
 ## Daily Temperatures
