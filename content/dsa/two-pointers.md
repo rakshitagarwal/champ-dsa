@@ -1,13 +1,14 @@
 # Two Pointers
 
-**Definition:** Two pointers places two indices on a sequence and moves them only forward (or toward each other) to scan in `O(n)` without extra space.
+**Definition:** Two pointers me sequence par do indices lagate hain aur unhe sirf aage (ya ek dusre ki taraf) badhate hain, bina extra space ke `O(n)` me scan.
 
-**When to use:** Sorted array pair sum, container with most water, removing duplicates in place, or expanding around a center for palindromes. If sorting first would help and you can decide which pointer to move from the current sum/value, think two pointers.
+**When to use:** Sorted array pair sum, container with most water, duplicate hatana, ya center se expand karke palindrome. Agar sort karke current sum/value se decide kar sake kaunsa pointer badhana hai to yehi pattern.
 
-**How it works:** Opposite-ends for sorted/pair problems (move the side that cannot be in a better answer); same-direction / center-expand for palindromes. Never rewind → `O(n)`, `O(1)` space.
+**How it works:** Opposite-ends sorted/pair ke liye (jo side behtar jawab nahi de sakti use hatao); same-direction / center-expand palindrome ke liye. Kabhi peeche nahi — `O(n)`, `O(1)` space.
 
 ```js
 // Two pointers skeleton — opposite ends (sorted array)
+// Hinglish: sum dekho, chhota hai to left badhao, bada hai to right ghatao
 let left = 0, right = arr.length - 1;
 while (left < right) {
   const sum = arr[left] + arr[right];
@@ -17,12 +18,12 @@ while (left < right) {
 }
 
 // Center-expand skeleton (palindrome)
+// Hinglish: center se bahar failo jab tak match
 for (let center = 0; center < n; center++) {
-  let l = center, r = center; // odd; use (center, center+1) for even
+  let l = center, r = center; // odd; even ke liye (center, center+1)
   while (l >= 0 && r < n && s[l] === s[r]) { l--; r++; }
 }
 ```
-
 ## Two Sum II
 
 Sorted, so if the sum is too small I need a bigger left. Too big, smaller right. 1-based indexes on the return.
@@ -30,15 +31,16 @@ Sorted, so if the sum is too small I need a bigger left. Too big, smaller right.
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 ```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
 // Two pointers — opposite ends
 // LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
 function twoSum(numbers, target) {
   let left = 0, right = numbers.length - 1;
-  while (left < right) {
+  while (left < right) { // Hinglish: do pointer chalao
     const sum = numbers[left] + numbers[right];
     if (sum === target) return [left + 1, right + 1];
-    if (sum < target) left++;
-    else right--;
+    if (sum < target) left++; // Hinglish: left badhao
+    else right--; // Hinglish: right ghatao
   }
 }
 ```
@@ -50,9 +52,11 @@ Every palindrome has a center. I expand while left and right match. Do it for od
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
 // Two pointers — expand around center
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
 function longestPalindrome(s) {
+  // Hinglish: step 1 — base case check karo
   let best = "";
   const grow = (l, r) => {
     while (l >= 0 && r < s.length && s[l] === s[r]) {
@@ -78,20 +82,21 @@ Water at `i` is min(tallest on left, tallest on right) minus height[i]. Two poin
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
+// Hinglish: do pointer chalao — ek-ek step comment dekho
 // Two pointers — water limited by the shorter wall
 // LC: https://leetcode.com/problems/trapping-rain-water/
 function trap(height) {
   let left = 0, right = height.length - 1;
   let leftMax = 0, rightMax = 0, water = 0;
-  while (left < right) {
+  while (left < right) { // Hinglish: do pointer chalao
     if (height[left] < height[right]) {
       leftMax = Math.max(leftMax, height[left]);
       water += leftMax - height[left];
-      left++;
+      left++; // Hinglish: left badhao
     } else {
       rightMax = Math.max(rightMax, height[right]);
       water += rightMax - height[right];
-      right--;
+      right--; // Hinglish: right ghatao
     }
   }
   return water;

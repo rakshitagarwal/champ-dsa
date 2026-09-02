@@ -1,34 +1,36 @@
 # Arrays
 
-**Definition:** An array (and a string, which is an array of characters) stores elements contiguously in memory with `O(1)` random access by index. Most array problems are about transforming the array *in place* without extra space — reordering, compacting, or scanning for an optimal subarray.
+**Definition:** Array ek contiguous memory structure hai — saare elements ek line me store hote hain aur index se `O(1)` me access milta hai. String bhi bas characters ka array hai.
 
-**When to use:** You need to reverse, rotate, remove duplicates/zeroes in place, or track a running best (Kadane's maximum subarray). If the task is "rearrange with `O(1)` extra space" or "one linear scan," it lives here. If you need to remember past values by key, use Hashing instead.
+**When to use:** Jab array ko in-place badalna ho — reverse karna, rotate karna, zeroes/duplicate hatana, ya running sum / Kadane se best subarray nikalna ho. Agar key se yaad rakhna hai to ye page nahi, Hashing wala page dekho.
 
-**How it works:** Use read/write pointers, two ends moving inward, or a running accumulator. Each element is visited once or twice. Time is `O(n)`, space `O(1)` extra.
+**How it works:** Read/write pointer ya do-pointer (left-right) se ek hi scan me kaam ho jata hai, har element 1-2 baar visit hota hai. Time `O(n)`, extra space `O(1)`.
 
 ```js
-// Array skeleton — read / write pointers (in-place compact/filter)
+// Array skeleton — read / write pointer (in-place filter)
+// Hinglish: write tabhi badhao jab element rakhna hai
 let write = 0;
 for (let read = 0; read < arr.length; read++) {
-  if (shouldKeep(arr[read])) arr[write++] = arr[read];
+  if (shouldKeep(arr[read])) arr[write++] = arr[read]; // rakhna hai to copy karo
 }
-// arr.length = write  (or fill tail)
+// arr.length = write  (ya tail fill karo)
 
-// Two-ends skeleton (reverse / swap)
+// Do-pointer skeleton (reverse / swap)
+// Hinglish: dono end se beech tak swap karo
 let l = 0, r = arr.length - 1;
 while (l < r) {
-  [arr[l], arr[r]] = [arr[r], arr[l]];
+  [arr[l], arr[r]] = [arr[r], arr[l]]; // swap
   l++; r--;
 }
 
 // Running best skeleton (Kadane)
+// Hinglish: naya start karu ya purana sum continue karu?
 let run = 0, best = -Infinity;
 for (const x of arr) {
-  run = Math.max(x, run + x);
+  run = Math.max(x, run + x); // naya ya continue
   best = Math.max(best, run);
 }
 ```
-
 ## Reverse String
 
 Two ends, swap, walk in. Same as swapping two cups until they meet.
@@ -36,9 +38,11 @@ Two ends, swap, walk in. Same as swapping two cups until they meet.
 [Reverse String](https://leetcode.com/problems/reverse-string/)
 
 ```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // Arrays — reverse in place
 // LC: https://leetcode.com/problems/reverse-string/
 function reverseString(s) {
+  // Hinglish: step 1 — base case check karo
   let left = 0, right = s.length - 1;
   while (left < right) {
     const tmp = s[left];
@@ -57,9 +61,11 @@ Copy every non-zero forward. Then fill the tail with zeroes. Order of the real n
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 ```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // Arrays — compact then fill
 // LC: https://leetcode.com/problems/move-zeroes/
 function moveZeroes(nums) {
+  // Hinglish: step 1 — base case check karo
   let write = 0;
   for (let read = 0; read < nums.length; read++) {
     if (nums[read] !== 0) nums[write++] = nums[read];
@@ -75,9 +81,11 @@ function moveZeroes(nums) {
 [Rotate Array](https://leetcode.com/problems/rotate-array/)
 
 ```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // Arrays — reverse trick
 // LC: https://leetcode.com/problems/rotate-array/
 function rotate(nums, k) {
+  // Hinglish: step 1 — base case check karo
   k %= nums.length;
   const rev = (l, r) => {
     while (l < r) {
@@ -99,9 +107,11 @@ Kadane: keep a running sum. If it goes negative, drop it and start at the next n
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 ```js
+// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // Arrays — Kadane
 // LC: https://leetcode.com/problems/maximum-subarray/
 function maxSubArray(nums) {
+  // Hinglish: step 1 — base case check karo
   let run = 0, best = -Infinity;
   for (const x of nums) {
     run = Math.max(x, run + x); // restart or continue

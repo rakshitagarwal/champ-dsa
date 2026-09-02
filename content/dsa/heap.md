@@ -1,13 +1,14 @@
 # Heap
 
-**Definition:** A heap (priority queue) is a complete binary tree where parent ≤ children (min-heap) or ≥ (max-heap), giving `O(log n)` push/pop and `O(1)` peek of the smallest/largest. JS has no built-in heap — the helpers below are the copy-paste implementation.
+**Definition:** Heap (priority queue) ek complete binary tree hai jahan parent ≤ children (min-heap) ya ≥ (max-heap), isliye sabse chhota/bada `O(log n)` me push/pop aur `O(1)` me peek milta hai. JS me built-in heap nahi hai — neeche wale helpers copy-paste wale hain.
 
-**When to use:** "Top K", "K-th largest/smallest", "always pick current best", or "merge K sorted lists/arrays." Keep heap size = K and evict anything worse.
+**When to use:** "Top K", "K-th largest/smallest", "hamesha current best chahiye", ya "K sorted lists/arrays merge". Heap size = K rakho aur jo kharab hai nikal do.
 
-**How it works:** Array-backed binary heap with `heapPush` (bubble up) and `heapPop` (bubble down). For top-K smallest keep a max-heap of size K. Merge K lists: push each head, repeatedly pop min and push its `next`. Time `O(n log K)`, space `O(K)`.
+**How it works:** Array wala binary heap `heapPush` (upar bubble) aur `heapPop` (neeche bubble). Top-K smallest ke liye max-heap size K. K lists merge: har head push, sabse chhota pop karke uska `next` push. Time `O(n log K)`, space `O(K)`.
 
 ```js
-// Heap skeleton — copy into interview (min-heap by default)
+// Heap skeleton — copy into interview (min-heap default)
+// Hinglish: push karke upar bubble, pop karke neeche bubble
 function heapPush(h, val, less = (a, b) => a < b) {
   h.push(val);
   let i = h.length - 1;
@@ -35,10 +36,10 @@ function heapPop(h, less = (a, b) => a < b) {
 }
 
 // Top-K skeleton
+// Hinglish: K se zyada hue to sabse chhota nikal do
 const heap = [];
 for (const x of nums) { heapPush(heap, x); if (heap.length > k) heapPop(heap); }
 ```
-
 ## Kth Largest Element in an Array
 
 Min-heap of size k. The top is the kth largest. Everything smaller got popped.
@@ -46,13 +47,14 @@ Min-heap of size k. The top is the kth largest. Everything smaller got popped.
 [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 
 ```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
 // Heap — keep k largest
 // LC: https://leetcode.com/problems/kth-largest-element-in-an-array/
 function findKthLargest(nums, k) {
   const h = [];
   for (const x of nums) {
-    heapPush(h, x);
-    if (h.length > k) heapPop(h);
+    heapPush(h, x); // Hinglish: heap me daalo
+    if (h.length > k) heapPop(h); // Hinglish: sabse chhota nikala
   }
   return h[0];
 }
@@ -65,6 +67,7 @@ Count first. Then a min-heap of `[freq, num]` of size k.
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
 // Heap — by frequency
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
 function topKFrequent(nums, k) {
@@ -73,8 +76,8 @@ function topKFrequent(nums, k) {
   const h = [];
   const less = (a, b) => a[0] < b[0];
   for (const [num, f] of freq) {
-    heapPush(h, [f, num], less);
-    if (h.length > k) heapPop(h, less);
+    heapPush(h, [f, num], less); // Hinglish: heap me daalo
+    if (h.length > k) heapPop(h, less); // Hinglish: sabse chhota nikala
   }
   return h.map(([, num]) => num);
 }
@@ -87,6 +90,7 @@ Two heaps: max-heap for the smaller half, min-heap for the bigger half. Size dif
 [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
 // Heap — two heaps
 // LC: https://leetcode.com/problems/find-median-from-data-stream/
 function MedianFinder() {
@@ -94,9 +98,9 @@ function MedianFinder() {
   this.hi = []; // min-heap of larger half
 }
 MedianFinder.prototype.addNum = function (num) {
-  heapPush(this.lo, -num);
-  heapPush(this.hi, -heapPop(this.lo));
-  if (this.hi.length > this.lo.length) heapPush(this.lo, -heapPop(this.hi));
+  heapPush(this.lo, -num); // Hinglish: heap me daalo
+  heapPush(this.hi, -heapPop(this.lo)); // Hinglish: sabse chhota nikala
+  if (this.hi.length > this.lo.length) heapPush(this.lo, -heapPop(this.hi)); // Hinglish: sabse chhota nikala
 };
 MedianFinder.prototype.findMedian = function () {
   if (this.lo.length > this.hi.length) return -this.lo[0];
@@ -111,19 +115,20 @@ Put every list head in a min-heap. Pop the smallest, push its `.next`. Dummy tai
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 ```js
+// Hinglish: heap push/pop — ek-ek step comment dekho
 // Heap — k-way merge
 // LC: https://leetcode.com/problems/merge-k-sorted-lists/
 function mergeKLists(lists) {
   const h = [];
   const less = (a, b) => a.val < b.val;
-  for (const node of lists) if (node) heapPush(h, node, less);
+  for (const node of lists) if (node) heapPush(h, node, less); // Hinglish: heap me daalo
   const dummy = { val: 0, next: null };
   let tail = dummy;
   while (h.length) {
-    const node = heapPop(h, less);
+    const node = heapPop(h, less); // Hinglish: sabse chhota nikala
     tail.next = node;
     tail = node;
-    if (node.next) heapPush(h, node.next, less);
+    if (node.next) heapPush(h, node.next, less); // Hinglish: heap me daalo
   }
   return dummy.next;
 }

@@ -1,13 +1,14 @@
 # Linked List
 
-**Definition:** A linked list is a chain of nodes where each node holds a value and a pointer `next` (sometimes `random`) to the next node. No random access — to reach position `i` you walk `i` steps. Strength: `O(1)` splice/insert if you have the pointer.
+**Definition:** Linked list nodes ki chain hai — har node me value aur `next` (kabhi `random`) pointer hota hai jo agle node ko point karta hai. Random access nahi — i-th tak pahuchne ke liye i steps chalna padta hai. Fayda: pointer hai to `O(1)` me jod/tod sakte ho.
 
-**When to use:** You must reverse pointers, detect a cycle, find the middle, merge sorted lists, or remove the N-th from the end — all with `O(1)` extra space and by rewiring `next`.
+**When to use:** Pointer reverse karna, cycle detect, middle dhoondhna, sorted lists merge, ya end se N-th hatana — sab `O(1)` extra space me `next` rewiring se.
 
-**How it works:** Key tricks: (1) **Dummy node** `dummy.next = head` when the head itself can change; (2) **Fast/slow pointers** — fast moves 2 steps, slow 1 — to find middle/cycle; (3) **Gap of `n`** between two pointers for "Nth from end." Time `O(n)`, space `O(1)`.
+**How it works:** Tricks: (1) **Dummy node** `dummy.next = head` jab head badal sakta ho; (2) **Fast/slow** — fast 2 kadam, slow 1 — middle/cycle ke liye; (3) **`n` ka gap** do pointers me end se N-th ke liye. Time `O(n)`, space `O(1)`.
 
 ```js
 // Linked list skeleton — traverse and rewire
+// Hinglish: next save karo, fir wire badlo
 let prev = null, curr = head;
 while (curr) {
   const next = curr.next; // save
@@ -16,17 +17,18 @@ while (curr) {
   curr = next;
 }
 
-// Dummy skeleton (head may change)
+// Dummy skeleton (head badal sakta hai)
+// Hinglish: dummy se head change safe
 const dummy = { val: 0, next: head };
 let tail = dummy;
 // ... tail.next = ...
 // return dummy.next;
 
 // Fast / slow skeleton (middle / cycle)
+// Hinglish: fast double, slow single
 let slow = head, fast = head;
 while (fast && fast.next) { slow = slow.next; fast = fast.next.next; }
 ```
-
 ## Reverse Linked List
 
 Save next, point curr at prev, slide everyone forward. New head is the last `prev`.
@@ -34,9 +36,11 @@ Save next, point curr at prev, slide everyone forward. New head is the last `pre
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 ```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — reverse
 // LC: https://leetcode.com/problems/reverse-linked-list/
 function reverseList(head) {
+  // Hinglish: step 1 — base case check karo
   let prev = null, curr = head;
   while (curr) {
     const next = curr.next;
@@ -55,9 +59,11 @@ Dummy tail. Always take the smaller head. Stick the leftover list on the end.
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — merge with dummy
 // LC: https://leetcode.com/problems/merge-two-sorted-lists/
 function mergeTwoLists(l1, l2) {
+  // Hinglish: step 1 — base case check karo
   const dummy = { val: 0, next: null };
   let tail = dummy;
   while (l1 && l2) {
@@ -82,9 +88,11 @@ Fast and slow meet inside the cycle. Put one pointer back at the head. Walk both
 [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
 
 ```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — Floyd, then find entrance
 // LC: https://leetcode.com/problems/linked-list-cycle-ii/
 function detectCycle(head) {
+  // Hinglish: step 1 — base case check karo
   let slow = head, fast = head;
   while (fast && fast.next) {
     slow = slow.next;
@@ -109,9 +117,11 @@ Dummy, then a gap of n between two pointers. When the front hits the end, the ba
 [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 ```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — gap of n
 // LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
 function removeNthFromEnd(head, n) {
+  // Hinglish: step 1 — base case check karo
   const dummy = { val: 0, next: head };
   let front = dummy, back = dummy;
   for (let i = 0; i < n + 1; i++) front = front.next;
@@ -131,9 +141,11 @@ Map old node → new node. First pass: copy values. Second pass: copy `.next` an
 [Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/)
 
 ```js
+// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — copy with a map
 // LC: https://leetcode.com/problems/copy-list-with-random-pointer/
 function copyRandomList(head) {
+  // Hinglish: step 1 — base case check karo
   if (!head) return null;
   const map = new Map();
   let curr = head;

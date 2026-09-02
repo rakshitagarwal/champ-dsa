@@ -1,22 +1,23 @@
 # Range Queries
 
-**Definition:** Range-query problems need both point updates ("add v at i") and range queries ("sum of [l..r]") in `O(log n)`. Prefix sums die on updates (`O(n)` rebuild). **Fenwick Tree (BIT)** and **Segment Tree** fix this; merge-sort counting handles "count smaller on right".
+**Definition:** Range-query problems me point update ("i par v add") aur range query ("[l..r] ka sum") dono `O(log n)` me chahiye. Prefix sums update par fail (`O(n)` rebuild). **Fenwick Tree (BIT)** aur **Segment Tree** ye fix karte hain; merge-sort counting "right me kitne chhote" gin leta hai.
 
-**When to use:** Frequent `update(i, delta)` + `query(l,r)` interleaved; count of smaller elements after self / reverse pairs; range minimum with updates.
+**When to use:** Baar-baar `update(i, delta)` + `query(l,r)` mix ho; after self smaller count / reverse pairs; updates ke saath range min.
 
-**How it works:** Fenwick is a `bit[1..n]` where `add(i)` climbs `i += i&-i` and `sum(i)` descends `i -= i&-i`; range = `sum(r)-sum(l-1)`. Merge-sort count: when a right element is placed before remaining left elements, those left elements each gain. Time `O(log n)` per op, space `O(n)`.
+**How it works:** Fenwick `bit[1..n]` me `add(i)` `i += i&-i` se upar jata hai aur `sum(i)` `i -= i&-i` se neeche; range = `sum(r)-sum(l-1)`. Merge-sort count: jab right ka element baaki left se pehle place ho to wo unse chhota hai. Time `O(log n)` per op, space `O(n)`.
 
 ```js
 // Fenwick (BIT) skeleton — 1-based
+// Hinglish: add upar jao, sum neeche aao
 function bitAdd(bit, i, v) { for (; i < bit.length; i += i & -i) bit[i] += v; }
 function bitSum(bit, i) { let s = 0; for (; i > 0; i -= i & -i) s += bit[i]; return s; }
 const bit = Array(n + 1).fill(0);
-// range sum [l..r] = bitSum(bit, r) - bitSum(bit, l-1)
+// range [l..r] = bitSum(bit, r) - bitSum(bit, l-1)
 
-// Count smaller after self — merge-sort counting sketch
+// Count smaller after self — merge-sort sketch
+// Hinglish: right wala chhota to left ke baaki sabse chhota
 // during merge: if right[j] < left[i], count left.remaining += 1
 ```
-
 ## Range Sum Query Mutable
 
 Fenwick on the array. Update = delta at index. Range = prefix(right) - prefix(left - 1).
@@ -24,9 +25,11 @@ Fenwick on the array. Update = delta at index. Range = prefix(right) - prefix(le
 [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
 
 ```js
+// Hinglish: BIT / merge count — ek-ek step comment dekho
 // Fenwick — point add, range sum
 // LC: https://leetcode.com/problems/range-sum-query-mutable/
 function NumArray(nums) {
+  // Hinglish: step 1 — base case check karo
   this.n = nums.length;
   this.nums = nums.slice();
   this.bit = Array(this.n + 1).fill(0);
@@ -56,9 +59,11 @@ Merge sort the indexes. When I take a value from the right half, it is smaller t
 [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
 
 ```js
+// Hinglish: BIT / merge count — ek-ek step comment dekho
 // Merge sort — count right-side smaller
 // LC: https://leetcode.com/problems/count-of-smaller-numbers-after-self/
 function countSmaller(nums) {
+  // Hinglish: step 1 — base case check karo
   const n = nums.length;
   const idx = Array.from({ length: n }, (_, i) => i);
   const ans = Array(n).fill(0);

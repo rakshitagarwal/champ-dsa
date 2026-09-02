@@ -1,30 +1,31 @@
 # Sliding Window
 
-**Definition:** A sliding window is a contiguous range `[left, right]` over an array/string that slides forward in `O(n)`. You expand `right` and shrink `left` to maintain an invariant (all unique, sum ≤ k, covers t). Each index enters and leaves at most once.
+**Definition:** Sliding window array/string par ek contiguous range `[left, right]` hai jo `O(n)` me slide karta hai. `right` badhate hain aur invariant (all unique, sum ≤ k, t cover) banaye rakhne ke liye `left` shrink karte hain. Har index max ek baar andar-bahar.
 
-**When to use:** Longest/shortest *contiguous* subarray/substring under a constraint — no repeats, at most K distinct, minimum window covering t, or maximum of each window of size k (deque variant).
+**When to use:** Longest/shortest *contiguous* subarray/substring kisi constraint ke saath — no repeats, at most K distinct, minimum window jo t cover kare, ya size k ki har window ka max (deque variant).
 
-**How it works:** Variable-size: grow `right`, `while(invalid) shrink left`, record best. Fixed-size k: add `right`, remove `left-k` when `i ≥ k`, front of monotonic deque = max. Time `O(n)`, space `O(1)` plus frequency map/deque.
+**How it works:** Variable-size: `right` badhao, `while(invalid) left shrink`, best record. Fixed k: `right` add, `i ≥ k` par `left-k` hatao, monotonic deque ka front = max. Time `O(n)`, space `O(1)` + freq map/deque.
 
 ```js
 // Sliding window skeleton — variable size
+// Hinglish: right badhao, galat hua to left hatao
 let left = 0;
 for (let right = 0; right < n; right++) {
-  // expand: add s[right]
+  // expand: s[right] add karo
   while (invalid(window)) {
-    // shrink: remove s[left], left++
+    // shrink: s[left] hatao, left++
   }
-  // record best
+  // best record karo
 }
 
 // Fixed-size k skeleton
+// Hinglish: k size banne par window ready
 for (let i = 0; i < n; i++) {
-  // add nums[i]
-  if (i >= k) { /* remove nums[i-k] */ }
-  if (i >= k - 1) { /* window [i-k+1..i] ready */ }
+  // nums[i] add
+  if (i >= k) { /* nums[i-k] hatao */ }
+  if (i >= k-1) { /* window [i-k+1..i] ready */ }
 }
 ```
-
 ## Longest Substring Without Repeating Characters
 
 If I see a letter that is already inside the window, jump `left` just past the old copy. Then the window is unique again.
@@ -32,6 +33,7 @@ If I see a letter that is already inside the window, jump `left` just past the o
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
+// Hinglish: window slide karo — ek-ek step comment dekho
 // Sliding window — longest valid
 // LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
 function lengthOfLongestSubstring(s) {
@@ -39,9 +41,9 @@ function lengthOfLongestSubstring(s) {
   let left = 0, best = 0;
   for (let right = 0; right < s.length; right++) {
     const ch = s[right];
-    if (last.has(ch) && last.get(ch) >= left) left = last.get(ch) + 1;
+    if (last.has(ch) && last.get(ch) >= left) left = last.get(ch) + 1; // Hinglish: left ko jump karaya
     last.set(ch, right);
-    best = Math.max(best, right - left + 1);
+    best = Math.max(best, right - left + 1); // Hinglish: best update
   }
   return best;
 }
@@ -54,9 +56,11 @@ Grow until `t` is fully covered (`missing === 0`). Then shrink from the left as 
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 ```js
+// Hinglish: window slide karo — ek-ek step comment dekho
 // Sliding window — smallest that still covers t
 // LC: https://leetcode.com/problems/minimum-window-substring/
 function minWindow(s, t) {
+  // Hinglish: step 1 — base case check karo
   const need = new Map();
   for (const ch of t) need.set(ch, (need.get(ch) || 0) + 1);
   let missing = need.size, left = 0, best = "";
@@ -87,9 +91,11 @@ Deque of indexes, values decreasing. Front is always the max of the current wind
 [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
 
 ```js
+// Hinglish: window slide karo — ek-ek step comment dekho
 // Sliding window — deque of useful max candidates
 // LC: https://leetcode.com/problems/sliding-window-maximum/
 function maxSlidingWindow(nums, k) {
+  // Hinglish: step 1 — base case check karo
   const q = []; // indexes, nums decreasing
   const out = [];
   for (let i = 0; i < nums.length; i++) {

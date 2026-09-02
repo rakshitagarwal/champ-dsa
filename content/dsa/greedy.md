@@ -1,27 +1,28 @@
 # Greedy
 
-**Definition:** A greedy algorithm builds a solution step-by-step by picking the *locally optimal* choice at each step (earliest finish time, farthest jump, largest gap) and never revisits it. It works only when a *greedy-choice property* holds — the local choice can be proven never to hurt the global optimum — and the problem has *optimal substructure*.
+**Definition:** Greedy har step pe jo sabse locally best lage wahi choice le leta hai (sabse jaldi khatam, sabse door jump, sabse bada gap) aur kabhi peeche mudke nahi sochta. Tabhi kaam karta hai jab ye local choice global optimum ko kharab na kare (greedy-choice property) aur problem me optimal substructure ho.
 
-**When to use:** You can sort by a key (earliest end, smallest cost) and a single left-to-right pass yields the answer (Jump Game, Gas Station, Partition Labels, Task Scheduler). If you cannot prove the greedy choice is safe, it is probably DP/backtracking instead.
+**When to use:** Ek key par sort karke single left-to-right pass me jawab mile — Jump Game, Gas Station, Partition Labels, Task Scheduler. Agar prove nahi kar pa rahe ki greedy safe hai, to shayad DP hai.
 
-**How it works:** Sort by the decisive key, then scan once maintaining the best state so far (`reach`, `end`, `tank`, `last`). Time is `O(n log n)` for sort + `O(n)` scan; space `O(1)`.
+**How it works:** Decisive key par sort karo, fir ek scan me best state maintain karo (`reach`, `end`, `tank`, `last`). Time `O(n log n)` sort + `O(n)` scan; space `O(1)`.
 
 ```js
 // Greedy skeleton — sort by key, then one pass
-items.sort(byKey); // e.g. by end time, by position
-let last = sentinel; // best state so far (reach, end, tank …)
+// Hinglish: pehle sort, fir ek baar scan karke best rakho
+items.sort(byKey); // e.g. end time ya position se
+let last = sentinel; // ab tak ka best (reach, end, tank …)
 for (const x of items) {
-  if (canTake(x, last)) last = take(x); // take if safe
+  if (canTake(x, last)) last = take(x); // safe hai to le lo
 }
 
 // Concrete example — farthest reach (Jump Game)
+// Hinglish: jahan tak pahuch sakte ho, wahi track karo
 let reach = 0;
 for (let i = 0; i < nums.length; i++) {
-  if (i > reach) break; // cannot get here
+  if (i > reach) break; // yahan tak aa hi nahi sakte
   reach = Math.max(reach, i + nums[i]);
 }
 ```
-
 ## Jump Game
 
 I track the farthest index I can still reach. If I walk past that, I am stuck.
@@ -29,9 +30,11 @@ I track the farthest index I can still reach. If I walk past that, I am stuck.
 [Jump Game](https://leetcode.com/problems/jump-game/)
 
 ```js
+// Hinglish: local best lo — ek-ek step comment dekho
 // Greedy — running max reach
 // LC: https://leetcode.com/problems/jump-game/
 function canJump(nums) {
+  // Hinglish: step 1 — base case check karo
   let reach = 0;
   for (let i = 0; i < nums.length; i++) {
     if (i > reach) return false;
@@ -48,9 +51,11 @@ I jump in windows: current end of this jump, farthest I can see. When i hits the
 [Jump Game II](https://leetcode.com/problems/jump-game-ii/)
 
 ```js
+// Hinglish: local best lo — ek-ek step comment dekho
 // Greedy — jumps by window
 // LC: https://leetcode.com/problems/jump-game-ii/
 function jump(nums) {
+  // Hinglish: step 1 — base case check karo
   let jumps = 0, end = 0, far = 0;
   for (let i = 0; i < nums.length - 1; i++) {
     far = Math.max(far, i + nums[i]);
@@ -70,9 +75,11 @@ If total gas < total cost, impossible. Otherwise the unique start is the station
 [Gas Station](https://leetcode.com/problems/gas-station/)
 
 ```js
+// Hinglish: local best lo — ek-ek step comment dekho
 // Greedy — unique start if total works
 // LC: https://leetcode.com/problems/gas-station/
 function canCompleteCircuit(gas, cost) {
+  // Hinglish: step 1 — base case check karo
   let total = 0, tank = 0, start = 0;
   for (let i = 0; i < gas.length; i++) {
     const d = gas[i] - cost[i];
@@ -94,9 +101,11 @@ Last index of each letter. Grow `end` to that last index while I scan. When i hi
 [Partition Labels](https://leetcode.com/problems/partition-labels/)
 
 ```js
+// Hinglish: local best lo — ek-ek step comment dekho
 // Greedy — last occurrence of each letter
 // LC: https://leetcode.com/problems/partition-labels/
 function partitionLabels(s) {
+  // Hinglish: step 1 — base case check karo
   const last = Array(26).fill(0);
   for (let i = 0; i < s.length; i++) last[s.charCodeAt(i) - 97] = i;
   const out = [];
@@ -119,9 +128,11 @@ Count the most frequent task. I need `(maxFreq - 1) * (n + 1) + howManyHaveMaxFr
 [Task Scheduler](https://leetcode.com/problems/task-scheduler/)
 
 ```js
+// Hinglish: local best lo — ek-ek step comment dekho
 // Greedy — idle from the most frequent task
 // LC: https://leetcode.com/problems/task-scheduler/
 function leastInterval(tasks, n) {
+  // Hinglish: step 1 — base case check karo
   const freq = Array(26).fill(0);
   for (const t of tasks) freq[t.charCodeAt(0) - 65]++;
   freq.sort((a, b) => b - a);

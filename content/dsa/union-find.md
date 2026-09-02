@@ -1,20 +1,21 @@
 # Union Find
 
-**Definition:** Union-Find (Disjoint Set Union, DSU) maintains a partition of nodes into disjoint sets with near-`O(α(n))` `find` (with path compression) and `union` (by rank/size). Each node points to a parent; the root is the representative ("boss").
+**Definition:** Union-Find (Disjoint Set Union, DSU) nodes ko disjoint sets me rakhta hai, `find` (path compression) aur `union` (rank/size se) lagbhag `O(α(n))` me. Har node parent ko point karta hai; root hi representative ("boss").
 
-**When to use:** "Are these connected?", dynamically merging groups, cycle detection in an undirected graph, counting components, or MST (Kruskal — union cheapest edge if not already connected).
+**When to use:** "Ye connected hain kya?", groups merge, undirected graph me cycle detect, components ginna, ya MST (Kruskal — sabse sasta edge jodo agar already connected nahi).
 
-**How it works:** `find(x)` walks to the root and flattens the path (`p[x]=p[p[x]]`). `union(a,b)` attaches smaller-rank root under larger. If `find(a)===find(b)` they are already connected → edge would create a cycle. Time `O(α(n))` amortized, space `O(n)`.
+**How it works:** `find(x)` root tak jata hai aur rasta flat karta hai (`p[x]=p[p[x]]`). `union(a,b)` chhote rank wale root ko bade ke neeche lagata hai. Agar `find(a)===find(b)` to pehle se connected → cycle. Time `O(α(n))` amortized, space `O(n)`.
 
 ```js
 // Union-Find skeleton — path compression + union by rank
+// Hinglish: boss dhoondo, rasta chhota karo, rank se jodo
 function find(p, x) {
-  while (p[x] !== x) { p[x] = p[p[x]]; x = p[x]; }
+  while (p[x] !== x) { p[x] = p[p[x]]; x = p[x]; } // path half
   return x;
 }
 function union(p, rank, a, b) {
   a = find(p, a); b = find(p, b);
-  if (a === b) return false; // already connected / cycle
+  if (a === b) return false; // pehle se juda / cycle
   if (rank[a] < rank[b]) [a, b] = [b, a];
   p[b] = a;
   if (rank[a] === rank[b]) rank[a]++;
@@ -23,7 +24,6 @@ function union(p, rank, a, b) {
 const p = Array.from({length: n}, (_, i) => i);
 const rank = Array(n).fill(0);
 ```
-
 ## Redundant Connection
 
 Add edges one by one. The first edge whose ends are already connected is the extra one. Return that edge.
@@ -31,9 +31,11 @@ Add edges one by one. The first edge whose ends are already connected is the ext
 [Redundant Connection](https://leetcode.com/problems/redundant-connection/)
 
 ```js
+// Hinglish: find-union — ek-ek step comment dekho
 // Union-find — extra edge
 // LC: https://leetcode.com/problems/redundant-connection/
 function findRedundantConnection(edges) {
+  // Hinglish: step 1 — base case check karo
   const n = edges.length;
   const p = Array.from({ length: n + 1 }, (_, i) => i);
   const rank = Array(n + 1).fill(0);
@@ -50,9 +52,11 @@ Manhattan edges between every pair. Sort cheap → expensive. Kruskal: union if 
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
+// Hinglish: find-union — ek-ek step comment dekho
 // Union-find — Kruskal MST
 // LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
+  // Hinglish: step 1 — base case check karo
   const n = points.length;
   const edges = [];
   for (let i = 0; i < n; i++) {

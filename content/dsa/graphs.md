@@ -1,25 +1,27 @@
 # Graphs
 
-**Definition:** A graph is nodes (vertices) + edges (neighbors). Represented as adjacency list, matrix, or implicit grid (4-neighbor cells). Traversals are **DFS** (stack/recursion — deep, good for components/painting) and **BFS** (queue — shortest steps in unweighted graph). Mark `visited` to avoid cycles; topological sort (Kahn) handles ordering.
+**Definition:** Graph nodes (vertices) + edges (neighbors) ka jod hai. Representation adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Traversal DFS (stack/recursion — gehra jao, components paint karna) aur BFS (queue — sabse kam steps wala shortest path). `visited` mark karna zaroori warna loop.
 
-**When to use:** "Can I reach?", "how many islands/components?", "shortest path in steps" (BFS), or "order courses" (in-degree queue). Grid = graph where each cell connects to 4 neighbors.
+**When to use:** "Pahuch sakte hain kya?", "kitne islands/components?", "steps me shortest path" (BFS), ya "courses ka order" (in-degree queue se topological sort). Grid bhi graph hai — har cell 4 taraf connected.
 
-**How it works:** Build `graph[node] = [neighbors]`. DFS recurses on unvisited neighbors; BFS queues `[start]` and expands level by level; Kahn queues nodes with in-degree 0. Time `O(V+E)`, space `O(V)`.
+**How it works:** `graph[node] = [neighbors]` banao. DFS unvisited neighbor par recurse; BFS `[start]` se level by level; Kahn me in-degree 0 wale queue me. Time `O(V+E)`, space `O(V)`.
 
 ```js
 // Graph skeleton — DFS (paint / components)
+// Hinglish: dekha to mark karo, fir neighbors pe jao
 const seen = new Set();
 function dfs(u) {
   if (seen.has(u)) return;
-  seen.add(u);
+  seen.add(u); // visit mark
   for (const v of graph[u]) dfs(v);
 }
 
 // Graph skeleton — BFS (shortest steps, unweighted)
+// Hinglish: level by level, pehle queue ka size lo
 const queue = [start], visited = new Set([start]);
 let steps = 0;
 while (queue.length) {
-  const n = queue.length;
+  const n = queue.length; // ek level
   for (let i = 0; i < n; i++) {
     const node = queue.shift();
     for (const nxt of graph[node]) if (!visited.has(nxt)) { visited.add(nxt); queue.push(nxt); }
@@ -28,10 +30,10 @@ while (queue.length) {
 }
 
 // Topological skeleton (Kahn)
+// Hinglish: jiska indegree 0, queue me daalo
 const q = nodes.filter(n => indeg[n] === 0);
 while (q.length) { const u = q.shift(); for (const v of graph[u]) if (--indeg[v] === 0) q.push(v); }
 ```
-
 ## Number of Islands
 
 Each unvisited `"1"` is a new island. DFS (or BFS) paints the whole blob to `"0"`.
@@ -39,9 +41,11 @@ Each unvisited `"1"` is a new island. DFS (or BFS) paints the whole blob to `"0"
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph DFS — flood fill
 // LC: https://leetcode.com/problems/number-of-islands/
 function numIslands(grid) {
+  // Hinglish: step 1 — base case check karo
   const rows = grid.length, cols = grid[0].length;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== "1") return;
@@ -68,9 +72,11 @@ Map old node → new node. DFS: if I already cloned it, return that. Else create
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph DFS — clone with a map
 // LC: https://leetcode.com/problems/clone-graph/
 function cloneGraph(node) {
+  // Hinglish: step 1 — base case check karo
   if (!node) return null;
   const map = new Map();
   const walk = (n) => {
@@ -91,9 +97,11 @@ Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each take
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph BFS — Kahn topo
 // LC: https://leetcode.com/problems/course-schedule/
 function canFinish(numCourses, prerequisites) {
+  // Hinglish: step 1 — base case check karo
   const graph = Array.from({ length: numCourses }, () => []);
   const indeg = Array(numCourses).fill(0);
   for (const [a, b] of prerequisites) {
@@ -122,9 +130,11 @@ All rotten oranges start in the queue together. Each level of BFS is one minute.
 [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph BFS — multi-source
 // LC: https://leetcode.com/problems/rotting-oranges/
 function orangesRotting(grid) {
+  // Hinglish: step 1 — base case check karo
   const rows = grid.length, cols = grid[0].length;
   const q = [];
   let fresh = 0;
@@ -161,6 +171,7 @@ Each word is a node. Neighbors = same length, one letter off. BFS from beginWord
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph BFS — one letter at a time
 // LC: https://leetcode.com/problems/word-ladder/
 function ladderLength(beginWord, endWord, wordList) {
@@ -175,7 +186,7 @@ function ladderLength(beginWord, endWord, wordList) {
       for (let c = 97; c <= 122; c++) {
         const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
         if (!set.has(next) || seen.has(next)) continue;
-        seen.add(next);
+        seen.add(next); // Hinglish: visit mark
         q.push([next, d + 1]);
       }
     }
@@ -191,9 +202,11 @@ Water flows down or flat. I BFS/DFS uphill from the Pacific edge and from the At
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph DFS — from oceans inland
 // LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
 function pacificAtlantic(heights) {
+  // Hinglish: step 1 — base case check karo
   const rows = heights.length, cols = heights[0].length;
   const pac = Array.from({ length: rows }, () => Array(cols).fill(false));
   const atl = Array.from({ length: rows }, () => Array(cols).fill(false));
@@ -231,9 +244,11 @@ Dijkstra: always pick the unvisited node with smallest time. Relax its edges. An
 [Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph — Dijkstra (scan min, n is small)
 // LC: https://leetcode.com/problems/network-delay-time/
 function networkDelayTime(times, n, k) {
+  // Hinglish: step 1 — base case check karo
   const g = Array.from({ length: n + 1 }, () => []);
   for (const [u, v, w] of times) g[u].push([v, w]);
   const dist = Array(n + 1).fill(Infinity);
@@ -264,9 +279,11 @@ At most K stops = at most K+1 edges. Bellman-Ford: copy dist, relax every flight
 [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 ```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph — Bellman-Ford K+1 rounds
 // LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
 function findCheapestPrice(n, flights, src, dst, k) {
+  // Hinglish: step 1 — base case check karo
   let dist = Array(n).fill(Infinity);
   dist[src] = 0;
   for (let hop = 0; hop <= k; hop++) {

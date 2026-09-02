@@ -1,31 +1,29 @@
 # Backtracking
 
-**Definition:** Backtracking is a systematic depth-first search over a *state space tree* — I build candidates one choice at a time and abandon a partial candidate ("backtrack") as soon as I know it cannot lead to a valid solution. It is brute force with pruning.
+**Definition:** Backtracking ek systematic DFS technique hai state-space tree par — hum ek choice try karte hain, aage recurse karte hain, aur jaise hi pata chale ki ye rasta valid solution tak nahi ja sakta, wapas undo (backtrack) kar dete hain. Ye brute force hai par pruning se tez.
 
-**When to use:** The problem asks for *all* subsets / permutations / combinations, all ways to place items (N-Queens), or existence of a path in a grid/word search with constraints. If you can phrase it as "try a choice, see if it works, then undo it," think backtracking.
+**When to use:** Jab saare subsets / permutations / combinations chahiye, ya N-Queens jaise placements, ya grid/word search jisme constraint check karna ho. Agar soch "ek choice try karo, kaam kare to rakho warna hatao" hai to yehi pattern hai.
 
-**How it works:** Recursive `choose → explore → unchoose` (also called `push → recurse → pop`). I keep a `path` (current partial solution) and an `ans` collection. At each call I either record the path, check if it violates constraints (prune/return), then loop over next choices. Time is usually exponential `O(k^n)` but pruning cuts branches early; space is `O(n)` recursion depth + path.
+**How it works:** Recursive `choose → explore → unchoose` (push → recurse → pop). Ek `path` rakho current partial solution ke liye aur `ans` me save karo. Har call me check karo — valid hai to record, invalid hai to prune/return, fir loop se next choices try karo. Time aksar exponential `O(k^n)` par pruning branches kaat deta hai; space `O(n)` depth + path.
 
 ```js
 // Backtracking skeleton — choose / explore / unchoose
+// Hinglish: choice lo, aage jao, fir wapas hatao
 function backtrack(start, path) {
-  // 1) record or check complete/valid
-  ans.push([...path]); // or: if (isSolution(path)) ans.push([...path]); return
+  ans.push([...path]); // ya: if (isSolution(path)) ans.push([...path]); return
 
-  // 2) prune — stop this branch early
+  // prune — ye branch aage nahi ja sakti
   // if (!isValid(path)) return;
 
-  // 3) try every next choice
   for (let i = start; i < nums.length; i++) {
-    path.push(nums[i]);      // choose
-    backtrack(i + 1, path);  // explore (i+1 = no reuse, i = reuse allowed)
-    path.pop();              // unchoose (backtrack)
+    path.push(nums[i]);      // choose — choice liya
+    backtrack(i + 1, path);  // explore — aage recurse (i = reuse allowed, i+1 = no reuse)
+    path.pop();              // unchoose — wapas hataya (backtrack)
   }
 }
 const ans = [];
 backtrack(0, []);
 ```
-
 ## Subsets
 
 Every prefix of the path is a subset. Recurse with `i + 1` so I do not reuse an index.
@@ -33,6 +31,7 @@ Every prefix of the path is a subset. Recurse with `i + 1` so I do not reuse an 
 [Subsets](https://leetcode.com/problems/subsets/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — subsets
 // LC: https://leetcode.com/problems/subsets/
 function subsets(nums) {
@@ -40,9 +39,9 @@ function subsets(nums) {
   const dfs = (start, path) => {
     ans.push([...path]);
     for (let i = start; i < nums.length; i++) {
-      path.push(nums[i]);
+      path.push(nums[i]); // Hinglish: choice liya
       dfs(i + 1, path);
-      path.pop();
+      path.pop(); // Hinglish: wapas hataya (backtrack)
     }
   };
   dfs(0, []);
@@ -57,6 +56,7 @@ I may reuse the same coin, so I recurse on `i` not `i + 1`. Stop when remain is 
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — reuse allowed
 // LC: https://leetcode.com/problems/combination-sum/
 function combinationSum(candidates, target) {
@@ -68,9 +68,9 @@ function combinationSum(candidates, target) {
     }
     if (remain < 0) return;
     for (let i = start; i < candidates.length; i++) {
-      path.push(candidates[i]);
+      path.push(candidates[i]); // Hinglish: choice liya
       dfs(i, remain - candidates[i], path);
-      path.pop();
+      path.pop(); // Hinglish: wapas hataya (backtrack)
     }
   };
   dfs(0, target, []);
@@ -85,6 +85,7 @@ function combinationSum(candidates, target) {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — permutations
 // LC: https://leetcode.com/problems/permutations/
 function permute(nums) {
@@ -97,9 +98,9 @@ function permute(nums) {
     for (let i = 0; i < nums.length; i++) {
       if (used[i]) continue;
       used[i] = true;
-      path.push(nums[i]);
+      path.push(nums[i]); // Hinglish: choice liya
       dfs(path);
-      path.pop();
+      path.pop(); // Hinglish: wapas hataya (backtrack)
       used[i] = false;
     }
   };
@@ -115,9 +116,11 @@ I can add `(` if I still have some. I can add `)` if closes < opens. When the st
 [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — count open/close
 // LC: https://leetcode.com/problems/generate-parentheses/
 function generateParenthesis(n) {
+  // Hinglish: step 1 — base case check karo
   const ans = [];
   const dfs = (s, open, close) => {
     if (s.length === 2 * n) {
@@ -139,9 +142,11 @@ DFS from every cell. Mark the cell, try 4 directions, unmark. If I consume the w
 [Word Search](https://leetcode.com/problems/word-search/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — grid DFS
 // LC: https://leetcode.com/problems/word-search/
 function exist(board, word) {
+  // Hinglish: step 1 — base case check karo
   const rows = board.length, cols = board[0].length;
   const dfs = (r, c, i) => {
     if (i === word.length) return true;
@@ -173,9 +178,11 @@ One queen per row. `cols`, `diag`, `anti` sets. Place, recurse next row, remove.
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 ```js
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — place per row
 // LC: https://leetcode.com/problems/n-queens/
 function solveNQueens(n) {
+  // Hinglish: step 1 — base case check karo
   const ans = [], board = Array.from({ length: n }, () => Array(n).fill("."));
   const cols = new Set(), diag = new Set(), anti = new Set();
   const dfs = (r) => {

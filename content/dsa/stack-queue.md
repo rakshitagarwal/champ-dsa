@@ -1,27 +1,28 @@
 # Stack & Queue
 
-**Definition:** A **stack** is LIFO (last-in, first-out) — like a pile of plates; push/pop at one end, `O(1)`. A **queue** is FIFO (first-in, first-out) — like a line; enqueue at tail, dequeue at head. Stacks handle nesting/undo; queues handle ordering/levels.
+**Definition:** **Stack** LIFO hai (last-in, first-out) — plate ka dher, ek hi end se push/pop, `O(1)`. **Queue** FIFO hai (first-in, first-out) — line, tail se enqueue head se dequeue. Stack nesting/undo sambhalta hai; queue ordering/levels.
 
-**When to use:** Stack → valid brackets, min so far, evaluate RPN, DFS recursion, monotonic next greater (separate page). Queue → BFS levels, sliding window deque, task scheduling.
+**When to use:** Stack → valid brackets, min so far, RPN evaluate, DFS recursion, monotonic next greater (alag page). Queue → BFS levels, sliding window deque, task order.
 
-**How it works:** Stack: push opens, pop on matching close; check empty/mismatch. Queue in JS is array with `push`/`shift` (or deque pointer). For min-stack keep parallel stack of minima. Time `O(n)`, space `O(n)`.
+**How it works:** Stack: open push, close par matching pop; empty/mismatch check. Queue JS me array `push`/`shift` (ya deque pointer). Min-stack ke liye parallel minima stack. Time `O(n)`, space `O(n)`.
 
 ```js
 // Stack skeleton — brackets / nesting
+// Hinglish: open push, close par pop-match
 const stack = [];
 for (const ch of s) {
   if (isOpen(ch)) stack.push(ch);
   else {
-    if (!stack.length || !matches(stack.pop(), ch)) return false;
+    if (!stack.length || !matches(stack.pop(), ch)) return false; // mismatch
   }
 }
-if (stack.length) return false;
+if (stack.length) return false; // kuch bacha to invalid
 
-// Queue skeleton — BFS uses queue (see Trees/Graphs)
+// Queue skeleton — BFS me use (Trees/Graphs dekho)
+// Hinglish: line me lagao, aage se nikalo
 const q = [start];
 while (q.length) { const x = q.shift(); /* ... q.push(neighbors) */ }
 ```
-
 ## Valid Parentheses
 
 Push every opener. On a closer, the top must be its match. Stack empty at the end means it nested cleanly.
@@ -29,9 +30,11 @@ Push every opener. On a closer, the top must be its match. Stack empty at the en
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 ```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
 // Stack — match open/close
 // LC: https://leetcode.com/problems/valid-parentheses/
 function isValid(s) {
+  // Hinglish: step 1 — base case check karo
   const stack = [];
   const pair = { ")": "(", "]": "[", "}": "{" };
   for (const ch of s) {
@@ -52,9 +55,11 @@ I keep a second stack of the min after each push. Pop both together. `getMin` is
 [Min Stack](https://leetcode.com/problems/min-stack/)
 
 ```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
 // Stack — parallel min stack
 // LC: https://leetcode.com/problems/min-stack/
 function MinStack() {
+  // Hinglish: step 1 — base case check karo
   this.vals = [];
   this.mins = [];
 }
