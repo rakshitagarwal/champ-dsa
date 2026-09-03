@@ -2,7 +2,9 @@
 
 > Mobile messaging. Online path is **WebSockets**. Offline path is **push + stored messages**. Groups and media are the usual extras.
 
-## What they ask
+> **TL;DR Hinglish:** Persist pehle Cassandra me, phir deliver — online ko WebSocket, offline ko push. Group fan-out Kafka se async, media S3.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design WhatsApp / Telegram: 1:1 chat, groups (~100–256 members), send text and photos, ticks for **sent / delivered / read**, typing indicators, last-seen/online, and history sync across devices. Focus on low latency for online users and durability when offline — not on building Signal from scratch.
 
@@ -15,7 +17,7 @@ What the interviewer tests:
 
 A strong answer: *persist first, then deliver — WebSocket if online, push if offline, group fan-out async via Kafka*.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Details |
 |---|---|
@@ -24,7 +26,7 @@ A strong answer: *persist first, then deliver — WebSocket if online, push if o
 | **Clarify** | Max group size? Message size limit? Retention (store forever vs TTL)? E2E required or server sees plaintext? Ask — most interviews skip full Signal protocol and accept "server stores ciphertext" |
 | **Out of scope v1** | Voice/video calls (WebRTC), Stories/Status, broadcast channels at 1M scale (different fan-out), full Signal double-ratchet implementation |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume 500M DAU, avg 30 messages/user/day, 20% groups.
 
@@ -38,7 +40,7 @@ Assume 500M DAU, avg 30 messages/user/day, 20% groups.
 
 Key insight: message **count** is high but each is tiny — optimize for **write throughput + fan-out**, not large payloads. Media dominates bytes but is offloaded to object storage.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/auth/login  { "phone":"+9198...", "code":"123456" } → { "userId":"u_1","accessToken":"...","wsUrl":"wss://chat.example/ws" }
@@ -61,7 +63,7 @@ POST /v1/groups/{chatId}/members { "add":["u_4"],"remove":["u_5"] }
 
 Headers: `Idempotency-Key: clientMsgId` for dedup. History is cursor-paginated by `(chatId, ts/msgId)`. Media message body is `{ mediaId, cdnUrl, size, thumb }` — never inline bytes.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Mobile / Desktop ] --HTTPS--> [ API Gateway (auth, rate-limit) ]
@@ -78,6 +80,17 @@ Headers: `Idempotency-Key: clientMsgId` for dedup. History is cursor-paginated b
                            [ Elasticsearch (optional search) — async ]
 ```
 
+```mermaid
+graph LR
+  A[Mobile/Desktop] --> B[API Gateway]
+  B --> C[Chat Fleet WS]
+  C --> D[Redis Presence]
+  C --> E[Kafka fanout]
+  C --> F[Cassandra Messages]
+  E --> G[Fanout Workers] --> H[Push FCM/APNS]
+  F --> I[S3+CDN Media]
+```
+
 **Components:**
 
 - **Chat Fleet (WS servers):** Holds `userId → { nodeId, conn }` in [Redis](/system-design/redis) (hash + TTL heartbeat). Stateless — any node can serve any user via consistent hash or Redis lookup. Routes incoming `send` to `persist → ack → deliver`.
@@ -91,7 +104,7 @@ Headers: `Idempotency-Key: clientMsgId` for dedup. History is cursor-paginated b
 
 **Read flow (history / reconnect):** `GET /messages?cursor=` → Cassandra range scan `WHERE chatId=? AND ts < cursor LIMIT 50`. On app open, client fetches missed messages since `lastSeenMsgId`, then attaches WS for live.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 ### DB schema
 
@@ -185,19 +198,24 @@ class MediaService {
 
 Publish-Subscribe (Kafka fan-out), Presence with TTL, Cache-Aside (member sets), CQRS (write to Cassandra, read history), Outbox pattern (persist then publish), Idempotent Receiver.
 
-## Deep dive — groups and fan-out
+## Deep Dive — Gehrai se (Interview yahi puchega) — groups and fan-out
 
 A group of 100 cannot wait for 99 sequential WS pushes inside `send()`. The chat node does exactly one durable write, acks the sender, then publishes to [Kafka](/system-design/kafka) topic `chat.events` (partitioned by `chatId` for order). A pool of **Fanout Workers** consumes and for each member looks up `userId→node` in Redis: if online, `PUBLISH node:{id} {message}` (Redis PubSub / NATS) so the recipient's WS node pushes; if offline, batch enqueue to [Notification System](/system-design/notification-system) (FCM/APNS). For huge broadcast channels (1M), switch to **pull model** — write once, clients poll `GET /messages` — not 1:1 push per member.
 
-## Deep dive — receipts, ordering, and exactly-once delivery
+## Deep Dive — Gehrai se (Interview yahi puchega) — receipts, ordering, and exactly-once delivery
 
 Receipts are two client ACKs: receiver's SDK sends `delivered` on receipt, `read` when the thread is opened. Both upsert `receipts` and are forwarded to sender's WS (if sender offline, stored and delivered on reconnect). Ordering: server-assigned `ts` wins; client `clientMsgId` is only for dedup. At-least-once publish from Kafka is safe because `msgId` dedup on client (already seen → drop). Failed fan-out retries with backoff; poison → DLQ.
 
-## Deep dive — multi-device and offline catch-up
+## Deep Dive — Gehrai se (Interview yahi puchega) — multi-device and offline catch-up
 
 Each device is a separate WS connection (`userId:deviceId → node`). A message is marked `delivered` per device, `read` is per user but synced — when one device sends `read upToMsgId`, server fans `read` to sender **and** to the user's other devices so badges clear. Offline catch-up: on connect, server sends `missed = SELECT * FROM messages WHERE chatId IN userChats AND ts > lastAckTs LIMIT 200` plus a `sync` of `last_read_msg_id` per chat. Deleted devices get full history page via `GET /messages`.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **WS node crash:** Connections re-establish (client retries with backoff) and re-register in Redis; undelivered messages remain in Cassandra and are fetched on reconnect — no loss.
 - **Cassandra hotspot (viral group):** Partition by `chatId` spreads load; large groups still one partition — add write-behind Redis buffer and use `TWCS` compaction for time-series.
@@ -206,13 +224,15 @@ Each device is a separate WS connection (`userId:deviceId → node`). A message 
 - **Media overload:** Pre-signed S3 upload never traverses chat nodes; CDN cache + signed URL expiry limits hotlinking; thumbnail service async.
 - **50M sockets:** Shard WS fleet by consistent hash on `userId`, autoscale on connections/node (target ~50K/node), use kernel tuning + LB with least-connections.
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. **Multi-device sync:** Each device is a consumer; `read` must sync across devices — use a per-user `device_sync` topic or versioned `user_chats.last_read`.
 2. **Presence & last-seen:** Heartbeat in Redis with TTL; last-seen from Postgres `users.last_seen_at` updated on disconnect. Privacy toggle is a policy check before returning presence.
 3. **Shard chats by `chatId`:** All message, member, and receipt tables are co-partitioned by `chatId` for locality; user inbox is a secondary view.
 4. **Search:** Async [Elasticsearch](/system-design/elasticsearch) indexer over Kafka — not inline.
 5. **Rate limit & abuse:** Per-user [Rate Limiter](/system-design/rate-limiter) on `send`, plus spam ML async.
+
+**Yaad rakho (Revision):** 1) Persist pehle Cassandra me 2) Group fan-out Kafka async 3) Online WS, offline push 4) Media S3, presence Redis TTL.
 
 **Phrase:** Persist first, then deliver. WebSocket if online, push if not. Media is S3. Groups fan out asynchronously so send() returns after the log write.
 

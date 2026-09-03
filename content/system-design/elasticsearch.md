@@ -1,41 +1,45 @@
 # Elasticsearch
 
-> Search engine, not a database. You **index documents** for full-text and aggregations. The system of record stays in Postgres / object storage.
+> Full-text search aur aggregations. DB se async index banao; thoda lag chalega.
 
-Elasticsearch (and OpenSearch) stores inverted indexes. You send JSON documents; you query with relevance, filters, and aggregations. It is great at "find posts matching `pizza near me`" and bad at "transfer $10 with a serializable transaction."
+> **TL;DR Hinglish:** Elasticsearch ek kitaab ka index jaisa hai — har shabd kahan aaya, turant batata hai. DB source of truth, ES uska photocopy jo search ke liye optimize hai. Thoda stale chalega (1-2 sec).
 
-## When you pick it
+DB me `LIKE '%shoe%'` slow. ES me **inverted index** — `shoe → [doc1, doc42]`. Analyzers word todte hain, stopwords hatate hain, stemming karte hain.
 
-1. Full-text search (posts, businesses, videos, code)
-2. Multi-field filters + sort (Yelp: geo + rating + open now)
-3. Analytics dashboards that can be **slightly stale**
-4. Autocomplete / suggestions (with care — often a separate suggester)
+## Kab use karo?
 
-Do **not** use it as the only copy of user data. Cluster restarts, split brain, and mapping explosions are real. Dual-write without an [outbox](/system-design/kafka) will drift.
+- Text search — Yelp "coffee near me", FB post search, autocomplete, filters
+- Aggregations — `GROUP BY category` tez, analytics
+- Geo + text combo
 
-## How it shows up in a design
+**Mat bano:** primary store — ES me update mehenga, consistency weak. Hamesha DB + async pipe.
 
-**Write path.** API writes Postgres. A worker (or Debezium) publishes `PostCreated`. An indexer upserts the ES document. Search can lag by seconds. Say that out loud — interviewers like it.
+## Kaise banta hai — Hinglish me
 
-**Read path.** Search box → ES → list of IDs → hydrate from DB/cache if you need fresh privacy or counts. Or store enough fields in `_source` to render the result card.
+**Pipe:** `App → DB → Kafka topic db.changes → Indexer workers → ES → hydrate from DB` (ES me sirf id + search fields, pura data DB se).
 
-**Privacy (FB post search).** Filter by `visibleTo` at index time or query time. Wrong filter = leaking friends-only posts. This is the deep dive, not BM25 trivia.
+**Hydrate:** ES se ids nikalo, DB se full rows lo — ES ko fat mat banao.
 
-## Ideas worth naming
+**Privacy deep dive (FB):** Har doc me `visibleTo = [userIds]` mat rakho (fat + stale). Better: ES se candidate ids nikalo, fir Postgres me `WHERE docId IN (...) AND hasAccess(user, doc)` filter karo — ya ES me per-user filter plugin.
 
-1. **Inverted index** — term → list of docs
-2. **Analyzer** — tokenize, lowercase, stem
-3. **N-grams** — autocomplete; fatter index
-4. **Geo point** — distance filter for Yelp / Tinder
-5. **Shards** — split the index; more shards ≠ always faster
+```mermaid
+graph LR
+    A[Postgres] -->|CDC| B[Kafka]
+    B --> C[Indexer]
+    C --> D[Elasticsearch<br/>inverted index]
+    D -->|ids| E[App]
+    E -->|hydrate| A
+```
 
-## Failure modes
+## Aggregations & near real-time
 
-1. **Mapping conflict** — one field cannot be both text and date
-2. **Hot shards** — one index / one day of logs eating the cluster
-3. **Refresh interval** — near-realtime, not realtime chat
-4. **Reindex** — schema change means a new index + alias swap
+Near real-time (~1 sec refresh), strong consistent nahi. Search me `refresh=wait_for` slow.
 
-**Phrase:** "Search is a derived read model. I write the DB first, index asynchronously, and I accept lag. Hydrate from the source of truth when correctness matters."
+**🔴 Galti:** "ES hi DB" — Lose karoge, recovery mushkil, update heavy.
+**✅ Sahi:** "Async index, thoda lag ok, hydrate from DB, privacy DB pe check."
 
-**See also:** [Yelp](/system-design/yelp), [FB Post Search](/system-design/fb-post-search), [PostgreSQL](/system-design/postgresql).
+**Phrase:** "Elasticsearch search ke liye — DB se async index, inverted index, hydrate from DB, privacy filter DB pe."
+
+**Yaad rakho:** DB source, ES photocopy, inverted index, hydrate pattern, privacy ≠ ES dump.
+
+**See also:** [yelp](/system-design/yelp), [fb-post-search](/system-design/fb-post-search), [yelp](/system-design/yelp).

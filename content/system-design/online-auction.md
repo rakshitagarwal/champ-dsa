@@ -2,7 +2,9 @@
 
 > eBay-style bids. The last seconds of a popular lot are a **consistency + burst** problem. Whoever wins must match the ledger.
 
-## What they ask
+> **TL;DR Hinglish:** Last-sec bids me DB `SERIALIZABLE`, WebSocket se live price, anti-sniping + TTL, throughput vs consistency trade-off.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design an online auction platform like eBay where sellers list items with a start price, reserve price, and end time. Buyers place bids; the highest bid when the clock hits zero wins. The interviewer will describe sniping, proxy bidding, and "no two winners" — then watch how you handle concurrency.
 
@@ -14,7 +16,7 @@ Design an online auction platform like eBay where sellers list items with a star
 - Real-time fan-out ([WebSockets](/system-design/websocket) / SSE) decoupled from the transaction
 - Idempotency, clock correctness, and idempotent close/settlement
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Requirement |
 |---|---|
@@ -23,7 +25,7 @@ Design an online auction platform like eBay where sellers list items with a star
 | **Clarify** | English auction (ascending, highest wins)? Reserve price hidden or visible? Anti-snipe extension (e.g., +30s if bid in last 30s)? Proxy/auto-bidding supported? Soft vs hard close? Cancellation rules? |
 | **Out of scope v1** | Full-text search relevance tuning (delegate to [Elasticsearch](/system-design/elasticsearch)), recommendation feed, dispute/return flow, seller reputation graph, multi-currency settlement. |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume 10M active listings, 100M registered users, 5M DAU. Average bids per auction: 8. Peak factor: viral auctions dominate.
 
@@ -38,7 +40,7 @@ Assume 10M active listings, 100M registered users, 5M DAU. Average bids per auct
 
 Conclusion: DB size is modest; the challenge is **per-key contention and fan-out**, not total volume.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -78,7 +80,7 @@ POST /api/v1/auctions/{id}/bids
 
 Headers: `Idempotency-Key: <clientBidId>` — retry safe.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Client (Web/Mobile)
@@ -99,6 +101,15 @@ Load Balancer (L7) -> API Gateway (auth, rate-limit, validation)
  Postgres (source of truth)  <->  Redis (price cache + pub/sub)  <->  S3 (images)
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Components:**
 - **API Gateway:** JWT auth, per-user [rate limiter](/system-design/rate-limiter) (e.g., 10 bids/sec), request validation, routes to services.
 - **Auction Service:** Owns `auctions` table; authoritative clock (server `now()`); idempotent close job.
@@ -117,7 +128,7 @@ Load Balancer (L7) -> API Gateway (auth, rate-limit, validation)
 1. `GET /auctions/{id}` served from Redis cache (fallback to Postgres + repopulate).
 2. WS connection subscribes to Redis channel; receives new high-bid events with <300ms lag.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **DB Schema (Postgres):**
 ```sql
@@ -195,23 +206,28 @@ class CloseScheduler:
 
 **Patterns used:** Transactional outbox (bid insert + event publish atomically), Cache-aside, Pub/Sub fan-out, Partitioned serialization (Kafka key = auctionId), Idempotency key, Scheduler with `SKIP LOCKED`.
 
-## Deep dive — last-second bids
+## Deep Dive — Gehrai se (Interview yahi puchega) — last-second bids
 
 If you trust `Redis INCR` to decide the winner, a failover can elect two winners (split-brain) because Redis replication is async. **The DB (or a consensus log) is the tiebreaker.** Redis may show a stale price for 100ms — that's acceptable. The winner is whoever holds the row after `close` commits. Cache is display-only. Writes that fail the `FOR UPDATE` check return `409` with the fresh `current_price` so the client can re-bid without polling.
 
 **Clock:** Never trust `Date.now()` from the browser. Server `now()` (Postgres `now()` or NTP-synced app clock) is authoritative. WS pushes `server_time` + `end_at` so clients render countdown from server delta.
 
-## Deep dive — hot-path optimization & proxy bidding
+## Deep Dive — Gehrai se (Interview yahi puchega) — hot-path optimization & proxy bidding
 
 A naive design lets 10k connections all `SELECT FOR UPDATE` the same row — Postgres lock queue explodes, p95 spikes to seconds. The partitioned worker collapses contention to a single consumer per auction, turning 10k concurrent DB hits into a sequential queue with ~5ms per bid. Throughput per hot auction ~200 bids/sec (DB bound) which is enough — you don't need 10k winners, just the highest.
 
 **Proxy bidding:** Store `max_bid` per bidder. When a new bid arrives, the system auto-bids up to the proxy max in `minIncrement` steps inside the same transaction. State machine: `proxy_bids(auction_id, user_id, max_amount)` — the engine iterates until only one proxy remains on top. Mention this as v2.
 
-## Deep dive — closing, settlement, and notifications
+## Deep Dive — Gehrai se (Interview yahi puchega) — closing, settlement, and notifications
 
 Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SET status='CLOSED' WHERE id=? AND status='OPEN'` — only one closer succeeds. On success, enqueue `AuctionClosed` event to [Kafka](/system-design/kafka). Consumers: charge winner via [payment system](/system-design/payment-system) (with idempotency key `auctionId`), notify watchers via [notification system](/system-design/notification-system), update search index. If payment fails, mark `PAYMENT_FAILED` and retry with backoff — don't revert the winner; surface to ops. Scheduler runs every second with `FOR UPDATE SKIP LOCKED` so multiple schedulers don't double-close.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 | Failure | Handling |
 |---|---|
@@ -222,12 +238,14 @@ Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SE
 | **Bid flood / DDoS** | Per-IP and per-user rate limit at gateway; CAPTCHA on burst; shed load by returning 429 with `Retry-After`. |
 | **Scale** | Shard `auctions`/`bids` by `auctionId` hash when single Postgres saturates; move hot auctions to dedicated partition/worker pool; WS gateway horizontally scaled via consistent hash on `auctionId` + Redis pub/sub cluster. |
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. Proxy / auto-bidding with hidden max — extra state machine and incremental bid loop.
 2. Fraud / shill bidding detection — velocity checks, seller-bidder graph, manual review queue.
 3. Images on [CDN](/system-design/cdn) + listing search via [Elasticsearch](/system-design/elasticsearch) with filters (category, price, ending soon).
 4. Reserve price not met → `UNSOLD` status, notify seller.
 5. Legal / audit: immutable bid ledger, append-only table, point-in-time recovery.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "Bids are serialized per item and committed in Postgres. Redis and WebSockets only show the price. The winner is whoever is on the row when we close — once, idempotently."

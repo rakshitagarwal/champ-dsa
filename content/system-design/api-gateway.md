@@ -1,45 +1,48 @@
 # API Gateway
 
-> The **front door**. Clients hit one hostname. The gateway terminates TLS, checks auth, applies rate limits, and routes to services. It is not where you put business logic.
+> Single front door — TLS, auth, rate limits, routing. Business logic isme mat dalo.
 
-In interviews, "API Gateway" means AWS API Gateway, Kong, Envoy/edge, or Nginx plus a thin layer. Draw it once, between the load balancer and your services.
+> **TL;DR Hinglish:** Gateway ek building ka main gate hai — har request yahan se hoke jaayegi, gate pe hi ID check (auth), bheed control (rate limit), aur sahi office (service) me bhej do. Andar ka kaam service kare, gate nahi.
 
-## What it should do
+Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai, peeche 20 services hain pata nahi. Gateway L7 (HTTP) pe kaam karta hai, Load Balancer L4 (TCP) pe. Dono saath rehte hain: LB → Gateway → Services.
 
-1. **TLS termination** and HTTP/2 or HTTP/3 at the edge
-2. **AuthN** — validate JWT / session cookie; reject 401
-3. **Rate limiting** — per API key / IP / user; 429. Details → [rate limiter](/system-design/rate-limiter)
-4. **Routing** — `/chat` → chat service, `/media` → upload service
-5. **Protocol** — REST outside, gRPC inside; or WebSocket upgrade for chat
-6. **Request IDs** — propagate a trace id
+## Kya karta hai? (Checklist bolo)
 
-## What it should not do
+- **TLS terminate** — HTTPS yahan khatam, andar plain HTTP
+- **Auth** — JWT verify, `userId` header aage bhejo
+- **Rate limiting** — per user/IP, [Redis](/system-design/redis) counter
+- **Routing** — `/v1/pay` → Payment Service, `/v1/search` → Search Service
+- **Validation** — schema check, size limit
+- **Observability** — request ID inject, logs/metrics
 
-Do not implement "create tweet" inside the gateway. Do not store the feed. Do not run ML ranking. Gateways that grow a brain become undeployable.
+## Kya nahi karna?
 
-WAF / bot checks can live here or in a CDN (CloudFront, Cloudflare) in front of the gateway.
+Business rules, DB queries, heavy compute — gateway ko halka rakho warna har request yahi atke. Fat gateway = SPOF.
 
-## How it shows up
+**LB vs Gateway:** LB = traffic baanto (round-robin, health check). Gateway = HTTP samjho, auth/rate-limit/routing.
 
-**WhatsApp / docs:** one gateway fans out to user-service (HTTP) and realtime-service (WebSocket). Sticky sessions or a connection registry in [Redis](/system-design/redis) for WS.
+```mermaid
+graph LR
+    A[Client] --> B[L4 LB]
+    B --> C[API Gateway<br/>auth, rate-limit, routing]
+    C --> D[Service A]
+    C --> E[Service B]
+    C --> F[Service C]
+    C -->|WS upgrade| G[Chat Fleet]
+```
 
-**Public APIs (Bitly, Stripe-like):** API keys issued per customer; gateway enforces quotas before the write path.
+## Failure — interview me bolo
 
-**BFF (backend for frontend):** mobile and web sometimes get different gateways with different aggregations. Mention if the interviewer cares about mobile chattiness.
+- **SPOF:** Gateway gira to sab gira — multi-AZ, 3+ replicas, health check, circuit breaker.
+- **Timeouts:** downstream slow to gateway queue full → 504, retry with backoff, idempotent.
+- **WS draining:** deploy pe connections gracefully close + client reconnect.
+- **Config:** rate limit rules etcd/Consul se, hot reload.
 
-## Load balancer vs gateway
+**🔴 Galti:** "Gateway me hi payment logic likh do" — Scale nahi hoga, deploy risky.
+**✅ Sahi:** "Gateway sirf cross-cutting: auth, limit, route. Logic service me."
 
-**L4 LB** — TCP, very fast, good for raw connections.
+**Phrase:** "Gateway front door hai — auth/rate-limit/routing yahan, business logic peeche. LB L4, Gateway L7."
 
-**L7 LB / gateway** — sees HTTP path and headers. Health checks, canary, path routing.
+**Yaad rakho:** Front door, L7 vs L4, halka rakho, multi-AZ warna SPOF.
 
-You can have both: DNS → CDN → L4 → gateway → services.
-
-## Failure modes
-
-1. **Gateway is an SPOF** — run N instances, multi-AZ
-2. **Timeouts** — gateway timeout < service timeout, or users hang
-3. **Auth cache** — don't call the user service on every request; cache JWKS / sessions
-4. **WebSockets** — draining a gateway instance drops connections; rolling deploys need care
-
-**Phrase:** "Clients talk to an API gateway for TLS, auth, and rate limits. Each capability is its own service behind it. The gateway stays boring on purpose."
+**See also:** [rate limiter](/system-design/rate-limiter), [notification system](/system-design/notification-system).

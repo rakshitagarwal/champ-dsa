@@ -1,41 +1,56 @@
 # Cassandra
 
-> Wide-column store. Huge **writes**, multi-datacenter, and queries you planned in advance. If you need ad-hoc joins, this is the wrong tool.
+> Wide-column store, boht zyada writes aur jahan key pata ho. Relations pe nahi, queries pe model karo.
 
-Cassandra (and Scylla) hashes a **partition key** onto a ring of nodes. Replication is tunable (`LOCAL_QUORUM`, `ONE`, …). There is no single primary. That is why it shows up for time-series, inbox, and click logs.
+> **TL;DR Hinglish:** Cassandra ek badi diary hai jahan har page (partition) me rows time pe sorted hain. Write sasta, read tabhi tez jab tumhe pata ho kaunsa page kholna hai (`chatId`). Query pehle socho, table baad me banao.
 
-## When you pick it
+SQL me pehle tables normal karte ho. Cassandra me ulta — **query per table**. Messages ke liye `PRIMARY KEY ((chatId), sentAt)` — matlab `chatId` ka partition, andar time pe sorted. Dusri query chahiye to dusra table.
 
-1. Write-heavy append data (messages, events, telemetry)
-2. Known access: "get last N messages for `chatId`"
-3. Multi-region with availability over strict linearizability
-4. TTL on rows (IoT, sessions)
+Ring me nodes, har key `hash(key) % ring` pe ek node leader, 2 replicas.
 
-Pick [PostgreSQL](/system-design/postgresql) for payments, inventory, and anything with multi-row transactions. Pick [DynamoDB](/system-design/dynamodb) if you want this model **managed** on AWS.
+## Kab lena hai?
 
-## Data modeling (the whole interview)
+- Boht zyada writes, time-series (chat messages, metrics, events) — 100k writes/sec
+- Key pe lookup — `chatId`, `userId`
+- TTL chahiye — `WITH default_time_to_live = 86400`
 
-You model **tables per query**, not an ER diagram.
+**Mat lo:** joins, ad-hoc search, transactions — wahan [PostgreSQL](/system-design/postgresql).
 
-Example inbox: `PRIMARY KEY ((chat_id), sent_at, message_id)` — partition by chat, cluster by time. "All messages for user across chats" is a **different table** (or a search index), not a join.
+## Kaise likhte hain — example
 
-**Hot partition:** one group chat with millions of writes. Bucket the partition (`chat_id + day`) or shard the celebrity chat.
+```sql
+-- Hinglish: chatId = partition, sent_at = clustering (order)
+CREATE TABLE messages (
+  chat_id  UUID,
+  sent_at  BIGINT,
+  msg_id   UUID,
+  body     TEXT,
+  PRIMARY KEY ((chat_id), sent_at)
+) WITH CLUSTERING ORDER BY (sent_at DESC);
+-- Query: WHERE chat_id = ? AND sent_at < ? LIMIT 50  → ek partition se, tez
+```
 
-**Secondary indexes** in Cassandra are limited. Prefer denormalized tables you write twice (or write to Kafka and project).
+## Deep dive — hot partition & quorum
 
-## Consistency knobs
+**Hot partition:** Ek celebrity chatId pe lakhon writes ek node pe. Fix: `chatId:shard` bucket (`chatId#1`, `chatId#2`) ya time bucket (`chatId:2026-08`).
 
-`QUORUM` read + write so that R + W > N (classic). For a chat receipt, you might accept `LOCAL_QUORUM`. For "did this ticket sell," you probably should not be in Cassandra at all.
+**Quorum:** `R + W > N` to strong-ish. `W=QUORUM` likho, `R=QUORUM` padho → majority ne dekha. `R=1, W=1` tez par stale.
 
-**Lightweight transactions** (compare-and-set) exist and are slow. Do not build a bank on them.
+**CQL ≠ SQL:** `ALLOW FILTERING` mat bolo — full scan karega, interview me fail.
 
-## Failure modes
+```mermaid
+graph LR
+    A[App] -->|hash chatId| B[Ring Node 1<br/>chatId A]
+    A --> C[Node 2<br/>chatId B]
+    A --> D[Node 3]
+    B <-->|replica| E[Node 4]
+```
 
-1. **Hinted handoff / repair** — nodes catch up; mention anti-entropy
-2. **GC / tombstones** — deletes are markers; huge tombstone scans hurt
-3. **Unbalanced ring** — bad partition key
-4. **CQL looks like SQL** — it is not; no joins, no `ORDER BY` anything
+**🔴 Galti:** "Ek hi table se saare queries" — Cassandra me nahi.
+**✅ Sahi:** "Har query ke liye alag table, partition key soch ke."
 
-**Phrase:** "I'd use Cassandra when the query is 'read a time-ordered partition at huge write QPS.' Partition key is the design. Anything transactional stays in Postgres."
+**Phrase:** "Cassandra me query pehle, table baad me. Partition key se distribution, clustering se order, R+W>N se quorum."
 
-**See also:** [WhatsApp](/system-design/whatsapp), [DynamoDB](/system-design/dynamodb).
+**Yaad rakho:** Query-per-table, `((partition), clustering)`, hot partition → bucket, quorum R+W>N.
+
+**See also:** [whatsapp](/system-design/whatsapp), [metrics-monitoring](/system-design/metrics-monitoring), [dynamodb](/system-design/dynamodb).

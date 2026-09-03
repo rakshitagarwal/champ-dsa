@@ -2,7 +2,9 @@
 
 > Fan-out "tell the user" across **push, email, SMS, in-app**. Preferences and retries matter more than picking Twilio.
 
-## What they ask
+> **TL;DR Hinglish:** Ek Kafka topic per channel (email/push/SMS), preference filter, fan-out chunked 10M pe, idempotency + digest window.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: *"Design a notification platform that other internal services call to notify users — push, email, SMS, in-app inbox. It should handle 100M users, marketing bursts, and OTPs without double-sending."*
 
@@ -14,7 +16,7 @@ What they really test:
 
 Example scale framing (to anchor your numbers early): 50M MAU, 5 notifications/user/day average → 250M/day. Marketing push: 20M in 10 minutes. OTP spike: 5k QPS for 5 minutes. Mention these before doing math.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - `notify(userId, templateId, data, channels[])` — transactional (OTP, order shipped) and bulk/marketing.
@@ -46,7 +48,7 @@ Example scale framing (to anchor your numbers early): 50M MAU, 5 notifications/u
 - ML-based send-time optimization — v2.
 - Full campaign A/B framework — mention but defer.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -60,7 +62,7 @@ Example scale framing (to anchor your numbers early): 50M MAU, 5 notifications/u
 
 Bandwidth: push payloads small; email bodies 10-50KB. Throughput is dominated by provider calls, not your ingress. Size your **workers per channel** independently.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/notifications
@@ -99,7 +101,7 @@ POST /v1/users/{userId}/inbox/{notifId}/read
 
 All POSTs that create notifications require `Idempotency-Key` header *and* body `idempotencyKey` — enforce unique constraint on `(callerService, idempotencyKey)`.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [Product Services] ──POST /notifications (202)──▶ [API Gateway + Auth] ──▶ [Notification API]
@@ -137,6 +139,15 @@ All POSTs that create notifications require `Idempotency-Key` header *and* body 
                     [Status Updater + Webhook Handler]  [In-app Inbox Service → Cassandra/Postgres + Redis badge]
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Notification API (ingest):** validates, checks idempotency (unique constraint), writes `notifications` row `queued`, publishes to [Kafka](/system-design/kafka) via transactional outbox, returns 202. Uses [Redis](/system-design/redis) for dedupe window cache.
 - **Scheduler:** for `sendAt` future and quiet-hours delay; backed by delayed queue (Kafka delay topic or DB polling + [job scheduler](/system-design/job-scheduler)).
@@ -149,7 +160,7 @@ All POSTs that create notifications require `Idempotency-Key` header *and* body 
 
 **Data flow — read path:** App polls `GET /inbox` (or WS for live). Badge count from Redis (fast) with fallback to DB count. Preferences read from Postgres cached in Redis with 1m TTL + invalidation on PUT.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres):**
 
@@ -243,7 +254,7 @@ InboxService            — write inbox_items, maintain Redis badge counter
 
 **Design patterns:** Outbox pattern, Strategy (per-channel sender), Template Method (ChannelWorker), Circuit Breaker per provider, Idempotent Receiver.
 
-## Deep dive — Idempotency and storms
+## Deep Dive — Gehrai se (Interview yahi puchega) — Idempotency and storms
 
 **Idempotency done right:** Caller retries (timeout, 5xx) with same `idempotencyKey` must not double-send. The ingest does `INSERT ... ON CONFLICT (caller_service, idempotencyKey) DO NOTHING RETURNING id`; on conflict fetch existing row and return same `notificationId`. Workers also deduplicate on `(notificationId, channel)` — if worker crashes after calling SES but before marking `sent`, the retry will see existing `provider_msg_id` and skip second send. Provider webhooks carry `providerEventId` with unique constraint to drop duplicates.
 
@@ -251,11 +262,16 @@ InboxService            — write inbox_items, maintain Redis badge counter
 
 **Digest deep dive:** Naive "one notification per like" destroys attention. Implement grouping: `groupingKey = like:postId:recipientId`. Orchestrator writes to [Redis](/system-design/redis) `HINCRBY digest:recipientId:groupingKey count 1` and `EXPIRE window 30m`. First event schedules a timer (via scheduler). On timer fire, read count, render template "Alice, Bob and 48 others liked your post" with latest 2 names fetched from DB, emit one per-channel notification and delete window key. Guarantees at most one push per window per group.
 
-## Deep dive — Per-channel reliability and cost control
+## Deep Dive — Gehrai se (Interview yahi puchega) — Per-channel reliability and cost control
 
 Each channel has different failure semantics. **Email (SES):** bounces/complaints must suppress future sends — maintain a `suppression_list` (email → reason) checked pre-send. **Push (FCM/APNS):** invalid tokens must be pruned — on `InvalidRegistration` delete token row, don't retry. **SMS (Twilio):** every retry costs money — cap `attempt_count ≤ 2`, alert on DLQ, and never retry `InvalidNumber` or `OptedOut`. Implement **per-provider circuit breaker** (half-open probe every 30s) so SES throttling doesn't cascade to push queue. Workers use **bulk provider APIs** where available (FCM multicast 500/batch, SES bulk templated) to reduce QPS to external systems.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Sharding:** Kafka partitions by `userId` hash (e.g., 64 partitions); consumers scale horizontally. Postgres sharded by `userId` for `notifications` and `inbox_items` if single-DB pressure hits; or move inbox to Cassandra.
 - **Caching:** Prefs + push tokens in [Redis](/system-design/redis) with write-through; template renders cached by `(templateId, version, locale)` (immutable). Badge counts in Redis with nightly reconciliation job that `SELECT COUNT(*) WHERE is_read=false` and corrects drift.
@@ -268,7 +284,7 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
   - *Hot topic:* separate topics per priority isolate OTP from marketing floods.
 - **Probes:** alert on consumer lag > 10k, DLQ growth, SES bounce rate > 5%, push invalid token spike, SMS spend anomaly.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **Priority lanes:** How do you guarantee OTP never waits behind a 20M marketing blast? Separate topics, dedicated worker pools, and weighted fair queuing at orchestrator.
 2. **Exactly-once vs at-least-once:** Why not exactly-once end-to-end? Providers are at-least-once; we make effect idempotent instead. Walk through the double-send window after provider call timeout.
@@ -276,5 +292,7 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
 4. **Unsubscribe before send race:** PUT prefs after enqueue but before worker send — worker must re-check prefs after dequeue (double-check pattern).
 5. **Scheduling at scale:** How to handle 1M `sendAt` in future? Sorted set in [Redis](/system-design/redis) (ZSET score=timestamp) polled by scheduler or DB table with `WHERE send_at <= now()` indexed scan every second + [job scheduler](/system-design/job-scheduler).
 6. **Cross-region:** Providers are global; do you need multi-region Kafka? Mention but keep single region for 45-min interview.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "The product API only enqueues. I respect prefs, send per channel with an idempotency key, and collapse bursts into digests. Providers are workers, not the request path."

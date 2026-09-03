@@ -1,49 +1,48 @@
 # DynamoDB
 
-> AWS's managed key-value / document store. Same mental model as Dynamo papers: **partition key**, optional sort key, and you pay for capacity. There is no JOIN.
+> Managed key-value, scale ka tension AWS le. Partition keys, GSIs, aur hot partitions se bacho.
 
-If the company is on AWS, saying DynamoDB instead of self-hosted Cassandra is often the senior move — operations disappear, the constraints do not.
+> **TL;DR Hinglish:** DynamoDB ek managed auto-scale locker hai — chabi (partition key) do, samaan lo. GSIs se dusri chabi se bhi dhoondh sakte ho, par har GSI alag kharcha. Hot key ek hi locker ko garam kar degi to throttle.
 
-## Keys and access
+Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **Sort Key (SK)** optional — andar range query (`PK=userId, SK=ts`).
 
-Every item lives in a table with a primary key:
+## Kab lena hai?
 
-1. **Partition key only** — get-by-id (user, short URL)
-2. **Partition + sort** — `PK=chatId`, `SK=timestamp` for messages
+- Key-value lookups 10k-100k QPS, auto-scale chahiye, ops nahi karna
+- Serverless — Lambda + Dynamo
+- Streams se async fan-out (Dynamo Streams → Lambda → ES)
 
-**GetItem / Query** are cheap when you know the key. **Scan** is a last resort (analytics jobs, not the user path).
+**Mat lo:** heavy joins, ad-hoc analytics — wahan [PostgreSQL](/system-design/postgresql).
 
-**GSI / LSI** — extra query shapes. Each GSI has its own partition key and its own hot-partition problem. You pay extra writes.
+## Important cheezein — Hinglish me
 
-## When you pick it
+**Hash vs Range:** PK sirf = point query. PK+SK = `userId` ke saare items time order me, `begins_with`, `between`.
 
-1. Simple key lookups at any scale (sessions, feature flags, URL map)
-2. Inbox / activity streams with a well-chosen PK
-3. Serverless stacks (Lambda + Dynamo) with spiky traffic
-4. Single-digit millisecond reads with DAX or Redis in front if needed
+**GSI/LSI:** GSI = naya PK/SK, alag throughput, eventual consistent. LSI = same PK, alag SK, sirf bana ke time. Interview me 1-2 GSI enough bolo.
 
-Avoid it for: relational reporting, multi-item transactions as the default, search (use [Elasticsearch](/system-design/elasticsearch)).
+**Single-table design:** Sab entities ek table me `PK=USER#123, SK=ORDER#456`. Senior ke liye wow, junior ke liye overkill — tradeoff bolke jao.
 
-## Hot partitions
+**Hot partition:** Ek PK pe 10k WPS → ek partition throttle (3000 RCU/1000 WCU per partition). Fix: `PK = userId#shard` random suffix.
 
-All traffic for one `PK` hits one partition. Celebrity user, popular short code, one `PK=GLOBAL`. Fix: **write sharding** (`userId#0` … `userId#15`) or a cache in front.
+**Limits:** Item 400KB, partition 10GB, strongly consistent read double cost. Throttling pe SDK retry + exponential backoff.
 
-**On-demand vs provisioned.** Interviews: "start on-demand, watch hot keys, add cache."
+```mermaid
+graph LR
+    A[App] --> B[DynamoDB<br/>PK=userId<br/>SK=ts]
+    B --> C[GSI1<br/>PK=email]
+    B --> D[Streams] --> E[Lambda]
+    B --> F[DAX<br/>cache]
+```
 
-## Patterns
+**Streams:** CDC jaisa — har write ka image Lambda me.
 
-1. **Single-table design** — many entity types, prefixed keys (`USER#`, `ORDER#`). Optional in interviews; don't lose 15 minutes on it.
-2. **TTL attribute** — expire sessions
-3. **Streams** — Dynamo Stream → Lambda / [Kafka](/system-design/kafka) for index and notifications
-4. **Transactions** — exist, limited, not a reason to model a bank here
+**DAX:** Dynamo ka Redis — cache, par alag cost.
 
-## Failure modes
+**🔴 Galti:** "Scan se saare users nikalo" — pura table scan, paise aur time dono gaye.
+**✅ Sahi:** "Query on PK, GSI tabhi jab access pattern clear ho, Scan kabhi hot path pe nahi."
 
-1. **Throttling** (`ProvisionedThroughputExceeded`) — backoff + jitter
-2. **Eventual GSIs** — a query on GSI can miss a just-written item
-3. **Item size 400KB** — metadata only; files go to S3
-4. **Cost** — large items + many GSIs surprise finance
+**Phrase:** "PK se distribution, SK se range, GSI se dusra access pattern, hot key ko shard karo, Streams se async."
 
-**Phrase:** "Dynamo is get/query by primary key at AWS scale. I'll pick PK/SK from the query, put a cache on hot keys, and keep blobs in S3. Search and joins live elsewhere."
+**Yaad rakho:** PK=hash, SK=range, GSI alag table jaisa, 400KB limit, hot partition → `userId#rand`.
 
-**See also:** [Bitly](/system-design/bitly), [Cassandra](/system-design/cassandra), [Redis](/system-design/redis).
+**See also:** [cassandra](/system-design/cassandra), [postgresql](/system-design/postgresql), [chatgpt](/system-design/chatgpt).

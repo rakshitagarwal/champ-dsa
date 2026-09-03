@@ -1,62 +1,74 @@
 # Introduction
 
-> Learn system design the way interviews actually work: pick a working design fast, then go deep where it matters. Style follows [Hello Interview — System Design in a Hurry](https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction).
+> System design interview me kaam ka design jaldi pick karo, fir jahan matter karta hai wahan deep jao. Style: [Hello Interview — System Design in a Hurry](https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction) se inspired.
 
-These notes are for **product / infrastructure** interviews — "Design Bitly", "Design Uber", "Design a rate limiter". You take a fuzzy problem, turn it into APIs, then into boxes that scale and fail in a way you can explain.
+> **TL;DR Hinglish:** Pehle 5 min me requirements + API likho, 10 min me simple boxes se happy path chalao, fir 10 min ek-do deep dive me dikhao ki tum trade-off samajhte ho. Simple working system pehle, scale baad me.
 
-There is no single right diagram. Interviewers grade how you **navigate** the problem, how you **trade off**, and whether you can **talk like a colleague**.
+Ye notes **product / infrastructure** interviews ke liye hain — "Design Bitly", "Design Uber", "Design Rate Limiter". Fuzzy problem ko API me, fir boxes me todna hai jo scale aur fail dono handle kare.
 
-## What they are testing
+Single sahi diagram nahi hota. Interviewer dekhta hai tum **kaise navigate** karte ho, **trade-off** kaise sochte ho, aur **colleague jaisa communicate** karte ho.
 
-Most companies use the same four ideas, even if the rubric words differ.
+## Kya test hota hai? (4 cheezein)
 
-**Problem navigation.** Did you ask the right requirements, skip trivia, and still ship a working system? Candidates fail here by designing a CDN for 20 minutes when the interesting part was matching or consistency.
+**1. Problem navigation.** Sahi requirements puche, faltu cheez skip ki, aur working system ship kiya? Galti: 20 min CDN design kar diya jab asli puzzle matching/consistency tha.
 
-**Solution design.** Can you name the pieces (cache, queue, DB, CDN) and how data actually moves? Spaghetti boxes with no request path lose points.
+**2. Solution design.** Pieces naam le paaye (cache, queue, DB, CDN) aur data kaise move hoga clear hai? Bina request path ke boxes ka jhaar fail hai.
 
-**Technical excellence.** Do you know current tools — Redis, Kafka, Postgres, S3 — and when they are the wrong tool? 2015 advice like "always shard MySQL first" is a yellow flag.
+**3. Technical excellence.** Tools pata hain — Redis, Kafka, Postgres, S3 — aur kab galat tool hai? "Hamesha MySQL shard karo" 2015 wali advice ab yellow flag hai.
 
-**Communication.** Think out loud. When the interviewer pushes back, adjust. Do not defend a bad design.
+**4. Communication.** Zor se socho (think out loud). Interviewer push kare to adjust karo, bekar design defend mat karo.
 
-Mid-level: a complete simple design is enough. Senior: skim the basics so you have time for one or two **deep dives**.
+Mid-level: complete simple design kaafi. Senior: basics jaldi khatam karke **1-2 deep dive** par time lagao.
 
-## Two interview flavors
+## 2 tarah ke interviews
 
 **Product design** — Bitly, WhatsApp, YouTube, Uber. Users, APIs, storage, scale.
 
-**Infrastructure design** — rate limiter, distributed cache, job scheduler, web crawler. The "product" is a platform other services sit on.
+**Infrastructure design** — rate limiter, distributed cache, job scheduler, web crawler. Yahan product khud ek platform hai.
 
-This page is **not** class-diagram LLD (parking lot, elevator). If they ask for classes and SOLID, that is a different interview.
+Ye page **LLD class diagram** (parking lot, elevator) nahi hai. Agar classes + SOLID puche to wo alag interview hai.
 
-## Delivery framework
+## Delivery framework — har baar yehi follow karo
 
-Use this every time. Aim for a **working system first**, then harden.
+Working system pehle, fir harden karo. Interview me bolo: *"Pehle simple design jo APIs meet kare, fir scale aur failure ke liye harden karenge."*
 
-1. **Requirements (~5 min).** Top 3 functional ("users can…") and 3–5 non-functional (latency, availability, consistency, scale). Write them down. Ask what is in scope for 45 minutes.
-2. **Entities (~2 min).** Nouns: User, Ride, ShortUrl. First draft only.
-3. **API (~5 min).** Default REST. Sketch 4–5 endpoints. Move on.
-4. **High-level design (~10–15 min).** Boxes that satisfy each API. Talk the **happy path** end to end. Say "cache later" without drawing Redis yet if it is not needed for v1.
-5. **Deep dives (~10 min).** The interesting NFR: celebrity fan-out, bid consistency, transcoding, geo search. Senior candidates **lead** this.
+1. **Requirements (~5 min).** Top 3 functional ("users can…") + 3-5 non-functional (latency, availability, consistency, scale). Likho. Pucho — 45 min me kya in-scope hai?
+2. **Entities (~2 min).** Nouns: User, Ride, ShortUrl. Rough draft hi.
+3. **API (~5 min).** Default REST. 4-5 endpoints ka sketch.
+4. **High-level design (~10-15 min).** Har API ke liye boxes. **Happy path** end-to-end bolo. "Cache baad me" bolke skip kar sakte ho agar v1 me zaroorat nahi.
+5. **Deep dives (~10 min).** Asli NFR: celebrity fan-out, bid consistency, transcoding, geo search. Senior khud lead kare.
 
-**Phrase:** "I'll start with a simple design that meets the functional APIs, then harden for scale and failure."
+**Capacity math:** naatak mat karo. Estimate tabhi jab number **design badle** ("Top-K ek machine me fit hoga kya?").
 
-**Capacity math:** skip theater. Estimate only when a number **changes the design** ("can Top-K fit in one machine?").
+## Non-functional checklist — is product ke liye kya matter karta hai?
 
-## Non-functional checklist
+Har product ke liye relevant pick karo, CAP har app pe mat rato.
 
-Pick what matters for *this* product. Do not recite CAP for a to-do app.
-
-1. **Consistency vs availability** under partition
+1. **Consistency vs availability** partition me
 2. **Scale** — read-heavy vs write-heavy; bursty (tickets, auctions)
-3. **Latency** — which path must be under ~200ms?
-4. **Durability** — can we lose events? Chat vs analytics
+3. **Latency** — kaunsa path 200ms ke andar chahiye?
+4. **Durability** — events lose kar sakte kya? Chat vs analytics alag
 5. **Abuse** — rate limits, auth, bots
-6. **Failure** — SPOFs, retries, multi-AZ
+6. **Failure** — SPOF, retries, multi-AZ
 
-## How to use this section
+## Kaise padhna hai — revision ke liye
 
-Read **Introduction**, then skim **Key Technologies** so you can name tools with a reason. Spend most of your time on **Question Breakdowns** — that is how the knowledge sticks.
+Pehle **Introduction** padho, fir **Key Technologies** skim karo taaki tool ka naam reason ke saath le sako. Sabse zyada time **Question Breakdowns** par — wahi se yaad hota hai.
 
-Each design page uses the same shape: what they really ask, requirements, APIs, boxes, the one deep dive interviewers probe, and a sentence you can say out loud.
+Har design page ka same shape: asli sawal kya hai, requirements, APIs, boxes, ek deep dive jo interviewer zarur puchega, aur ek line jo tum bol sakte ho.
 
-**Related:** shipping and Docker → [production notes](/notes/advanced-topics). SQL depth → [SQL & DBMS](/notes/sql).
+```mermaid
+graph LR
+    A[Requirements<br/>5 min] --> B[API<br/>5 min]
+    B --> C[HLD<br/>10 min]
+    C --> D[Deep Dive<br/>10 min]
+    C --> E[Failure & Scale]
+```
+
+**Yaad rakho (Revision Checklist):**
+1. Har design me happy path pehle
+2. NFR sirf jo is product me matter kare
+3. Trade-off bolke jao — "Agar X to Y, warna Z"
+4. Ek phrase ready rakho har page ka
+
+**Related:** shipping aur Docker → [production notes](/notes/advanced-topics). SQL depth → [SQL & DBMS](/notes/sql).

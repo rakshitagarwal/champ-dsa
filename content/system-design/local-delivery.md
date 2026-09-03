@@ -2,7 +2,9 @@
 
 > DoorDash / Uber Eats minus the restaurant menu depth. The core is **geo matching + live tracking + ETAs**, like a lighter [Uber](/system-design/uber).
 
-## What they ask
+> **TL;DR Hinglish:** Order aaya → geo-search se paas ke couriers dhoondo (Redis GEO / geohash), ETA nikalo, assignment CAS se lock karo.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 **Scenario:** "Design DoorDash — customer places an order, nearby courier picks it up from a store, drops it at the house. Track the bag on a map."
 
@@ -14,7 +16,7 @@
 
 **Example scale:** City with 50k couriers, 200k orders/day. Peak hour 30k orders/hour (~8/s city-wide, 200/s nationally). Each courier pings location every 3s → ~16k location QPS per city.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Customer: place order `{ storeId, items, dropoff, payment }`, track status, see courier live location + ETA, rate delivery.
@@ -43,7 +45,7 @@
 - Route optimization for batched orders (mention as v2).
 - Advanced fraud / promo abuse system beyond rate limiting.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -57,7 +59,7 @@
 
 **Insight:** order QPS is modest — DB handles it. Location QPS is high but ephemeral — keep out of Postgres, use [Redis](/system-design/redis) GEO.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -105,7 +107,7 @@ WS /v1/orders/ord_789/track
 ← { "type": "status", "status": "picked_up", "at": "2026-08-25T10:05:00Z" }
 ```
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Customer App  Courier App  Store App
@@ -132,6 +134,15 @@ Customer App  Courier App  Store App
      [notification system] (FCM/APNS fallback)
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Order Service:** owns order state machine (`created → dispatched → picked_up → delivered → rated` + `cancelled`). Writes to Postgres. Publishes `OrderCreated`, `OrderDispatched` to Kafka.
 - **Dispatch Service:** triggered on `OrderCreated`. Queries `GEORADIUS` on [Redis](/system-design/redis) GEO index for idle couriers within radius (e.g., 2km), ranks by ETA/distance/rating, creates offers. Manages offer TTL (15s) and widening logic.
@@ -143,7 +154,7 @@ Customer App  Courier App  Store App
 
 **Read flow (track):** Customer opens `WS /orders/{id}/track` → gateway subscribes to `order:{id}` channel → receives location updates from Redis pub/sub + status changes from Order Service → renders map with ETA.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres):**
 ```sql
@@ -250,7 +261,7 @@ class WebSocketGateway:
 
 **Patterns:** State Machine, Optimistic Locking (CAS), Pub/Sub (WS), Strategy (ranking), Circuit Breaker (Maps API).
 
-## Deep dive — matching without double-assign
+## Deep Dive — Gehrai se (Interview yahi puchega) — matching without double-assign
 
 **Race:** Two customers 500m apart, one idle courier between them. Both dispatches query `GEORADIUS`, both see same courier, both offer. Courier could accept both if not guarded.
 
@@ -261,7 +272,7 @@ class WebSocketGateway:
 
 **Peak handling:** City partitioned by dispatch shard (by `geohash[0:2]` or `city_id`) so NYC dispatcher doesn't contend with SF. Use Kafka partitioned by `store geohash` for order creation events.
 
-## Deep dive — live location and ETA
+## Deep Dive — Gehrai se (Interview yahi puchega) — live location and ETA
 
 **Why not Postgres per ping?** 16k writes/s per city would saturate DB and be pointless — location is ephemeral. Keep in [Redis](/system-design/redis) GEO + `courier:{id} → last point` with TTL 30s (if no ping, mark offline). WebSocket gateway subscribes to `courier:{id}` channel via Redis pub/sub.
 
@@ -269,7 +280,7 @@ class WebSocketGateway:
 
 **Battery trick:** Courier app adaptively pings: 2s when dispatched/picked_up, 5s when idle, 10s when offline. Server drops pings with `accuracy > 100m`.
 
-## Deep dive — order state machine durability
+## Deep Dive — Gehrai se (Interview yahi puchega) — order state machine durability
 
 **State machine:** `created → dispatched → picked_up → delivered` (plus `cancelled` from `created/dispatched`). Each transition is a **transaction**:
 ```sql
@@ -280,7 +291,12 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 
 **Store prep vs dispatch timing:** Don't dispatch courier immediately if food needs 20m. Compute `dispatch_at = now() + max(0, prep_time - eta_courier_to_store - 2m)` and delay Kafka message (delayed queue) so courier arrives just as food is ready.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Sharding:** Shard `orders` by `city_id` or `geohash` prefix; dispatch and location services per-city. Courier state in city-local Redis.
 - **Replication:** Postgres primary per shard + read replicas for order history; writes to primary only. Redis Cluster with replicas; persistence AOF for offers.
@@ -289,12 +305,14 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 - **Overflow:** If no courier in 6km within 2m, notify customer "high demand, ETA longer" and keep retrying with exponential widening. Surge pricing signal to lure couriers.
 - **Payments:** capture on `delivered` (auth on `created`, capture later via [payment-system](/system-design/payment-system)); handle refunds via idempotent `captureId`.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **Batching:** If they ask "2 orders per courier," introduce `courier_capacity=2`, queue orders by dropoff proximity, TSP-ish route optimization.
 2. **Proof of delivery:** photo upload → S3 via pre-signed URL, attached to `orders.proof_url`.
 3. **Fraud/abuse:** device attestation, [rate limiter](/system-design/rate-limiter) on `POST /orders` (5/min per customer), anomaly detection on GPS spoofing.
 4. **Reassignment:** courier cancels → `UPDATE orders SET status='created', courier_id=NULL` + re-dispatch, notify customer.
 5. **Analytics:** Kafka → clickhouse for `orders per hour`, `avg delivery time`, `courier utilization` dashboards.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** Orders are a state machine in Postgres. Couriers sit in Redis GEO. Match with an optimistic assign so two orders can't grab the same rider. GPS stays in memory; only status changes are durable.

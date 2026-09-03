@@ -2,7 +2,9 @@
 
 > Design the cache **service**, not "I'll add Redis." Interviewers want **placement, invalidation, stampede, and hashing**.
 
-## What they ask
+> **TL;DR Hinglish:** Consistent hashing se placement, L1 app + L2 Redis, singleflight stampede rokho, hot key split, replication.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: "We have 500 app servers hitting a DB that's melting at 50k QPS. Design a distributed cache layer — or design Redis Cluster itself — that gives 95% hit rate, <5ms p95, and survives nodes dying at 3am without cold-restarting the DB." They will push on consistent hashing, replication, and the thundering herd you caused.
 
@@ -10,7 +12,7 @@ Interviewer: "We have 500 app servers hitting a DB that's melting at 50k QPS. De
 
 **Scale anchor:** 500 app servers, 100k cache QPS (5:1 read:write), 10M keys, working set ~100GB (avg value 10KB). DB can handle 5k QPS comfortably but not 50k. Cache cluster: 10 nodes * 16GB = 160GB raw, replication 2x → 80GB usable. Hit rate 90% → DB 10k QPS, hit 95% → 5k QPS (target).
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Operations: `get(key)`, `set(key, value, ttl)`, `del(key)`, `mget(keys)`, `incr/decr` (optional), `compare-and-swap` for stampede control.
@@ -39,7 +41,7 @@ Interviewer: "We have 500 app servers hitting a DB that's melting at 50k QPS. De
 - Search or secondary indexes on cached values.
 - Persistent queue semantics — cache is ephemeral.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Dimension | Assumption | Math | Result |
 |-----------|-----------|------|--------|
@@ -53,7 +55,7 @@ Interviewer: "We have 500 app servers hitting a DB that's melting at 50k QPS. De
 
 If hit rate drops to 80%, DB sees 16k QPS and melts — hit rate is the SLI.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 // Redis-like (preferred for interview — also maps to HTTP)
@@ -80,7 +82,7 @@ GET /cache/stats => { "hitRate": 0.94, "evictions": 1234, "memoryUsed": "12GB" }
 
 For cache-in-app usage, the app calls `CacheClient.get(k)` library that handles hashing + pooling + fallback — not raw HTTP per request in high-throughput path (use RESP/binary).
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 App Servers (500 pods, each with Caffeine L1 64MB, 10s TTL)
@@ -98,6 +100,15 @@ App Servers (500 pods, each with Caffeine L1 64MB, 10s TTL)
    Fallback: if cache cluster unhealthy, go to DB with circuit breaker + coalesce
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Components:**
 - **L1 (in-process Caffeine / Guava):** Per-pod tiny cache (64-128MB, TTL 5-10s) for hottest keys. Eliminates network RTT for 30-40% hits and shields L2 hot shard. Must use short TTL or versioning, because L1 invalidation is hard (pub/sub or TTL only).
 - **L2 (distributed [Redis](/system-design/redis) Cluster):** Sharded by consistent hashing. Each shard = primary + 1-2 replicas (async). Data partitioned into 16384 hash slots (Redis Cluster style) mapped to nodes via ring. Client router knows slot→node table, updated via gossip/config.
@@ -113,7 +124,7 @@ App Servers (500 pods, each with Caffeine L1 64MB, 10s TTL)
 
 **Read path:** L1 → L2 → (singleflight) → DB. P95 hit path is L1 (~0.5ms) or L2 (~2ms).
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **DB schema — cache metadata (cache itself is KV, but membership + stats need tables)**
 
@@ -205,15 +216,20 @@ class VersionedCache {
 - **Decorator — L1+L2 multi-level:** L1 as decorator over L2; transparent fallback.
 - **Circuit Breaker + Bulkhead:** Isolate DB from cache-failure cascade.
 
-## Deep dive — Invalidation is the hard part
+## Deep Dive — Gehrai se (Interview yahi puchega) — Invalidation is the hard part
 
 TTL alone guarantees **stale reads until expiry** — unacceptable for price/inventory where serving $10 after update to $12 for 5 minutes loses money. So **delete-on-write** is mandatory: transaction `BEGIN; UPDATE db; DELETE cache(k); COMMIT`. But `DELETE` can fail or race (see stale SET above). Defenses: (1) **Version bump** (`k:version++`, readers verify version) handles re-ordered SET after DEL. (2) **Outbox / CDC:** DB change captured via Debezium/[Kafka](/system-design/kafka) and async invalidator retries `DEL` until acked — survives process crash between DB commit and cache DEL. (3) **Short TTL as safety net:** Even if DEL lost, key expires in 30-60s. Combine all three; interviewers want you to say "cache invalidation is best-effort + TTL bound". For **L1+L2** coherence, DEL must reach both layers: L2 `DEL` + pub/sub `invalidate L1` to all pods (or L1 TTL 5s so you can skip pub/sub and accept 5s staleness — practical trade-off). Name your choice.
 
-## Deep dive — Hot keys, stampede and thundering herd on node death
+## Deep Dive — Gehrai se (Interview yahi puchega) — Hot keys, stampede and thundering herd on node death
 
 **Hot key:** One key (`trending:global`) receives 100k RPS, all hashes to one shard, that shard CPU 100% while others idle. Detection via per-shard top-K counter (SpaceSaving 1% memory). Mitigation: (a) **Replicate hot key** to 2-3 random shards + L1 cache (10× fan-out); client router picks random replica. (b) **Split** large hot value into chunks `hot:{id}:chunk:{n}` and assemble via `mget` scatter. Briefly, "make hot key cold by duplication". **Stampede:** Cache expiry at `T` — 500 servers miss at same ms and fire 500 DB queries for same key. Fix: singleflight coalesce + `SET NX` lock (`SET k:lock 1 NX EX 5` — only winner loads). Add jitter to TTL (`300s ± 30s`) so keys don't align. **Thundering herd on node death:** Node holds 10% of keys; on crash, 10% misses flood DB simultaneously. Fix: replica already warm (reads failover to replica instantly); if no replica, rate-limit refill (`token bucket 500 QPS to DB`) + serve stale from replica snapshot if available. Recovery: slot migration in background, not thundering `MIGRATE` of all keys at once.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Node failure:** Gossip detects within 2s; replicas promoted, slot map version bumped, clients refresh via `MOVED` or config push. No data loss if `acks` to replica before ack to client (configurable). Otherwise loss is acceptable — DB repopulates on miss with stampede guard.
 - **Network partition (split brain):** Prefer AP for cache (available + partition tolerant): both sides serve stale, reconcile on heal via last-write-wins + TTL. Not a CP store.
@@ -224,7 +240,7 @@ TTL alone guarantees **stale reads until expiry** — unacceptable for price/inv
 - **Observability:** Per-shard hit rate, p95 latency, evictions, replication lag, hot-key QPS, DB bulkhead queue depth. Alert on hit rate <90% or replication lag >100ms.
 - **Scale knobs:** Add shards → slot rebalance (consistent hash moves `1/N`). Scale L1 size per pod if network is bottleneck. Increase TTL for higher hit rate, but accept staler reads.
 
-## Extra probes
+## Aur kya puch sakte hain? (Extra probes)
 
 - Compare to [Redis](/system-design/redis) Cluster hash slots vs pure consistent hashing — slots allow `MGET` with `{hashtag}` co-location; mention hashtag `key:{user123}:profile` forces same slot.
 - Write-through vs cache-aside — when to use each (through for write-heavy + need cache always warm).
@@ -232,5 +248,7 @@ TTL alone guarantees **stale reads until expiry** — unacceptable for price/inv
 - Bloom filter in front of cache — for huge key space, check Bloom before cache miss to avoid DB lookup for guaranteed-miss keys.
 - Why not just enlarge DB? — Caching gives 10x cost reduction, <5ms vs 20-50ms DB, and isolates read scale from write scale.
 - Security: `KEYS *` disabled in prod; use `SCAN` to avoid blocking.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** Cache-aside with TTL and delete-on-write. Consistent hashing for the cluster, a lock on miss to stop stampedes, and a plan for hot keys. The DB remains source of truth.

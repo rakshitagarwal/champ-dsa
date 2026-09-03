@@ -2,7 +2,9 @@
 
 > Retail brokerage. **Correctness beats latency.** You are designing order intake + a matching/execution story, not a hedge fund.
 
-## What they ask
+> **TL;DR Hinglish:** Order matching engine, ledger Postgres, idempotent `clientOrderId`, market hours check, Kafka for audit.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: *"Design Robinhood — a user buys 10 shares of AAPL, sees quotes, places market/limit orders, and tracks positions + buying power. Market is open 9:30-4 ET, handle concurrency and no double-spend."*
 
@@ -14,7 +16,7 @@ What they really test:
 
 Example scale: 10M funded accounts, 2M DAU, ~500k orders/day (peak 5k orders/sec at open). Quotes: 8k symbols × tick per second → 8k QPS fan-out cached. Ledger: 1B entries/year — append-only, never update in place.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - **Quotes:** `GET /quotes/{symbol}` — delayed 15m OK in v1, real-time stretch; sparkline history optional.
@@ -45,7 +47,7 @@ Example scale: 10M funded accounts, 2M DAU, ~500k orders/day (peak 5k orders/sec
 - Tax lots (FIFO placeholder, real lots v2), dividends/splits batch jobs.
 - Charting, news, analyst data — quote enrichment deferred.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -59,7 +61,7 @@ Example scale: 10M funded accounts, 2M DAU, ~500k orders/day (peak 5k orders/sec
 
 Bandwidth dominated by quote distribution — put it behind [Redis](/system-design/redis) / CDN edge, not Postgres.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 GET /v1/quotes/{symbol}
@@ -101,7 +103,7 @@ GET /v1/accounts/me/ledger?from=&to=&cursor=   // audit, internal
 
 All money endpoints are **idempotent via `Idempotency-Key`**. Quote endpoints are cacheable (`Cache-Control: max-age=1`).
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [Mobile/Web] ──▶ [CDN] ──▶ [API Gateway + Auth + Rate Limiter] ──▶ [Quote Service] ──▶ [Redis (last price + 1m candles)]
@@ -128,6 +130,15 @@ All money endpoints are **idempotent via `Idempotency-Key`**. Quote endpoints ar
    └────────────────────┘  WS: order status + quote stream
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Quote Service:** consumes vendor websocket, normalizes ticks, writes to [Redis](/system-design/redis) (`quote:AAPL → {price, ts}` + sorted set for 1m candles). Serves `GET /quotes` from Redis, not DB. Stale quote does not block order (order uses venue's fill price, not displayed quote).
 - **Order Service:** validates `symbol/tradingHours/qty`, checks idempotency `UNIQUE(account_id, idempotency_key)`, atomically creates `orders` row + `holds` ledger entry inside a per-account transaction. Publishes `order.routed` to [Kafka](/system-design/kafka), calls Venue Adapter (async). Owns order state machine.
@@ -143,7 +154,7 @@ All money endpoints are **idempotent via `Idempotency-Key`**. Quote endpoints ar
 
 **Data flow — quote read:** App `GET /quotes/AAPL` → API Gateway → Quote Service → `GET` Redis `quote:AAPL` → return. Vendor tick loop updates Redis every 100ms independently.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres, ledger is append-only):**
 
@@ -240,15 +251,20 @@ RiskService         — check PDT, marketHours, sell qty <= position.qty + holds
 
 **Design patterns:** Transactional Outbox, State Machine (order status), Idempotent Receiver (fills), Double-Entry Ledger, Circuit Breaker on venue client.
 
-## Deep dive — Money races and why cache is not truth
+## Deep Dive — Gehrai se (Interview yahi puchega) — Money races and why cache is not truth
 
 Two phones, $100 cash, two market buys for $90 each at the same millisecond. Both `GET /accounts` see `buyingPower 100`. Without serialization, both `INSERT ledger hold 90` succeed and you've held $180 against $100. Fix: **the ledger transaction locks the account row**. Sequence: Tx1 `SELECT ... FOR UPDATE` gets lock, checks `buyingPower 100 >= 90` → holds 90 → commits. Tx2 now acquires lock, recomputes `buyingPower = cash - holds = 100 - 90 = 10`, sees `10 < 90` → rejects with `insufficient_buying_power`. Never compute buying power in [Redis](/system-design/redis) and treat it as truth — Redis is a display hint populated from ledger after commit. Similarly, sells must check `positions.qty` under lock and hold shares (decrement available) so double-sell doesn't oversell.
 
-## Deep dive — Venue as a flaky colleague and partial fills
+## Deep Dive — Gehrai se (Interview yahi puchega) — Venue as a flaky colleague and partial fills
 
 We do not build an order book — we delegate to a venue. That means: network timeout after `POST /venue/orders` doesn't mean order wasn't accepted. **Don't blindly retry.** Instead `GET /venue/orders?clientOrderId=ord_1` to check. Venue may send fill webhook *before* your `POST` response returns — so webhook handler must handle `orderId` not yet `routed` in your DB (buffer or upsert, then reconcile). Partial fills: an order for 100 shares may fill `40 @182.30` then `60 @182.50` with two `execId`s. Each fill is an independent ledger movement and position bump; order stays `partially_filled` until `filledQty == qty`. All fill processing is idempotent on `execId` via `venue_callbacks` PK — replayed webhooks are no-ops.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Sharding:** Orders and ledger partitioned by `accountId` hash (or range by `accountId`). Quotes sharded by `symbol` in [Redis](/system-design/redis). [Kafka](/system-design/kafka) topic `order.events` partitioned by `accountId` to preserve per-account ordering.
 - **Caching:** Quote Redis is write-through from vendor WS; order/account reads use `Cache-Aside` with short TTL (5s) — but writes always go to Postgres and invalidate cache. Buying power cache invalidated on every ledger commit.
@@ -261,7 +277,7 @@ We do not build an order book — we delegate to a venue. That means: network ti
   - *Split/dividend:* nightly batch job adjusts `positions` and inserts corporate-action ledger entries; replay-safe via `corporate_action_id` dedup.
 - **Probes:** alert on `reconciliation mismatch` (internal ledger vs venue report), consumer lag on fill topic, hold leakage (holds older than 1 day), and `buyingPower` negative invariant violation.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **PDT rule:** Track day trades per account in last 5 business days; block 4th day trade for < $25k accounts — compliance service before `place()`.
 2. **Fractional shares:** Change `qty` to decimal, handle `avgCost` with higher precision, venue may support fractional route vs internal fractional aggregation.
@@ -269,5 +285,7 @@ We do not build an order book — we delegate to a venue. That means: network ti
 4. **ACH deposits:** Use [payment system](/system-design/payment-system) flow — `pending → posted` days later, ledger holds buying power instantly but settled cash delayed.
 5. **Tax lots:** FIFO vs specific lot — store lot table `lots(accountId, symbol, qty, costBasis, acquiredAt)` and consume on sells.
 6. **Related systems:** [Rate limiter](/system-design/rate-limiter) on order placement (10/min per account), [metrics monitoring](/system-design/metrics-monitoring) on fill latency.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "Ledger first, per-account serialization, idempotent order ids. Quotes are a cache. A venue box executes; we record fills from it, we don't 'match stocks' on a weekend project."

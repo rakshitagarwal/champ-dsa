@@ -2,7 +2,9 @@
 
 > LLM product, not "train GPT." The design is **sessions, streaming tokens, rate limits, and optionally RAG**. The model is a billed dependency.
 
-## What they ask
+> **TL;DR Hinglish:** Threads Postgres, context window trim/summarize, streaming SSE, quota Redis, RAG vector DB me tenant filter, queue for model.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design a ChatGPT-like conversational AI product: users create threads, send messages, get streamed token responses, view history, and optionally upload files for retrieval-augmented generation (RAG). The system must stay responsive when the model is slow, enforce quotas, and never leak one user's context to another.
 
@@ -15,7 +17,7 @@ Design a ChatGPT-like conversational AI product: users create threads, send mess
 - Multi-tenant isolation for history and vector search
 - RAG pipeline (chunk → embed → retrieve → prompt) and queuing under load
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Requirement |
 |---|---|
@@ -24,7 +26,7 @@ Design a ChatGPT-like conversational AI product: users create threads, send mess
 | **Clarify** | One model vs router (cheap vs smart)? File types and max size? RAG scope — per-thread or workspace? Tools/plugins? Image generation? Streaming protocol — SSE or WebSocket? Max context length? |
 | **Out of scope v1** | Model training/fine-tuning, RLHF, custom GPU orchestration, voice I/O, real-time collaboration on same thread. |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Metric | Math | Result |
 |---|---|---|
@@ -40,7 +42,7 @@ Design a ChatGPT-like conversational AI product: users create threads, send mess
 
 The bottleneck is **GPU/model throughput and streaming fan-out**, not CRUD.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -88,7 +90,7 @@ Headers: `Idempotency-Key: <clientMsgId>` — retrying "send" must not spawn two
 
 **Alternative:** WebSocket `WS /ws/threads/{id}` for bidirectional streaming; SSE is simpler for interview.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Client (Web/Mobile)
@@ -112,6 +114,15 @@ Client (Web/Mobile)
  Postgres (threads, messages — source of truth)
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Components:**
 - **API Gateway:** JWT auth, per-user [rate limiter](/system-design/rate-limiter) (e.g., 10 req/min, 100k tokens/day via token bucket), validates `clientMsgId` idempotency.
 - **Thread Service:** Owns `threads` + `messages` in Postgres. Every read scopes `WHERE user_id = ?` — tenant isolation at query level.
@@ -130,7 +141,7 @@ Client (Web/Mobile)
 **Read flow — History:**
 1. `GET /threads/{id}` → `SELECT * FROM messages WHERE thread_id=? AND user_id=? ORDER BY created_at` with cursor pagination.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **DB Schema (Postgres + S3 + Vector DB):**
 ```sql
@@ -236,11 +247,11 @@ class QuotaService:
 
 **Patterns used:** Outbox not needed for streaming but used for file ingest ([Kafka](/system-design/kafka) `FileUploaded` → chunk → embed), Cache-aside for quota counters, Circuit breaker around model provider, Queue-based load leveling, Idempotency key, Async summarization.
 
-## Deep dive — context and cost
+## Deep Dive — Gehrai se (Interview yahi puchega) — context and cost
 
 Context windows are finite. If you send the entire history, cost and latency explode and you hit `context_length_exceeded`. Correct approach: **trim old turns or summarize asynchronously and keep a running memory**. Implementation: after every 20 messages, a background job calls a cheap model to summarize `messages 1..20` into `thread_summaries.summary`, then `build_context` sends `summary + messages 21..40`. Token counting via tokenizer ensures `prompt_tokens < window - buffer`. Mention cost: "I'll send 8 MB of chat every time" is the failure mode. Also note prompt injection from retrieved files — treat RAG chunks as untrusted data, not instructions; wrap in delimiters and instruct model to ignore instructions inside.
 
-## Deep dive — streaming, quotas, and queuing
+## Deep Dive — Gehrai se (Interview yahi puchega) — streaming, quotas, and queuing
 
 **Streaming:** First token SLA matters more than total time. SSE from the API pod with immediate flush; don't buffer. Use `Transfer-Encoding: chunked` and disable proxy buffering. On client disconnect, cancel the upstream model call to save cost.
 
@@ -248,13 +259,18 @@ Context windows are finite. If you send the entire history, cost and latency exp
 
 **Queuing:** If GPUs/provider saturated (concurrency > threshold or p95 latency >2s), enqueue `GenerateJob` to [Kafka](/system-design/kafka) / Redis Stream; worker pool with limited concurrency drains it. Client sees `event: queued {position: 12}` then stream starts. Prevents holding 50k HTTP connections stuck in Python threads and gives backpressure. Mention autoscaling and fallback to cheaper model when overloaded.
 
-## Deep dive — RAG and tenancy
+## Deep Dive — Gehrai se (Interview yahi puchega) — RAG and tenancy
 
 **RAG pipeline:** Upload → S3 → async chunk (512 tokens, overlap 50, preserve sentence boundaries) → embed via embedding model (e.g., `text-embedding-3-small`) → write to vector DB with `user_id` + `thread_id` metadata. Retrieval: embed query, search `top_k=5` with filter `user_id=? AND thread_id=?`, stuff chunks into prompt as `Context: ...` with citations. Source of truth is still files + ACL on thread — vector DB is derived and rebuildable.
 
 **Tenancy:** `threadId` scoped to `userId` on every read (`WHERE thread_id=? AND user_id=?`). Vector search **must** filter by tenant — a missing filter leaks one user's files to another. Also enforce at S3 key level (`s3://bucket/{user_id}/{thread_id}/{file_id}`). Mention prompt injection from uploads and that observability must not log prompts in the clear — token counts as [metrics](/system-design/metrics-monitoring), prompts encrypted at rest.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 | Failure | Handling |
 |---|---|
@@ -267,12 +283,14 @@ Context windows are finite. If you send the entire history, cost and latency exp
 | **Scale — more streams** | Stateless API pods autoscale on concurrent connections; orchestrator scales on GPU quota; CDNs not relevant for streams but static assets cached. |
 | **Cost explosion** | Hard caps per user/day, per-model routing (cheap default, smart on demand), truncate context, cache identical prompts (optional). |
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. Tools / function calling — extra round trips, same thread; orchestrator loops `model -> tool call -> tool result -> model`.
 2. Multi-model routing — cheap vs smart classifier; route simple Q&A to mini, reasoning to pro.
 3. Observability — token counts as [metrics](/system-design/metrics-monitoring), not logs of prompts in clear; distributed tracing with `traceId` per stream; p95 time-to-first-token dashboard.
 4. File lifecycle — expiry, max 100 MB per thread, virus scan on upload.
 5. Branching / edit — `POST /threads/{id}/messages/{msgId}/edit` creates a branch (new message list fork).
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "History in Postgres, orchestrator builds a trimmed prompt, model streams tokens, quotas on tokens. RAG is retrieve-then-prompt with tenant filters. The model is a dependency I can queue, not a box I train in this interview."

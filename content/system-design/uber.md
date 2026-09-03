@@ -2,7 +2,9 @@
 
 > Ride hailing. The unique piece is **nearby search on moving drivers**, then a **trip state machine**. Payments and maps are boxes, not the whole hour.
 
-## What they ask
+> **TL;DR Hinglish:** Trip state Postgres me lock, driver GPS Redis GEO me. Match = GEOSEARCH + CAS assignment, pricing surge Redis me.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design a ride-hailing system like Uber / Lyft: a rider opens the app, sees nearby cars and an ETA, requests a ride, gets matched to a driver, watches live location until pickup, rides, pays, and rates. The driver app streams GPS the whole time.
 
@@ -15,7 +17,7 @@ What the interviewer actually tests:
 
 A strong answer: *per-city geo index in memory → atomic match → durable trip state machine → WebSocket live tracking → payment after completion*.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Details |
 |---|---|
@@ -24,7 +26,7 @@ A strong answer: *per-city geo index in memory → atomic match → durable trip
 | **Clarify** | v1: one rider per car (no Pool), city-sharded, cash + card (call [Payment System](/system-design/payment-system) a box), surge pricing yes/no, scheduled rides v2 |
 | **Out of scope v1** | In-car navigation turn-by-turn, driver payroll, fraud/ML ETA, Pool matching optimization |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume 50M riders, 5M drivers, 10% concurrent.
 
@@ -38,7 +40,7 @@ Assume 50M riders, 5M drivers, 10% concurrent.
 
 Conclusion: **trip writes are tiny**, **location writes dominate** — they belong in [Redis](/system-design/redis) / memory, not `UPDATE drivers SET lat=` in Postgres at 165K TPS.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/trips
@@ -67,7 +69,7 @@ GET /v1/drivers/nearby?lat=19.07&lng=72.87&radiusM=2000  // for map pins
 
 All state transitions are **idempotent** (`Idempotency-Key` header). Location WS authenticates via short-lived token; HTTP fallback polls `GET /trips/{id}` if WS drops.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Rider App ] --HTTPS/WS-->                [ Driver App ] --WS location-->
@@ -85,6 +87,16 @@ All state transitions are **idempotent** (`Idempotency-Key` header). Location WS
                  [ Kafka → Analytics, Receipts, Fraud, Search Index ]
 ```
 
+```mermaid
+graph LR
+  A[Rider/Driver App] --> B[API Gateway]
+  B --> C[Trip Service]
+  B --> D[Matching Service]
+  D --> E[Redis GEO Drivers]
+  C --> F[Postgres Trips]
+  A -->|WS location| E
+```
+
 **Components:**
 
 - **API Gateway + LB:** Auth, [Rate Limiter](/system-design/rate-limiter), city-aware routing (`city_id` from pickup geohash → shard).
@@ -99,7 +111,7 @@ All state transitions are **idempotent** (`Idempotency-Key` header). Location WS
 
 **Read flow (track):** Driver WS `location` → Location node `GEOADD + EXPIRE` + publish to trip's channel → rider's WS node (subscribed to `trip:{id}`) pushes `location` + `eta_update` (maps cached). Rider map polls `GET /drivers/nearby` for pins (served from Redis GEO).
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 ### DB schema
 
@@ -188,19 +200,24 @@ class WSConnectionRegistry { // backed by Redis hash userId -> nodeId
 
 State Machine (trip lifecycle), Sharding (city), Cache-Aside (Redis GEO), Publish-Subscribe (WS fan-out), Optimistic Concurrency (version column), Saga (trip → payment compensatable).
 
-## Deep dive — geo index (why not SQL?)
+## Deep Dive — Gehrai se (Interview yahi puchega) — geo index (why not SQL?)
 
 Naive `WHERE lat BETWEEN ? AND ? AND lng BETWEEN ?` scans an index poorly, cannot do radius, and at 165K writes/s would kill Postgres. A **geohash** interleaves lat/lng bits into a string — nearby points share a prefix; neighbors are 8 adjacent cells. Writes: remove from old cell, add to new. Reads: query cell + 8 neighbors, then precise haversine filter. **S2 / quadtree** use hierarchical cells with better shape at poles. Shard everything by `city_id` so NYC's index never contends with Bangalore — dispatch workers and Redis belong to the city.
 
-## Deep dive — surge and ETA without melting maps
+## Deep Dive — Gehrai se (Interview yahi puchega) — surge and ETA without melting maps
 
 Maps is expensive. Cache route + ETA for popular edges (`geohash5:geohash5 → {distance, duration}`) with 60s TTL. Surge computed per geohash cell: `multiplier = f(demand/supply)` where demand = `requested` trips/min, supply = online drivers/min. Computed every 30s by an aggregator consuming Kafka trip events + Redis driver counts; cached in Redis. Rider sees `fareEstimate × surge` before confirming — stale by seconds is acceptable (show "surge").
 
-## Deep dive — exactly-once money
+## Deep Dive — Gehrai se (Interview yahi puchega) — exactly-once money
 
 Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.completed` exactly once (outbox pattern: write to `outbox` table in same TX, relay to [Kafka](/system-design/kafka)). Payment service consumes idempotently (`tripId` deduped). If driver app is offline in a tunnel, `complete` still succeeds when it reconnects — location was stale but `status` remained `in_progress` in DB. Cancel/no-show are state transitions with fee rules, not location deletes.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Driver WS drop / tunnel:** Trip row persists; rider sees last known location + stale ETA. On reconnect, driver re-registers and replay is unnecessary.
 - **Redis down:** Location degraded (nearby returns fewer drivers, dispatch queues), but trip accept/start/complete still work via Postgres. Fail open for nearby, fail closed for payments.
@@ -209,13 +226,15 @@ Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.c
 - **Kafka lag:** Analytics/receipts may delay, but trip state never waits on Kafka — only the outbox relay is async and retried.
 - **Clock skew:** Store `server_received_at` for location, not just client timestamp; ETA calc uses server time.
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. **Driver offline / ghost:** TTL reap + `status=offline` after 30s; trip stays `matched` if already assigned.
 2. **Cancel & no-show fees:** Events on state machine with idempotent fee charge; rider cancel window (e.g., free for 2 min).
 3. **Kafka for analytics and receipts, not for the assign lock** — the lock is a single-row DB transaction.
 4. **Pool / shared rides:** Separate matching optimization (batching by direction) — v2; mention as extension.
 5. **Safety & fraud:** Shadow trip log + async ML; not in critical path.
+
+**Yaad rakho (Revision):** 1) Trip Postgres CAS 2) Location Redis GEO 3) Match = GEOSEARCH 4) City-sharded.
 
 **Phrase:** Trips are a durable state machine. Drivers live in a per-city geo index in Redis. Assign is atomic so two riders can't get the same car. GPS never is the source of truth for money.
 

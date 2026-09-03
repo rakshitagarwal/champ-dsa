@@ -1,52 +1,48 @@
 # PostgreSQL
 
-> Default database until proven otherwise. **Transactions, joins, constraints, flexible queries.** Most designs should start here and add Redis / Kafka / ES around it.
+> Default relational database. Transactions, joins, indexes — shuru yahan se karo, scale ne majboor kiya to hi niklo.
 
-Postgres is relational. You model entities, you `BEGIN`/`COMMIT`, and the query planner uses indexes. Vertical scale + read replicas get you surprisingly far. Sharding is a later conversation, not the opening move.
+> **TL;DR Hinglish:** Postgres ek full-featured diary hai — table, relation, transaction sab pakka. 90% apps yahi se start karo. Index sahi to 10k QPS bhi handle, galat to 100 pe marega. Shard tabhi jab single node ka CPU/disk full ho.
 
-## When you pick it
+Jab tak 10k QPS aur 1TB se neeche ho, Postgres hi best. Managed RDS/Aurora le lo, khud ka cluster mat banao.
 
-1. Users, orders, tickets, payments, follows — anything with **invariants**
-2. You don't know all query patterns yet
-3. Strong consistency on a row ("this seat is held by this user")
-4. Moderate scale (millions of rows, thousands of QPS with indexes) before NoSQL
+## Kab Postgres hi rakho?
 
-Move **off** Postgres (or alongside it) when: append-only firehose, multi-region write availability, or a query that is purely key-value at insane QPS.
+- Joins, transactions, constraints chahiye
+- Strong consistency — payment, tickets
+- JSONB, full-text, GIS bhi chal jayega (ES/Cassandra tabhi jab scale alag ho)
 
-## Indexes and the interview
+## Indexes — Hinglish me samjho
 
-1. **B-tree** — default for `=` and ranges
-2. **Compound** — left-prefix (`(user_id, created_at)`)
-3. **Partial** — `WHERE status = 'open'`
-4. **GIN** — arrays / JSONB; still not a search engine
+- **B-tree** — default, `=` aur `range` dono. `WHERE userId = ? AND ts > ?` → composite index `(userId, ts)` banao, order important.
+- **Compound:** left se match hota hai — `(a,b)` → `WHERE a=?` use karega, `WHERE b=?` nahi.
+- **Partial:** `WHERE is_active=true` pe hi index — chhota tez.
+- **GIN:** JSONB / `@@` full-text.
+- **Explain:** `EXPLAIN ANALYZE` bina index guess mat karo.
 
-**N+1** is an application bug. **SELECT *** and missing indexes show up as "the feed is slow."
+**Replication lag:** Master → replica async, 10-100ms lag — critical read ko master pe bhejo (`read-your-writes`).
 
-## Replication and scale
+**Connection pooling:** 1000 app servers × 10 connections = 10k → DB marega. PgBouncer beech me — 100 pool.
 
-**Primary** for writes. **Replicas** for reads — they lag. Don't read-your-write from a replica after insert unless you wait or use the primary.
+**Sharding:** `hash(userId) % N` ya `userId range`. Shard ke baad cross-shard join nahi — app me jodo. Interview me bolo "shard citus/nahi, pehle vertical split."
 
-**Connection pooling** (PgBouncer) — Node will otherwise exhaust `max_connections`.
+**SERIALIZABLE:** Ticketmaster me `SELECT ... FOR UPDATE` ya `SERIALIZABLE` — double-book rokna hai.
 
-**Sharding:** by `user_id` or tenant. Cross-shard joins become application joins. Say this only when QPS or size forces it.
+```mermaid
+graph LR
+    A[App] --> B[PgBouncer]
+    B --> C[Postgres Primary]
+    C -->|async| D[Replica 1]
+    C -->|async| E[Replica 2]
+    A -->|critical read| C
+    A -->|normal read| D
+```
 
-**Partitioning** (native) — time-range partitions for huge time-series *inside* one cluster.
+**🔴 Galti:** "Har query pe naya index" — Write slow, vacuum heavy.
+**✅ Sahi:** "Composite index query pattern pe, replica lag ka dhyan, PgBouncer."
 
-## Transactions
+**Phrase:** "Postgres default choice — B-tree composite query pe, replica lag yaad, PgBouncer, shard tabhi jab majboori."
 
-ACID on one primary. Multi-object checkout: one transaction, or a saga if services are split.
+**Yaad rakho:** B-tree default, `(a,b)` left match, replica lag → master read, PgBouncer must, `FOR UPDATE` for booking.
 
-**Isolation:** `READ COMMITTED` default; `SERIALIZABLE` when lost updates would lose money or seats.
-
-Foreign keys, unique constraints, and `SELECT … FOR UPDATE` are how you prevent double-booking in [Ticketmaster](/system-design/ticketmaster) before you invent a custom lock service.
-
-## Failure modes
-
-1. **Lock contention** — hot row (one event's remaining_count)
-2. **Long transactions** — hold locks, bloat
-3. **Replica lag** — stale feed
-4. **Failover** — brief write unavailability
-
-**Phrase:** "Source of truth in Postgres with proper unique constraints. Redis for the hot read path, Kafka to fan out, Elasticsearch if we need search. I won't shard until a number says I must."
-
-**See also:** [SQL notes](/notes/sql), [Ticketmaster](/system-design/ticketmaster), [payment system](/system-design/payment-system).
+**See also:** [ticketmaster](/system-design/ticketmaster), [payment-system](/system-design/payment-system), [dynamodb](/system-design/dynamodb).

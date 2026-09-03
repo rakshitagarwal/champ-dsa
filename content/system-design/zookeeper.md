@@ -1,38 +1,46 @@
 # ZooKeeper
 
-> A small, strongly consistent store for **coordination**, not for your application data. Leader election, locks, membership, and config that must not split-brain.
+> Coordination — leader election, distributed locks, aur config. Kafka pehle ispe tha, ab bhi samajhna zaruri.
 
-ZooKeeper keeps a little filesystem of znodes, replicated with Zab (Paxos-family). Writes go through a leader. Reads can be served locally. It is slow and small on purpose — kilobytes of metadata, not terabytes of messages.
+> **TL;DR Hinglish:** ZooKeeper ek chhota par pakka register hai jahan saare servers likh ke decide karte hain leader kaun, lock kis ka. Har write quorum pe, read fast. Etcd/Consul iske naye bhai, par concept same.
 
-## When it shows up
+Data nahi, **coordination** ke liye. 3-5 nodes ka ensemble, `2F+1` me se `F+1` quorum pe write. Strong consistent (CP).
 
-1. **Kafka (classic)** — controller election, topic metadata. Newer Kafka can use KRaft (no ZK). Still fair game in interviews.
-2. **HDFS / Hadoop** — NameNode HA
-3. **Leader election** — one scheduler is primary among N workers
-4. **Distributed lock / barrier** — "only one job runs this cron globally"
-5. **[Bitly](/system-design/bitly) range allocation** — a counter service hands out ID ranges; ZK (or etcd) holds the high-water mark
+## Kaise kaam — Hinglish me
 
-Today many teams say **etcd** or **Consul** instead. The *job* is the same: consensus on a tiny key.
+**ZNode:** file jaisa, path `/election/candidate-0001`. Types:
+- **Persistent** — permanent
+- **Ephemeral** — session khatam to auto delete (presence)
+- **Sequential** — naam me `0001, 0002` auto — lock/election me order
 
-## What you must not do
+**Watch:** koi key badli to notify — config change.
 
-Do not store user sessions, feeds, or files in ZooKeeper. Watchers + large values will melt it. Do not use it as a message bus.
+**Herd effect:** 100 clients ek znode watch kare, ek change pe sab jage → thunder. Fix: watch per client ya sequential.
 
-## Patterns
+```mermaid
+graph LR
+    A[Ensemble<br/>3 nodes] -->|quorum| B[Leader]
+    B --> C[Followers]
+    D[App 1] -->|create ephemeral /election/n_0001| A
+    E[App 2] -->|create n_0002| A
+    D -->|watch n_0001| A
+```
 
-**Ephemeral znodes.** Session dies → node disappears → watchers fire. That is how members drop out of a cluster.
+## 3 use-cases interview me bolo
 
-**Sequential znodes.** Create `lock-0000000123`; lowest number holds the lock.
+1. **Leader election:** ` /election` me sequential ephemeral banao, sabse chhota leader. Dead to next.
+2. **Lock:** `/locks/my-lock` me `lock-0001` banao, smallest hold kare, baaki watch.
+3. **Config/service discovery:** `/config/featureFlag` watch, change pe reload.
 
-**Cached reads.** Clients cache data and watch for changes so they are not polling.
+**Ensemble:** 3 nodes → 1 fail ok, 5 → 2 fail ok. 4 se fayda nahi (quorum 3 hi). Latency quorum pe.
 
-## Failure modes
+**Modern:** Kafka ne KRaft (Raft) se ZK hataya, aur systems Etcd/Consul (Raft) use karte hain — concept same, API alag.
 
-1. **Ensemble size** — 3 or 5 nodes; 2 is not a quorum
-2. **Split brain** — ZK is designed to avoid it; *your* app still can if you ignore watches
-3. **Herd effect** — every client watches the same node; use more specific paths
-4. **GC pauses** on JVM ZK — historically painful; mention "keep the cluster dedicated"
+**🔴 Galti:** "ZK me bada data" — ZK chhota (1MB), data S3/DB me.
+**✅ Sahi:** "Chhota coordination data, watch + ephemeral, 3/5 nodes quorum."
 
-**Phrase:** "ZooKeeper (or etcd) is for who is leader and what the current config is — a few keys, strong consistency. Application data stays in Postgres, Redis, or Kafka."
+**Phrase:** "ZooKeeper CP coordination — ephemeral+sequential zNodes se election/lock, quorum write, watch for config."
 
-**See also:** [Bitly](/system-design/bitly) (ID ranges), [job scheduler](/system-design/job-scheduler), [Kafka](/system-design/kafka).
+**Yaad rakho:** Ephemeral = session, sequential = order, quorum = F+1, 3/5 nodes, bada data mat dalo.
+
+**See also:** [kafka](/system-design/kafka), [job-scheduler](/system-design/job-scheduler), [distributed-cache](/system-design/distributed-cache).

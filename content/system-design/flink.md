@@ -1,41 +1,44 @@
 # Flink
 
-> Stream processor. You run **jobs** over Kafka (or Kinesis): windows, joins, aggregations, with watermarks for late data. Think "Spark, but streaming-first."
+> Stream processing — windows, watermarks, aur exactly-once jobs Kafka ke upar.
 
-In interviews Flink (or Spark Structured Streaming, or Kafka Streams) appears when **counting or joining a firehose** cannot happen inside the API process: ad clicks, view counts, fraud scores, Top-K trending.
+> **TL;DR Hinglish:** Flink ek tez dhobi hai jo Kafka ki nadi me behte events ko pakad ke window me jodta hai, late aane walon ka intezam watermark se, aur state RocksDB me safe rakhta hai. Crash hua to checkpoint se wapas.
 
-## When you pick it
+Kafka log hai, Flink us log pe **stateful** kaam karta hai — count, join, session. Batch nahi, continuous.
 
-1. [Ad click aggregator](/system-design/ad-click-aggregator) — billable counts with exactly-once sinks
-2. [YouTube Top K](/system-design/youtube-top-k) — sliding window over views
-3. Fraud / anomaly on payments or login streams
-4. Enrich clicks with campaign metadata (stream-table join)
+## Kab chahiye?
 
-Do **not** put Flink on the user's HTTP request path. It is a **pipeline**. The API writes an event; Flink updates a store; dashboards read the store.
+- Ad clicks count per minute, YouTube Top-K per hour, fraud detection real-time
+- Late events — mobile offline, 5 min late aaya to kya?
+- Exactly-once billing — at-least-once se double count nahi chalega
 
-## Ideas to name
+**Mat lo:** simple ETL ya hourly batch — Spark/Batch kaafi.
 
-**Event time vs processing time.** Clicks have a timestamp. A late event still belongs in yesterday's window. **Watermarks** say "I think I have seen most events up to time T."
+## 4 cheezein Hinglish me
 
-**Windows.** Tumbling (fixed buckets), sliding, session. Top-K over 10 minutes is a sliding window + state.
+**1. Windows:** `Tumbling` (har 1 min alag), `Sliding` (har 30 sec, 1 min window), `Session` (gap pe). Window ke end pe emit.
 
-**State.** Flink keeps keyed state (per campaign id) in RocksDB / memory, checkpointed so a restart does not lose the count.
+**2. Watermarks:** "Ab tak ka time X tak aa gaya" ka signal. `watermark = maxEventTime - allowedLateness`. Isse window close karte hain. Late event → side output ya drop.
 
-**Exactly-once.** Checkpoints + transactional sinks (Kafka / DB). At-least-once plus idempotent writes is often enough to say.
+**3. State:** Har key ka count RocksDB me (disk + memory). Checkpoint har 30 sec S3/HDFS pe — fail pe wapas.
 
-## Shape of a design
+**4. Exactly-once:** Checkpoint + 2-phase commit to sink (Kafka transaction / DB idempotent). `at-least-once` easy, `exactly-once` me 2PC bolo.
 
-Producer (pixel, mobile) → Kafka topic `clicks` → Flink job keyed by `adId` → sink to [Cassandra](/system-design/cassandra) / [Redis](/system-design/redis) / warehouse.
+```mermaid
+graph LR
+    A[Kafka<br/>clicks] --> B[Flink Job<br/>window 1m<br/>state RocksDB]
+    B -->|checkpoint S3| C[S3]
+    B --> D[Cassandra<br/>counts]
+    B --> E[Alert/Kafka]
+```
 
-API `GET /stats/:adId` reads the sink, not Flink itself.
+**Backpressure:** downstream slow to Flink bhi slow — credit-based flow control.
 
-## Failure modes
+**🔴 Galti:** "Har event pe DB update" — DB marega.
+**✅ Sahi:** "Flink me window aggregate, fir sink me batch write."
 
-1. **Backpressure** — job slower than Kafka; lag grows
-2. **State blow-up** — too many keys (one key per user forever)
-3. **Watermark stuck** — idle source; windows never close
-4. **Rebalance** — checkpoints must finish or you reprocess
+**Phrase:** "Flink stateful stream — windows, watermarks for late, RocksDB state + checkpoint, exactly-once via 2PC."
 
-**Phrase:** "The request path only publishes events. Flink aggregates with event-time windows and writes a serving store. Users never wait on the job."
+**Yaad rakho:** Window = dibba, watermark = ghadi, state = RocksDB, checkpoint = photo, late → side output.
 
-**See also:** [Kafka](/system-design/kafka), [metrics monitoring](/system-design/metrics-monitoring).
+**See also:** [kafka](/system-design/kafka), [ad-click-aggregator](/system-design/ad-click-aggregator), [youtube-top-k](/system-design/youtube-top-k).

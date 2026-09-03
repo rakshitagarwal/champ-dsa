@@ -2,7 +2,9 @@
 
 > Charges, refunds, a **ledger**. Idempotency and webhooks. You wrap Stripe/Adyen; you still need an internal source of truth.
 
-## What they ask
+> **TL;DR Hinglish:** Ledger double-entry, idempotent charges via idempotency-key, saga for multi-step, webhooks retry, never double-spend.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: *"Design the payment service for checkout — reserve money, capture, refund, handle double-clicks and delayed processor callbacks. We use Stripe behind the scenes but need our own ledger."*
 
@@ -14,7 +16,7 @@ What they really test:
 
 Example scale: 1M orders/day, $50 avg ticket, 2% refunds, 10k checkout QPS peak (Black Friday 50k). Ledger: 3 entries per payment (authorize/capture/refund) → 3M entries/day. Processor webhook 1-5s late, sometimes hours.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - **Authorize** (hold) — reserve amount on card/wallet without capturing.
@@ -45,7 +47,7 @@ Example scale: 1M orders/day, $50 avg ticket, 2% refunds, 10k checkout QPS peak 
 - Payouts/settlement to merchants — mention but separate flow.
 - Full dunning/retry for failed subscriptions — v2.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -58,7 +60,7 @@ Example scale: 1M orders/day, $50 avg ticket, 2% refunds, 10k checkout QPS peak 
 
 Money tables are tiny in bytes but huge in correctness need — keep them on provisioned IOPS Postgres, not on cheap object store.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/payments
@@ -104,7 +106,7 @@ POST https://orders.internal/events  (you → orders)
 
 **Idempotency contract:** Client sends `Idempotency-Key` header; server enforces `UNIQUE(accountId?, idempotencyKey)` or global per service. Replay within 24h returns same `paymentId` with 200/201, not a new row. Refunds have their own idempotency key.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [Browser/App] ── Stripe.js (tokenize PAN → pm_xxx) ──▶ [API Gateway + Auth] ──▶ [Payment Service]
@@ -133,6 +135,15 @@ POST https://orders.internal/events  (you → orders)
 [Reconciliation Job] nightly: compare internal captured vs processor reports (CSV/SFTP) → alert on mismatch
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Payment Service (API):** validates amount/currency, checks idempotency (`SELECT` on `idempotency_keys`), inserts `payments` row `created → authorized` inside transaction with ledger entry, publishes outbox event to [Kafka](/system-design/kafka) for product, returns to caller. Owns state machine.
 - **Processor Adapter:** wraps Stripe/Adyen SDK. On `authorize`, calls `POST /payment_intents` with `idempotency_key=paymentId` (provider-level idempotency) and `amount`. On timeout, **does not blindly retry** — does `GET /payment_intents?clientKey` to check if already created, then reconciles. Handles 3DS redirect by returning `next_action` to client.
@@ -148,7 +159,7 @@ POST https://orders.internal/events  (you → orders)
 
 **Data flow — webhook-before-response race:** Stripe webhook may hit your handler before `POST /payments` got Stripe's 200. Handler inserts pending event, consumer sees `paymentId` not yet `authorized` → either buffers or upserts idempotently. Design assumes webhooks can reorder — handler is idempotent and state transitions are monotonic.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres):**
 
@@ -241,15 +252,20 @@ IdempotencyStore        — SETNX idempotencyKey→paymentId in Redis + DB uniqu
 
 **Design patterns:** Transactional Outbox, Idempotent Receiver, State Machine, Double-Entry Ledger, Circuit Breaker on processor client, Saga (payment → order fulfillment via Kafka).
 
-## Deep dive — The ledger (why append-only matters)
+## Deep Dive — Gehrai se (Interview yahi puchega) — The ledger (why append-only matters)
 
 Every money movement is two rows that sum to zero: e.g., authorize hold `debit: user_authorization_hold 5000 / credit: processor_pending 5000` (or platform-specific accounts). Capture converts: `debit: processor_clearing 5000 / credit: platform_cash 5000` and releases hold. Refund is *new* rows `debit: platform_cash 2000 / credit: user_balance 2000`, never an `UPDATE amount=...` edit. This gives you auditability (who moved what when), easy reconciliation (sum per `processor_event_id` must match report), and safe retries (replaying a refund with same idempotency key sees existing ledger rows and skips). Partial operations are just smaller amounts on new rows — `payments.capturedAmount` is a derived sum, not the source of truth.
 
-## Deep dive — Webhook and idempotency races
+## Deep Dive — Gehrai se (Interview yahi puchega) — Webhook and idempotency races
 
 The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` times out. User clicks again with same `idempotencyKey` — without guard you call Stripe twice. The fix is two-layer: (1) your DB unique constraint prevents second `payments` row; (2) before calling Stripe, you set provider idempotency to `paymentId` so Stripe itself dedups. The mirror race: webhook arrives before your HTTP response commits — handler must not `UPDATE payments SET status='captured'` on a row still `created` in a not-yet-committed tx. Solve by making handler **enqueue + dedup** and let a consumer apply transition when the row exists; or use `INSERT ... ON CONFLICT` for events and a reconciler that heals `authorized` vs `captured` divergence nightly. Mention the nightly reconciliation job — seniors always ask: *"How do you know you didn't double-charge someone Stripe thinks succeeded but you marked failed?"* Answer: nightly `SELECT SUM(captured) WHERE date=?` vs Stripe report, alert mismatch, manual or auto-refund path.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Sharding:** Payments partitioned by `orderId` or `paymentId` hash; ledger range-partitioned by `created_at` (monthly). Webhook topic partitioned by `paymentId` for ordered per-payment processing.
 - **Caching:** Payment `GET` cached 5s in [Redis](/system-design/redis), invalidated on capture/refund. No caching of ledger — always read from DB. Idempotency keys cached in [Redis](/system-design/redis) `SETNX` with 24h TTL as fast-path, DB as truth.
@@ -262,7 +278,7 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
   - *PCI leak:* reject any request containing `cardNumber`/`cvv` at API gateway — log and alert.
 - **Probes:** alert on `capture success rate < 99.5%`, webhook processing lag, reconciliation mismatch count, idempotency conflict rate spike, and `processor 5xx` circuit breaker open.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **SCA/3DS:** `POST /payments` returns `status=requires_action, nextActionUrl=https://.../3ds`; user completes 3DS, processor webhooks `succeeded` — your handler completes capture.
 2. **Marketplace payouts:** Separate flow `payouts` table `pending → paid → failed` with its own ledger accounts (`platform_cash → seller_payable`); don't reuse refund state machine.
@@ -270,5 +286,7 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
 4. **Disputes/chargebacks:** Webhook `charge.dispute.created` creates `disputes` row and withholds seller payout; manual review queue.
 5. **Rate limiter:** Per-user and per-card fingerprint limits to block card testing (10 attempts/min) via [rate limiter](/system-design/rate-limiter).
 6. **Related:** [Robinhood](/system-design/robinhood) ACH deposits are async T+1 days but reuse same ledger+reconciliation pattern.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "Tokenize cards, ledger in Postgres, idempotency keys, and webhook handlers that can run twice. The processor is a flaky colleague — I reconcile, I don't trust a single HTTP timeout."

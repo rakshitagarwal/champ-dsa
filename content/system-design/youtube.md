@@ -2,7 +2,9 @@
 
 > Video platform. Bytes go through **object storage + CDN + transcoding**. The API only stores metadata and the user never waits on FFmpeg.
 
-## What they ask
+> **TL;DR Hinglish:** Upload → S3 presign → transcode workers async → HLS ladder S3 + CDN. Views Kafka se batch, metadata Postgres.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design a system like YouTube / Netflix VOD where creators **upload** raw video, the platform **processes** it into multiple qualities, and viewers **stream** adaptively on any device — including a phone in Nairobi with bad Wi-Fi. Search, comments, likes, and recommendations are usually scoped extras, not the core 45-minute design.
 
@@ -15,7 +17,7 @@ What the interviewer really tests:
 
 A strong answer: *pre-signed upload → durable blob → queue → transcode ladder → manifest → CDN → player*. Everything else is an async side-effect.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Details |
 |---|---|
@@ -24,7 +26,7 @@ A strong answer: *pre-signed upload → durable blob → queue → transcode lad
 | **Clarify** | Max video size? (e.g., 10 GB / 2 hr). Retention? Analytics? Live streaming is **not** VOD — separate ingest (RTMP). Ask about copyright/region checks vs simple upload |
 | **Out of scope v1** | Real-time live ingest, recommendations/ML ranking (offline job), real-time collaborative editing, DRM beyond tokenized CDN URLs (name Widevine/FairPlay as a box) |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume 300M DAU, 2% creators upload 1 video/week, average original 1.5 GB, 5 renditions average 0.4× extra total (ladder is smaller than source).
 
@@ -39,7 +41,7 @@ Assume 300M DAU, 2% creators upload 1 video/week, average original 1.5 GB, 5 ren
 
 Key insight: metadata QPS and storage are trivial. Bandwidth and blob storage dominate — which is why the **CDN + object store** are the system, the API is just the index.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/videos
@@ -68,7 +70,7 @@ GET  /v1/search?q=adaptive+bitrate&cursor=...
 
 Headers: `Idempotency-Key` on create/complete. Player polling uses `Range` requests for chunks. All CDN URLs are **signed** with short TTL for private/unlisted videos.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Client / Player ] 
@@ -88,6 +90,18 @@ Headers: `Idempotency-Key` on create/complete. Player polling uses `Range` reque
 [Redis]                [ Notification via WebSocket/Push ]
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[CDN]
+  B --> C[API Gateway]
+  C --> D[Video Service]
+  D --> E[S3 Upload]
+  D --> F[Transcode Workers]
+  F --> G[S3 HLS] --> B
+  D --> H[Postgres Metadata]
+  D --> I[Kafka Views] --> J[Redis Top-K]
+```
+
 **Components:**
 
 - **Client / Player:** Uploads via pre-signed URL, plays via HLS/DASH. ABR logic lives in player (hls.js / ExoPlayer) — not server.
@@ -103,7 +117,7 @@ Headers: `Idempotency-Key` on create/complete. Player polling uses `Range` reque
 
 **Read flow (playback):** Player `GET /videos/{id}` → Video Service (or Redis/CDN cache) returns `manifestUrl` → player fetches `master.m3u8` from CDN → CDN fetches from S3 on miss → player picks rendition per bandwidth and fetches `.ts`/`.m4v` chunks directly from CDN.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 ### DB schema
 
@@ -182,19 +196,24 @@ class PlaybackService {
 
 Strategy (codec choice), State Machine (video lifecycle), Producer-Consumer (Kafka queue), Cache-Aside (Redis), Signed URL / Token Bucket for CDN auth.
 
-## Deep dive — never block on transcode
+## Deep Dive — Gehrai se (Interview yahi puchega) — never block on transcode
 
 Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/system-design/websocket) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
 
-## Deep dive — view counts and hot videos
+## Deep Dive — Gehrai se (Interview yahi puchega) — view counts and hot videos
 
 Do **not** `UPDATE videos SET views=views+1` on every play — that row becomes a hot lock at 50K QPS. Instead the player heartbeats every ~30s debounced, hits a stateless `ViewIngest` service that `INCR` in [Redis](/system-design/redis) (or [Kafka](/system-design/kafka) → aggregator). Flusher aggregates per minute and batch-upserts `views_daily`. Reads use `cached_total + redis_delta`. Same reason search is async: DB write → Kafka → [Elasticsearch](/system-design/elasticsearch) — so indexing never blocks upload.
 
-## Deep dive — copyright, regions, and thumbnail hot path
+## Deep Dive — Gehrai se (Interview yahi puchega) — copyright, regions, and thumbnail hot path
 
 Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stages** before transcode — fail fast and set `status=failed:policy`. Region / age-gate is enforced at **CDN edge** via signed token + edge function, not in app servers. Thumbnails are generated alongside renditions and pushed to CDN with long TTL + cache purge on update.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **S3 / CDN miss:** Player retries next segment at lower rendition; CDN stale-while-revalidate. Origin shield reduces S3 thundering herd.
 - **Worker crash mid-transcode:** Kafka re-delivers (at-least-once); idempotent rendition writes + deterministic chunk naming make retry safe.
@@ -203,13 +222,15 @@ Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stage
 - **Transcode backlog:** Priority queue (small videos first), autoscale workers, and shed low-priority qualities (e.g., skip 4K if queue > threshold) — degrade gracefully.
 - **Signed URL expiry:** Player refreshes manifest URL via `GET /manifest` every N minutes; never hardcode TTL in client.
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. **Comments:** Shard by `videoId`; for viral videos reuse the [FB Live Comments](/system-design/fb-live-comments) sampled fan-out pattern rather than loading all comments.
 2. **Recommendations:** Offline candidate generation + ranking service; online serving via feature store — not part of upload/playback critical path.
 3. **Live streaming:** Separate ingest — RTMP/WebRTC → packager → low-latency CDN (LL-HLS) — not the VOD ladder; needs edge transcode and DVR window.
 4. **Dedupe / re-upload:** Content hash (e.g., perceptual hash) to detect re-uploads; optionally reuse existing renditions copy-on-write.
 5. **Analytics:** Kafka → warehouse; never query Postgres for watch-time aggregations.
+
+**Yaad rakho (Revision):** 1) Upload presign S3 2) Transcode async, never block 3) HLS + CDN 4) Views batch via Kafka.
 
 **Phrase:** Pre-signed upload to S3, Kafka transcode to an HLS ladder, play from CDN. Postgres holds metadata only. View counts and search are async.
 

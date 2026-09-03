@@ -2,7 +2,9 @@
 
 > File sync. The product is **metadata + chunks**, not "put one blob in a table." Conflict handling and upload resume are the senior bits.
 
-## What they ask
+> **TL;DR Hinglish:** File ko chunks me kaato, metadata Postgres me, chunks S3 me. Sync me delta + deduplication, conflict me last-write-wins ya version.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 **Scenario:** "Design Dropbox — upload a file from laptop A, see it on laptop B and the web. Share a folder. Don't re-upload the whole 2GB video after a Wi-Fi blip."
 
@@ -14,7 +16,7 @@
 
 **Example scale:** 500M users, avg 50 files, avg file 1 MB chunked into 4 MB pieces. Metadata ~tens of TBs; chunk storage dominates (exabytes logically, PBs physically with dedup). Sync QPS dominated by `delta` polls and heartbeats.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Upload / download files and folders (hierarchical namespace).
@@ -44,7 +46,7 @@
 - Real-time co-authoring cursors, comments, or preview generation beyond thumbnails.
 - Full-text search inside file contents.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -59,7 +61,7 @@
 
 **Takeaway:** chunk bytes in S3 scale horizontally; metadata DB is the hard part — must be sharded by `user_id` / `namespace_id`.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -108,7 +110,7 @@ GET /namespace/delta?cursor=17&limit=100
 
 All chunk uploads/downloads use **pre-signed S3 URLs** so API servers don't proxy gigabytes: block server returns `https://bucket.s3.amazonaws.com/chunks/<hash>?X-Amz-Signature=...`.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Desktop / Mobile Clients  <---WebSocket / Long Poll--->  Notification Service
@@ -136,6 +138,15 @@ Desktop / Mobile Clients  <---WebSocket / Long Poll--->  Notification Service
    [Kafka](/system-design/kafka) — async: thumbnail, virus scan, search index
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Block Server:** handles chunk upload sessions, validates chunk hashes, issues pre-signed S3 URLs. Stateless, scales horizontally. Verifies `Content-MD5` and stores `chunkHash` mapping.
 - **Metadata Service:** owns file tree, revisions, and commit logic. Writes to Postgres with CAS. Serves `delta` queries. The consistency boundary.
@@ -148,7 +159,7 @@ Desktop / Mobile Clients  <---WebSocket / Long Poll--->  Notification Service
 
 **Read flow (download/sync):** Client has `cursor`. Calls `delta?cursor=17` → gets list of changed fileIds + new cursor. For each file, fetch metadata (chunk list), then download missing chunks via pre-signed S3 GETs in parallel, reconstruct file. Folder browse hits Redis cache, else DB.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres, sharded by `namespace_id`):**
 ```sql
@@ -253,7 +264,7 @@ class NotificationService:
 
 **Patterns:** Content-Addressable Storage, Compare-And-Swap, Event-Driven (Kafka), Pre-signed URL (offload pattern), Journal/Sync pattern.
 
-## Deep dive — conflicts and consistency
+## Deep Dive — Gehrai se (Interview yahi puchega) — conflicts and consistency
 
 **Problem:** Two laptops edit `notes.txt` offline. Both upload new chunks and try to commit revision 2. Last-write-wins loses data.
 
@@ -263,7 +274,7 @@ class NotificationService:
 
 **Split-brain on share:** ACL check on every `delta` and `complete`. Don't leak via guessable `fileId` — use UUIDs and verify `namespace_members` membership.
 
-## Deep dive — resumable uploads and delta sync
+## Deep Dive — Gehrai se (Interview yahi puchega) — resumable uploads and delta sync
 
 **Resumable:** `upload_sessions` tracks which `seq` already received (via `revision_chunks` temp table or Redis set). Client on reconnect queries `GET /files/{uploadId}/status` → `{ received: [0,1,3] }`, re-uploads only missing. Each `PUT /chunks/{n}` idempotent — `sha256` must match.
 
@@ -271,7 +282,7 @@ class NotificationService:
 
 **Large file diff:** Client computes rolling hash locally, compares with server's chunk hashes for that file, uploads only changed chunks. Server can also expose `GET /files/{id}/chunkHashes` for client diff.
 
-## Deep dive — sharing and scale
+## Deep Dive — Gehrai se (Interview yahi puchega) — sharing and scale
 
 **Sharing:** A shared folder is a `namespace` with multiple members. `namespace_members` ACL governs read/write. Share link = capability URL `https://dbx.sh/s/<token>` mapping to `(namespaceId, fileId, permission)` with expiry. Validate token on each access; don't expose internal IDs.
 
@@ -279,7 +290,12 @@ class NotificationService:
 
 **Sharding:** Shard `files`/`revisions` by `namespace_id` hash. Each shard owns a set of namespaces; cross-namespace queries rare. S3 buckets partitioned by `hash[0:2]` prefix for request rate.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **S3 durability:** 11 9's; cross-region replication for disaster recovery. Chunk GC: daily job deletes `chunks` with `ref_count==0` and `created_at < now()-24h`.
 - **DB replication:** per-shard primary + read replicas; metadata writes go to primary, `delta` reads can go to replicas with bounded staleness (cursor from primary).
@@ -288,12 +304,14 @@ class NotificationService:
 - **Thundering herd on shared folder:** 1000 members editing same doc — delta fan-out via Kafka partitioned by `namespaceId`, consumers batch-notify.
 - **Sharding growth:** consistent hash ring for namespaces; move shard via dual-write + backfill, then cut over. Use Vitess-style tooling if on MySQL.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. How to handle **selective sync** (user chooses folders)? Client sends `sync_filter` to server; `delta` filters by `parent_id` subtree.
 2. How to support **team/enterprise** with 100k members? ACL becomes RBAC + groups table; `namespace_members` too large — use group membership resolution at request time with caching.
 3. **Encryption:** client-side — chunk hash is of ciphertext; server can't dedup across keys. Trade-off: dedup vs zero-knowledge. Mention both.
 4. **Preview/thumbnails:** async [Kafka](/system-design/kafka) workers generate via ImageMagick; store in separate S3 prefix, CDN-cached.
 5. **Trash & restore:** soft delete (`is_deleted=true`, `deleted_at`), retain 30 days, then hard delete revisions + decrement chunk `ref_count`.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** S3 stores chunks addressed by hash. Postgres stores the tree and which hashes make a file. Clients sync deltas. Commits are CAS so two offline edits become two versions, not a silent overwrite.

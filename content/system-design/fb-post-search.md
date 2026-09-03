@@ -2,7 +2,9 @@
 
 > Search **posts you are allowed to see**. Privacy is the product. A naked Elasticsearch cluster of all of Facebook would fail the interview.
 
-## What they ask
+> **TL;DR Hinglish:** ES se candidate ids, privacy filter Postgres me `hasAccess`. Naive ES dump nahi — hydration + filter.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees posts from friends, groups, and public pages they have access to, ranked in <200ms. There are 3B users and 100s of billions of posts." If you propose a single [Elasticsearch](/system-design/elasticsearch) index of every post and filter in the UI, you fail privacy.
 
@@ -10,7 +12,7 @@ Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees
 
 **Scale anchor:** 3B users, ~500M posts/day (including edits), ~100B searchable posts retained (last few years). Search QPS ~200k globally (peak). Index size ~100TB+ (replicated). Friend list avg ~300, P99 ~5000. Typeahead QPS 2x search QPS but lighter.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Keyword search over post text (and optionally alt-text/OCR, comments).
@@ -40,7 +42,7 @@ Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees
 - Image/video content search (async OCR pipeline v2).
 - Typeahead as separate service (mention but not deep dive).
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Dimension | Assumption | Math | Result |
 |-----------|-----------|------|--------|
@@ -53,7 +55,7 @@ Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees
 
 Index dominates cost; ACL tricks save query fan-out.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 // Search posts
@@ -85,7 +87,7 @@ GET /v1/search/typeahead?q=birthd&limit=5
 
 All search requests carry `viewerId` derived from auth token — never trust client-supplied viewer.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Post Service (DB source of truth) -> [Kafka] post_events (create/edit/delete/audienceChange) -> Indexer Workers -> [Elasticsearch] posts index (sharded)
@@ -94,6 +96,15 @@ User -> API Gateway -> Search Service -> Social Graph Cache ([Redis]/TAO) -> ES 
                          |                      ^                               |
                          v                      |                               v
                     [Memcached] post hydrate  FriendList / Group Membership   Typeahead Index (prefix, separate)
+```
+
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
 ```
 
 **Components:**
@@ -108,7 +119,7 @@ User -> API Gateway -> Search Service -> Social Graph Cache ([Redis]/TAO) -> ES 
 **Write path:** create post -> DB -> Kafka -> indexer -> ES (5-10s).
 **Read path:** `GET /search/posts?q=...` -> Search Service -> graph cache -> ES (50ms) -> hydration + ACL re-check (20ms) -> rank -> response.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **DB schema — posts + audience (source of truth)**
 
@@ -200,15 +211,20 @@ class Ranker {
 - **Decorator / Filter Chain:** Query pipeline: text match → ACL filter → hydration → re-check → rank.
 - **Outbox Pattern:** Post Service writes `post_events` via transactional outbox to avoid dual-write failure (DB commit + Kafka publish atomic).
 
-## Deep dive — Privacy vs recall (the hard trade-off)
+## Deep Dive — Gehrai se (Interview yahi puchega) — Privacy vs recall (the hard trade-off)
 
 Interviewers push: "How do you not leak private posts?" Three-layer defense: **index-time** field (`audienceType` + `authorId`/`groupId`) prunes 90% of invisible posts at query time; **query-time** filter constrains to `searchableAuthors` + `public` + `memberGroups`; **read-time** ACL re-check against Post Service drops anything that slipped through stale index (e.g., post just changed from public to friends, but ES still shows old doc for 5s). Staleness window is explicit: say 5-10s ES refresh + 5s graph cache = 15s worst-case leak window, acceptable if you can name it and re-check mitigates. Never expand 4000 friend IDs into each post doc at index time (that would require reindexing 10k posts when you unfriend one person). Prefer storing author + audience type and filtering at query time. Alternative per-user index (each user's friends' posts copied to per-user shard) is write-amplified (1 post * 500 friends = 500 writes) and rejected for 3B users. **Hybrid** is the senior answer: constrain candidates, then refine.
 
-## Deep dive — Unfriend, block, edits and ranking
+## Deep Dive — Gehrai se (Interview yahi puchega) — Unfriend, block, edits and ranking
 
 **Unfriend/block propagation:** Friendship change emits event to `graph_events` Kafka. Graph cache entry for both users invalidated (delete key, next read rebuilds). In-flight ES queries may still use stale friend list for ~5s — mitigated by read-time ACL re-check (block is checked hydrator-side, so even if ES returned blocked user's post, hydrator drops it). For immediate block enforcement (<1s), also maintain a short-lived `blocked:{viewer}:{author}` denylist in [Redis](/system-design/redis) checked on hydration. **Edits/deletes:** Edit → indexer upserts doc (version bump); delete → hard delete + tombstone in hydrator cache (negative cache 1h to avoid rehydrating ghosts). Audience change from public→friends triggers doc update (`audienceType` change) — no full reindex. **Ranking:** Start with ES BM25, then multiply by `recencyBoost = exp(-hoursSincePost/72)` and `affinityBoost = 1 + log(1+interactionCount(viewer,author))`. Don't promise learning-to-rank; mention second-stage ranker as v2. For typeahead, separate edge-ngram index with lower latency SLA.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **ES shard failure:** Replica serves reads; indexer retries failed docs via DLQ; source of truth remains DB so index can be rebuilt per shard from Kafka replay.
 - **Indexer lag:** Kafka consumer lag alert >10s; scale indexer workers horizontally; ES bulk queue size bounded to avoid OOM.
@@ -218,7 +234,7 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 - **Clock skew on edits:** Use `updatedAt` version, not wall clock, to decide last write wins; Cassandra-style LWW if distributed.
 - **Scale knobs:** Add ES data nodes + shards; cache graph sets; CDN not useful for personalized search, but edge caching for public-only queries possible.
 
-## Extra probes
+## Aur kya puch sakte hain? (Extra probes)
 
 - Comments search — nested docs or separate `comments` index joined by `postId`; query both and merge.
 - Media OCR/alt-text — async pipeline writes back to post doc via partial update (`update { doc: { ocrText: ... } }`).
@@ -226,5 +242,7 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 - Security audit — log every ES hit that was dropped at hydration (ACL violation attempt) for anomaly detection.
 - Why not filter in UI? — Demonstrate leak scenario and fix via three-layer defense.
 - Compare to [Elasticsearch](/system-design/elasticsearch) vs Vespa/Typesense — same privacy pattern applies regardless of engine.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** ES is a hint, not the ACL. I constrain authors you can see, search that subset, then re-fetch posts and drop anything the viewer shouldn't see.

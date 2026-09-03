@@ -2,7 +2,9 @@
 
 > Protect an API from abuse. The design is a **fast, shared counter** with a clear algorithm — token bucket or sliding window — not a lecture on Redis internals.
 
-## What they ask
+> **TL;DR Hinglish:** Token bucket / sliding window Redis Lua se atomic. Har region me local check, headers me limit bhejo, fail-open ya fail-closed decide karo.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design a rate limiter as a **service**: `allow(key) → { allowed, remaining, retryAfter }`. It sits in-line on **every request** at the [API Gateway](/system-design/api-gateway) and enforces rules like `100 req/min per user`, `10K req/min per API key`, or `5 req/s per IP` on expensive endpoints (login, search, LLM).
 
@@ -15,7 +17,7 @@ What the interviewer tests:
 
 A strong answer: *shared Redis with atomic Lua, sliding-window-counter or token bucket at the gateway, 429 with Retry-After, fail closed on expensive APIs*.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Details |
 |---|---|
@@ -24,7 +26,7 @@ A strong answer: *shared Redis with atomic Lua, sliding-window-counter or token 
 | **Clarify** | Per user vs per IP vs per endpoint? Burst allowed? Fail open (availability) or fail closed (protect origin)? Global vs per-region limit? Ask before picking algorithm |
 | **Out of scope v1** | WAF / bot detection, billing metering (separate warehouse job), per-tenant quota UI (mention config service as box) |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume API gateway handles 50K RPS across 20 nodes.
 
@@ -38,7 +40,7 @@ Assume API gateway handles 50K RPS across 20 nodes.
 
 Conclusion: a **centralized Redis** with pipelined Lua is fast enough; local-only limiters are only for emergency fallback.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/check
@@ -74,7 +76,7 @@ X-RateLimit-Key: user:u_123
 
 Status: `200` if allowed, `429 Too Many Requests` if not — never `500` for rate limit.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Clients ] --> [ L4 LB ] --> [ API Gateway Fleet (20 nodes) ]
@@ -91,6 +93,15 @@ Status: `200` if allowed, `429 Too Many Requests` if not — never `500` for rat
             [ Kafka (async audit log: key, allowed, ts) → Analytics ]
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Rate Limiter Fleet]
+  C --> D[Redis Cluster]
+  C --> E[Config Service]
+  C --> F[Kafka Audit]
+```
+
 **Components:**
 
 - **API Gateway Fleet:** Each node runs a thin limiter client (Lua/Go sidecar). On every request it computes `key = f(userId, IP, route, tier)` and does one Redis Lua call. No local counter as source of truth.
@@ -102,7 +113,7 @@ Status: `200` if allowed, `429 Too Many Requests` if not — never `500` for rat
 
 **Read flow (admin):** `GET /rules` served from Config Service (Postgres + cache), not Redis.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 ### Data model (Redis keys)
 
@@ -186,19 +197,24 @@ return {1, limit - count -1, 0}
 
 Sidecar / Filter, Cache-Aside (rules), Token Bucket / Sliding Window, Fail-Open / Fail-Closed (Circuit Breaker), Outbox-style async audit.
 
-## Deep dive — distributed correctness
+## Deep Dive — Gehrai se (Interview yahi puchega) — distributed correctness
 
 The core race is **read-then-write across replicas**. Local memory limiters are wrong with 10 replicas (limit × 10 unless you divide by N, which is still inaccurate under skew). Shared [Redis](/system-design/redis) with Lua fixes it — one atomic op per key per request. For even stronger guarantees under Redis failover, use **Redis Raft / Redlock** only if you truly need global exactness (rare). Usually "correct enough" with one primary per shard + async replica is acceptable — being off by 1–2% at 100/min is better than adding 20ms for consensus. If Redis is down, decide **fail open** (availability, allow traffic) vs **fail closed** (safety, 429) — for public APIs fail closed on expensive routes (`/login`, `/pay`) and keep a small local emergency token bucket (e.g., 50% of limit) so origin does not melt.
 
-## Deep dive — multi-DC and per-route / per-tier limits
+## Deep Dive — Gehrai se (Interview yahi puchega) — multi-DC and per-route / per-tier limits
 
 Do not promise a **global exact 100/min** across 3 regions with one Redis — cross-DC RTT kills p95. Instead do **per-region limits** (e.g., 100/min per region) and accept sum = 300/min globally; if a global budget is required, add a periodic aggregator that syncs usage every 5s and adjusts local limits (eventual). Per-route: `key = tenant:{id}:route:{method} {path}` with separate windows — e.g., `POST /login: 5/min` stricter than `GET /feed: 1000/min`. Tiered: Config Service returns `free: 10/s` vs `paid: 100/s` based on JWT claim; gateway caches tier with 5s TTL. Dynamic update via pub/sub invalidation, not polling DB.
 
-## Deep dive — placement and headers
+## Deep Dive — Gehrai se (Interview yahi puchega) — placement and headers
 
 Rate limit at the **first hop that can identify the principal** — usually the [API Gateway](/system-design/api-gateway). Extra limits inside expensive services (LLM, search, payment) protect even if gateway is bypassed. Always return IETF `RateLimit-*` headers and `429 + Retry-After` (seconds or HTTP-date). Clients should respect it with exponential backoff. Log every deny to [Kafka](/system-design/kafka) for abuse dashboards. Do not 500, do not silently drop — make the contract explicit.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Redis down / slow:** Circuit breaker in gateway — after N errors, switch to **local emergency cap** (in-memory token bucket at 50% of limit) and emit metric. For auth/payment, fail closed (429); for reads, fail open with log.
 - **Hot key (single IP hammering):** One Redis shard hot — shard by `hash(key)` already, but a single key is still one shard; Lua is O(1) so it holds, but add gateway-side **coalescing** (batch `allow` for same key within 1ms) and short local negative cache (10ms) for denied keys.
@@ -206,13 +222,15 @@ Rate limit at the **first hop that can identify the principal** — usually the 
 - **Clock skew:** Use Redis server `TIME` inside Lua, not client `now`, for window calc.
 - **Scale to 500K RPS:** Redis Cluster with 10 shards (50K/shard), gateway `EVALSHA` pipelined, keep payload < 200 bytes, disable persistence, autoscale gateway fleet.
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. **Different tiers (free vs paid) — config service, cache rules** with 5s TTL and pub/sub invalidation; see `RuleResolver` above.
 2. **Rate limit by token bucket per tenant + per route** — compose keys and check all rules (AND), return `retryAfter = max(retryAfters)`.
 3. **LLD-style interface `allow(key)` if they want classes — still back it with Redis** — show `interface RateLimiter` + `RedisSlidingWindowCounter` + Lua above; local `Guava RateLimiter` only as fallback.
 4. **Burst vs smooth:** Offer token bucket when interviewer asks about bursts (e.g., "allow 20 at once then 1/s").
 5. **See also:** [API Gateway](/system-design/api-gateway), [Redis](/system-design/redis), [Kafka](/system-design/kafka) for audit.
+
+**Yaad rakho (Revision):** 1) Lua atomic 2) Token bucket vs sliding window 3) Per-region check 4) Headers RateLimit-*.
 
 **Phrase:** Shared Redis token bucket at the gateway, atomic INCR via Lua, 429 + Retry-After. If Redis dies I fail closed on the expensive APIs and keep a small local cap so we don't melt origin.
 

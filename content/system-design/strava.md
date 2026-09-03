@@ -2,7 +2,9 @@
 
 > Fitness social network. GPS traces are **fat time-series**. Segments and leaderboards are the spicy extra — not just "Instagram for runs."
 
-## What they ask
+> **TL;DR Hinglish:** Strava already covered
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 "Design Strava." Record a run/ride on the phone, store the GPS trace, show the activity page with map + stats, let users follow friends and scroll a feed, and — the hard part — match the trace against known **segments** (a famous climb, a park loop) and maintain **leaderboards** (fastest times ever / this year / friends only). Privacy: don't leak where you live.
 
@@ -10,7 +12,7 @@ What they really test: can you keep **fat GPS files out of the OLTP DB** (S3 is 
 
 Example scale: 100M users, 20M activities/month (~8/sec avg, ~80/sec peak season), avg trace 5k points (~80 KB polyline), 5M defined segments worldwide. Feed QPS ~15k avg.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Record/upload activity: mobile uploads GPX/TCX or encoded polyline (chunked/presigned), with sport type (run, ride, hike), title, description, gear, photos.
@@ -42,7 +44,7 @@ Example scale: 100M users, 20M activities/month (~8/sec avg, ~80/sec peak season
 - Full social inbox DMs, shopping, coaching.
 - ML training plans.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Quantity | Assumption | Math | Result |
 |---|---|---|---|
@@ -58,7 +60,7 @@ Example scale: 100M users, 20M activities/month (~8/sec avg, ~80/sec peak season
 
 Reasoning: GPS bytes live in S3; Postgres holds summaries + efforts. The surprising number is segment-matching: naive N×M is 20M × 5M checks — impossible. Geo pre-filter is mandatory.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 **Activities**
 ```http
@@ -107,7 +109,7 @@ GET  /v1/users/{id}/activities?cursor=
 
 **Idempotency:** `Idempotency-Key` on `POST /activities` so retry does not double-create.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Mobile App — GPS recorder ]
@@ -137,6 +139,15 @@ GET  /v1/users/{id}/activities?cursor=
                  [ Activity Service ] — serves summary + CDN URLs
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **API Gateway + Activity Service:** validate sport, create `activity` row with `status=processing`, return 201 immediately. Trace bytes never touch app servers.
 - **Pipeline workers (Kafka consumers):** (1) **Simplify** polyline (Douglas-Peucker ε=3-5 m) + generate map thumbnail via tile renderer; (2) **Compute stats** (distance via haversine sum, elevation gain filtered, moving time via speed threshold); (3) **Privacy fuzz** — trim or mask first/last 400 m if user has home zone; (4) **Segment matcher** — query geo index for segments whose bbox intersects activity bbox; (5) **Leaderboard updater** + **feed fan-out**.
@@ -151,7 +162,7 @@ GET  /v1/users/{id}/activities?cursor=
 
 **Read path (feed):** `GET /feed` → Feed Service `ZREVRANGE inbox:{userId}` → hydrate summaries → return.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres):**
 ```sql
@@ -295,7 +306,7 @@ class LeaderboardService {
 
 **Patterns:** Pipeline (chain of workers), CQRS (S3 write, Postgres read), Cache-Aside for activity/leaderboard, Idempotent consumer with `effort(segment_id, activity_id)` unique constraint.
 
-## Deep dive — segments: from 5M to 50 candidates
+## Deep Dive — Gehrai se (Interview yahi puchega) — segments: from 5M to 50 candidates
 
 Naive: compare every activity to every segment — 20M × 5M impossible. **Two-phase matching:**
 
@@ -304,7 +315,7 @@ Naive: compare every activity to every segment — 20M × 5M impossible. **Two-p
 
 Map-match is done async — upload ACK does not wait. Index updates for new segments are independent of activity flow.
 
-## Deep dive — leaderboards and hot keys
+## Deep Dive — Gehrai se (Interview yahi puchega) — leaderboards and hot keys
 
 A famous segment like "Hawk Hill" has 50k efforts and is read thousands of times per second. `ZADD` + `ZRANGE` on a single Redis key is a hot key. Mitigations:
 
@@ -315,7 +326,7 @@ A famous segment like "Hawk Hill" has 50k efforts and is read thousands of times
 
 Privacy nuance: hide start location by **fuzzing** — if activity starts within user's home geohash, clip first 400 m of polyline before storing `s3_key_line` and before segment matching near home (so home segments don't leak).
 
-## Deep dive — GPS pipeline, privacy, and feed
+## Deep Dive — Gehrai se (Interview yahi puchega) — GPS pipeline, privacy, and feed
 
 **Pipeline ordering:** simplify → stats → privacy fuzz → segment match → leaderboard → feed fan-out. Each step is idempotent and retriable via Kafka offsets; a DLQ catches malformed GPX.
 
@@ -323,7 +334,12 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 
 **Feed:** same push model as Instagram: `activityId` into followers' inbox `inbox:{userId}` (Redis sorted set). Strava's feed is lower QPS and mostly chronological — ranking is simple (recency + maybe kudos boost). Pagination via cursor (`last_created_at:last_id`). Photos optional — if present, stored in S3/CDN like Instagram but smaller volume.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **S3 unavailable:** upload presign fails → client retries with backoff; incomplete uploads expire via S3 lifecycle (abort multipart after 24h).
 - **Pipeline worker crash:** Kafka offset not committed → replay; idempotent `effort` unique constraint + `activity.status` state machine prevent doubles.
@@ -334,7 +350,7 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 - **Replication:** Postgres streaming replica per shard; S3 cross-region; Kafka 3×; Redis replica + AOF.
 - **Probes:** pipeline consumer lag, segment match rate (efforts/activity), leaderboard cache hit ratio, GPS parse failure rate, feed fan-out lag.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **Live segments / beacons:** WebSocket per active activity with TTL in [Redis](/system-design/redis); phone pushes location every 5s; server does corridor check live. Similar to [Uber](/system-design/uber) location.
 2. **Route planning / heatmaps:** nightly batch aggregates `activity` polylines into H3 cells → heatmap tiles served from S3/CDN; not on the hot path.
@@ -342,5 +358,7 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 4. **Dedup accidental double uploads:** `hash(raw_file)` + `user_id` uniqueness; or `started_at` + `distance` near-duplicate window 10 min.
 5. **Gear / devices:** FIT file parsing for heart-rate, power; store raw in S3, summarized time-series in a TSDB if needed.
 6. **Analytics:** `segment_effort_created` events to [Kafka](/system-design/kafka) → warehouse for segment popularity, PR notifications via [notification system](/system-design/notification-system).
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "S3 for the GPS file, Postgres for the summary, async workers to match nearby segments and update Redis leaderboards. The feed only stores activity ids."

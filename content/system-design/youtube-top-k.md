@@ -2,7 +2,9 @@
 
 > Trending videos. The interview is **counting at scale** and keeping a **cheap Top-K**, not training YouTube's real recommender.
 
-## What they ask
+> **TL;DR Hinglish:** Views ko Flink window me count karo, Top-K heap per window, cache me rakho. Late events watermark se handle.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally and per country. Views arrive as a firehose; dashboard must load in <100ms. How would you do it?" You have 45 minutes to converge on a pipeline that never does `SELECT ... ORDER BY views DESC LIMIT 100` on the OLTP.
 
@@ -10,7 +12,7 @@ Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally an
 
 **Scale anchor:** YouTube: ~2.5B MAU, ~500 hours uploaded/min, ~5B video plays/day. Trending QPS: watch page 50k RPS but `GET /trending` itself is ~5-10k RPS globally (cacheable). Ingest: ~60k view events/sec average, bursts to ~500k/sec during viral events. 24h window holds ~5B events. Storing raw events 7 days matters; serving Top-K is just 100 IDs per region.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Ingest `view` event `{ videoId, userId?, region, categoryId, ts }` from player (batched, at-least-once, possibly late/out-of-order by seconds to minutes).
@@ -39,7 +41,7 @@ Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally an
 - Real-time comment/like counts in ranking (deferred to v2 weighted score).
 - Exact-once billing semantics — trending allows ~1% error.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Dimension | Assumption | Math | Result |
 |-----------|-----------|------|--------|
@@ -52,7 +54,7 @@ Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally an
 
 Bandwidth is dominated by hydration (thumbnails via CDN, not trending service). Compute heavy part is aggregation, not serving.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 // Ingest — called by player edge / collector (internal, batched)
@@ -85,7 +87,7 @@ GET /v1/trending?window=24h&region=IN&category=music&k=100&cursor=0
 
 Internal: `GET /internal/counts?videoIds=abc,xyz&window=24h` for hydration. All writes idempotent by `eventId`.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Client (player) -> CDN/Edge Collector -> [Kafka] views (partitioned by videoId%N or round-robin)
@@ -99,6 +101,15 @@ API Gateway -> Trending Service -> Redis (read) -> Hydration Cache ([Redis]/[Mem
                                               -> CDN for response
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Components:**
 - **Edge Collector / API Gateway:** Lightweight Go/Netty service that validates, batches (100 events / 50ms), returns 202, produces to [Kafka](/system-design/kafka). Never blocks on DB. Rate-limits per IP for bot mitigation.
 - **[Kafka](/system-design/kafka):** Durable log, 3x replication, 100+ partitions. Retention 7 days. Topic `views.raw` (raw), `views.deduped` (after dedupe processor).
@@ -110,7 +121,7 @@ API Gateway -> Trending Service -> Redis (read) -> Hydration Cache ([Redis]/[Mem
 **Write path:** player batch -> edge -> Kafka -> Flink dedupe+count -> Redis/Cassandra.
 **Read path:** `GET /trending` -> Trending Service -> `GET trending:IN:24h` from Redis (p95 <10ms) -> mget metadata from cache -> assemble response -> CDN cache 15s.
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **DB schema — serving + metadata**
 
@@ -177,15 +188,20 @@ class TrendingService {
 - **Cache-Aside:** Trending Service caches lists with short TTL and stale-while-revalidate.
 - **Strangler / Lambda hybrid:** Streaming path for freshness + batch reconciler for accuracy.
 
-## Deep dive — Sliding windows, watermarks and late events
+## Deep Dive — Gehrai se (Interview yahi puchega) — Sliding windows, watermarks and late events
 
 A 24h **sliding** window every 1 minute naively keeps 1440 overlapping windows. Flink optimizes with **slicing**: keep per-minute buckets and sum 1440 buckets on query. Watermark handles out-of-order: player batching + mobile offline causes events 2-5 min late. Set watermark delay 30-60s and allowed lateness 5 min; late events beyond that go to a side output `late_views` and increment an `adjustments` counter applied at next publish, not rewriting the closed window. For read path, never recompute window from scratch on every event — incremental aggregation (`ReduceFunction` + `WindowFunction`) keeps per-bucket sum in RocksDB and updates heap incrementally. If you need per-second freshness, shrink slide to 10s but publish diff only if top 20 changes to avoid flapping.
 
-## Deep dive — Hot keys, heavy hitters and approximate Top-K
+## Deep Dive — Gehrai se (Interview yahi puchega) — Hot keys, heavy hitters and approximate Top-K
 
 One video hitting 1M views/sec would saturate a single keyed subtask if keyed by `videoId`. Fix with **key salting + two-phase aggregation**: first stage counts per `(videoId, salt)` in parallel, second stage sums salts to real videoId. Also cap per-user dedupe in edge to drop bot bursts before Kafka. For Top-K at massive cardinality (100M videos/day), exact counting in Flink state is heavy (RocksDB spill). Alternative discussed in interviews: **Count-Min Sketch** to estimate frequency + **SpaceSaving** or min-heap to track heavy hitters — gives ~1-2% error but constant memory. Whichever path, publish path must be rate-limited: even if counts update 100k times/sec, publish to Redis at most once per 15s per region, coalescing updates. Mention **probabilistic early emission** if top rank changes by > threshold.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Kafka down:** Edge collector spills to local disk buffer (bounded 10 min) + returns 202 anyway; clients retry batch. Backpressure via `429` when buffer full.
 - **Flink subtask fails:** Checkpoint every 30s to S3; on restore replays from last offset. Exactly-once via checkpoint + idempotent Redis `SET` + Cassandra `upsert` (last-write-wins on count). No double counting after dedupe window.
@@ -194,7 +210,7 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/system-design/load-balancer). Stale snapshot served with `Age` header if writer stalls — never 500.
 - **Scale knobs:** Add Kafka partitions + Flink parallelism linearly; sharding by region for heaps (each region heap independent). CDN caches `GET /trending` 15-30s, absorbing 90%+ reads.
 
-## Extra probes
+## Aur kya puch sakte hain? (Extra probes)
 
 - Why not update MySQL `views` counter? — Row-level lock contention at 60k QPS, impossible to keep sliding window; kills primary.
 - Per-category trending — add `categoryId` to Flink key; heap per `(region, category)`; cardinality * categories still bounded because heap per combo is just K=100.
@@ -202,5 +218,7 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - Fraud/bot filtering — separate processor checks `userId` rate, data-center ASN, headless fingerprint; taints event with `is_valid` flag before counting.
 - Cold start / new video boost — separate "Rising" list ranked by velocity (`views last 10 min / views last hour`).
 - Compare pipeline choice: [Kafka](/system-design/kafka) + [Flink](/system-design/flink) vs Kinesis + Spark Structured Streaming — same idea, Flink wins on low latency.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** Views are events. Flink counts in a sliding window and publishes a Redis list of 100 ids. The website never sorts the whole catalog.

@@ -1,46 +1,63 @@
 # Redis
 
-> In-memory data structure store. In interviews it is almost always **cache, sessions, rate limits, or presence** — not your source of truth.
+> In-memory data structure store. Interview me ye hamesha **cache, sessions, rate limits, ya presence** hota hai — source of truth kabhi nahi.
 
-Redis is a single-threaded server (per instance) that speaks a simple protocol. Reads and writes are typically **~1ms** in the same datacenter. Data lives in RAM, with optional snapshot / AOF to disk. If the process dies and you had no persistence, the cache is empty. Your database must still be able to answer.
+> **TL;DR Hinglish:** Redis ek single-threaded server hai jo RAM me data rakhta hai, isliye ~1ms me jawab. Process mara to cache khali — isliye DB hamesha source of truth. Cache-Aside + TTL + delete-on-write, aur sabse garam keys pe stampede ka dhyan.
 
-## When you pick it
+Redis single-threaded hai (per instance), simple protocol bolta hai. Same datacenter me reads/writes ~1ms. Data RAM me, optional snapshot/AOF disk pe. Persistence nahi to process marega to cache khali. DB ko hamesha answer dena aana chahiye — socho `Redis = tez yaad-dasht, Postgres = permanent diary`.
 
-1. Hot keys that would melt Postgres (session, feed page 1, short URL lookup)
-2. Counters and sliding windows for [rate limiting](/system-design/rate-limiter)
-3. Pub/sub or presence heartbeats for chat
-4. Distributed locks (`SET key nx ex`) — use carefully
-5. Tiny job lists — fine for low volume; real work queues → [Kafka](/system-design/kafka)
+## Kab use karna hai?
 
-Do **not** put user-generated blobs, full search, or years of analytics in Redis. RAM is expensive and eviction will surprise you.
+1. Garam keys jo Postgres ko pighla dengi (session, feed page 1, short URL lookup) — *socho 50k QPS same key*
+2. Counters aur sliding windows [rate limiting](/system-design/rate-limiter) ke liye
+3. Pub/sub ya presence heartbeats chat ke liye
+4. Distributed locks (`SET key nx ex`) — soch samajh ke, lease + fencing zaruri
+5. Chhote job lists — kam volume theek, bada backlog → [Kafka](/system-design/kafka)
 
-## Patterns that show up in designs
+**Mat dalo:** user ke bade blobs, full search, ya saalon ka analytics. RAM mehengi hai, eviction surprise dega.
 
-**Cache-aside (lazy loading).** App reads Redis. Miss → DB → `SET` with TTL. After a write, delete or update the key. This is the default you should draw.
+## Patterns jo har design me aate hain
 
-**Write-through.** Write cache and DB together. Simpler reads, slower writes.
+**Cache-aside (lazy loading) — default yahi banao.** App Redis dekhe, miss → DB → `SET` with TTL. Write ke baad key delete/update. Sabse safe.
 
-**Write-behind.** Write cache, flush DB async. Fast and dangerous — say it only if loss is OK.
+**Write-through.** Cache + DB saath likho. Read tez, write slow.
 
-**Stampede.** A popular key expires and 10k requests hit the DB. Mitigate with a lock / singleflight, a slightly random TTL, or serving stale for a few seconds.
+**Write-behind.** Pehle cache, DB baad me async. Tez par dangerous — sirf tab bolo jab thoda loss chalega.
 
-**Hot key.** One celebrity `userId` lives on one Redis shard. Split the key (`feed:123:0`, `feed:123:1`) or cache at the CDN / application layer.
+**Stampede (Thundering herd).** Popular key expire aur 10k requests DB pe toot pade. Fix: lock/singleflight, thoda random TTL, ya kuch second stale serve karo.
 
-## Data structures you should name
+**Hot key.** Ek celebrity `userId` ek hi Redis shard pe. Fix: key split (`feed:123:0`, `feed:123:1`) ya CDN/app layer pe cache.
+
+```mermaid
+graph LR
+    A[App] -->|GET k| B[Redis]
+    B -->|miss| A
+    A --> C[Postgres]
+    C -->|SET + TTL| B
+    A -->|write| C
+    C -->|DEL k| B
+```
+
+## Kaunse data structures naam lene hain?
 
 1. **String** — JSON blob, session token, short URL
-2. **Hash** — object fields without rewriting the whole blob
-3. **Sorted set** — leaderboards, "latest N", delayed jobs by score=timestamp
-4. **List** — naive queue (OK for interviews, not for huge backlog)
-5. **HyperLogLog** — unique counts with error (view uniqueness)
+2. **Hash** — object ke fields bina pura blob rewrite kiye
+3. **Sorted set** — leaderboard, "latest N", delayed jobs `score=timestamp`
+4. **List** — simple queue (interview ke liye OK, bada backlog nahi)
+5. **HyperLogLog** — unique counts thoda error ke saath (views)
 
-## Failure modes to mention
+## Failure modes — interview me zarur bolo
 
-1. **Eviction** (`allkeys-lru`) — treat Redis as maybe-empty
-2. **Failover** — replica promotion; a short window of stale or lost writes
-3. **Persistence** — AOF vs RDB; "cache" usually means you can rebuild
-4. **Cluster** — hash slots; multi-key ops must land on one slot (`{userId}` hash tags)
+1. **Eviction** (`allkeys-lru`) — Redis ko maybe-empty samjho
+2. **Failover** — replica promote, kuch second stale/lost writes
+3. **Persistence** — AOF vs RDB; cache hai to rebuild kar sakte ho, ok
+4. **Cluster** — hash slots; multi-key ops ek hi slot pe hone chahiye (`{userId}` hash tags)
 
-**Phrase:** "Redis is the hot path. Postgres (or S3) stays the source of truth. TTL plus delete-on-write, and I'll call out stampede on the hottest keys."
+**🔴 Galti:** "Redis me sab daal do, DB band kar do" — Data gaya to gaya.
+**✅ Sahi:** "Redis hot path, Postgres/S3 source of truth. TTL + delete-on-write, sabse garam keys pe stampede handle."
+
+**Phrase:** "Redis hot path hai. Postgres source of truth. TTL plus delete-on-write, aur sabse garam keys pe stampede."
+
+**Yaad rakho (Revision):** Cache-aside default, TTL random, hot key split, eviction = cache khali ho sakta hai, cluster me `{}` tags.
 
 **See also:** [distributed cache](/system-design/distributed-cache), [rate limiter](/system-design/rate-limiter), [Bitly](/system-design/bitly).

@@ -2,7 +2,9 @@
 
 > Photo-first social network. Same feed bones as [FB news feed](/system-design/fb-news-feed), with **heavier media** and a simpler graph (follow, not friends).
 
-## What they ask
+> **TL;DR Hinglish:** Photo S3 + CDN, feed hybrid fan-out, stories TTL 24h Redis, Explore async Kafka se.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 "Design Instagram." Interviewer means: follow users, post photos/reels (multi-image carousel + short video), scroll a ranked home feed, view profile grids, like/comment, stories that vanish in 24h, and maybe Explore.
 
@@ -10,7 +12,7 @@ What they really test: can you separate **bytes** (images/video, CDN, transcode)
 
 Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), each post fanned out to ~300 followers on average. Home feed: ~1B feed fetches/day. Stories: ~400M daily story posts. Video is ~60% of bytes.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - User accounts + follow graph (directed, not mutual): follow/unfollow, followers/following lists, block/mute.
@@ -42,7 +44,7 @@ Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), 
 - End-to-end encrypted DMs (separate system).
 - Real-time multiplayer / co-authored posts.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Quantity | Assumption | Math | Result |
 |---|---|---|---|
@@ -58,7 +60,7 @@ Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), 
 
 Reasoning: bytes dominate cost; metadata is large but manageable when sharded. Fan-out QPS is the hidden monster — 350k writes/s average bursts to millions; hybrid fan-out exists to cap it.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 **Auth:** `Authorization: Bearer <JWT>` on all endpoints.
 
@@ -100,7 +102,7 @@ GET  /v1/hashtags/{tag}/posts?cursor=
 
 **Idempotency:** `Idempotency-Key: <uuid>` on `POST /posts` and `POST /media/presign` so retry does not double-create.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Mobile / Web ]
@@ -135,6 +137,15 @@ Fan-out workers  Ranking workers
          [Elasticsearch] — users, hashtags, captions (optional)
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
+```
+
 **Component roles:**
 - **Media Processor:** on `MediaUploaded` event, generates thumbs (150, 800, 1080), strips EXIF, runs NSFW classifier, and for video enqueues transcode. Marks `media.status=ready` else `rejected`.
 - **Post Service:** validates `mediaIds` are owned + ready, inserts `post` row in sharded Postgres, emits `PostCreated` to [Kafka](/system-design/kafka).
@@ -147,7 +158,7 @@ Fan-out workers  Ranking workers
 
 **Read path (feed):** Client `GET /feed` → API Gateway → Feed Service → `ZRANGE inbox:{userId} -inf +inf REV LIMIT 0 100` (push ids) + `SELECT ... WHERE author IN (celebrity_following) ORDER BY created_at DESC LIMIT 50` (pull) → merge 150 → hydrate → rank top 20 → return cursor (`last_score|last_id`).
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres, sharded by `author_id` hash for posts; follow table sharded by `follower_id`):**
 ```sql
@@ -277,23 +288,28 @@ class MediaProcessor {
 
 **Patterns:** Fan-out-on-write (CQRS), Cache-Aside + TTL for post hydration, Outbox for Kafka, Strategy for ranking (ranker interface), Saga-lite for media pipeline.
 
-## Deep dive — media vs feed ids
+## Deep Dive — Gehrai se (Interview yahi puchega) — media vs feed ids
 
 Feed cache must store `postId` + `authorId` + `createdAt`, not image bytes. Hydration builds CDN URLs on read. If you put JPEGs in Redis you blow memory and still need CDN for edge delivery. Variants are immutable: `m_a_150.jpg` never changes, so CDN cache hit ratio is ~98%. Upload is presigned so app servers never proxy large bytes.
 
 Celebrity write amplification is the second gotcha. A 50M-follower push is 50M Redis writes + replication — minutes of lag and hot shards. Hybrid avoids it: zero writes for that post; cost moves to read-time pull (`SELECT ... WHERE author IN (myCelebrityFollows) LIMIT 50` — indexed, small fan-in because a user follows at most few hundred celebrities). Explain the tradeoff explicitly.
 
-## Deep dive — ranking without building an ML lab
+## Deep Dive — Gehrai se (Interview yahi puchega) — ranking without building an ML lab
 
 Interviewers will ask "how do you rank?" Don't describe training a transformer from scratch. Say: ranker is a service with interface `score(userId, candidatePosts) -> sorted`. v1 features: `recency_hours_decay = exp(-age/24h)`, `affinity = follows + past likes/comments with author`, `engagement = like_rate of post`. Score = `w1*recency + w2*affinity + w3*engagement`. Mention that Explore/Reels use a separate candidate generator (embedding similarity) that feeds the same ranker. Reels may need a different weight vector (watch time > likes). Human mention of A/B testing is enough.
 
-## Deep dive — stories and profile grid
+## Deep Dive — Gehrai se (Interview yahi puchega) — stories and profile grid
 
 Stories are a different access pattern: write-once, read-sequential, TTL 24h. Store `story` rows with `expires_at`; a periodic sweeper deletes expired rows (or rely on `WHERE expires_at > now()`). Inbox for stories is tiny: for each follower, push `storyId` to a short `story_inbox:{userId}` capped at ~200 entries, or simply query `SELECT ... WHERE author IN (following) AND expires_at > now() ORDER BY created_at DESC`. Sequential not ranked, viewer list is a separate `story_view` table.
 
 Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 18` — index on `(author_id, created_at)` does it, plus a Redis `grid:{userId}:{cursor}` cache. Tag grid and saved posts are similar secondary indexes.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **S3 / transcode down:** post still created but `media.status=pending`; feed hides pending media (shows placeholder) and retries transcode with exponential backoff + DLQ.
 - **Postgres shard down:** feed degrades — serve from Redis post cache + inbox; writes to that shard queue in Kafka for replay. Profile grids for that shard show stale.
@@ -303,7 +319,7 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 - **Probes / SLOs:** fan-out lag (Kafka consumer lag) >10s alert, p95 feed latency, transcode queue depth, CDN hit ratio, story expiry sweeper lag.
 - **Privacy:** private accounts — Feed Service checks `visibility` before fanning out; Graph Service enforces follow-request approval.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. **Explore / For You:** candidate generation from embeddings (user vector vs post vectors via ANN in a vector DB) → ranker → feed. Don't claim to train it; say "candidate source is pluggable".
 2. **Hashtags:** `hashtag → postIds` in [Elasticsearch](/system-design/elasticsearch) or a dedicated `hashtag_post` table (sharded by hashtag hash) with time-ordered ids; ingest parses `#tag` from caption on post creation.
@@ -311,5 +327,7 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 4. **Live / Real-time:** new posts via WebSocket / SSE to feed clients with long-poll fallback; likes/comments via pub/sub per post (`post:{id}:live`).
 5. **Data retention / GDPR:** hard-delete flows purge S3 objects + DB rows + inboxes + search index; story auto-expiry handles most.
 6. **Analytics:** impression + engagement events to [Kafka](/system-design/kafka) → warehouse for ranking experiments.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** "S3 + CDN for bytes, DB for the post, precomputed inboxes for normal users, pull for celebrities. The feed never carries raw photos."

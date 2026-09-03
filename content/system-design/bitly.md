@@ -2,7 +2,9 @@
 
 > URL shortener. The interesting parts are **unique short codes** and a **read-heavy redirect** path. Analytics is extra, not v1.
 
-## What they ask
+> **TL;DR Hinglish:** Short code range allocator se banao, redirect Redis se 50ms me, analytics Kafka se async. 302 vs 301 ka trade-off yaad rakho.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 **Scenario:** "Design bit.ly — users paste a long URL, get `bit.ly/abc12`. Anyone who opens it lands on the original."
 
@@ -14,7 +16,7 @@
 
 **Example scale they expect you to reason about:** 100M new links/month (~40 writes/s avg, 400/s peak), 10B redirects/month (~4k reads/s avg, 40k/s peak). They will push: "What if we have 500M DAU clicking links from Twitter?"
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 **Functional:**
 - Create short link from long URL: `POST /v1/links` → returns `code` + `shortUrl`.
@@ -44,7 +46,7 @@
 - QR generation, branded domains (keep `bit.ly` only).
 - Link password protection, deep analytics funnels.
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -57,7 +59,7 @@
 
 **Reasoning:** metadata only — not the destination page. Even at 1B links, storage is single-digit TBs. Bottleneck is QPS, not bytes. Show you can do this math in 60 seconds.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -98,7 +100,7 @@ Use `302` if you need analytics (hits reach you). Use `301` if you want browser/
 
 **Errors:** `400` invalid URL, `409` alias taken, `404` not found/expired, `429` rate limited.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 Client (Browser/App)
@@ -116,6 +118,16 @@ Client (Browser/App)
    `--> Analytics Service (reads from OLAP)
 ```
 
+```mermaid
+graph LR
+  A[Client] --> B[CDN]
+  B --> C[API Gateway]
+  C --> D[Link Service]
+  D --> E[Redis Cache]
+  D --> F[Postgres]
+  D --> G[Kafka] --> H[Analytics ClickHouse]
+```
+
 **Component roles:**
 - **CDN:** offloads hot redirects if using 301; even with 302, absorbs DDoS and TLS termination.
 - **API Gateway:** authenticates creation, rate-limits per API key/IP, validates URLs.
@@ -128,7 +140,7 @@ Client (Browser/App)
 
 **Read flow (redirect):** `GET /{code}` → check CDN → hit API Gateway → Redis `GET`. On hit & not expired → `302`. On miss → DB lookup → if found, backfill Redis (with TTL = min(expiresAt - now, 24h)) → redirect. If missing/expired → `404`. Async publish click to Kafka (fire-and-forget, don't block redirect).
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 **Database schema (Postgres):**
 ```sql
@@ -198,7 +210,7 @@ class AnalyticsPublisher:
 
 **Design patterns:** Factory (CodeGenerator), Proxy/Cache-Aside, Publisher-Subscriber (Kafka), Singleton for range allocator coordinator.
 
-## Deep dive — generating codes
+## Deep Dive — Gehrai se (Interview yahi puchega) — generating codes
 
 **Why not `md5(url)[:6]`?** Same URL should arguably give same code (dedup), but different URLs collide in 6 hex chars (≈16M space). Birthday paradox guarantees collisions fast. Don't rely on hash truncation without collision handling.
 
@@ -208,7 +220,7 @@ class AnalyticsPublisher:
 
 **Custom aliases:** treat as same namespace. Validate `^[A-Za-z0-9_-]{4,16}$`, length 4-16, reserved words blocklist (`api`, `admin`). Unique index on `code` is the arbiter.
 
-## Deep dive — read-heavy redirect path
+## Deep Dive — Gehrai se (Interview yahi puchega) — read-heavy redirect path
 
 **Cache-Aside with TTL:** Redis holds `code → longUrl` with TTL = `expiresAt - now()` (capped). p95 < 10ms from cache. On miss, DB read + backfill. Use `SET NX` stampede protection: if 10k clients request same cold code, only one threads through to DB (singleflight).
 
@@ -216,11 +228,16 @@ class AnalyticsPublisher:
 
 **CDN interaction:** Even with 302, CDN can still shield via `stale-while-revalidate` for hot codes. Purge on delete.
 
-## Deep dive — analytics off the hot path
+## Deep Dive — Gehrai se (Interview yahi puchega) — analytics off the hot path
 
 Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: publish to [Kafka](/system-design/kafka) `topic=link-clicks` with `{ code, ts, ip, ua, referrer }`. Consumers batch-write to ClickHouse/Cassandra and increment Redis counters. This keeps redirect latency flat under spike. Mention idempotency: consumers dedup via `(code, requestId)` if needed. For GDPR, hash IPs.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Sharding:** Hash-shard `links` by `code` prefix (`code[0:2]` → shard). Consistent hashing for Redis cluster. Add shards when single-node QPS > 10k or storage > 1TB.
 - **Replication:** Postgres primary + 2 read replicas for creation reads and cache miss fallback. Failover via managed service (RDS). Dynamo alternative gives multi-AZ by default.
@@ -229,12 +246,14 @@ Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: pub
 - **Expiry cleanup:** Lazy on read (`if now > expiresAt → 404 + async delete`) + daily sweeper job deleting `expires_at < now() - 7d`. Use partitioned `click_events` with TTL.
 - **Abuse:** Auth + [rate limiter](/system-design/rate-limiter) (token bucket per API key/IP: 100 creates/min). Blocklist malicious long URLs via async scanner.
 
-## Extra probes / Interview follow-ups
+## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
 
 1. How to support **branded domains** (`brand.ly/xyz`)? Add `domain` column, composite PK `(domain, code)`, routing by `Host` header.
 2. How to handle **link editing** (change longUrl for same code)? `UPDATE` + cache invalidate (`DEL` Redis + CDN purge) + version history table.
 3. What if we need **strong read-after-write** for creator? Read from primary or wait for cache replication; return newly created mapping directly.
 4. How to prevent **enumeration** of all links? Use 7+ chars, non-sequential codes, rate-limit `GET /{code}` guessing, don't expose list API publicly.
 5. **Data retention:** archive cold links (no clicks in 1 year) to S3/Parquet, keep DB lean; lazy restore on access.
+
+**Yaad rakho (Revision):** 1) Code = range allocator Base62 2) Redirect = Redis → DB 3) 302 for analytics 4) Clicks Kafka async.
 
 **Phrase:** Redirect is cache then DB. Codes come from a range allocator so we never collide. 302 if we care about click counts; Kafka for analytics off the hot path.

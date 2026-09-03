@@ -2,7 +2,9 @@
 
 > Comments on a **live** video. The problem is **fan-out of a hot firehose** to millions of viewers without one chat server dying.
 
-## What they ask
+> **TL;DR Hinglish:** 1M viewers pe polling nahi — sampling + WebSocket fan-out, regional edge, lag acceptable.
+
+## Kya poochte hain? (What they ask) — Hinglish me samjho
 
 Design comments for a Facebook / YouTube / Instagram **Live** stream: millions watch one video concurrently, a fraction comment at high rate, and every viewer should see new comments with **~1–2s lag** — not perfect global order, not every single comment on screen.
 
@@ -15,7 +17,7 @@ What the interviewer tests:
 
 A strong answer: *append to per-stream log → partition viewers across subscriber shards → broadcast via pub/sub → sample if overloaded → catch-up from durable store on join*.
 
-## Requirements
+## Requirements — Kya chahiye? (Functional / Non-functional)
 
 | Category | Details |
 |---|---|
@@ -24,7 +26,7 @@ A strong answer: *append to per-stream log → partition viewers across subscrib
 | **Clarify** | Do we need **every** comment rendered? Usually **no** — sample 50/s + show "12K comments" + dedicated "all" slow path. Max comment length? Auth required? Ask before sizing |
 | **Out of scope v1** | VOD comments (different access pattern, shard by videoId — no live fan-out), video transcode/CDN, full moderation ML (name as async box) |
 
-## Scale estimation
+## Scale ka andaaza — Kitna load? (Math jo design badle)
 
 Assume a top stream: 2M concurrent viewers, 1% comment at 0.1 comment/min per commenter → 2K comments/min ≈ **33 comments/s** sustained, spike 300/s during highlight. A mega-event: 10M viewers, 200 comments/s.
 
@@ -38,7 +40,7 @@ Assume a top stream: 2M concurrent viewers, 1% comment at 0.1 comment/min per co
 
 Conclusion: the **bottleneck is fan-out, not writes**. You can append 200/s to [Kafka](/system-design/kafka) trivially; you cannot push 400M/s 1:1. So you **partition viewers** and **sample**.
 
-## API Design
+## API Design — Endpoints kya honge?
 
 ```http
 POST /v1/streams/{streamId}/comments
@@ -59,7 +61,7 @@ WS wss://live.example/streams/{streamId}/comments?token=...
 
 Headers: `Idempotency-Key` on POST for retry; `Retry-After` on 429. WS query param `sampleRate=20` lets client hint desired rate. Moderation is async — comment may arrive as `pending` then `visible`/`hidden` after ML.
 
-## High-Level Design (HLD)
+## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
 
 ```
 [ Comment Authors ] --HTTPS POST--> [ API Gateway ] --> [ Comment Service ] --append--> [ Kafka (topic=live.comments, key=streamId) ]
@@ -71,6 +73,15 @@ Headers: `Idempotency-Key` on POST for retry; `Retry-After` on 429. WS query par
                                |         |         |
                                v         v         v
                           [ Presence (Redis) ] [ Sampling / Rate Adaptor per shard ] [ Edge Aggregator / CDN for counts ]
+```
+
+```mermaid
+graph LR
+  A[Client] --> B[API Gateway]
+  B --> C[Service Fleet]
+  C --> D[Cache Redis]
+  C --> E[DB Postgres]
+  C --> F[Kafka Async]
 ```
 
 **Components:**
@@ -87,7 +98,7 @@ Headers: `Idempotency-Key` on POST for retry; `Retry-After` on 429. WS query par
 
 **Read flow (subscribe):** Viewer opens stream → `GET /comments?cursor=latest&limit=50` for last N (from Cassandra) → then `WS /streams/{id}/comments` → assigned to a subscriber shard (consistent hash) → shard subscribes to `live:{streamId}:{shard}` → receives sampled comments at ~20/s → if client slow, **drop** (never buffer unbounded).
 
-## Low-Level Design (LLD)
+## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
 
 ### DB schema
 
@@ -167,19 +178,24 @@ class PresenceService {
 
 Partitioned Fan-out, Sampled Delivery, Pub/Sub, CQRS (write to log, read via pub/sub + cache), Token Bucket (sampling), Backpressure Drop, Presence with TTL, Outbox Pattern.
 
-## Deep dive — sampling vs total order
+## Deep Dive — Gehrai se (Interview yahi puchega) — sampling vs total order
 
 Total order of millions of comments is **expensive and useless** — a phone renders ~5 at a time. So you guarantee **order per partition** (Kafka partition = total order for that stream) but **not** that every viewer sees every comment. Provide three paths: (a) **sampled firehose** (20/s, best-effort), (b) **pinned/highlighted** (always delivered), (c) **your friends' comments** (small filtered query, always delivered). Clients reconcile by `ts` and dedup by `commentId`. Interviewers love hearing "we intentionally drop comments on the UI path" — it shows you understand the bottleneck is human attention, not durability.
 
-## Deep dive — backpressure and catch-up on join
+## Deep Dive — Gehrai se (Interview yahi puchega) — backpressure and catch-up on join
 
 If a client is **slow** (bad Wi-Fi), do not buffer unbounded on server — that OOMs the subscriber fleet. Drop with a counter and let client show "You're behind — 3K new comments". On **join**, the viewer first `GET /comments?cursor=latest` gets last N (e.g., 50) from [Cassandra](/system-design/cassandra), then attaches WS for live — so gap between REST and WS is covered by dedup on `commentId`. On **reconnect**, send `cursor=lastSeenCommentId` and server replays from that cursor (Cassandra range), then resumes live. Dispatcher lag is monitored; if a shard lags > 2s, shed sampled rate further.
 
-## Deep dive — moderation and abuse without blocking writes
+## Deep Dive — Gehrai se (Interview yahi puchega) — moderation and abuse without blocking writes
 
 Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms ML — do not block `POST /comments` on it. Write is `status=pending` → after ML, update to `visible`/`hidden`; dispatcher sends `hide` to shards if hidden. Abuse: [Rate Limiter](/system-design/rate-limiter) **per user per stream** (e.g., 1 comment/2s, burst 5) at the gateway; global per-IP limit as backup. Q&A mode is a separate filtered topic (`live.qna`) with stricter sampling and mod queue.
 
-## Handling failures and scale
+## Hinglish Tip — Galti vs Sahi
+
+**🔴 Galti:** Hot path pe DB direct without cache/queue.
+**✅ Sahi:** Cache/queue beech me, DB source of truth.
+
+## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
 
 - **Subscriber node crash:** Viewers reconnect via LB to another node; presence count self-heals via TTL; no message loss because durable log is in [Kafka](/system-design/kafka)/Cassandra — client catches up by cursor.
 - **Dispatcher lag / Kafka consumer lag:** Autoscale dispatchers per hot stream; add partitions only for new streams (hot stream stays one partition for order). If lag > threshold, increase sampling drop rate (deliver 10/s instead of 20/s).
@@ -188,13 +204,15 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 - **Thundering join (stream start):** 2M viewers join in 10s — pre-warm subscriber fleet (HPA on connection count), stagger catch-up with jitter, serve initial 50 from Redis cache not Cassandra.
 - **Cross-region:** Replicate Kafka topic regionally or use per-region dispatcher + periodic cross-region sync for counts; viewers connect to nearest region's subscriber fleet (latency over correctness).
 
-## Extra probes / follow-ups
+## Aur kya puch sakte hain? (Extra probes — Hinglish)
 
 1. **Moderation:** Async ML, delay overlay a few hundred ms — client shows "sending…" then `visible`/`hidden`; human mods get a separate queue.
 2. **Abuse:** Per-user per-stream [Rate Limiter](/system-design/rate-limiter) + global IP limiter; shadow-ban by still 201 but not fanning to others.
 3. **Q&A mode:** Separate filtered topic with upvotes, only `top-K` fanned to all, rest on demand — avoids firehose for questions.
 4. **Reactions (likes/hearts):** Aggregated counter per window, not per-comment fan-out — push `count` every 1s, not each heart.
 5. **See also:** [WebSocket](/system-design/websocket), [Notification System](/system-design/notification-system) for offline highlights.
+
+**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 
 **Phrase:** Writes go to a per-stream log. Viewers connect to sharded subscriber nodes and get a sampled live feed. We don't try to render every comment for 2 million phones.
 
