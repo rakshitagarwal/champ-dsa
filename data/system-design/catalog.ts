@@ -87,59 +87,45 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "tech",
   },
   {
-    slug: "cap-theorem",
-    title: "CAP Theorem",
+    slug: "ip",
+    title: "IP",
     description:
-      "Consistency vs availability during partitions, and PACELC for normal latency.",
+      "Internet Protocol — addressing for packet routing, IPv4 vs IPv6, TTL and fragmentation.",
     group: "concepts",
   },
   {
-    slug: "pacelc",
-    title: "PACELC",
+    slug: "osi-model",
+    title: "OSI Model",
     description:
-      "CAP ka bada bhai — partition me CA, else me Latency vs Consistency.",
+      "7 layers framework for networking — Physical to Application, encapsulation and TCP/IP comparison.",
     group: "concepts",
   },
   {
-    slug: "consistent-hashing",
-    title: "Consistent Hashing",
+    slug: "tcp-and-udp",
+    title: "TCP and UDP",
     description:
-      "Ring, virtual nodes, and minimal moves on scale — the core of caches and shards.",
+      "Transport protocols — TCP reliable handshake vs UDP fast connectionless. Video vs chat.",
     group: "concepts",
   },
   {
-    slug: "sharding",
-    title: "Sharding",
+    slug: "domain-name-system",
+    title: "Domain Name System",
     description:
-      "Split one DB into N — hash, range, geo, and the cross-shard pain.",
+      "DNS — domain name to IP resolution, hierarchical root/TLD/authoritative, caching and record types.",
     group: "concepts",
   },
   {
-    slug: "partitioning",
-    title: "Partitioning",
+    slug: "load-balancing",
+    title: "Load Balancing",
     description:
-      "Divide data by key — range vs hash vs geo, and hot partition fix.",
+      "Traffic distribution across servers — round-robin, least-connections, L4 vs L7, health checks.",
     group: "concepts",
   },
   {
-    slug: "replication",
-    title: "Replication",
+    slug: "clustering",
+    title: "Clustering",
     description:
-      "Copy data to many nodes — leader-follower, quorum, and lag trade-offs.",
-    group: "concepts",
-  },
-  {
-    slug: "quorum",
-    title: "Quorum",
-    description:
-      "R+W>N for strong read — tunable consistency with W and R.",
-    group: "concepts",
-  },
-  {
-    slug: "bloom-filter",
-    title: "Bloom Filter",
-    description:
-      "Probabilistic set — No is definite, Yes is maybe — guard DB at 1% false positive.",
+      "Multiple servers as one system — active-active, active-passive, stateless, shared-nothing.",
     group: "concepts",
   },
   {
@@ -150,87 +136,87 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "concepts",
   },
   {
-    slug: "database-indexing",
-    title: "Database Indexing",
+    slug: "cdn",
+    title: "CDN",
     description:
-      "B-tree, LSM, hash — how indexes make reads fast and writes slower.",
+      "Content Delivery Network — edge PoPs globally, cache hit vs miss, TTL, static content acceleration.",
     group: "concepts",
   },
   {
-    slug: "thundering-herd",
-    title: "Thundering Herd",
+    slug: "proxy",
+    title: "Proxy",
     description:
-      "Stampede on expiry — singleflight, jitter, and stale-while-revalidate.",
+      "Forward proxy (client privacy) vs reverse proxy (server LB, SSL, cache). Nginx/HAProxy.",
     group: "concepts",
   },
   {
-    slug: "circuit-breaker",
-    title: "Circuit Breaker",
+    slug: "availability",
+    title: "Availability",
     description:
-      "Fail fast when downstream is down — open, half-open, close states.",
+      "System uptime and fault tolerance — SLA levels, redundancy, RTO/RPO, SPOF avoidance.",
     group: "concepts",
   },
   {
-    slug: "leader-election",
-    title: "Leader Election",
+    slug: "scalability",
+    title: "Scalability",
     description:
-      "Pick one leader — ZooKeeper, Raft, and lease with fencing.",
+      "Handle growing load — scale up vs scale out, stateless architecture, auto-scaling.",
     group: "concepts",
   },
   {
-    slug: "idempotency",
-    title: "Idempotency",
+    slug: "storage",
+    title: "Storage",
     description:
-      "Same request twice gives same result — keys, dedup, and exactly-once.",
+      "Block, file, object storage — EBS, NFS, S3. Right storage for right use case.",
     group: "concepts",
   },
   {
-    slug: "backpressure",
-    title: "Backpressure",
+    slug: "databases-and-dbms",
+    title: "Databases and DBMS",
     description:
-      "Consumer slow to producer ko slow karo — queue, drop, or throttle.",
+      "Structured data stores and the systems that manage them — relational vs non-relational, CRUD and ACID.",
     group: "concepts",
   },
   {
-    slug: "vector-clocks",
-    title: "Vector Clocks",
+    slug: "sql-databases",
+    title: "SQL Databases",
     description:
-      "Track causality without global clock — Dynamo and CRDTs use it.",
+      "Relational databases — tables, ACID, SQL language, Postgres/MySQL/Oracle, structured data.",
     group: "concepts",
   },
   {
-    slug: "eventual-consistency",
-    title: "Eventual Consistency",
+    slug: "nosql-databases",
+    title: "NoSQL Databases",
     description:
-      "Writes propagate async — read may be stale, but converges.",
+      "Document, key-value, wide-column, graph — MongoDB, Redis, Cassandra, Neo4j.",
     group: "concepts",
   },
   {
-    slug: "long-polling",
-    title: "Long Polling vs SSE vs WebSocket",
+    slug: "sql-vs-nosql-databases",
+    title: "SQL vs NoSQL",
     description:
-      "Push models — polling waste, SSE one-way, WebSocket two-way.",
+      "Structured+ACID vs flexible+scale — polyglot persistence, when to choose which.",
     group: "concepts",
   },
   {
-    slug: "service-discovery",
-    title: "Service Discovery",
+    slug: "database-replication",
+    title: "Database Replication",
     description:
-      "Find healthy instances — DNS, registry, and health checks.",
+      "Data copy across servers — leader-follower, sync vs async, read replicas, replication lag.",
     group: "concepts",
   },
   {
-    slug: "gossip-protocol",
-    title: "Gossip Protocol",
+    slug: "indexes",
+    title: "Indexes",
     description:
-      "Epidemic spread for membership and failure detection — Cassandra uses it.",
+      "B-tree, hash, LSM — index types, read faster/write slower trade-off, covering indexes.",
     group: "concepts",
   },
   {
-    slug: "horizontal-scaling",
-    title: "Horizontal vs Vertical Scaling",
+    slug: "normalization-and-denormalization",
+    title: "Normalization and Denormalization",
     description:
-      "Scale up vs scale out — when to add bigger box vs more boxes.",
+      "Reduce redundancy vs speed up reads — 3NF vs denormalized, OLTP vs OLAP.",
     group: "concepts",
   },
   {
@@ -241,17 +227,66 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "concepts",
   },
   {
-    slug: "microservices",
-    title: "Microservices vs Monolith",
+    slug: "cap-theorem",
+    title: "CAP Theorem",
     description:
-      "One deploy vs many services — trade-offs, boundaries, and comms.",
+      "Consistency vs availability during partitions, and PACELC for normal latency.",
     group: "concepts",
   },
   {
-    slug: "api-paradigms",
-    title: "REST vs GraphQL vs gRPC",
+    slug: "pacelc",
+    title: "PACELC",
     description:
-      "API styles — resource vs query vs streaming, and when to pick which.",
+      "Extension of CAP — partition picks Availability vs Consistency, otherwise Latency vs Consistency.",
+    group: "concepts",
+  },
+  {
+    slug: "transactions",
+    title: "Transactions",
+    description:
+      "ACID properties and isolation levels — atomicity, consistency, durability, concurrent transactions.",
+    group: "concepts",
+  },
+  {
+    slug: "distributed-transactions",
+    title: "Distributed Transactions",
+    description:
+      "2PC vs Saga pattern — blocking vs compensation, eventual consistency in microservices.",
+    group: "concepts",
+  },
+  {
+    slug: "sharding",
+    title: "Sharding",
+    description:
+      "Split one DB into N — hash, range, geo, and the cross-shard pain.",
+    group: "concepts",
+  },
+  {
+    slug: "consistent-hashing",
+    title: "Consistent Hashing",
+    description:
+      "Ring, virtual nodes, and minimal moves on scale — the core of caches and shards.",
+    group: "concepts",
+  },
+  {
+    slug: "database-federation",
+    title: "Database Federation",
+    description:
+      "Multiple databases as one — query federation, sharding, polyglot persistence.",
+    group: "concepts",
+  },
+  {
+    slug: "n-tier-architecture",
+    title: "N-tier Architecture",
+    description:
+      "Presentation, business logic, data layers — 2-tier vs 3-tier vs N-tier, scalability.",
+    group: "concepts",
+  },
+  {
+    slug: "message-brokers",
+    title: "Message Brokers",
+    description:
+      "Middleware for async communication — Kafka, RabbitMQ, decoupling producers/consumers.",
     group: "concepts",
   },
   {
@@ -262,197 +297,340 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "concepts",
   },
   {
-    slug: "observability",
-    title: "Observability",
+    slug: "publish-subscribe",
+    title: "Publish-Subscribe",
     description:
-      "Logs, metrics, traces — see inside, alert, and debug at scale.",
+      "Event-driven one-to-many communication — fan-out, topic, subscriber, asynchronous.",
+    group: "concepts",
+  },
+  {
+    slug: "enterprise-service-bus",
+    title: "Enterprise Service Bus",
+    description:
+      "Central SOA hub — message routing, protocol conversion, vs API Gateway for microservices.",
+    group: "concepts",
+  },
+  {
+    slug: "microservices",
+    title: "Microservices vs Monolith",
+    description:
+      "One deploy vs many services — trade-offs, boundaries, and comms.",
+    group: "concepts",
+  },
+  {
+    slug: "event-driven-architecture",
+    title: "Event-Driven Architecture",
+    description:
+      "Events drive the system — async, decoupled, scalable. Producer emits, consumers react.",
+    group: "concepts",
+  },
+  {
+    slug: "event-sourcing",
+    title: "Event Sourcing",
+    description:
+      "State = replay of events — append-only log, audit trail, snapshots, CQRS synergy.",
+    group: "concepts",
+  },
+  {
+    slug: "command-and-query-responsibility-segregation",
+    title: "CQRS",
+    description:
+      "Commands and queries separate — write model vs read model, eventual consistency.",
+    group: "concepts",
+  },
+  {
+    slug: "api-paradigms",
+    title: "REST vs GraphQL vs gRPC",
+    description:
+      "API styles — resource vs query vs streaming, and when to pick which.",
+    group: "concepts",
+  },
+  {
+    slug: "long-polling",
+    title: "Long Polling vs SSE vs WebSocket",
+    description:
+      "Push models — polling waste, SSE one-way, WebSocket two-way.",
+    group: "concepts",
+  },
+  {
+    slug: "geohashing-and-quadtrees",
+    title: "Geohashing and Quadtrees",
+    description:
+      "Geographic coordinates to encoded strings — prefix match nearby search, quadtree spatial queries.",
+    group: "concepts",
+  },
+  {
+    slug: "circuit-breaker",
+    title: "Circuit Breaker",
+    description:
+      "Fail fast when downstream is down — open, half-open, close states.",
+    group: "concepts",
+  },
+  {
+    slug: "service-discovery",
+    title: "Service Discovery",
+    description:
+      "Find healthy instances — DNS, registry, and health checks.",
+    group: "concepts",
+  },
+  {
+    slug: "sla-slo-sli",
+    title: "SLA, SLO, SLI",
+    description:
+      "Service quality — SLI measure, SLO target, SLA contract. Error budgets for risk.",
+    group: "concepts",
+  },
+  {
+    slug: "disaster-recovery",
+    title: "Disaster Recovery",
+    description:
+      "Fail recovery plans — RTO/RPO, backup/pilot/warm/multi-site strategies, DR testing.",
+    group: "concepts",
+  },
+  {
+    slug: "virtual-machines-and-containers",
+    title: "Virtual Machines and Containers",
+    description:
+      "VM full OS (heavy) vs container app-level (lightweight) — Docker, Kubernetes.",
+    group: "concepts",
+  },
+  {
+    slug: "oauth2-and-openid-connect",
+    title: "OAuth 2.0 and OpenID Connect",
+    description:
+      "Authorization (OAuth) + authentication (OIDC) — tokens, flows, access/refresh tokens.",
+    group: "concepts",
+  },
+  {
+    slug: "single-sign-on",
+    title: "Single Sign-On",
+    description:
+      "One login for multiple apps — IdP, SAML/OIDC/Kerberos, centralized authentication.",
+    group: "concepts",
+  },
+  {
+    slug: "ssl-tls-mtls",
+    title: "SSL, TLS, mTLS",
+    description:
+      "Encryption protocols — TLS handshake, HTTPS, mutual TLS for service-to-service.",
     group: "concepts",
   },
 
   {
     slug: "bitly",
     title: "Bitly",
-    description: "URL shortener — generate a short code, redirect fast, survive read-heavy traffic.",
+    description:
+      "URL shortener — generate a short code, redirect fast, survive read-heavy traffic.",
     group: "questions",
   },
   {
     slug: "dropbox",
     title: "Dropbox",
-    description: "File storage and sync — chunk uploads, metadata, and conflict handling.",
+    description:
+      "File storage and sync — chunk uploads, metadata, and conflict handling.",
     group: "questions",
   },
   {
     slug: "local-delivery",
     title: "Local Delivery Service",
-    description: "Match nearby couriers to orders, track live location, and keep ETAs honest.",
+    description:
+      "Match nearby couriers to orders, track live location, and keep ETAs honest.",
     group: "questions",
   },
   {
     slug: "ticketmaster",
     title: "Ticketmaster",
-    description: "Inventory under flash sales — hold seats, avoid double-booking, survive spikes.",
+    description:
+      "Inventory under flash sales — hold seats, avoid double-booking, survive spikes.",
     group: "questions",
   },
   {
     slug: "fb-news-feed",
     title: "FB News Feed",
-    description: "Fan-out timelines, rank posts, and keep the home feed fast at celebrity scale.",
+    description:
+      "Fan-out timelines, rank posts, and keep the home feed fast at celebrity scale.",
     group: "questions",
   },
   {
     slug: "tinder",
     title: "Tinder",
-    description: "Geo matching, swipe queues, and a recommendation stack that stays cheap.",
+    description:
+      "Geo matching, swipe queues, and a recommendation stack that stays cheap.",
     group: "questions",
   },
   {
     slug: "leetcode",
     title: "LeetCode",
-    description: "Online judge — isolate untrusted code, grade tests, and queue submissions.",
+    description:
+      "Online judge — isolate untrusted code, grade tests, and queue submissions.",
     group: "questions",
   },
   {
     slug: "whatsapp",
     title: "WhatsApp",
-    description: "1:1 and group chat — WebSockets, receipts, media, and offline push.",
+    description:
+      "1:1 and group chat — WebSockets, receipts, media, and offline push.",
     group: "questions",
   },
   {
     slug: "rate-limiter",
     title: "Rate Limiter",
-    description: "Protect APIs with token buckets / sliding windows across many servers.",
+    description:
+      "Protect APIs with token buckets / sliding windows across many servers.",
     group: "questions",
   },
   {
     slug: "youtube",
     title: "YouTube",
-    description: "Upload, transcode, adaptive stream, and CDN the bytes — metadata stays in a DB.",
+    description:
+      "Upload, transcode, adaptive stream, and CDN the bytes — metadata stays in a DB.",
     group: "questions",
   },
   {
     slug: "fb-live-comments",
     title: "FB Live Comments",
-    description: "Realtime comments on a live video without melting a single chat server.",
+    description:
+      "Realtime comments on a live video without melting a single chat server.",
     group: "questions",
   },
   {
     slug: "youtube-top-k",
     title: "YouTube Top K",
-    description: "Trending / top videos — count views at scale and keep a cheap Top-K.",
+    description:
+      "Trending / top videos — count views at scale and keep a cheap Top-K.",
     group: "questions",
   },
   {
     slug: "uber",
     title: "Uber",
-    description: "Ride matching with live location, geohash nearby search, and trip state.",
+    description:
+      "Ride matching with live location, geohash nearby search, and trip state.",
     group: "questions",
   },
   {
     slug: "web-crawler",
     title: "Web Crawler",
-    description: "Polite BFS of the web: URL frontier, robots.txt, dedup, and storage.",
+    description:
+      "Polite BFS of the web: URL frontier, robots.txt, dedup, and storage.",
     group: "questions",
   },
   {
     slug: "ad-click-aggregator",
     title: "Ad Click Aggregator",
-    description: "Ingest huge click streams, count with late events, and bill advertisers.",
+    description:
+      "Ingest huge click streams, count with late events, and bill advertisers.",
     group: "questions",
   },
   {
     slug: "fb-post-search",
     title: "FB Post Search",
-    description: "Search friends' posts with privacy filters — not a naive Elasticsearch dump.",
+    description:
+      "Search friends' posts with privacy filters — not a naive Elasticsearch dump.",
     group: "questions",
   },
   {
     slug: "yelp",
     title: "Yelp",
-    description: "Local business search: geo + text + ratings, with hot city caches.",
+    description:
+      "Local business search: geo + text + ratings, with hot city caches.",
     group: "questions",
   },
   {
     slug: "instagram",
     title: "Instagram",
-    description: "Photo feed, follows, and fan-out — similar to news feed with heavier media.",
+    description:
+      "Photo feed, follows, and fan-out — similar to news feed with heavier media.",
     group: "questions",
   },
   {
     slug: "strava",
     title: "Strava",
-    description: "Activity tracking, GPS traces, segments, and a social feed of workouts.",
+    description:
+      "Activity tracking, GPS traces, segments, and a social feed of workouts.",
     group: "questions",
   },
   {
     slug: "distributed-cache",
     title: "Distributed Cache",
-    description: "Cache-aside, consistent hashing, stampede, and what happens when Redis dies.",
+    description:
+      "Cache-aside, consistent hashing, stampede, and what happens when Redis dies.",
     group: "questions",
   },
   {
     slug: "online-auction",
     title: "Online Auction",
-    description: "Bids in the last seconds — consistency of the winning bid vs throughput.",
+    description:
+      "Bids in the last seconds — consistency of the winning bid vs throughput.",
     group: "questions",
   },
   {
     slug: "job-scheduler",
     title: "Job Scheduler",
-    description: "Cron at scale: durable jobs, workers, retries, and no double-run.",
+    description:
+      "Cron at scale: durable jobs, workers, retries, and no double-run.",
     group: "questions",
   },
   {
     slug: "news-aggregator",
     title: "News Aggregator",
-    description: "Ingest publishers, dedupe stories, rank a personalized newspaper.",
+    description:
+      "Ingest publishers, dedupe stories, rank a personalized newspaper.",
     group: "questions",
   },
   {
     slug: "price-tracking",
     title: "Price Tracking Service",
-    description: "Watch product prices, scrape/poll sellers, alert when the number drops.",
+    description:
+      "Watch product prices, scrape/poll sellers, alert when the number drops.",
     group: "questions",
   },
   {
     slug: "notification-system",
     title: "Notification System",
-    description: "Fan-out email / push / SMS with preferences, retries, and idempotency.",
+    description:
+      "Fan-out email / push / SMS with preferences, retries, and idempotency.",
     group: "questions",
   },
   {
     slug: "robinhood",
     title: "Robinhood",
-    description: "Trade orders with correctness first — matching, idempotency, and market hours.",
+    description:
+      "Trade orders with correctness first — matching, idempotency, and market hours.",
     group: "questions",
   },
   {
     slug: "google-docs",
     title: "Google Docs",
-    description: "Collaborative editing — OT or CRDT, presence, and conflict-free cursors.",
+    description:
+      "Collaborative editing — OT or CRDT, presence, and conflict-free cursors.",
     group: "questions",
   },
   {
     slug: "payment-system",
     title: "Payment System",
-    description: "Ledger, idempotent charges, webhooks, and never double-spend.",
+    description:
+      "Ledger, idempotent charges, webhooks, and never double-spend.",
     group: "questions",
   },
   {
     slug: "metrics-monitoring",
     title: "Metrics Monitoring",
-    description: "Ingest time series, downsample, alert on SLOs — Prometheus-shaped thinking.",
+    description:
+      "Ingest time series, downsample, alert on SLOs — Prometheus-shaped thinking.",
     group: "questions",
   },
   {
     slug: "online-chess",
     title: "Online Chess",
-    description: "Matchmaking, game rooms, clocks, and cheating-resistant move validation.",
+    description:
+      "Matchmaking, game rooms, clocks, and cheating-resistant move validation.",
     group: "questions",
   },
   {
     slug: "chatgpt",
     title: "ChatGPT",
-    description: "LLM product design — sessions, streaming tokens, rate limits, and RAG.",
+    description:
+      "LLM product design — sessions, streaming tokens, rate limits, and RAG.",
     group: "questions",
-  },
+  }
 ];
