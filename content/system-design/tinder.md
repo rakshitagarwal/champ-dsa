@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Geo + filters se candidate nikalo, swipe queue, recommendation async. Location Redis GEO, photos S3 + CDN.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 **Scenario:** "Design Tinder — show a stack of nearby people, swipe right/left, mutual right = match + chat."
 
@@ -16,7 +16,7 @@
 
 **Example scale:** 50M users, 1M DAU per large metro, 500M swipes/day (~5.8k/s avg, 30k/s peak evening). Each `GET /recs` must return 20 profiles in <200ms.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Profile: create/edit, photos (S3/CDN), bio, age, gender, preferences (age range, distance, gender preference).
@@ -46,7 +46,7 @@
 - Video profiles, group swipes, or social feed.
 - Advanced safety: photo verification, ML moderation beyond async flagging.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -60,7 +60,7 @@
 
 **Insight:** swipe ledger dominates writes; recs pipeline must avoid city-wide scans.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -102,7 +102,7 @@ POST /v1/swipes
 
 **Chat:** `WS /v1/chat/m_789` with `{ type:"send", text:"hi" }` — authorized only if `match` exists and not unmatched.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client (Mobile)
@@ -147,7 +147,7 @@ graph LR
 
 **Read flow (recs):** `GET /recs` → Recs Service: check `deck:{userId}` cache (hit → return 20, async refill). On miss: `GEORADIUS` for `lat/lng ± distance`, filter by `age BETWEEN pref.min AND pref.max` and `gender IN pref.genders`, subtract `swiped set` (Redis SET or Bloom), exclude `blocked`, fetch 50 candidate profiles from DB, rank (offline score + distance + last_active), cache, return 20.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema:**
 ```sql
@@ -265,7 +265,7 @@ class ChatService:
 
 **Patterns:** Geohash/S2 Index, Bloom Filter, Cache-Aside (deck), Double-Key Match, Observer (Kafka for match events).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — making recs cheap
+## Deep dive — making recs cheap
 
 **Naive "all users in 50km" is huge** — NYC 50km radius ≈ 8k km², density 10k/km² → 80M candidates impossible.
 
@@ -277,7 +277,7 @@ class ChatService:
 
 **Don't run ML in request.** Offline scorer (Spark) computes `attractiveness / activity / response_rate` per user nightly, writes `user_scores(userId, score)`. Online ranking is `0.5*offline_score + 0.3*distance_penalty + 0.2*last_active_boost`. Boost injection: insert boosted users into decks via priority queue (paying users at head with decay).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — swipe ledger and match correctness
+## Deep dive — swipe ledger and match correctness
 
 **Swipe store:** Dynamo/Cassandra `PK=userId SK=targetId` gives O(1) "have I swiped" and paginable history. Use `IF NOT EXISTS` to prevent double swipe. TTL optional for left swipes (expire after 30d to re-show).
 
@@ -287,7 +287,7 @@ class ChatService:
 
 **Hot user (1M incoming rights):** incoming likes fan-in to one `targetId` partition — hot key. Mitigate by sharding counter (`likes_received:{userId}` as Redis counter) and not listing all likers at once — paginate `SELECT * FROM swipes WHERE target_id=:uid AND dir='right' LIMIT 20`.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — location and safety
+## Deep dive — location and safety
 
 **Location updates:** `PUT /me/location` rate-limited (1/min) to prevent spoofing. Store `geohash` for bucket queries, precise `lat/lng` for distance calc but never expose precise to other users — `distanceKm = bucket(Haversine(myLatLng, theirLatLng))`.
 
@@ -295,12 +295,12 @@ class ChatService:
 
 **Safety:** block creates `blocks` row + removes from deck/matches; photo moderation via async [Kafka](/system-design/kafka) workers (Rekognition); GDPR delete purges `swipes`, `matches`, deck cache, and S3 photos.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** `users` by `geohash` region or `userId` hash; `swipes` by `userId` hash (so `has_swiped` local); `matches` by `least(user_a,user_b)` hash. Redis GEO sharded by city (`tinder:geo:{city}`).
 - **Caching:** deck cache in [Redis](/system-design/redis) with TTL 10m + invalidation on location change; profile hydrate cache (`user:{id} → JSON` 1m TTL). Swipe Bloom in Redis, rebuilt from `swipes` table on miss.
@@ -308,7 +308,7 @@ class ChatService:
 - **Failure modes:** Redis GEO down → degrade to Postgres `WHERE geohash LIKE 'dr5ru%'` (slower, fewer recs but available). Swipe DB down → queue swipes in Kafka, replay when back (show "swipe queued"). Match notification via push; if push fails, client polls `GET /matches`.
 - **Abuse:** [rate limiter](/system-design/rate-limiter) 100 swipes/min, device attestation, shadow-ban suspicious bots (serve empty deck).
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Boost:** `is_boosted=true` users injected at top of others' decks via `ZADD boosted:{city} score=boosted_until member=userId` — recs service merges boosted candidates with higher weight for 30m window.
 2. **Super Like:** `dir='super_right'` with separate notification and badge; stored as `dir` enum, match still mutual right.

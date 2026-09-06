@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** URL frontier (queue), politeness per domain, dedup via Bloom/Set, fetcher → parser → dedup → store S3 + index.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl billions of pages, feed a search index. How do you avoid DDoSing wikipedia.org, looping on calendar URLs, and re-crawling the same content forever?" They expect you to reason about politeness, scale, and freshness, not HTML parsing trivia.
 
@@ -12,7 +12,7 @@ Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl bi
 
 **Scale anchor:** Web ~40-60B indexable pages (debatable), crawler targeting 1-10B pages. Fetch 10k pages/sec ~ 1B/day requires ~1000 fetcher threads with polite delays. Raw HTML avg ~30KB gzipped ~30KB*1B = 30TB crawl data/day to [S3](/system-design/s3). Frontier holds billions of URLs — cannot be in RAM.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Seed with `POST /seeds { urls[] }`; recursively extract `<a href>`, sitemaps, canonical links; enqueue unseen URLs.
@@ -42,7 +42,7 @@ Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl bi
 - Search ranking / query serving (downstream consumer).
 - User-facing search API on crawler itself.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Dimension | Assumption | Math | Result |
 |-----------|-----------|------|--------|
@@ -56,7 +56,7 @@ Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl bi
 
 Throughput scales horizontally by adding fetcher workers; bottleneck is per-host politeness and DNS, not CPU.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 ```http
 // Seed — operators or discovery
@@ -77,7 +77,7 @@ POST /internal/fetchResult { "url": "...", "status": 200, "htmlRef": "s3://crawl
 
 Workers communicate via internal [Kafka](/system-design/kafka) topics, not these REST endpoints in steady state. Admin API above is for control plane only.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Seeds -> URL Frontier (priority queue sharded by host) -> Scheduler (per-host queue)
@@ -114,7 +114,7 @@ graph LR
 **Write path (crawl):** Seed -> frontier -> scheduler picks host shard -> fetcher -> S3 + parser -> dedup -> frontier (new links) and index pipeline.
 **Read path (search):** Downstream indexer reads S3/queue, builds inverted index in [Elasticsearch](/system-design/elasticsearch). No user-facing read on crawler.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **DB schema — metadata, seen-set, frontier spill**
 
@@ -212,20 +212,20 @@ class Parser {
 - **Strategy:** Pluggable `PriorityStrategy` (BFS vs PageRank vs recency) for frontier ordering.
 - **Circuit Breaker:** Per-host failure tracking; after N 5xx consecutive, backoff exponentially (1s, 10s, 1m, 10m) + mark host unhealthy.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Traps, canonicalization and infinite spaces
+## Deep dive — Traps, canonicalization and infinite spaces
 
 **Infinite calendars / faceted search:** `example.com/calendar?date=2024-01-01` generates infinite distinct URLs. Mitigations: cap depth (e.g., 20), cap URLs per host (e.g., 10M), cap path segments (≤10), detect pattern via regex (`?date=`, `?page=`) and collapse. Fingerprint URL structure and flag hosts generating >N distinct patterns/hour. **Canonical vs alias:** UTM tags, `http` vs `https`, trailing slash, `www.` all map to same content — canonicalizer normalizes before dedup. Prefer `<link rel=canonical>` if present. Content hash is final deduper: if two canonical URLs hash to same body, store only one pointer. **Politeness vs throughput:** Single-threaded per host is polite but slow; achieve throughput by maintaining thousands of distinct hosts in flight simultaneously. Visualization: 50k hosts * 1 req/sec = 50k RPS aggregate while per-host stays gentle.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Recrawl, freshness and failure handling
+## Deep dive — Recrawl, freshness and failure handling
 
 Not all pages change equally: homepages hourly, blog posts never. Track `changeFrequency` per URL (observed diff via checksum/ETag `If-None-Match`, `If-Modified-Since`). Priority formula: `priority = importanceScore / (now - lastFetched) * changeRate`. Use sitemaps `<changefreq>` and `lastmod` as hint. Failed fetches: `429/503` → respect `Retry-After` + exponential backoff; `404/410` → drop and keep tombstone 30 days; `5xx` → backoff and requeue with penalty priority; DNS failure → backoff host 1h. Duplicate content updates: store `content_hash`; if unchanged via HEAD/ETag, skip body download and requeue with longer delay. Persistence: frontier checkpointed to RocksDB; fetcher is stateless and can be killed and resumed without loss because URL returns to queue on lease expiry (visibility timeout like SQS).
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Fetcher crash mid-fetch:** URL lease expires (e.g., 2 min) and scheduler re-enqueues — at-least-once fetch; dedup layer makes it idempotent.
 - **Host down / slow:** Circuit breaker marks host unhealthy after 5 failures; scheduler skips it for backoff period; doesn't block other hosts.
@@ -236,7 +236,7 @@ Not all pages change equally: homepages hourly, blog posts never. Track `changeF
 - **Scale knobs:** Horizontally add fetcher pods + frontier shards. DNS cache sharding avoids resolver thundering. Use HTTP/1.1 keep-alive per host to reduce TCP overhead.
 - **Observability:** Per-host metrics (fetch latency, status distribution), frontier depth, dedup hit rate, robots cache hit rate. Alert on frontier growth >10% hourly (loop bug).
 
-## Aur kya puch sakte hain? (Extra probes)
+## Extra probes / follow-ups
 
 - How to crawl JS-heavy SPAs? — Secondary **render queue** with headless Chrome, 10x more expensive, limited to flagged domains; v1 skips it.
 - How to avoid duplicate content across mirrors? — Content SimHash + canonical host preference.

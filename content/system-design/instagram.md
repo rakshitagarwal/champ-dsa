@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Photo S3 + CDN, feed hybrid fan-out, stories TTL 24h Redis, Explore async Kafka se.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 "Design Instagram." Interviewer means: follow users, post photos/reels (multi-image carousel + short video), scroll a ranked home feed, view profile grids, like/comment, stories that vanish in 24h, and maybe Explore.
 
@@ -12,7 +12,7 @@ What they really test: can you separate **bytes** (images/video, CDN, transcode)
 
 Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), each post fanned out to ~300 followers on average. Home feed: ~1B feed fetches/day. Stories: ~400M daily story posts. Video is ~60% of bytes.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - User accounts + follow graph (directed, not mutual): follow/unfollow, followers/following lists, block/mute.
@@ -44,7 +44,7 @@ Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), 
 - End-to-end encrypted DMs (separate system).
 - Real-time multiplayer / co-authored posts.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Quantity | Assumption | Math | Result |
 |---|---|---|---|
@@ -60,7 +60,7 @@ Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), 
 
 Reasoning: bytes dominate cost; metadata is large but manageable when sharded. Fan-out QPS is the hidden monster — 350k writes/s average bursts to millions; hybrid fan-out exists to cap it.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 **Auth:** `Authorization: Bearer <JWT>` on all endpoints.
 
@@ -102,7 +102,7 @@ GET  /v1/hashtags/{tag}/posts?cursor=
 
 **Idempotency:** `Idempotency-Key: <uuid>` on `POST /posts` and `POST /media/presign` so retry does not double-create.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 [ Mobile / Web ]
@@ -158,7 +158,7 @@ graph LR
 
 **Read path (feed):** Client `GET /feed` → API Gateway → Feed Service → `ZRANGE inbox:{userId} -inf +inf REV LIMIT 0 100` (push ids) + `SELECT ... WHERE author IN (celebrity_following) ORDER BY created_at DESC LIMIT 50` (pull) → merge 150 → hydrate → rank top 20 → return cursor (`last_score|last_id`).
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (Postgres, sharded by `author_id` hash for posts; follow table sharded by `follower_id`):**
 ```sql
@@ -288,28 +288,28 @@ class MediaProcessor {
 
 **Patterns:** Fan-out-on-write (CQRS), Cache-Aside + TTL for post hydration, Outbox for Kafka, Strategy for ranking (ranker interface), Saga-lite for media pipeline.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — media vs feed ids
+## Deep dive — media vs feed ids
 
 Feed cache must store `postId` + `authorId` + `createdAt`, not image bytes. Hydration builds CDN URLs on read. If you put JPEGs in Redis you blow memory and still need CDN for edge delivery. Variants are immutable: `m_a_150.jpg` never changes, so CDN cache hit ratio is ~98%. Upload is presigned so app servers never proxy large bytes.
 
 Celebrity write amplification is the second gotcha. A 50M-follower push is 50M Redis writes + replication — minutes of lag and hot shards. Hybrid avoids it: zero writes for that post; cost moves to read-time pull (`SELECT ... WHERE author IN (myCelebrityFollows) LIMIT 50` — indexed, small fan-in because a user follows at most few hundred celebrities). Explain the tradeoff explicitly.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — ranking without building an ML lab
+## Deep dive — ranking without building an ML lab
 
 Interviewers will ask "how do you rank?" Don't describe training a transformer from scratch. Say: ranker is a service with interface `score(userId, candidatePosts) -> sorted`. v1 features: `recency_hours_decay = exp(-age/24h)`, `affinity = follows + past likes/comments with author`, `engagement = like_rate of post`. Score = `w1*recency + w2*affinity + w3*engagement`. Mention that Explore/Reels use a separate candidate generator (embedding similarity) that feeds the same ranker. Reels may need a different weight vector (watch time > likes). Human mention of A/B testing is enough.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — stories and profile grid
+## Deep dive — stories and profile grid
 
 Stories are a different access pattern: write-once, read-sequential, TTL 24h. Store `story` rows with `expires_at`; a periodic sweeper deletes expired rows (or rely on `WHERE expires_at > now()`). Inbox for stories is tiny: for each follower, push `storyId` to a short `story_inbox:{userId}` capped at ~200 entries, or simply query `SELECT ... WHERE author IN (following) AND expires_at > now() ORDER BY created_at DESC`. Sequential not ranked, viewer list is a separate `story_view` table.
 
 Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 18` — index on `(author_id, created_at)` does it, plus a Redis `grid:{userId}:{cursor}` cache. Tag grid and saved posts are similar secondary indexes.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **S3 / transcode down:** post still created but `media.status=pending`; feed hides pending media (shows placeholder) and retries transcode with exponential backoff + DLQ.
 - **Postgres shard down:** feed degrades — serve from Redis post cache + inbox; writes to that shard queue in Kafka for replay. Profile grids for that shard show stale.
@@ -319,7 +319,7 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 - **Probes / SLOs:** fan-out lag (Kafka consumer lag) >10s alert, p95 feed latency, transcode queue depth, CDN hit ratio, story expiry sweeper lag.
 - **Privacy:** private accounts — Feed Service checks `visibility` before fanning out; Graph Service enforces follow-request approval.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Explore / For You:** candidate generation from embeddings (user vector vs post vectors via ANN in a vector DB) → ranker → feed. Don't claim to train it; say "candidate source is pluggable".
 2. **Hashtags:** `hashtag → postIds` in [Elasticsearch](/system-design/elasticsearch) or a dedicated `hashtag_post` table (sharded by hashtag hash) with time-ordered ids; ingest parses `#tag` from caption on post creation.

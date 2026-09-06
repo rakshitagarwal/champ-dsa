@@ -26,9 +26,10 @@ export function DsaPatternsMobileNav({ notes, className }: Props) {
       >
         Overview
       </Link>
-      {notes.map((note) => {
+      {notes.map((note, idx) => {
         const href = `/patterns/${note.slug}`;
         const active = pathname === href;
+        const num = String(idx + 1).padStart(2, "0");
         return (
           <Link
             key={note.slug}
@@ -40,7 +41,7 @@ export function DsaPatternsMobileNav({ notes, className }: Props) {
                 : "bg-muted text-muted-foreground",
             )}
           >
-            {note.title}
+            {num}. {note.title}
           </Link>
         );
       })}

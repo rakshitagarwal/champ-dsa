@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Untrusted code ko Docker me isolate, queue me daalo, workers grade kare, result Postgres, rate limit + sandbox must.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 **Scenario:** "Design LeetCode — user submits code, you run hidden tests, return pass/fail, runtime, maybe a score. Contests: thundering herd at t=0."
 
@@ -16,7 +16,7 @@
 
 **Example scale:** 1M DAU, 5M submissions/day (~58/s avg, 500/s peak, 5k/s at contest start minute). Avg run 1s CPU, 128 MB, 10 test cases.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Browse problems: prompt, examples, constraints (public), not hidden tests.
@@ -45,7 +45,7 @@
 - AI code review / plagiarism detection (async addon).
 - Full discussion forum / editorial system.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -59,7 +59,7 @@
 
 **Takeaway:** steady state modest; contest burst is 100x — queue + elastic workers, not over-provisioned API.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -114,7 +114,7 @@ GET /v1/problems/prob_123
 
 Idempotency: `POST /submissions` with `Idempotency-Key` — retry returns same `sub_789`.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client (Web/IDE)
@@ -165,7 +165,7 @@ graph LR
 
 **Read flow (poll):** `GET /submissions/{id}` → API reads Postgres (or Redis `sub:{id}→result` cache). For live progress, `WS /stream` subscribes to worker's status updates via Redis pub/sub.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (Postgres):**
 ```sql
@@ -268,7 +268,7 @@ class Leaderboard:
 
 **Patterns:** Producer-Consumer (queue), Sandbox/Isolation, Strategy (Checker), Cache-Aside (dedup), Circuit Breaker (test store).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — isolation and contests
+## Deep dive — isolation and contests
 
 **Assume code is malware.** Mitigations:
 - One sandbox per submission, destroyed after (no reuse across users).
@@ -284,7 +284,7 @@ class Leaderboard:
 - Idempotent judge + dedup cache squashes identical spam submissions.
 - Language queues prevent Java compile storm from blocking Python.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — hidden tests and cheating
+## Deep dive — hidden tests and cheating
 
 **Never return full hidden tests.** On `wrong_answer`, return `failedCase: 3/10` with **public sample** only, or truncated `input` preview, not full hidden input/output. Internal JSON for staff only includes `hiddenTests` with restricted IAM.
 
@@ -292,7 +292,7 @@ class Leaderboard:
 
 **Flaky tests / retry:** Run once; if `TLE` borderline or `Mysterious SIGKILL`, retry once on different host (idempotent). Log host for debugging.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — fair scheduling and warm start
+## Deep dive — fair scheduling and warm start
 
 **Fairness:** Don't use single global queue — language-specific queues + weighted fair polling ensure Python jobs don't starve behind 1000 Java compiles. Contest jobs can have dedicated `contest` queue with higher worker allocation.
 
@@ -300,12 +300,12 @@ class Leaderboard:
 
 **Autoscale:** KEDA/HPA on `queue_depth` and `cpu`. Scale down after contest ends; keep min 10 workers for steady state.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Worker crash:** queue visibility timeout re-delivers job (at-least-once). Judge must be **idempotent** — `UPDATE submissions SET status='judging' WHERE status='queued'` conditional, and result write `WHERE status='judging'`.
 - **Sandbox escape / OOM:** `memory.max` triggers OOM kill → return `MCE (memory limit exceeded)`; `SIGKILL` on timeout → `TLE`.
@@ -314,7 +314,7 @@ class Leaderboard:
 - **Replication:** Postgres primary + replicas for reads (history); queue (SQS/Kafka) replicated. Worker fleet across AZs.
 - **Rate limiting:** [rate limiter](/system-design/rate-limiter) `POST /submissions` 20/min per user, burst 5; contest participants get higher burst via token.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Custom checkers:** compile checker binary per problem, run outside sandbox with `actual` vs `expected` + `input`.
 2. **Large sources:** if `source > 64KB`, store in S3 `sources/{hash}.txt`, DB holds `source_key`; worker fetches via pre-signed URL.

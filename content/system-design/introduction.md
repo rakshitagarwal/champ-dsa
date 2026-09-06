@@ -8,7 +8,7 @@ Ye notes **product / infrastructure** interviews ke liye hain — "Design Bitly"
 
 Single sahi diagram nahi hota. Interviewer dekhta hai tum **kaise navigate** karte ho, **trade-off** kaise sochte ho, aur **colleague jaisa communicate** karte ho.
 
-## Kya test hota hai? (4 cheezein)
+## What they are testing
 
 **1. Problem navigation.** Sahi requirements puche, faltu cheez skip ki, aur working system ship kiya? Galti: 20 min CDN design kar diya jab asli puzzle matching/consistency tha.
 
@@ -20,7 +20,7 @@ Single sahi diagram nahi hota. Interviewer dekhta hai tum **kaise navigate** kar
 
 Mid-level: complete simple design kaafi. Senior: basics jaldi khatam karke **1-2 deep dive** par time lagao.
 
-## 2 tarah ke interviews
+## Two interview flavors
 
 **Product design** — Bitly, WhatsApp, YouTube, Uber. Users, APIs, storage, scale.
 
@@ -28,7 +28,7 @@ Mid-level: complete simple design kaafi. Senior: basics jaldi khatam karke **1-2
 
 Ye page **LLD class diagram** (parking lot, elevator) nahi hai. Agar classes + SOLID puche to wo alag interview hai.
 
-## Delivery framework — har baar yehi follow karo
+## Delivery framework
 
 Working system pehle, fir harden karo. Interview me bolo: *"Pehle simple design jo APIs meet kare, fir scale aur failure ke liye harden karenge."*
 
@@ -40,7 +40,7 @@ Working system pehle, fir harden karo. Interview me bolo: *"Pehle simple design 
 
 **Capacity math:** naatak mat karo. Estimate tabhi jab number **design badle** ("Top-K ek machine me fit hoga kya?").
 
-## Non-functional checklist — is product ke liye kya matter karta hai?
+## Non-functional checklist
 
 Har product ke liye relevant pick karo, CAP har app pe mat rato.
 
@@ -51,7 +51,7 @@ Har product ke liye relevant pick karo, CAP har app pe mat rato.
 5. **Abuse** — rate limits, auth, bots
 6. **Failure** — SPOF, retries, multi-AZ
 
-## Kaise padhna hai — revision ke liye
+## How to use this section
 
 Pehle **Introduction** padho, fir **Key Technologies** skim karo taaki tool ka naam reason ke saath le sako. Sabse zyada time **Question Breakdowns** par — wahi se yaad hota hai.
 

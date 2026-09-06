@@ -6,13 +6,13 @@
 
 Jab tak 10k QPS aur 1TB se neeche ho, Postgres hi best. Managed RDS/Aurora le lo, khud ka cluster mat banao.
 
-## Kab Postgres hi rakho?
+## When you pick it
 
 - Joins, transactions, constraints chahiye
 - Strong consistency — payment, tickets
 - JSONB, full-text, GIS bhi chal jayega (ES/Cassandra tabhi jab scale alag ho)
 
-## Indexes — Hinglish me samjho
+## Indexes
 
 - **B-tree** — default, `=` aur `range` dono. `WHERE userId = ? AND ts > ?` → composite index `(userId, ts)` banao, order important.
 - **Compound:** left se match hota hai — `(a,b)` → `WHERE a=?` use karega, `WHERE b=?` nahi.

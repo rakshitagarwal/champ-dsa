@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Fan-out hybrid — normal users push, celebrity pull. Feed ids time-partitioned, ranking alag, cache aside.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 **Scenario:** "Design FB News Feed — user opens the app and sees posts from friends (and pages), roughly ranked, in under a couple hundred ms."
 
@@ -16,7 +16,7 @@
 
 **Example scale:** 2B users, avg 200 friends, 500 follows (pages). 100M posts/day. Each user opens feed 10x/day → 20B feed reads/day (~230k QPS avg, 1M peak). Celebrity with 50M followers posts → naive fan-out = 50M cache writes.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Publish post: text + media (via S3/CDN), visibility (friends/public/private).
@@ -46,7 +46,7 @@
 - Messenger / chat — separate system.
 - Graph mutations beyond follow/block.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -62,7 +62,7 @@
 
 **Takeaway:** naive fan-out on write collapses on celebrity posts. Hybrid is required; numbers prove it.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -107,7 +107,7 @@ POST /v1/follows
 
 WebSocket/push for real-time: `WS /feed/updates` → `{ type:"new_post", postId:"pst_789" }` (optional v2).
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client (Mobile/Web)
@@ -153,7 +153,7 @@ graph LR
 
 **Read flow (feed):** `GET /feed?cursor=` → Timeline Service: fetch `inbox[userId]` slice (e.g., 100 ids) from Redis/Cassandra → pull recent posts of celebrity followees (parallel `GET /posts?authorId=celebrity&since=...`) → merge → hydrate → Ranking Service scores → paginate by `(score, postId)` cursor → return.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (SQL, simplified):**
 ```sql
@@ -261,7 +261,7 @@ class CounterService:
 
 **Patterns:** Fan-out (pub/sub), CQRS (write vs read), Cache-Aside, Strategy (ranking), Observer (Kafka).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — hybrid fan-out
+## Deep dive — hybrid fan-out
 
 **Pure push (fan-out on write):** On `PostCreated`, push to **all** followers' inboxes. Pros: read is O(1) — just fetch inbox. Cons: celebrity with 50M followers → 50M cache writes, 50M replication, hours of lag, hot shard.
 
@@ -274,7 +274,7 @@ class CounterService:
 
 **Threshold tuning:** 10k is common; adjust so p99 write fan-out < 10k ops. Monitor Kafka lag.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — ranking and pagination
+## Deep dive — ranking and pagination
 
 **Don't rank the whole history.** Candidate set is small: inbox slice 100 + celebrity pulls ~50 per celebrity * few celebrities = few hundred. Rank that set, return top 20. Heavy ML (if used) runs only on candidates.
 
@@ -287,7 +287,7 @@ class CounterService:
 
 **Cursor pagination:** `OFFSET` is wrong for ranked feeds (new posts shift offsets). Use `(score, postId)` cursor. Client passes `cursor` of last seen item; server returns items with `score <= cursorScore` (and tie-breaker `postId`). Stable across inserts.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — celebrity and hot user handling
+## Deep dive — celebrity and hot user handling
 
 **50M follower write:** Hybrid avoids it. For the author's own timeline, store `author_outbox:{celebrityId} → list<postId>` in Redis/Cassandra (capped 1000). Readers pull from there. Replication: outbox is single key per celebrity, not 50M keys — O(1) write.
 
@@ -295,12 +295,12 @@ class CounterService:
 
 **Unfollow/block:** Push path leaves stale postIds in inbox. Fix by **lazy filter on read**: before ranking, filter `if authorId in blockedByReader or not is_following(reader, author) then drop`. Async cleaner removes from inbox via Kafka `UnfollowEvent`.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** `posts` sharded by `authorId` or `postId` hash; `feed_inbox` sharded by `userId` hash (so `GET /feed` hits one shard). Graph adjacency sharded by `followerId`.
 - **Caching:** [Redis](/system-design/redis) Cluster for inboxes (TTL + LRU), post hydrate cache (`post:{id} → JSON` 5m TTL). Celebrity outbox cached with replica.
@@ -308,7 +308,7 @@ class CounterService:
 - **Failure modes:** Fan-out consumer down → Kafka lag, feed appears stale but not lost — catch up on restart. Redis down → degrade to pull-only (fetch followees' recent posts directly from DB) — slower but available. Post Service down → writes fail, reads still serve cached feed.
 - **Hot partition:** single user with 1M followers crossing threshold — ensure Graph pagination + batched `ZADD` (pipeline 1k per batch) + backpressure if Redis overloaded.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Real-time updates:** `WS /feed/updates` pushes `new_post` count badge; client fetches next page when user pulls to refresh — don't push full feed over WS.
 2. **Counter service:** Likes via [Redis](/system-design/redis) `INCR post:{id}:likes` + async flush to `posts.like_count` every second; don't `COUNT(*)` on hot posts.

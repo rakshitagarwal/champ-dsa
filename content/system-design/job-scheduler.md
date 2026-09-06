@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Jobs Postgres me durable, workers poll/heartbeats, lease + ZK leader, retry with backoff, exactly-once via idempotent.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Design a distributed job scheduler: users register jobs to run once at a timestamp, on a cron expression, or with a delay (e.g., "email in 30 minutes"). Thousands of jobs fire per second across many workers that can crash or scale. Don't run the billing cron twice.
 
@@ -16,7 +16,7 @@ Design a distributed job scheduler: users register jobs to run once at a timesta
 - Retry, backoff, DLQ, and missed-tick policy
 - Thundering herd at `:00` and timezone correctness
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 | Category | Requirement |
 |---|---|
@@ -25,7 +25,7 @@ Design a distributed job scheduler: users register jobs to run once at a timesta
 | **Clarify** | Cron semantics: standard 5-field? Timezone per job? Missed-tick policy: catch-up or skip? Max payload size? Who runs the job — your workers or a webhook to caller? Job duration range (ms to hours)? |
 | **Out of scope v1** | Full DAG orchestrator (like Airflow), UI for visual DAG editor, per-job code deployment, distributed cron editor with RBAC. |
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Math | Result |
 |---|---|---|
@@ -38,7 +38,7 @@ Design a distributed job scheduler: users register jobs to run once at a timesta
 
 The bottleneck is **contention on the dispatch query**, not raw throughput.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -74,7 +74,7 @@ POST /api/v1/jobs
 
 Headers: `Idempotency-Key` on create; `X-Run-Id` on callbacks.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client / Admin UI
@@ -119,7 +119,7 @@ graph LR
 **Execution flow:**
 1. Worker consumes `runId` + payload → executes idempotent handler keyed by `runId` → callback. If worker dies, heartbeat lease expires and another worker retries after visibility timeout.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **DB Schema (Postgres):**
 ```sql
@@ -199,7 +199,7 @@ class RetryPolicy:
 
 **Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/system-design/zookeeper)/etcd).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — exactly-once is a lie (and what to do)
+## Deep dive — exactly-once is a lie (and what to do)
 
 You will **not** get exactly-once in a distributed system with failures — you get **at-least-once execution + idempotent handlers + dedup**. Concretely:
 1. **Dispatcher dedup:** `SKIP LOCKED` prevents double-enqueue; `run_id` UNIQUE prevents double-insert even if dispatcher retries.
@@ -207,20 +207,20 @@ You will **not** get exactly-once in a distributed system with failures — you 
 3. **Heartbeat / lease:** Worker updates `lease_expires_at` every 10s. If worker dies, dispatcher (or reaper) resets `status=PENDING` after `lease_expires_at < now()` and re-enqueues with `attempt+1`. Use visibility timeout in SQS / Kafka consumer timeout equivalently.
 4. **Do not** have 200 pods each running `if (minute===0) bill()` — that's the classic double-charge bug the interviewer wants you to name.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — missed ticks and hot midnight
+## Deep dive — missed ticks and hot midnight
 
 If the dispatcher was down 10 minutes, 500 jobs are overdue. Naively enqueueing all 500 at once + computing each next tick as `now()` causes drift. Correct behavior: for `SKIP` jobs, set `next_run_at = next tick after now()` and enqueue only one run; for `CATCH_UP` jobs, enqueue one run with a flag `wasMissed=true` and document it. For **hot `:00`**, pre-jitter on write: `next_run_at = cron_next + random(0, 5m)` or bucket jobs into 60 shards and stagger dispatcher ticks per shard. Mention timezones: store UTC, convert at scheduling edge, and warn about DST gaps (2am doesn't exist in some zones).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — delayed jobs and DAGs
+## Deep dive — delayed jobs and DAGs
 
 Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. Implementation options: SQS delay queue, [Redis](/system-design/redis) sorted set `ZADD jobs:delayed <run_at> <jobId>` with a poller `ZRANGEBYSCORE ... LIMIT 100`, or [Kafka](/system-design/kafka) with delayed topic + scheduler. For DAGs (Airflow-style), add `job_dependencies(job_id, depends_on_job_id, depends_on_run_status)` and only enqueue when parents succeeded; a DAG scheduler topologically checks readiness after each parent callback.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 | Failure | Handling |
 |---|---|
@@ -232,7 +232,7 @@ Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. I
 | **Poison pill (always fails)** | After `maxRetries`, route to DLQ; alert on DLQ depth; manual replay endpoint. |
 | **Scale** | Add dispatcher replicas (SKIP LOCKED scales linearly to ~10). Partition queues; autoscale workers per queue depth. Archive old `job_runs` to S3/cold store. |
 
-## Aur kya puch sakte hain? (Extra probes — Hinglish)
+## Extra probes / follow-ups
 
 1. DAG of jobs (Airflow) — `dependencies` table; don't start B until A succeeded; support fan-in/fan-out.
 2. Delayed messages — SQS delay / Redis sorted set / Kafka delayed publish.

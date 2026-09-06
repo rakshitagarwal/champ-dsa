@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Check, MapPin, Zap } from "lucide-react";
+import { Lightbulb, MapPin, Zap } from "lucide-react";
 import { SD_GROUPS } from "@/data/system-design/catalog";
 import type { SdDocumentMeta, SdGroupId } from "@/types/system-design";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ type Props = {
 
 const GROUP_ICON: Record<Exclude<SdGroupId, "intro">, typeof Zap> = {
   tech: Zap,
+  concepts: Lightbulb,
   questions: MapPin,
 };
 
@@ -56,24 +57,23 @@ export function SdSidebar({ docs, className }: Props) {
                     : "relative ml-2 space-y-0.5 border-l border-border/80 pl-3",
                 )}
               >
-                {items.map((doc) => {
+                {items.map((doc, idx) => {
                   const href = `/system-design/${doc.slug}`;
                   const active = pathname === href;
+                  const num = String(idx + 1).padStart(2, "0");
                   return (
                     <li key={doc.slug} className="relative">
-                      {group.id !== "intro" ? (
-                        <span
-                          className={cn(
-                            "absolute -left-[19px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-background",
-                            active
-                              ? "border-primary text-primary"
-                              : "border-muted-foreground/40 text-muted-foreground/70",
-                          )}
-                          aria-hidden
-                        >
-                          <Check className="h-2 w-2" strokeWidth={3} />
-                        </span>
-                      ) : null}
+                      <span
+                        className={cn(
+                          "absolute -left-[19px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-background text-[9px] font-mono tabular-nums",
+                          active
+                            ? "border-primary text-primary"
+                            : "border-muted-foreground/30 text-muted-foreground/70",
+                        )}
+                        aria-hidden
+                      >
+                        {num}
+                      </span>
                       <Link
                         href={href}
                         title={doc.title}

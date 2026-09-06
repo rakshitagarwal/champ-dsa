@@ -6,7 +6,7 @@
 
 Redis single-threaded hai (per instance), simple protocol bolta hai. Same datacenter me reads/writes ~1ms. Data RAM me, optional snapshot/AOF disk pe. Persistence nahi to process marega to cache khali. DB ko hamesha answer dena aana chahiye — socho `Redis = tez yaad-dasht, Postgres = permanent diary`.
 
-## Kab use karna hai?
+## When you pick it
 
 1. Garam keys jo Postgres ko pighla dengi (session, feed page 1, short URL lookup) — *socho 50k QPS same key*
 2. Counters aur sliding windows [rate limiting](/system-design/rate-limiter) ke liye
@@ -16,7 +16,7 @@ Redis single-threaded hai (per instance), simple protocol bolta hai. Same datace
 
 **Mat dalo:** user ke bade blobs, full search, ya saalon ka analytics. RAM mehengi hai, eviction surprise dega.
 
-## Patterns jo har design me aate hain
+## Patterns that show up in designs
 
 **Cache-aside (lazy loading) — default yahi banao.** App Redis dekhe, miss → DB → `SET` with TTL. Write ke baad key delete/update. Sabse safe.
 
@@ -38,7 +38,7 @@ graph LR
     C -->|DEL k| B
 ```
 
-## Kaunse data structures naam lene hain?
+## Data structures you should name
 
 1. **String** — JSON blob, session token, short URL
 2. **Hash** — object ke fields bina pura blob rewrite kiye
@@ -46,7 +46,7 @@ graph LR
 4. **List** — simple queue (interview ke liye OK, bada backlog nahi)
 5. **HyperLogLog** — unique counts thoda error ke saath (views)
 
-## Failure modes — interview me zarur bolo
+## Failure modes to mention
 
 1. **Eviction** (`allkeys-lru`) — Redis ko maybe-empty samjho
 2. **Failover** — replica promote, kuch second stale/lost writes

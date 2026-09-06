@@ -6,7 +6,7 @@
 
 Data nahi, **coordination** ke liye. 3-5 nodes ka ensemble, `2F+1` me se `F+1` quorum pe write. Strong consistent (CP).
 
-## Kaise kaam — Hinglish me
+## How it works
 
 **ZNode:** file jaisa, path `/election/candidate-0001`. Types:
 - **Persistent** — permanent
@@ -26,7 +26,7 @@ graph LR
     D -->|watch n_0001| A
 ```
 
-## 3 use-cases interview me bolo
+## How to answer in interview
 
 1. **Leader election:** ` /election` me sequential ephemeral banao, sabse chhota leader. Dead to next.
 2. **Lock:** `/locks/my-lock` me `lock-0001` banao, smallest hold kare, baaki watch.

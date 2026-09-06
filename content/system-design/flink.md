@@ -6,7 +6,7 @@
 
 Kafka log hai, Flink us log pe **stateful** kaam karta hai — count, join, session. Batch nahi, continuous.
 
-## Kab chahiye?
+## When you pick it
 
 - Ad clicks count per minute, YouTube Top-K per hour, fraud detection real-time
 - Late events — mobile offline, 5 min late aaya to kya?
@@ -14,7 +14,7 @@ Kafka log hai, Flink us log pe **stateful** kaam karta hai — count, join, sess
 
 **Mat lo:** simple ETL ya hourly batch — Spark/Batch kaafi.
 
-## 4 cheezein Hinglish me
+## How it works
 
 **1. Windows:** `Tumbling` (har 1 min alag), `Sliding` (har 30 sec, 1 min window), `Session` (gap pe). Window ke end pe emit.
 

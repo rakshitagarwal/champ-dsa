@@ -38,21 +38,30 @@ export function DsaPatternsSidebar({ notes, className }: Props) {
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3 scrollbar-hide">
         <ul className="space-y-0.5">
-          {notes.map((note) => {
+          {notes.map((note, idx) => {
             const href = `/patterns/${note.slug}`;
             const active = pathname === href;
+            const num = String(idx + 1).padStart(2, "0");
             return (
               <li key={note.slug}>
                 <Link
                   href={href}
                   className={cn(
-                    "block truncate rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-2 truncate rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-primary/15 text-primary"
                       : "text-foreground hover:bg-accent/50",
                   )}
                 >
-                  {note.title}
+                  <span
+                    className={cn(
+                      "min-w-6 text-xs font-mono tabular-nums",
+                      active ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {num}
+                  </span>
+                  <span className="truncate">{note.title}</span>
                 </Link>
               </li>
             );

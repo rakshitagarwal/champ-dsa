@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Order aaya → geo-search se paas ke couriers dhoondo (Redis GEO / geohash), ETA nikalo, assignment CAS se lock karo.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 **Scenario:** "Design DoorDash — customer places an order, nearby courier picks it up from a store, drops it at the house. Track the bag on a map."
 
@@ -16,7 +16,7 @@
 
 **Example scale:** City with 50k couriers, 200k orders/day. Peak hour 30k orders/hour (~8/s city-wide, 200/s nationally). Each courier pings location every 3s → ~16k location QPS per city.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Customer: place order `{ storeId, items, dropoff, payment }`, track status, see courier live location + ETA, rate delivery.
@@ -45,7 +45,7 @@
 - Route optimization for batched orders (mention as v2).
 - Advanced fraud / promo abuse system beyond rate limiting.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -59,7 +59,7 @@
 
 **Insight:** order QPS is modest — DB handles it. Location QPS is high but ephemeral — keep out of Postgres, use [Redis](/system-design/redis) GEO.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -107,7 +107,7 @@ WS /v1/orders/ord_789/track
 ← { "type": "status", "status": "picked_up", "at": "2026-08-25T10:05:00Z" }
 ```
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Customer App  Courier App  Store App
@@ -154,7 +154,7 @@ graph LR
 
 **Read flow (track):** Customer opens `WS /orders/{id}/track` → gateway subscribes to `order:{id}` channel → receives location updates from Redis pub/sub + status changes from Order Service → renders map with ETA.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (Postgres):**
 ```sql
@@ -261,7 +261,7 @@ class WebSocketGateway:
 
 **Patterns:** State Machine, Optimistic Locking (CAS), Pub/Sub (WS), Strategy (ranking), Circuit Breaker (Maps API).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — matching without double-assign
+## Deep dive — matching without double-assign
 
 **Race:** Two customers 500m apart, one idle courier between them. Both dispatches query `GEORADIUS`, both see same courier, both offer. Courier could accept both if not guarded.
 
@@ -272,7 +272,7 @@ class WebSocketGateway:
 
 **Peak handling:** City partitioned by dispatch shard (by `geohash[0:2]` or `city_id`) so NYC dispatcher doesn't contend with SF. Use Kafka partitioned by `store geohash` for order creation events.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — live location and ETA
+## Deep dive — live location and ETA
 
 **Why not Postgres per ping?** 16k writes/s per city would saturate DB and be pointless — location is ephemeral. Keep in [Redis](/system-design/redis) GEO + `courier:{id} → last point` with TTL 30s (if no ping, mark offline). WebSocket gateway subscribes to `courier:{id}` channel via Redis pub/sub.
 
@@ -280,7 +280,7 @@ class WebSocketGateway:
 
 **Battery trick:** Courier app adaptively pings: 2s when dispatched/picked_up, 5s when idle, 10s when offline. Server drops pings with `accuracy > 100m`.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — order state machine durability
+## Deep dive — order state machine durability
 
 **State machine:** `created → dispatched → picked_up → delivered` (plus `cancelled` from `created/dispatched`). Each transition is a **transaction**:
 ```sql
@@ -291,12 +291,12 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 
 **Store prep vs dispatch timing:** Don't dispatch courier immediately if food needs 20m. Compute `dispatch_at = now() + max(0, prep_time - eta_courier_to_store - 2m)` and delay Kafka message (delayed queue) so courier arrives just as food is ready.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** Shard `orders` by `city_id` or `geohash` prefix; dispatch and location services per-city. Courier state in city-local Redis.
 - **Replication:** Postgres primary per shard + read replicas for order history; writes to primary only. Redis Cluster with replicas; persistence AOF for offers.
@@ -305,7 +305,7 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 - **Overflow:** If no courier in 6km within 2m, notify customer "high demand, ETA longer" and keep retrying with exponential widening. Surge pricing signal to lure couriers.
 - **Payments:** capture on `delivered` (auth on `created`, capture later via [payment-system](/system-design/payment-system)); handle refunds via idempotent `captureId`.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Batching:** If they ask "2 orders per courier," introduce `courier_capacity=2`, queue orders by dropoff proximity, TSP-ish route optimization.
 2. **Proof of delivery:** photo upload → S3 via pre-signed URL, attached to `orders.proof_url`.

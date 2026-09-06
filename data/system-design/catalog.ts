@@ -3,6 +3,7 @@ import type { SdDocumentMeta, SdGroup } from "@/types/system-design";
 export const SD_GROUPS: SdGroup[] = [
   { id: "intro", title: "Start here" },
   { id: "tech", title: "Key Technologies" },
+  { id: "concepts", title: "Key Concepts" },
   { id: "questions", title: "Question Breakdowns" },
 ];
 
@@ -77,6 +78,195 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Coordination: leader election, distributed locks, and config. Kafka used to need it; you still should know it.",
     group: "tech",
+  },
+  {
+    slug: "websocket",
+    title: "WebSocket",
+    description:
+      "Persistent 2-way pipe — handshake, fleet sharding, and catch-up on reconnect.",
+    group: "tech",
+  },
+  {
+    slug: "cap-theorem",
+    title: "CAP Theorem",
+    description:
+      "Consistency vs availability during partitions, and PACELC for normal latency.",
+    group: "concepts",
+  },
+  {
+    slug: "pacelc",
+    title: "PACELC",
+    description:
+      "CAP ka bada bhai — partition me CA, else me Latency vs Consistency.",
+    group: "concepts",
+  },
+  {
+    slug: "consistent-hashing",
+    title: "Consistent Hashing",
+    description:
+      "Ring, virtual nodes, and minimal moves on scale — the core of caches and shards.",
+    group: "concepts",
+  },
+  {
+    slug: "sharding",
+    title: "Sharding",
+    description:
+      "Split one DB into N — hash, range, geo, and the cross-shard pain.",
+    group: "concepts",
+  },
+  {
+    slug: "partitioning",
+    title: "Partitioning",
+    description:
+      "Divide data by key — range vs hash vs geo, and hot partition fix.",
+    group: "concepts",
+  },
+  {
+    slug: "replication",
+    title: "Replication",
+    description:
+      "Copy data to many nodes — leader-follower, quorum, and lag trade-offs.",
+    group: "concepts",
+  },
+  {
+    slug: "quorum",
+    title: "Quorum",
+    description:
+      "R+W>N for strong read — tunable consistency with W and R.",
+    group: "concepts",
+  },
+  {
+    slug: "bloom-filter",
+    title: "Bloom Filter",
+    description:
+      "Probabilistic set — No is definite, Yes is maybe — guard DB at 1% false positive.",
+    group: "concepts",
+  },
+  {
+    slug: "caching-strategies",
+    title: "Caching Strategies",
+    description:
+      "Cache-aside, write-through, write-behind, and TTL + invalidation.",
+    group: "concepts",
+  },
+  {
+    slug: "database-indexing",
+    title: "Database Indexing",
+    description:
+      "B-tree, LSM, hash — how indexes make reads fast and writes slower.",
+    group: "concepts",
+  },
+  {
+    slug: "thundering-herd",
+    title: "Thundering Herd",
+    description:
+      "Stampede on expiry — singleflight, jitter, and stale-while-revalidate.",
+    group: "concepts",
+  },
+  {
+    slug: "circuit-breaker",
+    title: "Circuit Breaker",
+    description:
+      "Fail fast when downstream is down — open, half-open, close states.",
+    group: "concepts",
+  },
+  {
+    slug: "leader-election",
+    title: "Leader Election",
+    description:
+      "Pick one leader — ZooKeeper, Raft, and lease with fencing.",
+    group: "concepts",
+  },
+  {
+    slug: "idempotency",
+    title: "Idempotency",
+    description:
+      "Same request twice gives same result — keys, dedup, and exactly-once.",
+    group: "concepts",
+  },
+  {
+    slug: "backpressure",
+    title: "Backpressure",
+    description:
+      "Consumer slow to producer ko slow karo — queue, drop, or throttle.",
+    group: "concepts",
+  },
+  {
+    slug: "vector-clocks",
+    title: "Vector Clocks",
+    description:
+      "Track causality without global clock — Dynamo and CRDTs use it.",
+    group: "concepts",
+  },
+  {
+    slug: "eventual-consistency",
+    title: "Eventual Consistency",
+    description:
+      "Writes propagate async — read may be stale, but converges.",
+    group: "concepts",
+  },
+  {
+    slug: "long-polling",
+    title: "Long Polling vs SSE vs WebSocket",
+    description:
+      "Push models — polling waste, SSE one-way, WebSocket two-way.",
+    group: "concepts",
+  },
+  {
+    slug: "service-discovery",
+    title: "Service Discovery",
+    description:
+      "Find healthy instances — DNS, registry, and health checks.",
+    group: "concepts",
+  },
+  {
+    slug: "gossip-protocol",
+    title: "Gossip Protocol",
+    description:
+      "Epidemic spread for membership and failure detection — Cassandra uses it.",
+    group: "concepts",
+  },
+  {
+    slug: "horizontal-scaling",
+    title: "Horizontal vs Vertical Scaling",
+    description:
+      "Scale up vs scale out — when to add bigger box vs more boxes.",
+    group: "concepts",
+  },
+  {
+    slug: "acid-vs-base",
+    title: "ACID vs BASE",
+    description:
+      "Strong vs eventual — transactions, availability, and soft-state trade-offs.",
+    group: "concepts",
+  },
+  {
+    slug: "microservices",
+    title: "Microservices vs Monolith",
+    description:
+      "One deploy vs many services — trade-offs, boundaries, and comms.",
+    group: "concepts",
+  },
+  {
+    slug: "api-paradigms",
+    title: "REST vs GraphQL vs gRPC",
+    description:
+      "API styles — resource vs query vs streaming, and when to pick which.",
+    group: "concepts",
+  },
+  {
+    slug: "message-queue",
+    title: "Message Queue",
+    description:
+      "Decouple with queues — SQS, RabbitMQ, Kafka, and backpressure handling.",
+    group: "concepts",
+  },
+  {
+    slug: "observability",
+    title: "Observability",
+    description:
+      "Logs, metrics, traces — see inside, alert, and debug at scale.",
+    group: "concepts",
   },
 
   {

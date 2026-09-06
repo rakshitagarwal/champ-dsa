@@ -6,7 +6,7 @@
 
 Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **Sort Key (SK)** optional — andar range query (`PK=userId, SK=ts`).
 
-## Kab lena hai?
+## When you pick it
 
 - Key-value lookups 10k-100k QPS, auto-scale chahiye, ops nahi karna
 - Serverless — Lambda + Dynamo
@@ -14,7 +14,7 @@ Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **So
 
 **Mat lo:** heavy joins, ad-hoc analytics — wahan [PostgreSQL](/system-design/postgresql).
 
-## Important cheezein — Hinglish me
+## Important points
 
 **Hash vs Range:** PK sirf = point query. PK+SK = `userId` ke saare items time order me, `begins_with`, `between`.
 

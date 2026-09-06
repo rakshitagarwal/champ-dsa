@@ -6,7 +6,7 @@
 
 Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai, peeche 20 services hain pata nahi. Gateway L7 (HTTP) pe kaam karta hai, Load Balancer L4 (TCP) pe. Dono saath rehte hain: LB → Gateway → Services.
 
-## Kya karta hai? (Checklist bolo)
+## What it does
 
 - **TLS terminate** — HTTPS yahan khatam, andar plain HTTP
 - **Auth** — JWT verify, `userId` header aage bhejo
@@ -15,7 +15,7 @@ Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai,
 - **Validation** — schema check, size limit
 - **Observability** — request ID inject, logs/metrics
 
-## Kya nahi karna?
+## What not to do
 
 Business rules, DB queries, heavy compute — gateway ko halka rakho warna har request yahi atke. Fat gateway = SPOF.
 
@@ -31,7 +31,7 @@ graph LR
     C -->|WS upgrade| G[Chat Fleet]
 ```
 
-## Failure — interview me bolo
+## Failure modes to mention
 
 - **SPOF:** Gateway gira to sab gira — multi-AZ, 3+ replicas, health check, circuit breaker.
 - **Timeouts:** downstream slow to gateway queue full → 504, retry with backoff, idempotent.

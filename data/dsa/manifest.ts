@@ -8,17 +8,18 @@ export type DsaNoteMeta = {
 };
 
 export const DSA_CATALOG: DsaNoteMeta[] = [
-  {
-    slug: "hashing",
-    title: "Hashing",
-    description: "Remember what you already walked past.",
-    tier: "core",
-  },
+  // Roadmap order: Foundation -> Core -> Advanced (easy to hard)
   {
     slug: "arrays-strings",
     title: "Arrays",
     description: "In-place scans, reverse, rotate, Kadane.",
     tier: "foundation",
+  },
+  {
+    slug: "hashing",
+    title: "Hashing",
+    description: "Remember what you already walked past.",
+    tier: "core",
   },
   {
     slug: "prefix-sum",
@@ -83,7 +84,7 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "graphs",
     title: "Graphs",
-    description: "Visit neighbors. BFS for steps, DFS for components.",
+    description: "Visit neighbors. BFS for steps, DFS for components. Topo, Dijkstra, Floyd.",
     tier: "core",
   },
   {

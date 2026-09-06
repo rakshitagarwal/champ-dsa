@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Flash sale me inventory Postgres me `FOR UPDATE` se lock, 10 min hold TTL, waiting room queue se spike absorb, shard by eventId.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 **Scenario:** "Design Ticketmaster — on-sale at 10:00. 50k people, 5k seats. Hold a seat for 10 minutes while checkout finishes. No oversell."
 
@@ -16,7 +16,7 @@
 
 **Example scale:** 10k events, avg 5k seats each = 50M seat rows. Hot event: 50k concurrent users at on-sale second, 10k holds/s attempted, 500 checkouts/s. Reads (browse) 100k QPS, writes (hold/checkout) 10k QPS burst for 5 minutes.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Browse events, venues, seat map (availability view).
@@ -45,7 +45,7 @@
 - Secondary marketplace matching engine.
 - Full venue 3D map rendering (client concern).
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
@@ -58,7 +58,7 @@
 
 **Key insight:** total data size is modest; contention on `event_id` hot rows is the killer. Shard and queue to serialize access.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -107,7 +107,7 @@ Cache-Control: public, max-age=5
 ETag: "rev-1234"
 ```
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client (Web/Mobile)
@@ -153,7 +153,7 @@ graph LR
 
 **Checkout flow:** `POST /checkout{holdId}` → validate hold not expired + owned by user → authorize payment (idempotent) → in one transaction: `UPDATE seats SET status='sold' WHERE hold_id=:hid AND status='held'` + insert `orders`/`tickets` → capture payment → return tickets. If payment fails → release hold.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (Postgres, sharded by `event_id`):**
 ```sql
@@ -285,7 +285,7 @@ class ExpiryWorker:
 
 **Patterns:** State Machine (seat/hold), Optimistic/Pessimistic Locking, Token Bucket (waiting room), Saga-ish (payment + inventory), Idempotency Key.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — holds and expiry
+## Deep dive — holds and expiry
 
 **Hold is not sold.** Three states matter: `free → held (TTL) → sold`. The transition `held → sold` must be **one transaction** checking `hold_until > now()`. If two checkouts race for same hold (retry), only one `UPDATE ... WHERE status='held'` succeeds — the other gets `0 rows updated` → `409`.
 
@@ -295,7 +295,7 @@ class ExpiryWorker:
 
 **Expiry worker:** don't rely solely on Redis TTL. DB sweeper is authoritative. Use `SKIP LOCKED` to parallelize sweeper across shards. On read, also lazy-free: `if seat.status=='held' and seat.hold_until < now(): treat as free`.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — waiting room and fairness
+## Deep dive — waiting room and fairness
 
 **Why queue?** Without it, 50k connections hit Postgres at 10:00:00 — connection pool exhausted, timeouts, retries amplify. Queue absorbs spike and admits controlled QPS (e.g., 500 holds/s) so DB stays healthy.
 
@@ -303,7 +303,7 @@ class ExpiryWorker:
 
 **Fairness:** FIFO is perceived fair but bots that poll fastest win. Lottery (random shuffle at on-sale) is fairer for hype drops — mention both and ask interviewer preference. Add CAPTCHA/device attestation + [rate limiter](/system-design/rate-limiter) (10 `POST /holds`/min per user) to damp bots.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — sharding and read scaling
+## Deep dive — sharding and read scaling
 
 **Shard by `event_id`:** One hot event (Taylor Swift) hashes to one shard — that's desired. All seats/holds/orders for that event co-located, so transactions stay local. Shard count ≈ `num_events / shard_capacity` (e.g., 10 shards). Consistent hashing for growth.
 
@@ -311,12 +311,12 @@ class ExpiryWorker:
 
 **Payment idempotency:** Store `idempotency_key` unique per checkout attempt. On retry, return existing `orderId` if key seen. Authorize before DB commit, capture after. If capture fails after DB sold, run reconciler: refund or mark `payment_pending` and retry.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **DB failover:** per-shard primary + sync replica; failover via automated proxy. During failover, holds may 503 — clients retry with backoff; waiting room holds admission.
 - **Redis loss:** if fast-hold cache lost, DB still correct — just more misses. Rebuild from `seats WHERE status='held'`.
@@ -325,7 +325,7 @@ class ExpiryWorker:
 - **Replication lag:** catalog replicas may lag 1-2s — acceptable for browsing; inventory writes always to primary.
 - **Ticket delivery:** barcodes are signed JWTs `sign(eventId+seatId+orderId+secret)`; rotation on scan via `tickets.status`. Store QR in S3/CDN.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Transfers / resale:** Transfer creates new `hold` for recipient, invalidates old barcode (`tickets.status='transferred'`), issues new signed barcode.
 2. **Waitlist:** When `sold out`, enqueue `waitlist(eventId, userId)` in Redis; on hold expiry, auto-offer to waitlist head via push.

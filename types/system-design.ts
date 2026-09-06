@@ -1,4 +1,4 @@
-export type SdGroupId = "intro" | "tech" | "questions";
+export type SdGroupId = "intro" | "tech" | "concepts" | "questions";
 
 export type SdDocumentMeta = {
   slug: string;

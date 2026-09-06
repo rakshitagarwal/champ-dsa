@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** ES geo_point + text + rating, distance decay ranking, autocomplete separate index, hot cities cache.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 "Design Yelp / Google Maps local search." Interviewer says: "Pizza near me, open now, 4+ stars." They expect a map with pins + a list. Clicking a pin opens a business detail page with hours, photos, and reviews.
 
@@ -12,7 +12,7 @@ What they really test: can you marry **full-text search** ("pizza", "vegan sushi
 
 Example scale to anchor: 30M businesses worldwide, 200M reviews, 50M photos. US read-heavy: ~80k search QPS globally (peak-hour burst ~200k), ~10k review writes/day per large city. Assume 5% of searches include `openNow`.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Search businesses by text query + location: `q` (free text on name, categories, attributes), `lat/lng` + `radius` or `bounds` (map viewport), pagination with `cursor` or `offset`.
@@ -44,7 +44,7 @@ Example scale to anchor: 30M businesses worldwide, 200M reviews, 50M photos. US 
 - Full social graph / follow feed.
 - ML personalization beyond simple popularity + distance.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Quantity | Assumption | Math | Result |
 |---|---|---|---|
@@ -61,7 +61,7 @@ Example scale to anchor: 30M businesses worldwide, 200M reviews, 50M photos. US 
 
 Reasoning: search is list+light metadata only, so responses stay small. Photos dominate bandwidth but are CDN-cacheable. Postgres size is modest for 30M rows; the hard part is the geo+text index, not the OLTP store.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 **Search businesses**
 ```http
@@ -110,7 +110,7 @@ GET  /v1/suggest?q=piz  -> { "suggestions": ["pizza","pizza near me","Pizzeria D
 
 Errors: `400` bad filter, `404` business not found, `409` duplicate idempotency key, `429` rate-limited (spam).
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 [ Mobile / Web ] 
@@ -161,7 +161,7 @@ graph LR
 
 **Read path (business page):** CDN (photo) + Redis `biz:{id}` → Postgres replica on miss. Reviews paginated separately to keep page cache small.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema (Postgres):**
 ```sql
@@ -256,7 +256,7 @@ class ReviewService {
 
 **Design patterns:** Cache-Aside (Redis), CQRS-lite (Postgres write → ES read), Outbox/CDC for indexing, Idempotency-Key, Decorator for photo variants.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — geo + text together
+## Deep dive — geo + text together
 
 **Problem:** pure geo filter in SQL is fast but forgets text ranking; pure text ranks a famous "Pizza Hut" 2000 km away above the shop next door. You need both.
 
@@ -275,11 +275,11 @@ class ReviewService {
 
 Say: "Filter the map viewport (≤5km box), then rank. That keeps latency bounded."
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — open-now and hours
+## Deep dive — open-now and hours
 
 Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timezones. Two practical options: (1) denormalize **today's open intervals in UTC for the next 48h** into the index at index time and filter with a `range` on `open_intervals`; (2) fetch a slightly larger candidate set (e.g. top 100) and post-filter `isOpenNow()` in the service using `hours_json` + business timezone — simpler to explain, slightly less efficient. Recommend (1) for production, (2) for interview brevity. Mention both and pick one. Also note holiday overrides via `business_hours_override`.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — hot tiles, autocomplete, and spam
+## Deep dive — hot tiles, autocomplete, and spam
 
 **Hot tiles:** "coffee" in downtown SF with the same bbox hits thousands of times per second. Cache `q+geohash+filters` in Redis with 30-60s TTL + singleflight on miss so only one request fans out to ES. Use a `geohash5` (~5 km cell) so nearby but not identical viewports share the cache via rounding.
 
@@ -287,12 +287,12 @@ Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timez
 
 **Spam reviews:** rate-limit `POST /reviews` per user/IP, require `idempotencyKey`, async moderation queue (text classifier + manual review), shadow-hide flagged reviews from ES/search but keep them visible to the author until resolved.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **ES down:** degrade to Postgres geo query (`ST_DWithin` via PostGIS) for a narrow radius + simple `ILIKE` on name/category, with a banner "results may be incomplete". Don't fail search entirely.
 - **Postgres primary down:** promote replica; review writes queue in Kafka for replay. Search stays up via ES + Redis.
@@ -302,7 +302,7 @@ Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timez
 - **Probing / SLOs:** p95 search latency alert >250 ms, ES JVM heap >80%, indexer lag (Kafka consumer lag) >10s, photo moderation queue depth.
 - **Failure modes:** double-review deduped by idempotency key; indexer DLQ + replay; clock skew handled by using server time for `openNow`.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Sponsored ranking:** blend a separate `sponsored` slot with `isAd:true` label; score = `bid * relevance`; never mix into organic ranking — say "ads are a second list merged at the top".
 2. **Price / attribute facets:** ES aggregations (`terms` on categories, `range` on price) for the left filter panel; compute from the same ES query.

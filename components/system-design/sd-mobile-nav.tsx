@@ -19,9 +19,10 @@ export function SdMobileNav({ docs, className }: Props) {
       {SD_GROUPS.flatMap((group) =>
         docs
           .filter((d) => d.group === group.id)
-          .map((doc) => {
+          .map((doc, idx) => {
             const href = `/system-design/${doc.slug}`;
             const active = pathname === href;
+            const num = String(idx + 1).padStart(2, "0");
             return (
               <Link
                 key={doc.slug}
@@ -33,7 +34,7 @@ export function SdMobileNav({ docs, className }: Props) {
                     : "bg-muted text-muted-foreground",
                 )}
               >
-                {doc.title}
+                {num}. {doc.title}
               </Link>
             );
           }),

@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Matchmaking queue, game room per match (state in Redis), clock sync WebSocket, move validation server pe, anti-cheat.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Interviewer: *"Design online chess — pair two players, validate moves, run clocks, handle disconnects and spectators. Think Lichess/Chess.com at scale."*
 
@@ -16,7 +16,7 @@ What they really test:
 
 Example scale: 1M DAU, 100k concurrent games, 20k seeking at peak, 2 moves/sec per game avg → 200k moves/sec cluster. Game history kept forever (PGN), spectators 10× players on featured games.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - **Matchmaking:** `seek` with `timeControl` (bullet 1+0, blitz 5+0, rapid 10+0), rating range, color preference; queue, pair, create game.
@@ -47,7 +47,7 @@ Example scale: 1M DAU, 100k concurrent games, 20k seeking at peak, 2 moves/sec p
 - Variants (960, bughouse) — defer.
 - Full anti-cheat engine clustering — flagging only.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -61,7 +61,7 @@ Example scale: 1M DAU, 100k concurrent games, 20k seeking at peak, 2 moves/sec p
 
 Throughput is low, latency and correctness are king — keep game state in memory, persist moves asynchronously but durably.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 ```http
 POST /v1/seeks
@@ -110,7 +110,7 @@ POST /v1/games/{gameId}/abort // before 2 moves, no rating change
 
 **Clock sync:** Client shows countdown based on `serverTime + clocks` and its own elapsed; server periodically sends `clockSync` to correct drift. Client `lagMs` reported is informational only — server subtracts its own `now - lastMoveAt`.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 [Browser/Mobile] ──HTTPS/WS──▶ [CDN / Edge] ──▶ [API Gateway + Auth + Rate Limiter] ──▶ [Seek Service → Redis]
@@ -165,7 +165,7 @@ graph LR
 
 **Data flow — matchmaking:** P1 `POST /seeks 1500 5+0` → Redis `ZADD seeks:5+0 1500 seek_p1`; P2 `1520` → ticker sees neighbors `|1500-1520|=20 ≤ threshold` → pair → `game_abc` row + Redis `SET game_host:game_abc host3` → push `matched` to both via WS/long-poll.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema:**
 
@@ -257,22 +257,22 @@ AntiCheatFlagger    — flagIf: move time < 100ms for many moves + engine correl
 
 **Design patterns:** Actor per game (single writer), Event Sourcing (move log → replay), Pub/Sub (spectator fan-out), Strategy (time controls), State Machine (game status).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Authority, cheat, and why client is dumb
+## Deep dive — Authority, cheat, and why client is dumb
 
 If client could say "I captured your king," the game is meaningless. Server runs the rules. Attack vectors: (1) send illegal `uci` — server rejects with `illegal`; (2) send `move` for opponent's turn — reject; (3) spoof clock — server ignores client timestamp; (4) spam moves — [rate limiter](/system-design/rate-limiter) per socket (10/sec). Engine abuse: stockfish-level accuracy in bullet is suspicious — flag for human review (don't build real-time engine detection; mention you would compare move match % vs engine top-3 over last 20 moves and flag if >95% at <2s/move). Packet replay: `clientSeq` dedup. Spectator cheat (helping player): not solvable technically — mention but defer.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Disconnects, persistence, and fair pairing
+## Deep dive — Disconnects, persistence, and fair pairing
 
 **Disconnect policy (say it explicitly):** Rated: clock keeps running, 30s grace to reconnect (WebSocket reconnect with same `gameId` + token) — if not back, flag loss when clock hits zero; no auto-draw. Casual: pause 60s or offer abort if <2 moves. Persistence: move list is the log; snapshot every 10 ply updates `games.fen` so reconnect `GET /games/{id}` is instant without replaying full game. Refresh = `GET snapshot` + `WS resubscribe` — server sends current FEN+clocks, client renders. On severed WS, game state stays in memory + durable log — no loss.
 
 **Fair pairing:** Don't match 400 vs 2200 unless the 400 waited 2 minutes and threshold widened. Implementation: Redis `ZRANGE` neighbors within threshold sorted by rating distance × wait weight `score = |r - seekRating| - waitSec*10` minimize. Timeout: if no pair in 60s, offer bot or widen further (product choice). Separate pools per `timeControl` avoids 1+0 bullet player waiting behind 30+0 rapid queue.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** Game servers sharded by `gameId` hash (e.g., 50 hosts × 2k games each). Matchmaking shards by `timeControl` (each pool independent). [Kafka](/system-design/kafka) `game.moves` partitioned by `gameId` to preserve order per game.
 - **Caching:** Game state in memory is primary; [Redis](/system-design/redis) holds `game_host:{id}` routing + seek queues. No DB read per move — only validation + memory op + async persist. Snapshot in Postgres is for reconnect and history, not hot path.
@@ -285,7 +285,7 @@ If client could say "I captured your king," the game is meaningless. Server runs
   - *Illegal spam:* rate limit per socket, drop after 10 illegal in 10s → disconnect.
 - **Probes:** alert on game server memory per game, match wait P99, move validation latency, flag false-positive (clock negative), WS disconnect rate, rating update lag.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Tournaments:** Need [job scheduler](/system-design/job-scheduler) for round start times, Swiss pairing algorithm, broadcast of standings — separate service that creates games via same Game Server.
 2. **Puzzles:** Server-generated from game positions where one move is winning — async puzzle service, not in game path.

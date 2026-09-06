@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Agents → Kafka → Flink downsample → Cassandra/ClickHouse, alert on SLO, retention tiers.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Interviewer: *"Design a metrics platform — services emit CPU, latency, QPS; you store them, graph them, and page a human when `p99 latency > 300ms` for 5 minutes. Millions of series, cheap storage for a year."*
 
@@ -16,7 +16,7 @@ What they really test:
 
 Example scale: 5k hosts × 100 metrics/host × 1 sample/15s = 33k samples/sec. With labels (service, endpoint, status, AZ) → 2M active series. Query: 1k dashboards × refresh 30s. Keep 1 year — 1T samples → need compaction.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - **Ingest:** push (StatsD/Datadog agent) and pull (Prometheus scrape) — `metric name + labels/tags + timestamp → value`.
@@ -45,7 +45,7 @@ Example scale: 5k hosts × 100 metrics/host × 1 sample/15s = 33k samples/sec. W
 - ML anomaly detection — rule-based alerts v1.
 - Billing/metering per team — defer.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -61,7 +61,7 @@ Example scale: 5k hosts × 100 metrics/host × 1 sample/15s = 33k samples/sec. W
 
 Bandwidth dominated by scrape payload — compression (snappy) and delta-of-delta encoding.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 ```http
 // Ingest — push (Datadog style)
@@ -109,7 +109,7 @@ POST /api/v1/silences { "matchers":[{"name":"service","value":"api"}],"endsAt":"
 
 Scrape alternative: `GET /metrics` on each host (Prometheus pull) — agent exposes text exposition format; collector scrapes every 15s.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 [Hosts/Services] ── agents (StatsD/Prometheus exporter) ──┐
@@ -176,7 +176,7 @@ graph LR
 
 **Data flow — alert:** Rule `avg(latency{service=api}) > 300 for 5m` → Evaluator every 30s queries TSDB for last 5m → sees 4/5 samples above → state `pending`; 5th sample still above → `firing` → Alert Manager groups and pages PagerDuty via notification service.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Data model — TSDB internal (not plain SQL):**
 
@@ -256,20 +256,20 @@ DashboardService      — CRUD dashboards, render widget cache key = hash(query+
 
 **Design patterns:** Write-Behind (WAL + SSTable), Materialized Rollup (downsampling), Circuit Breaker on TSDB writers, Cache-Aside for dashboards, Observer (alerts).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Cardinality: how this design dies
+## Deep dive — Cardinality: how this design dies
 
 Unbounded tags are the #1 outage cause. Example anti-pattern: `http.requests{userId=12345}` — each user creates a new series, 10M users × 10 endpoints = 100M series, index explodes, query `avg(http.requests)` must scan 100M series. Rule of thumb: **metrics are for systems, logs/traces for entities**. Metrics labels should be low-cardinality (service, endpoint, status, AZ, version) — cardinality < 10k per metric. High-cardinality dimensions (userId, requestId, IP) belong in logs ([Elasticsearch](/system-design/elasticsearch)) or tracing (Jaeger) where per-event storage is expected, or as **exemplars** (sampled traceId attached to histogram bucket). At ingest, enforce `max_label_count=10`, `max_series_per_metric=100k`, and `deny_list=[userId, email]`. Provide a "cardinality explorer" dashboard showing top metrics by series count so teams self-correct. If a team truly needs per-user metrics, suggest **aggregation at agent** — emit `unique_users` as a gauge, not per-user counter.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Alert burn rate and grouping
+## Deep dive — Alert burn rate and grouping
 
 Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Better: **SLO burn rate**. Define SLI `request_success = status<500`, SLO `99.9% over 30d`. Error budget = 0.1%. Alert when `burnRate = (errors in 5m)/(budget per 5m) > 2` sustained. This pages only when you're eating budget fast. Implement as recording rule `job:errors:rate5m` + `job:requests:rate5m` evaluated continuously, stored as new series (like [Flink](/system-design/flink) derived metrics). Grouping: if 50 hosts fire `HostDown`, Alert Manager groups by `cluster` and sends one page with count, not 50. Inhibition: if `ClusterDown` fires, suppress `HostDown` children. Silencing: maintenance window mutes by matcher. All alerts go through [notification system](/system-design/notification-system) with priority so `page` vs `ticket` use separate channels/rate limits.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** Ingest shards by `hash(metric)` (e.g., 32 TSDB writers); query shards same hash so fan-out is minimal for single-metric dashboards. Time-based partitioning (2h blocks) lets you drop old raw blocks after downsampling.
 - **Caching:** Widget result cache in [Redis](/system-design/redis) `key=hash(metric+tags+step+from+to)` TTL 30s absorbs dashboard refresh thundering herd. Query engine also caches seriesId → posting list for 1 min.
@@ -282,7 +282,7 @@ Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Bett
   - *Alert evaluator lag:* if evaluator can't keep 30s cadence, alert `firing` delayed — monitor evaluator lag and alert on it (meta-alert).
 - **Probes:** scrape success rate, ingestion lag (Kafka lag), TSDB compaction lag, query latency P99, alert evaluation duration, cardinality per metric top-100.
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Prometheus vs Datadog:** Prometheus pulls, good for K8s service discovery; Datadog pushes, good for ephemeral lambdas. Say which you pick and why — either scores if justified.
 2. **Logs vs metrics vs traces:** When to use each — metrics for aggregates, logs for per-event debug, traces for request flow. Don't store `userId` in metrics.

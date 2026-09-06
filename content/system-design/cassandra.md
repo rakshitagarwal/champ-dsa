@@ -8,7 +8,7 @@ SQL me pehle tables normal karte ho. Cassandra me ulta — **query per table**. 
 
 Ring me nodes, har key `hash(key) % ring` pe ek node leader, 2 replicas.
 
-## Kab lena hai?
+## When you pick it
 
 - Boht zyada writes, time-series (chat messages, metrics, events) — 100k writes/sec
 - Key pe lookup — `chatId`, `userId`
@@ -16,7 +16,7 @@ Ring me nodes, har key `hash(key) % ring` pe ek node leader, 2 replicas.
 
 **Mat lo:** joins, ad-hoc search, transactions — wahan [PostgreSQL](/system-design/postgresql).
 
-## Kaise likhte hain — example
+## How it works
 
 ```sql
 -- Hinglish: chatId = partition, sent_at = clustering (order)
@@ -30,7 +30,7 @@ CREATE TABLE messages (
 -- Query: WHERE chat_id = ? AND sent_at < ? LIMIT 50  → ek partition se, tez
 ```
 
-## Deep dive — hot partition & quorum
+## Hot partition handling
 
 **Hot partition:** Ek celebrity chatId pe lakhon writes ek node pe. Fix: `chatId:shard` bucket (`chatId#1`, `chatId#2`) ya time bucket (`chatId:2026-08`).
 

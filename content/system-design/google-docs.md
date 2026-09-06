@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Ek doc ek server (consistent hash), OT/CRDT se merge, presence Redis, ops Kafka log + S3 snapshot, cursor sync.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Interviewer: *"Design Google Docs — 10 users type in the same document simultaneously, see each other's cursors, never lose edits, support offline and history. How do you handle conflicts?"*
 
@@ -16,7 +16,7 @@ What they really test:
 
 Example scale: 100M docs, 1M DAU, avg doc 50KB, 10 concurrent editors per hot doc, 1k ops/sec cluster-wide, op size ~50 bytes. 500 docs edited per second peak. History kept for 1 year — compaction matters.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Create doc, edit rich text (insert/delete/format), share with ACL (owner/editor/commenter/viewer), revoke.
@@ -46,7 +46,7 @@ Example scale: 100M docs, 1M DAU, avg doc 50KB, 10 concurrent editors per hot do
 - Grammar AI / explore — plug as async suggestion service.
 - Federation across organizations — single-tenant ACL.
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Parameter | Assumption | Math | Result |
 |---|---|---|---|
@@ -59,7 +59,7 @@ Example scale: 100M docs, 1M DAU, avg doc 50KB, 10 concurrent editors per hot do
 
 Bandwidth: ops are tiny; fan-out is N per op (N = collaborators on doc, usually <10). 100k ops/sec × 10 fan-out × 100B = 100MB/s egress — manageable if doc-affine.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 ```http
 POST /v1/docs
@@ -94,7 +94,7 @@ GET /v1/docs/{docId}/snapshot?revision=latest  // for reconnect gap
 
 All WS messages carry `docId` + `Authorization` on handshake; every op re-validates ACL (cached).
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 [Browser/Editor] ──HTTPS/WS──▶ [CDN / Edge] ──▶ [API Gateway + Auth] ──▶ [Doc Metadata Service → Postgres (docs, acl)]
@@ -147,7 +147,7 @@ graph LR
 
 **Data flow — read path (open doc):** `GET /docs/{id}` → Metadata Service checks ACL → returns `snapshotUrl` + `revision`. Client fetches S3 snapshot, then opens WS with `lastSeq=43` → server streams missed ops (or re-sends snapshot if gap > threshold). History `GET /history` reads opLog + snapshot index.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **Database schema:**
 
@@ -226,7 +226,7 @@ HistoryService      — getDiff(fromRev,toRev): replay ops between snapshots
 
 **Design patterns:** Single Writer per aggregate (doc-affine primary), Event Sourcing (op log + snapshot), Pub/Sub fan-out, Cache-Aside for ACL, Flyweight for presence.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Conflict handling (OT vs CRDT)
+## Deep dive — Conflict handling (OT vs CRDT)
 
 Last-write-wins on whole doc is the classic wrong answer — it clobbers concurrent edits (Alice inserts "X" at 5, Bob deletes line 2 — one change silently lost). Character-level merge is required.
 
@@ -236,7 +236,7 @@ Last-write-wins on whole doc is the classic wrong answer — it clobbers concurr
 
 Pick OT if you want Google Docs fidelity and can accept a single primary bottleneck; pick CRDT if you want simpler reasoning about offline. Say: *"I will place one primary per doc via consistent hashing; all ops serialize there under OT, or use CRDT for commutative merge — either converges, LWW on whole file does not."*
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Presence, history, and reconnect
+## Deep dive — Presence, history, and reconnect
 
 **Presence is not edits.** Cursors churn at 10Hz — don't write them to Postgres or Kafka. Keep them in-memory on the doc server plus [Redis](/system-design/redis) `SETEX doc:{id}:presence:{userId} '{cursor:15,color:red}' 30` and pub/sub fan-out. On disconnect, TTL expires and user fades from UI.
 
@@ -244,12 +244,12 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 
 **Reconnect:** Client stores `lastAckedSeq`. On WS drop, reconnect with `lastSeq=38`. Server compares to `currentRev=45` — if gap ≤ 1000, stream `doc_ops WHERE seq > 38`; if larger, send `snapshotUrl` for `rev=45` (client replaces local state). This avoids replaying huge gaps. Edits made offline are queued locally and sent as batch with `baseRev=lastAckedSeq` upon reconnect — server transforms them as normal.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Sharding:** Docs sharded by `docId` consistent hash across doc servers (e.g., 64 vnodes). No single doc hot-shards the DB because its working set is in memory on its primary; only opLog writes hit shared storage.
 - **Replication & failover:** Each doc primary has a warm standby (replica subscribes to same [Kafka](/system-design/kafka) partition). On primary crash, router promotes standby (takes ~1-2s), replays unapplied Kafka tail, clients auto-reconnect. S3 snapshot + Kafka log = no data loss if both die? Replay from log.
@@ -262,7 +262,7 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
   - *Hot doc 500 editors:* single primary CPU bound — shard differently? Cap editors per doc or add read-replica fan-out for presence only (edits still single writer).
 - **Probes:** doc server CPU per doc, WS connection count, op transform latency, Kafka lag on `doc.ops`, snapshot age (alert if > 30 min without snapshot on active doc).
 
-## Aur kya puch sakte hain? (Extra probes) / Interview follow-ups
+## Extra probes / follow-ups
 
 1. **Rich text attributes:** How do you represent bold/heading? Attribute ops `{ retain:5, attributes:{bold:true} }` transformed like text ops — composition must carry attributes.
 2. **Suggesting mode:** Overlay layer — edits stored as suggestions with `accept/reject` that apply as normal ops when accepted (extra state machine, not in core OT).

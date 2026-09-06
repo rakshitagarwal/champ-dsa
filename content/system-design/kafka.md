@@ -6,7 +6,7 @@
 
 Queue vs log vs pub/sub ka fark samjho. Queue me ek message ek consumer kha jata hai. Log me har consumer group pura log padh sakta hai, offset yaad rakhta hai. Isliye analytics + search + notifications sab ek hi event se chal sakte hain.
 
-## Kab chunna hai?
+## When you pick it
 
 - Ek event se 3-4 systems trigger hone hain (Bitly click → analytics, Twitter fan-out → timelines)
 - Replay chahiye — naya consumer purana data fir se padh sake
@@ -15,7 +15,7 @@ Queue vs log vs pub/sub ka fark samjho. Queue me ek message ek consumer kha jata
 
 **Mat use karo:** simple request-response ya low-throughput job queue jahan SQS/RabbitMQ kaafi ho — Kafka heavy hai.
 
-## Kaise kaam karta hai — Hinglish me
+## How it works
 
 **Partition = dabba.** `key = chatId` → `hash(key) % partitions` → same chat hamesha same partition, order safe. Partition ek leader + replicas (ISR).
 
@@ -43,7 +43,7 @@ graph LR
 - **Backpressure:** consumer slow to lag badhe, alert.
 - **Compaction:** key ka latest value hi rakho (config).
 
-## Failure — kya bolna hai
+## Failure modes to mention
 
 - **Lag:** consumer slow → monitoring + autoscale, DLQ for poison pill
 - **Ordering:** galat key se order toot jayega — hamesha bolna kaunsa key

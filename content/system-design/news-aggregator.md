@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Publishers poll/crawl → dedupe (SimHash) → ranking (fresh + personal) → feed per user cache.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Design a news aggregator that pulls articles from ~1k–10k publishers, clusters near-duplicate stories ("same earthquake, 40 headlines"), and serves a ranked, optionally personalized feed. The interviewer will say "like Google News" and test whether you build a crawler or an aggregator.
 
@@ -16,7 +16,7 @@ Design a news aggregator that pulls articles from ~1k–10k publishers, clusters
 - Ranking and personalization without per-request fan-out
 - Freshness vs. load trade-offs and legal/copyright handling
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 | Category | Requirement |
 |---|---|
@@ -25,7 +25,7 @@ Design a news aggregator that pulls articles from ~1k–10k publishers, clusters
 | **Clarify** | Personalized vs global ranking? Link out vs host full text (copyright)? Languages? Paywalled sources? Push notifications? How is "source authority" defined? |
 | **Out of scope v1** | Full NLP summarization, comments/social graph, publisher CMS, real-time collaborative filtering training. |
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Math | Result |
 |---|---|---|
@@ -40,7 +40,7 @@ Design a news aggregator that pulls articles from ~1k–10k publishers, clusters
 
 Ingest is I/O-bound and politeness-limited; serve is cache-friendly.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -85,7 +85,7 @@ GET /api/v1/stories/cl_9x2a
 
 Pagination: opaque cursor = `score + clusterId` or `publishedAt`; `limit` default 20.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Publishers (RSS / Sitemap / HTML / Webhook)
@@ -134,7 +134,7 @@ graph LR
 **Read flow — Serve feed:**
 1. `GET /feed?topic=world` → API reads `ZRANGE feed:topic:world 0 19` from Redis (or CDN cache) → hydrate cluster metadata from Postgres/Redis hash → return. Personalized variant: merge global list with user-weighted rerank of top 100.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **DB Schema (Postgres + S3 + Redis + optional Vector DB):**
 ```sql
@@ -230,26 +230,26 @@ class FeedMaterializer:
 
 **Patterns used:** Producer-Consumer ([Kafka](/system-design/kafka) between fetch→parse→cluster→rank), Cache-aside + Materialized view (precomputed feed), CQRS (write path ingest vs read path serve), Content hashing, Leaderless per-host queues.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — clustering
+## Deep dive — clustering
 
 Exact hash misses rewrites ("Quake hits city" vs "Major quake strikes city"). Too-loose threshold merges unrelated stories. Practical v1: normalize title (lowercase, strip punctuation, sort tokens), block by time window (2h) + geo/topic, then MinHash similarity threshold 0.80–0.85. "First source in, others attach" — the earliest article creates the cluster; later arrivals attach if similarity passes. Human review queue for borderline (0.75–0.80). Embeddings (cosine >0.88) improve recall for paraphrases but cost more; run as async re-clustering job. Store `simhash` for fast Hamming distance pre-filter before full MinHash.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — freshness vs load and politeness
+## Deep dive — freshness vs load and politeness
 
 Poll important publishers every 60s, long tail every 15 min. Use conditional fetch: `If-Modified-Since` / `ETag` — most polls return 304 with no body. Respect `robots.txt` crawl-delay and `sitemap.xml` `changefreq`. On 429, exponential backoff per host (1s → 2s → 4s) and deprioritize host. Webhooks (WebSub / RSS Cloud) are ideal — mention you'll take push over poll if offered. Freshness SLA: tier-1 p95 <2 min from publish to feed visibility; measure via `published_at → materialized_at` lag histogram.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — ranking, personalization, and legal
+## Deep dive — ranking, personalization, and legal
 
 **Ranking:** `score = 0.4*recency_decay + 0.3*authority + 0.2*engagement + 0.1*diversity`. Recency: `exp(-hours_since_publish / 6)`. Authority: editorial score per publisher (Reuters > blog). Engagement: clicks/impressions from your pixels (with anti-gaming). Personalization: user topic weights in Redis (`user:{id}:topic_weights` updated on clicks) blended as `final = 0.7*global + 0.3*personalized` for top 100 rerank — don't fully personalize breaking news.
 
 **Legal:** Often link out; store snippet only (fair use). For paywalled sources, respect `robots.txt` and never bypass. Mention copyright and ToS in interview — signals maturity. Images: hotlink or proxy with cache; respect publisher CDN.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 | Failure | Handling |
 |---|---|
@@ -261,7 +261,7 @@ Poll important publishers every 60s, long tail every 15 min. Use conditional fet
 | **Scale — more publishers** | Shard crawler fleet by consistent hash on domain; add parser consumers (Kafka partitions). |
 | **Scale — more users** | Feed is precomputed and CDN-cacheable (60s TTL); personalization reranks only top 100 in memory, not DB. |
 
-## Aur kya puch sakte hain? (Extra probes — Hinglish)
+## Extra probes / follow-ups
 
 1. Breaking news: push via [notification system](/system-design/notification-system) when cluster `sourceCount` spikes in 5 min.
 2. Spam / SEO farms — denylist + authority threshold; downrank low-authority clusters.

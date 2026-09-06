@@ -6,7 +6,7 @@
 
 DB me `LIKE '%shoe%'` slow. ES me **inverted index** — `shoe → [doc1, doc42]`. Analyzers word todte hain, stopwords hatate hain, stemming karte hain.
 
-## Kab use karo?
+## When you pick it
 
 - Text search — Yelp "coffee near me", FB post search, autocomplete, filters
 - Aggregations — `GROUP BY category` tez, analytics
@@ -14,7 +14,7 @@ DB me `LIKE '%shoe%'` slow. ES me **inverted index** — `shoe → [doc1, doc42]
 
 **Mat bano:** primary store — ES me update mehenga, consistency weak. Hamesha DB + async pipe.
 
-## Kaise banta hai — Hinglish me
+## How it works
 
 **Pipe:** `App → DB → Kafka topic db.changes → Indexer workers → ES → hydrate from DB` (ES me sirf id + search fields, pura data DB se).
 

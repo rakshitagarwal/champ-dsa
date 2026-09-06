@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Clicks Kafka me, Flink window me count, late events watermark, billing exactly-once via checkpoint + idempotent sink.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Interviewer: "We serve billions of ad clicks/impressions a day. Build the pipeline that aggregates by campaign/ad/hour so finance can invoice and advertisers see dashboards. Pixels retry, events arrive late, and one campaign can spike 10x during Super Bowl." This is a streaming billing system, not a CRUD app.
 
@@ -12,7 +12,7 @@ Interviewer: "We serve billions of ad clicks/impressions a day. Build the pipeli
 
 **Scale anchor:** 2B clicks + 50B impressions/day at a large ad network. Avg ingest ~600k events/sec, peak ~5M/sec during prime time. Each event ~300B JSON. Dashboard query ~2k RPS; billing export once daily. Retain raw 90 days for audit, aggregates indefinitely.
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 **Functional:**
 - Ingest click event `{ eventId, adId, campaignId, userId, ts, ip, region, costMicros }` and impression event (same schema, `type=impression|click`) via pixel/SDK.
@@ -42,7 +42,7 @@ Interviewer: "We serve billions of ad clicks/impressions a day. Build the pipeli
 - Per-user frequency capping.
 - Complex attribution (view-through vs click-through).
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Dimension | Assumption | Math | Result |
 |-----------|-----------|------|--------|
@@ -56,7 +56,7 @@ Interviewer: "We serve billions of ad clicks/impressions a day. Build the pipeli
 
 Impressions dominate volume; many designs keep clicks and impressions on separate pipelines with different retention/cost.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 ```http
 // Pixel — must be feather-light, returns 204 or 1x1 GIF
@@ -93,7 +93,7 @@ GET /internal/billing/export?day=2026-05-10&campaignId=camp9
 
 All ingest endpoints return fast (edge validates and enqueues, never waits for aggregation).
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Pixel/SDK -> Edge Collector (204 fast) -> [Kafka] raw_clicks / raw_impressions (partitioned by campaignId hash)
@@ -128,7 +128,7 @@ graph LR
 **Write path:** pixel -> edge -> Kafka -> Flink dedupe -> Flink window agg -> serving store.
 **Read path:** dashboard/billing -> Dashboard/Billing Service -> Redis cache -> serving store (Cassandra/Druid) -> response.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **DB schema — dedup + aggregates + raw archive pointer**
 
@@ -227,20 +227,20 @@ class BillingService {
 - **Lambda/Kappa unified:** Streaming path for realtime + batch Parquet replay for reconciliation (Kappa with replay).
 - **Sidecar fraud tap:** Separate consumer group reads same topic without coupling to billing latency.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Money vs dashboards (correctness tiers)
+## Deep dive — Money vs dashboards (correctness tiers)
 
 Not all reads need same accuracy. **Dashboards** can be approximate and laggy: show `isFinal=false` badge on current hour, use HLL for uniques, allow 30s staleness via [Redis](/system-design/redis) cache. **Invoices** need closed, auditable numbers: finance runs `closeDay()` at `T+5 min` UTC — that day's `agg_day` rows become immutable (`status='closed'`). Any late event after close doesn't overwrite the row; it inserts into `billing_adjustments(day, campaignId, deltaClicks, deltaSpend)` so the invoice can show "original + adjustments" with audit trail. Reconciliation job (Spark over S3 Parquet) hourly compares `SUM(raw)` per campaign vs `SUM(agg_hour)`; if divergence >0.1% alert and auto-correct via upsert. Timezone handling: store all bucket timestamps in UTC, convert at query time per advertiser preference — never bucket in local time at ingest.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — Late events, fraud and exactly-once
+## Deep dive — Late events, fraud and exactly-once
 
 **Late events:** Watermark delay 45s accommodates normal jitter; allowed lateness 5 min lets Flink update already-emitted windows via incremental aggregation (RocksDB keeps window state until `watermark + lateness` passes). Beyond that, late queue → adjustments. **Fraud filtering:** Synchronous blocking on ingest would add latency and lose money if fraud service is slow — so ingest always accepts, then a Flink side-processor or separate consumer flags `is_fraud_suspected` based on rate per IP, datacenter ASN, impossible velocity. Billing query by default filters `WHERE is_fraud=false`, but raw retains everything for appeal. **Exactly-once:** Don't claim Kafka alone gives exactly-once. Show checkpoint + two-phase commit sink: Flink checkpoints offset + state atomically; on failure, replays from last checkpoint and re-upserts same aggregates (idempotent) → no double billing. **At-least-once + dedup** alternative is simpler to explain and equally correct: keep `event_dedup` and sink via idempotent upsert.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 - **Edge collector death:** Stateless behind LB; clients retry pixel with same `eventId` — dedup absorbs duplicates.
 - **Kafka broker loss:** Replication factor 3, `acks=all`, `min.insync.replicas=2`; producer retries with backoff; edge buffer spills to local disk 5 min if Kafka unavailable then replays.
@@ -251,7 +251,7 @@ Not all reads need same accuracy. **Dashboards** can be approximate and laggy: s
 - **PII / GDPR:** Hash `userId`/`ip` before logging if possible; raw store encrypted at rest; deletion requests handled via compaction tombstones on raw S3 (batch rewrite).
 - **Scale knob:** Add Kafka partitions + Flink task managers linearly; serving store scales via partitioning by `campaignId`.
 
-## Aur kya puch sakte hain? (Extra probes)
+## Extra probes / follow-ups
 
 - Impression vs click — two topics with 25x volume difference; keep pipelines identical but impression pipeline cheaper retention and sampled for dashboard if needed.
 - Why not write aggregates directly on pixel request? — Would make pixel latency depend on DB and lose events on DB outage; queue decouples.

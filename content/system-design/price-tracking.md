@@ -4,7 +4,7 @@
 
 > **TL;DR Hinglish:** Sellers ko poll/scrape → price change Kafka → alert workers, dedup + backoff, chart ke liye time-series DB.
 
-## Kya poochte hain? (What they ask) — Hinglish me samjho
+## What they ask
 
 Design a price tracker where users paste an Amazon (or multi-store) product URL, you record price history over time, show a chart, and send an email/push when the price hits a target. The interviewer wants to see shared polling, politeness, and alert deduplication.
 
@@ -16,7 +16,7 @@ Design a price tracker where users paste an Amazon (or multi-store) product URL,
 - Time-series storage and downsampling for charts
 - Idempotent, non-spammy alerting with edge cases (price $0, currency, stock vs price)
 
-## Requirements — Kya chahiye? (Functional / Non-functional)
+## Requirements
 
 | Category | Requirement |
 |---|---|
@@ -25,7 +25,7 @@ Design a price tracker where users paste an Amazon (or multi-store) product URL,
 | **Clarify** | What is "price" — final with shipping/tax? Variants (size/color) separate SKU? How often to check — user-configurable? Price in multiple currencies? Stock availability vs price? Is browser-extension push allowed? Official API vs scrape? |
 | **Out of scope v1** | Checkout / auto-buy, coupon aggregation, price prediction ML, retailer affiliate integration, user-to-user sharing. |
 
-## Scale ka andaaza — Kitna load? (Math jo design badle)
+## Scale estimation
 
 | Metric | Math | Result |
 |---|---|---|
@@ -40,7 +40,7 @@ Design a price tracker where users paste an Amazon (or multi-store) product URL,
 
 Dedup is the entire cost story: without it, 5M watches × 48 fetches/day = 240M fetches/day (2777 rps) — 50x more.
 
-## API Design — Endpoints kya honge?
+## API Design
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -87,7 +87,7 @@ GET /api/v1/watches/w_abc123/history?granularity=hour&from=2026-08-18
 
 Idempotency: `Idempotency-Key` on `POST /watches` prevents duplicate watches on retry.
 
-## High-Level Design (HLD) — Boxes kaise judenge? (Hinglish)
+## High-Level Design (HLD)
 
 ```
 Client (Web / Extension)
@@ -135,7 +135,7 @@ graph LR
 **Read flow — History chart:**
 1. `GET /watches/{id}/history` → resolve `productId` → query time-series store with downsampling (raw for 14d, hourly for 90d, daily beyond) → return.
 
-## Low-Level Design (LLD) — DB + Classes (Hinglish notes)
+## Low-Level Design (LLD)
 
 **DB Schema (Postgres + TimescaleDB):**
 ```sql
@@ -231,24 +231,24 @@ class AlertService:
 
 **Patterns used:** Shared polling / Flyweight (one fetch per product), Adapter (per-site parsers), Token bucket rate limiting, Time-series partitioning, Idempotency key, Outbox ([Kafka](/system-design/kafka) `PriceUpdated`).
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — shared watches and ban avoidance
+## Deep dive — shared watches and ban avoidance
 
 10k users watching 200 unique products → 200 fetch jobs, not 10k. That's the win. Without dedup, you'd need 10k × 48 fetches/day = 480k fetches for those products alone; with dedup, 200 × 48 = 9.6k (50× reduction). For **burst after a viral deal** (e.g., tweet "PS5 $399"), still one fetch per SKU — cache the latest price in [Redis](/system-design/redis) with 30s TTL and serve watch-list reads from cache. For **bans**: mention official APIs first (Amazon PA-API, Best Buy API), scrape only as fallback with `robots.txt` respect, `User-Agent` identifying your bot, and exponential backoff on 403. Adding random jitter and respecting `Crawl-Delay` signals maturity.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — wrong parses and price semantics
+## Deep dive — wrong parses and price semantics
 
 **Wrong parse (price $0):** Don't write garbage and don't alert. Parser validation: if `price == 0` or `price is null` or `abs(price - last_price)/last_price > 0.9` (90% swing), mark `fetch_status=PARSE_FAILED`, keep old price, alert ops if error rate >5% for a domain (site redesign). Keep raw HTML in S3 for reparse. **Price semantics:** Define what "price" means — final price including shipping? Before tax? Multi-currency: store `currency` per point and per watch; only alert when currencies match or convert via FX table. **Stock vs price:** `in_stock=false` should not trigger a price alert (out-of-stock price is irrelevant); chart shows gap.
 
-## Deep Dive — Gehrai se (Interview yahi puchega) — alert correctness without spam
+## Deep dive — alert correctness without spam
 
 Naively alerting on every `price <= target` point spams on a sustained sale (every 30 min fetch sends an email). Correct logic: alert **once per drop event** — when price crosses below target and hasn't been alerted for that crossing. Implementation: `watches.last_alerted_price` + `alert_log` with `idempotency_key = watchId + price + day`. On `PriceUpdated`, if `price <= target` and `(last_alerted_at is null OR price < last_alerted_price - threshold OR now() - last_alerted_at > 24h)` then alert and update `last_alerted_at`. For price rising above target then dropping again, reset so the next drop re-alerts. Use [notification system](/system-design/notification-system) dedup on top.
 
-## Hinglish Tip — Galti vs Sahi
+## Common mistakes
 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
-## Failures & Scale — Kya tootega aur kaise bachenge? (Hinglish)
+## Handling failures and scale
 
 | Failure | Handling |
 |---|---|
@@ -260,7 +260,7 @@ Naively alerting on every `price <= target` point spams on a sustained sale (eve
 | **Scale — more products** | Shard `products`/`price_points` by `hash(product_id)`; shard scheduler by hash range; scale fetcher fleet per domain. |
 | **Extension sending untrusted prices** | Treat as hint only; still verify via server-side fetch before alerting. |
 
-## Aur kya puch sakte hain? (Extra probes — Hinglish)
+## Extra probes / follow-ups
 
 1. Multi-currency / shipping — define "price" as landed cost; store `price + shipping` if available.
 2. Stock vs price — show OOS gaps on chart; don't alert on OOS price.
