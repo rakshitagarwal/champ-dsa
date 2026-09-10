@@ -10,6 +10,7 @@ import {
   FileText,
   Lightbulb,
   Network,
+  Boxes,
   PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,8 @@ const navLinks: {
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV Analyzer", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
-  { href: "/system-design", label: "System Design", icon: Network },
+  { href: "/system-design", label: "HLD", icon: Network },
+  { href: "/lld", label: "LLD", icon: Boxes },
 ];
 
 function isNavActive(pathname: string, href: string, exact?: boolean): boolean {

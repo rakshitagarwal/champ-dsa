@@ -13,9 +13,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const doc = getSdBySlug(slug);
-  if (!doc) return { title: "System Design" };
+  if (!doc) return { title: "HLD" };
   return {
-    title: `${doc.title} · System Design`,
+    title: `${doc.title} · HLD`,
     description: doc.description,
   };
 }

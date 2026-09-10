@@ -1,5 +1,5 @@
-import { MarketingLanding } from "@/components/home/marketing-landing";
+import { PersonalHome } from "@/components/home/personal-home";
 
 export function HomeGate() {
-  return <MarketingLanding />;
+  return <PersonalHome />;
 }

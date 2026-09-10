@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getFirstSd } from "@/lib/system-design/loader";
 
 export const metadata = {
-  title: "System Design",
+  title: "HLD",
   description:
     "Key technologies and Hello Interview–style question breakdowns for system design interviews.",
 };

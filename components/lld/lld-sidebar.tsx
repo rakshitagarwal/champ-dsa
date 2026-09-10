@@ -2,23 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lightbulb, MapPin, Zap } from "lucide-react";
-import { SD_GROUPS } from "@/data/system-design/catalog";
-import type { SdDocumentMeta, SdGroupId } from "@/types/system-design";
+import { Lightbulb, MapPin } from "lucide-react";
+import { LLD_GROUPS } from "@/data/lld/topics";
+import type { LldTopicWithNum } from "@/data/lld/topics";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  docs: SdDocumentMeta[];
+  docs: LldTopicWithNum[];
   className?: string;
 };
 
-const GROUP_ICON: Record<Exclude<SdGroupId, "intro">, typeof Zap> = {
-  tech: Zap,
-  concepts: Lightbulb,
-  questions: MapPin,
-};
-
-export function SdSidebar({ docs, className }: Props) {
+export function LldSidebar({ docs, className }: Props) {
   const pathname = usePathname();
 
   return (
@@ -29,21 +23,22 @@ export function SdSidebar({ docs, className }: Props) {
       )}
     >
       <div className="border-b border-border px-4 py-4">
-          <Link
-            href="/system-design"
-            className="text-sm font-semibold text-foreground hover:text-primary"
-          >
-            HLD
-          </Link>
+        <Link
+          href="/lld"
+          className="text-sm font-semibold text-foreground hover:text-primary"
+        >
+          Low Level Design
+        </Link>
         <p className="mt-1 text-xs text-muted-foreground">
-          Technologies and interview designs
+          Patterns, concepts, and interview problems
         </p>
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-hide">
-        {SD_GROUPS.map((group) => {
+        {LLD_GROUPS.map((group) => {
           const items = docs.filter((d) => d.group === group.id);
           if (items.length === 0) return null;
-          const Icon = group.id === "tech" ? GROUP_ICON.tech : group.id === "questions" ? GROUP_ICON.questions : null;
+          const Icon =
+            group.id === "patterns" ? Lightbulb : group.id === "questions" ? MapPin : null;
           return (
             <section key={group.id} className="mb-5">
               <p className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -58,7 +53,7 @@ export function SdSidebar({ docs, className }: Props) {
                 )}
               >
                 {items.map((doc, idx) => {
-                  const href = `/system-design/${doc.slug}`;
+                  const href = `/lld/${doc.slug}`;
                   const active = pathname === href;
                   const num = String(idx + 1).padStart(2, "0");
                   return (
@@ -84,7 +79,7 @@ export function SdSidebar({ docs, className }: Props) {
                             : "text-foreground hover:bg-accent/50",
                         )}
                       >
-                        {doc.title}
+                        {doc.short}
                       </Link>
                     </li>
                   );
