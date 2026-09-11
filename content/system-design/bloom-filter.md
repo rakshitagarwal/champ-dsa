@@ -2,7 +2,7 @@
 
 > "Ye key exist karti hai kya?" ka tez jawab — `No` to pakka No, `Yes` to 99% Yes (1% false positive). Memory chhota.
 
-> **TL;DR Hinglish:** Bloom filter ek jadoo ki list hai — 10 lakh naam ko 2MB me yaad rakhe. Puche "Ram hai kya?" to bolega "Nahi" to 100% nahi, "Haan" to 1% galat ho sakta. Isliye DB se pehle filter ki tarah use karo.
+> Bloom filter ek jadoo ki list hai — 10 lakh naam ko 2MB me yaad rakhe. Puche "Ram hai kya?" to bolega "Nahi" to 100% nahi, "Haan" to 1% galat ho sakta. Isliye DB se pehle filter ki tarah use karo.
 
 Web crawler me "URL pehle dekha kya?" — har URL DB me check kiya to 100k QPS DB marega. Bloom pehle pochega.
 
@@ -53,4 +53,4 @@ graph LR
 
 **Yaad rakho (Revision):** `k` hashes, `m/n=10 →1% k=7`, No=pukka, Yes=maybe, no delete → counting, crawler/DB guard.
 
-**See also:** [web-crawler](/system-design/web-crawler), [distributed-cache](/system-design/distributed-cache), [cassandra](/system-design/cassandra).
+**See also:** [web-crawler](/hld/web-crawler), [distributed-cache](/hld/distributed-cache), [cassandra](/hld/cassandra).

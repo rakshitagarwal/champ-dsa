@@ -2,7 +2,7 @@
 
 > Index kitaab ka index jaisa — bina index poori kitaab palatna (`O(N)`), index se seedha page (`O(log N)`).
 
-> **TL;DR Hinglish:** Index ek alag chhota table jo `userId → row location` yaad rakhta hai, B-tree me sorted. `WHERE userId=123` 1M rows me 10ms, bina index 1 sec. Par har write pe index bhi update — balance.
+> Index ek alag chhota table jo `userId → row location` yaad rakhta hai, B-tree me sorted. `WHERE userId=123` 1M rows me 10ms, bina index 1 sec. Par har write pe index bhi update — balance.
 
 Har DB ke peeche B-tree ya LSM.
 
@@ -47,4 +47,4 @@ graph LR
 
 **Yaad rakho:** Index = chhota sorted map, composite left, partial chhota, LSM write tez, EXPLAIN.
 
-**See also:** [postgresql](/system-design/postgresql), [elasticsearch](/system-design/elasticsearch), [sharding](/system-design/sharding).
+**See also:** [postgresql](/hld/postgresql), [elasticsearch](/hld/elasticsearch), [sharding](/hld/sharding).

@@ -5,52 +5,91 @@ export const FUNDAMENTALS: LldTopic[] = [
     slug: "what-is-lld",
     title: "What is LLD (Low Level Design)",
     tag: "Concept",
-    body: `Low Level Design is the detailed, class-level blueprint of a system. While High Level Design talks about servers, databases, and load balancers, LLD talks about classes, interfaces, their relationships, and design patterns. An LLD interview usually asks you to design something like Parking Lot, Splitwise, or BookMyShow on a whiteboard in 45 minutes.
+    body: `LLD matlab system ka class-level naksha. HLD me tum servers, databases aur load balancers ki baat karte ho — LLD me classes, unke beech ke rishte aur design patterns ki. Interview me aam taur pe 45 minute me Parking Lot, Splitwise ya BookMyShow jaisa kuch whiteboard pe design karne ko milta hai.
 
-The expected flow is always the same. First clarify requirements and scope. Then list the core entities (nouns become classes). Then define relationships between them (inheritance, composition, association). Then apply SOLID principles and one or two design patterns where they genuinely fit. Finally walk through a use case to prove the design works.
+LLD ki importance isliye hai kyunki code likhne se pehle sochna sasta padta hai. Galat class structure production me technical debt banta hai — har nayi feature me kaam do guna hota hai. LLD wahi debt design stage pe pakadta hai. Aur interviews me ye round tumhari OOP pakad test karta hai: kya tum requirements se classes nikaal sakte ho, rishton ko sahi naam de sakte ho, aur trade-off bol sakte ho.
 
-\`\`\`java
-// The LLD interview loop: Requirements -> Entities -> Relationships -> Patterns -> Walkthrough
+## How LLD interviews work
+
+1. **Requirements clear karo (~10 min).** Functional scope pakdo — kya banega, kya nahi. Entities, limits aur edge cases poocho.
+2. **Entities nikalo (~10 min).** Statement ke nouns hi classes bante hain — User, Ticket, Spot. Verbs methods bante hain.
+3. **Rishte tay karo (~10 min).** Inheritance (is-a), composition (has-a), association — har rishte ka naam aur wajah bolo.
+4. **SOLID aur patterns (~10 min).** Ek-do patterns wahan lagao jahan dil se fit hon. Zabardasti pattern negative jata hai.
+5. **Walkthrough (~5 min).** Ek use case end tak chalao — happy path plus ek edge case.
+
+\`\`\`js
+// LLD interview loop: Requirements -> Entities -> Relationships -> Patterns -> Walkthrough
 class ParkingLot {
-    List<Floor> floors;
-    Ticket generateTicket(Vehicle v);   // use case entry point
-    double checkout(Ticket t);          // walk through this end to end
+  constructor() { this.floors = []; }
+  generateTicket(vehicle) { /* use case yahan se shuru */ }
+  checkout(ticket) { /* isko end tak chala ke dikhao */ }
 }
 \`\`\`
 
+## What interviewers check
+
+- **Entities:** kya saari zaroori classes nikli, koi core noun chhoota to nahi.
+- **Relationships:** inheritance vs composition ka faisla sahi hai ya bas aadat se.
+- **SOLID:** single responsibility dikh rahi hai ya god class ban gayi.
+- **Patterns:** pattern fit ho raha hai ya naam ke liye thopa gaya hai.
+- **Walkthrough:** design kagaz pe chalti hai ya sirf boxes bane hain.
+
+**🔴 Galti:** "Seedha code likhna shuru kar dena" — Bina entities soche code likhoge to beech me design tootega.
+**✅ Sahi:** "Pehle nouns se classes, phir rishte, phir patterns, aakhir me walkthrough — ye loop har problem me chalao."
+
 ## Keep in mind
 
-- HLD is about machines, LLD is about classes — state this line first in interviews.
-- Follow the loop: requirements, entities, relationships, patterns, walkthrough.
-- Nouns in the problem statement become classes, verbs become methods.
-- Prefer composition over inheritance unless there is a true is-a relationship.
-- A working simple design beats a fancy broken one — get the happy path running first.`,
+- HLD machines ki baat hai, LLD classes ki — interview me ye line sabse pehle bolo.
+- Loop yaad rakho: requirements, entities, relationships, patterns, walkthrough.
+- Statement ke nouns classes bante hain, verbs methods bante hain.
+- Composition ko inheritance pe tarjeeh do, jab tak sach me is-a rishta na ho.
+- Sada kaam karta design, fancy toote design se behtar hai — pehle happy path chalao.
+- Time baanto: requirements 10, entities 10, rishte 10, patterns 10, walkthrough 5.`,
   },
   {
     slug: "solid-principles",
     title: "SOLID Principles with Easy Examples",
     tag: "Concept",
-    body: `SOLID is five design principles that keep object-oriented code maintainable. Single Responsibility: a class should have one reason to change — a Payment class should not also send emails. Open/Closed: open for extension, closed for modification — add new behavior with new classes, not by editing tested code. Liskov Substitution: a subclass must be usable wherever its parent is expected — if it breaks the parent contract, the hierarchy is wrong.
+    body: `SOLID paanch usool hain jo object-oriented code ko sambhalne layak rakhte hain. Single Responsibility: ek class ke badalne ki ek wajah honi chahiye — Payment class ko email nahi bhejna chahiye. Open/Closed: extension ke liye khula, modification ke liye band — naya behavior nayi class se aaye, test kiye code me haath daal ke nahi. Liskov Substitution: subclass apne parent ki jagah har jagah chalni chahiye — agar parent ka vaada tode to hierarchy hi galat hai.
 
-Interface Segregation: small focused interfaces beat one fat interface — a Robot should not be forced to implement an eat() method it never uses. Dependency Inversion: depend on abstractions, not concretions — a NotificationService should depend on a MessageSender interface, with SMS and Email as implementations.
+Interface Segregation: ek moti cheez se kai chhoti focused cheezein behtar hain — Robot se eat() mat mangwao jo wo karta hi nahi. Dependency Inversion: asli class pe nahi, uske role pe nirbhar raho — NotificationService ko MessageSender role chahiye, SMS aur Email uske roop hain. Dhyan rahe, JS me interface keyword nahi hota — same method naam (duck typing) hi contract hota hai.
 
-\`\`\`java
-// Dependency Inversion: high-level module depends on abstraction
-interface MessageSender { void send(String to, String msg); }
-class SmsSender implements MessageSender { /* ... */ }
+## The five principles
+
+1. **SRP (Single Responsibility):** ek class, ek kaam — Payment se email logic bahar nikalo. Pehchan: class ka naam "aur" se samjhana pade to tooti hui hai.
+2. **OCP (Open/Closed):** nayi class jodo, purani mat chhedo — Strategy iska classic namuna hai.
+3. **LSP (Liskov Substitution):** subclass parent ki jagah chale — Square/Rectangle wala mashhoor violation yaad rakho.
+4. **ISP (Interface Segregation):** chhoti focused cheezein — Robot ko sirf work() do, eat() mat do.
+5. **DIP (Dependency Inversion):** role lo, implementation inject karo — testing aur swapping aasan.
+
+\`\`\`js
+// Dependency Inversion: asli class nahi, role inject karo
+class SmsSender {
+  send(to, msg) { /* ... */ }
+}
 class NotificationService {
-    private final MessageSender sender; // injected, not new-ed
-    NotificationService(MessageSender sender) { this.sender = sender; }
+  constructor(sender) { this.sender = sender; } // andar new mat karo
+  notify(to, msg) { this.sender.send(to, msg); }
 }
 \`\`\`
 
+## Common mistakes
+
+- **God class:** sab kuch ek class me — User jo auth bhi kare, billing bhi, email bhi. SRP se todo.
+- **Switch pe switch:** har nayi type pe purana code kholo — OCP todo, Strategy lagao.
+- **Galat inheritance:** sirf code reuse ke liye extends — LSP toot-ta hai, composition lo.
+- **Fat interface:** har implementer ko bekaar methods — ISP se todo.
+
+**🔴 Galti:** "Har class me paanchon usool dikhana" — Zabardasti lagane se design complex hota hai, simple rehne do.
+**✅ Sahi:** "Har usool pe ek violation aur ek fix sunao — interviewer ko depth dikhti hai, ratta nahi."
+
 ## Keep in mind
 
-- SRP: one reason to change per class — split email logic out of Payment.
-- OCP: extend with new classes (Strategy is the classic implementation).
-- LSP: subclass must honor the parent contract — Square/Rectangle is the famous violation.
-- ISP: many small interfaces beat one fat one.
-- DIP: depend on interfaces, inject implementations — enables testing and swapping.
-- Name one violation and one fix per principle and the interviewer is convinced.`,
+- SRP: har class ke badalne ki ek wajah — email ka logic Payment se bahar nikalo.
+- OCP: nayi class se extend karo (Strategy iska classic namuna hai).
+- LSP: subclass parent ka vaada nibhaye — Square/Rectangle wala mashhoor violation yaad rakho.
+- ISP: kai chhoti cheezein, ek moti cheez se behtar.
+- DIP: role lo, implementation inject karo — testing aur swapping aasan ho jaati hai.
+- Har usool pe ek violation aur ek fix suna do, interviewer maan jayega.`,
   },
 ];

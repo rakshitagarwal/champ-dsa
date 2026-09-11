@@ -2,7 +2,7 @@
 
 > Single front door — TLS, auth, rate limits, routing. Business logic isme mat dalo.
 
-> **TL;DR Hinglish:** Gateway ek building ka main gate hai — har request yahan se hoke jaayegi, gate pe hi ID check (auth), bheed control (rate limit), aur sahi office (service) me bhej do. Andar ka kaam service kare, gate nahi.
+> Gateway ek building ka main gate hai — har request yahan se hoke jaayegi, gate pe hi ID check (auth), bheed control (rate limit), aur sahi office (service) me bhej do. Andar ka kaam service kare, gate nahi.
 
 Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai, peeche 20 services hain pata nahi. Gateway L7 (HTTP) pe kaam karta hai, Load Balancer L4 (TCP) pe. Dono saath rehte hain: LB → Gateway → Services.
 
@@ -10,7 +10,7 @@ Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai,
 
 - **TLS terminate** — HTTPS yahan khatam, andar plain HTTP
 - **Auth** — JWT verify, `userId` header aage bhejo
-- **Rate limiting** — per user/IP, [Redis](/system-design/redis) counter
+- **Rate limiting** — per user/IP, [Redis](/hld/redis) counter
 - **Routing** — `/v1/pay` → Payment Service, `/v1/search` → Search Service
 - **Validation** — schema check, size limit
 - **Observability** — request ID inject, logs/metrics
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho:** Front door, L7 vs L4, halka rakho, multi-AZ warna SPOF.
 
-**See also:** [rate limiter](/system-design/rate-limiter), [notification system](/system-design/notification-system).
+**See also:** [rate limiter](/hld/rate-limiter), [notification system](/hld/notification-system).

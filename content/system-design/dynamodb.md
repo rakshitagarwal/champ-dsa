@@ -2,7 +2,7 @@
 
 > Managed key-value, scale ka tension AWS le. Partition keys, GSIs, aur hot partitions se bacho.
 
-> **TL;DR Hinglish:** DynamoDB ek managed auto-scale locker hai — chabi (partition key) do, samaan lo. GSIs se dusri chabi se bhi dhoondh sakte ho, par har GSI alag kharcha. Hot key ek hi locker ko garam kar degi to throttle.
+> DynamoDB ek managed auto-scale locker hai — chabi (partition key) do, samaan lo. GSIs se dusri chabi se bhi dhoondh sakte ho, par har GSI alag kharcha. Hot key ek hi locker ko garam kar degi to throttle.
 
 Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **Sort Key (SK)** optional — andar range query (`PK=userId, SK=ts`).
 
@@ -12,7 +12,7 @@ Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **So
 - Serverless — Lambda + Dynamo
 - Streams se async fan-out (Dynamo Streams → Lambda → ES)
 
-**Mat lo:** heavy joins, ad-hoc analytics — wahan [PostgreSQL](/system-design/postgresql).
+**Mat lo:** heavy joins, ad-hoc analytics — wahan [PostgreSQL](/hld/postgresql).
 
 ## Important points
 
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho:** PK=hash, SK=range, GSI alag table jaisa, 400KB limit, hot partition → `userId#rand`.
 
-**See also:** [cassandra](/system-design/cassandra), [postgresql](/system-design/postgresql), [chatgpt](/system-design/chatgpt).
+**See also:** [cassandra](/hld/cassandra), [postgresql](/hld/postgresql), [chatgpt](/hld/chatgpt).

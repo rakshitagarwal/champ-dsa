@@ -2,7 +2,7 @@
 
 > Multiple operations ek atomic unit mein — ya sab theek, ya sab galat.
 
-> **TL;DR Hinglish:** Transaction multiple database operations ek ke liye group karta hai — chahe sab successful ho ya koi nahi. ACID properties se guarantee: Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent safe), Durability (permanent after commit). Isolation levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable. Higher isolation = more consistency, less concurrency.
+> Transaction multiple database operations ek ke liye group karta hai — chahe sab successful ho ya koi nahi. ACID properties se guarantee: Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent safe), Durability (permanent after commit). Isolation levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable. Higher isolation = more consistency, less concurrency.
 
 Transaction multiple operations ko ek reliable unit mein handle karta hai:
 
@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho (Revision):** ACID (Atomicity, Consistency, Isolation, Durability), isolation levels (4 levels, trade-off), dirty/phantom/deadlock issues, optimistic/pessimistic locking.
 
-**See also:** [ACID vs BASE](/system-design/acid-vs-base), [Distributed Transactions](/system-design/distributed-transactions), [Database Replication](/system-design/database-replication).
+**See also:** [ACID vs BASE](/hld/acid-vs-base), [Distributed Transactions](/hld/distributed-transactions), [Database Replication](/hld/database-replication).

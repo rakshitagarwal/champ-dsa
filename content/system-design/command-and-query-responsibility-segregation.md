@@ -2,7 +2,7 @@
 
 > Reads aur writes separate models — optimize karo alag-alag ke liye.
 
-> **TL;DR Hinglish:** CQRS reads aur writes ko separate models mein split karta hai. Command (write) side data update karta hai, Query (read) side data display karta hai. Benefits: each side optimize kar sakte ho — read side optimized for fast queries, write side for transactions. Eventual consistency — reads lag behind writes. Works best with event sourcing. Monolith mein CQRS overkill, but microservices mein powerful.
+> CQRS reads aur writes ko separate models mein split karta hai. Command (write) side data update karta hai, Query (read) side data display karta hai. Benefits: each side optimize kar sakte ho — read side optimized for fast queries, write side for transactions. Eventual consistency — reads lag behind writes. Works best with event sourcing. Monolith mein CQRS overkill, but microservices mein powerful.
 
 CQRS reads aur writes ko separate models mein divide karta hai:
 
@@ -44,4 +44,4 @@ graph TD
 
 **Yaad rakho (Revision):** CQRS = commands (write) + queries (read) separate, eventual consistency, read optimized denormalized, works best with event sourcing, overkill for simple apps.
 
-**See also:** [Event Sourcing](/system-design/event-sourcing), [Event-Driven Architecture](/system-design/event-driven-architecture), [Message Queue](/system-design/message-queue).
+**See also:** [Event Sourcing](/hld/event-sourcing), [Event-Driven Architecture](/hld/event-driven-architecture), [Message Queue](/hld/message-queue).

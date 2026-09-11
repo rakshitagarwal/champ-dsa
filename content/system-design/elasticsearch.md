@@ -2,7 +2,7 @@
 
 > Full-text search aur aggregations. DB se async index banao; thoda lag chalega.
 
-> **TL;DR Hinglish:** Elasticsearch ek kitaab ka index jaisa hai — har shabd kahan aaya, turant batata hai. DB source of truth, ES uska photocopy jo search ke liye optimize hai. Thoda stale chalega (1-2 sec).
+> Elasticsearch ek kitaab ka index jaisa hai — har shabd kahan aaya, turant batata hai. DB source of truth, ES uska photocopy jo search ke liye optimize hai. Thoda stale chalega (1-2 sec).
 
 DB me `LIKE '%shoe%'` slow. ES me **inverted index** — `shoe → [doc1, doc42]`. Analyzers word todte hain, stopwords hatate hain, stemming karte hain.
 
@@ -42,4 +42,4 @@ Near real-time (~1 sec refresh), strong consistent nahi. Search me `refresh=wait
 
 **Yaad rakho:** DB source, ES photocopy, inverted index, hydrate pattern, privacy ≠ ES dump.
 
-**See also:** [yelp](/system-design/yelp), [fb-post-search](/system-design/fb-post-search), [yelp](/system-design/yelp).
+**See also:** [yelp](/hld/yelp), [fb-post-search](/hld/fb-post-search), [yelp](/hld/yelp).

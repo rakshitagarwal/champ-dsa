@@ -2,7 +2,7 @@
 
 > LLM product, not "train GPT." The design is **sessions, streaming tokens, rate limits, and optionally RAG**. The model is a billed dependency.
 
-> **TL;DR Hinglish:** Threads Postgres, context window trim/summarize, streaming SSE, quota Redis, RAG vector DB me tenant filter, queue for model.
+> Threads Postgres, context window trim/summarize, streaming SSE, quota Redis, RAG vector DB me tenant filter, queue for model.
 
 ## What they ask
 
@@ -97,7 +97,7 @@ Client (Web/Mobile)
    |
  CDN (static) + Load Balancer
    |
- API Gateway (auth JWT, [rate limiter](/system-design/rate-limiter) on req + tokens)
+ API Gateway (auth JWT, [rate limiter](/hld/rate-limiter) on req + tokens)
    |
  Thread Service (CRUD threads/messages, Postgres)
    |
@@ -107,9 +107,9 @@ Client (Web/Mobile)
    |  +--> Moderation Service (input/output policy check)
    |  +--> Model Provider (OpenAI-compatible, streaming) -> GPU fleet
    |
- Queue ([Kafka](/system-design/kafka) / Redis Stream) for saturated model — enqueues jobs, shows "busy"
+ Queue ([Kafka](/hld/kafka) / Redis Stream) for saturated model — enqueues jobs, shows "busy"
    |
- [Redis](/system-design/redis) (quota counters, run dedup, stream buffers)
+ [Redis](/hld/redis) (quota counters, run dedup, stream buffers)
    |
  Postgres (threads, messages — source of truth)
 ```
@@ -124,12 +124,12 @@ graph LR
 ```
 
 **Components:**
-- **API Gateway:** JWT auth, per-user [rate limiter](/system-design/rate-limiter) (e.g., 10 req/min, 100k tokens/day via token bucket), validates `clientMsgId` idempotency.
+- **API Gateway:** JWT auth, per-user [rate limiter](/hld/rate-limiter) (e.g., 10 req/min, 100k tokens/day via token bucket), validates `clientMsgId` idempotency.
 - **Thread Service:** Owns `threads` + `messages` in Postgres. Every read scopes `WHERE user_id = ?` — tenant isolation at query level.
 - **Orchestrator:** The core. Loads last N messages (or summary + recent), runs moderation, optionally retrieves RAG chunks, builds trimmed prompt, calls model provider with `stream: true`, pipes tokens to client via SSE, persists final assistant message on `done`. Handles retries and timeout.
 - **File / RAG Pipeline:** Async after upload: S3 → chunk (512 tokens, 50 overlap) → embed via embedding model → write to vector DB with `thread_id`/`user_id` ACL. Retrieval: `top_k=5` filtered by `user_id` + `thread_id`.
-- **Queue:** When model concurrency > threshold (e.g., 5k streams), enqueue `GenerateJob` to [Kafka](/system-design/kafka)/SQS; worker pool drains with backpressure. Client sees "queued" then stream starts — don't hold 50k HTTP connections in Python threads.
-- **Quota Service:** Counts tokens per user per day in [Redis](/system-design/redis) (`INCRBY user:{id}:tokens:2026-08-25`), checked before and after generation; 429 with `Retry-After` when exceeded.
+- **Queue:** When model concurrency > threshold (e.g., 5k streams), enqueue `GenerateJob` to [Kafka](/hld/kafka)/SQS; worker pool drains with backpressure. Client sees "queued" then stream starts — don't hold 50k HTTP connections in Python threads.
+- **Quota Service:** Counts tokens per user per day in [Redis](/hld/redis) (`INCRBY user:{id}:tokens:2026-08-25`), checked before and after generation; 429 with `Retry-After` when exceeded.
 
 **Write flow — Send message:**
 1. `POST /threads/{id}/messages` → Gateway checks quota, dedup by `clientMsgId` (UNIQUE).
@@ -245,7 +245,7 @@ class QuotaService:
 - **Idempotency:** `client_msg_id` UNIQUE ensures retrying "send" doesn't spawn two billed completions; return existing stream or cached result.
 - **Tenant isolation:** Every query filters `user_id`; vector search **must** filter by `tenant` (user_id/thread_id) — never search across tenants. ACL on `files` table enforces it.
 
-**Patterns used:** Outbox not needed for streaming but used for file ingest ([Kafka](/system-design/kafka) `FileUploaded` → chunk → embed), Cache-aside for quota counters, Circuit breaker around model provider, Queue-based load leveling, Idempotency key, Async summarization.
+**Patterns used:** Outbox not needed for streaming but used for file ingest ([Kafka](/hld/kafka) `FileUploaded` → chunk → embed), Cache-aside for quota counters, Circuit breaker around model provider, Queue-based load leveling, Idempotency key, Async summarization.
 
 ## Deep dive — context and cost
 
@@ -255,15 +255,15 @@ Context windows are finite. If you send the entire history, cost and latency exp
 
 **Streaming:** First token SLA matters more than total time. SSE from the API pod with immediate flush; don't buffer. Use `Transfer-Encoding: chunked` and disable proxy buffering. On client disconnect, cancel the upstream model call to save cost.
 
-**Quotas:** [Rate limiter](/system-design/rate-limiter) on requests (e.g., 20/min) **and** tokens/day (e.g., 100k free, 2M pro) via [Redis](/system-design/redis) token bucket. Check before generation (estimate prompt tokens) and after (actual usage). Return `429` with `Retry-After` and `X-Quota-Remaining`. For cost control, also rate limit per-model (pro model stricter).
+**Quotas:** [Rate limiter](/hld/rate-limiter) on requests (e.g., 20/min) **and** tokens/day (e.g., 100k free, 2M pro) via [Redis](/hld/redis) token bucket. Check before generation (estimate prompt tokens) and after (actual usage). Return `429` with `Retry-After` and `X-Quota-Remaining`. For cost control, also rate limit per-model (pro model stricter).
 
-**Queuing:** If GPUs/provider saturated (concurrency > threshold or p95 latency >2s), enqueue `GenerateJob` to [Kafka](/system-design/kafka) / Redis Stream; worker pool with limited concurrency drains it. Client sees `event: queued {position: 12}` then stream starts. Prevents holding 50k HTTP connections stuck in Python threads and gives backpressure. Mention autoscaling and fallback to cheaper model when overloaded.
+**Queuing:** If GPUs/provider saturated (concurrency > threshold or p95 latency >2s), enqueue `GenerateJob` to [Kafka](/hld/kafka) / Redis Stream; worker pool with limited concurrency drains it. Client sees `event: queued {position: 12}` then stream starts. Prevents holding 50k HTTP connections stuck in Python threads and gives backpressure. Mention autoscaling and fallback to cheaper model when overloaded.
 
 ## Deep dive — RAG and tenancy
 
 **RAG pipeline:** Upload → S3 → async chunk (512 tokens, overlap 50, preserve sentence boundaries) → embed via embedding model (e.g., `text-embedding-3-small`) → write to vector DB with `user_id` + `thread_id` metadata. Retrieval: embed query, search `top_k=5` with filter `user_id=? AND thread_id=?`, stuff chunks into prompt as `Context: ...` with citations. Source of truth is still files + ACL on thread — vector DB is derived and rebuildable.
 
-**Tenancy:** `threadId` scoped to `userId` on every read (`WHERE thread_id=? AND user_id=?`). Vector search **must** filter by tenant — a missing filter leaks one user's files to another. Also enforce at S3 key level (`s3://bucket/{user_id}/{thread_id}/{file_id}`). Mention prompt injection from uploads and that observability must not log prompts in the clear — token counts as [metrics](/system-design/metrics-monitoring), prompts encrypted at rest.
+**Tenancy:** `threadId` scoped to `userId` on every read (`WHERE thread_id=? AND user_id=?`). Vector search **must** filter by tenant — a missing filter leaks one user's files to another. Also enforce at S3 key level (`s3://bucket/{user_id}/{thread_id}/{file_id}`). Mention prompt injection from uploads and that observability must not log prompts in the clear — token counts as [metrics](/hld/metrics-monitoring), prompts encrypted at rest.
 
 ## Common mistakes
 
@@ -287,7 +287,7 @@ Context windows are finite. If you send the entire history, cost and latency exp
 
 1. Tools / function calling — extra round trips, same thread; orchestrator loops `model -> tool call -> tool result -> model`.
 2. Multi-model routing — cheap vs smart classifier; route simple Q&A to mini, reasoning to pro.
-3. Observability — token counts as [metrics](/system-design/metrics-monitoring), not logs of prompts in clear; distributed tracing with `traceId` per stream; p95 time-to-first-token dashboard.
+3. Observability — token counts as [metrics](/hld/metrics-monitoring), not logs of prompts in clear; distributed tracing with `traceId` per stream; p95 time-to-first-token dashboard.
 4. File lifecycle — expiry, max 100 MB per thread, virus scan on upload.
 5. Branching / edit — `POST /threads/{id}/messages/{msgId}/edit` creates a branch (new message list fork).
 

@@ -2,7 +2,7 @@
 
 > Consumer slow to producer ko bolo "dheere" — nahi to queue phat jayegi, OOM.
 
-> **TL;DR Hinglish:** Backpressure ek factory line jaisa — packing slow to belt roko ya speed kam karo, nahi to samaan gir jayega. Queue bharo, drop karo, ya producer ko throttle karo.
+> Backpressure ek factory line jaisa — packing slow to belt roko ya speed kam karo, nahi to samaan gir jayega. Queue bharo, drop karo, ya producer ko throttle karo.
 
 Flink, Kafka, API sab me.
 
@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** Queue 1000, drop vs block vs 429, Flink credit, Kafka lag.
 
-**See also:** [flink](/system-design/flink), [kafka](/system-design/kafka), [circuit-breaker](/system-design/circuit-breaker).
+**See also:** [flink](/hld/flink), [kafka](/hld/kafka), [circuit-breaker](/hld/circuit-breaker).

@@ -2,7 +2,7 @@
 
 > Kaunsa instance zinda aur kahan? — DNS ya registry se dhoondo.
 
-> **TL;DR Hinglish:** Service discovery ek phonebook jaisa — `payment` naam bolo to phonebook 3 healthy numbers de: `10.0.1.1:8080, 10.0.1.2:8080`. Instance mar gaya to phonebook se naam kato.
+> Service discovery ek phonebook jaisa — `payment` naam bolo to phonebook 3 healthy numbers de: `10.0.1.1:8080, 10.0.1.2:8080`. Instance mar gaya to phonebook se naam kato.
 
 Microservices me IP har deploy pe badalta hai — hardcode nahi.
 
@@ -47,4 +47,4 @@ graph LR
 
 **Yaad rakho:** Register 10s, cache 30s, watch, DNS TTL, K8s Service.
 
-**See also:** [load-balancer](/system-design/load-balancer), [zookeeper](/system-design/zookeeper), [gossip-protocol](/system-design/gossip-protocol).
+**See also:** [load-balancer](/hld/load-balancer), [zookeeper](/hld/zookeeper), [gossip-protocol](/hld/gossip-protocol).

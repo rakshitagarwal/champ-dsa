@@ -2,7 +2,7 @@
 
 > eBay-style bids. The last seconds of a popular lot are a **consistency + burst** problem. Whoever wins must match the ledger.
 
-> **TL;DR Hinglish:** Last-sec bids me DB `SERIALIZABLE`, WebSocket se live price, anti-sniping + TTL, throughput vs consistency trade-off.
+> Last-sec bids me DB `SERIALIZABLE`, WebSocket se live price, anti-sniping + TTL, throughput vs consistency trade-off.
 
 ## What they ask
 
@@ -13,7 +13,7 @@ Design an online auction platform like eBay where sellers list items with a star
 **What interviewer tests:**
 - Strong consistency vs. eventual consistency trade-offs (who decides the winner?)
 - Serializing contended writes without killing throughput for uncontended auctions
-- Real-time fan-out ([WebSockets](/system-design/websocket) / SSE) decoupled from the transaction
+- Real-time fan-out ([WebSockets](/hld/websocket) / SSE) decoupled from the transaction
 - Idempotency, clock correctness, and idempotent close/settlement
 
 ## Requirements
@@ -23,7 +23,7 @@ Design an online auction platform like eBay where sellers list items with a star
 | **Functional** | Create auction (title, images, description, start/end time, starting price, reserve price, bid increment). Place bid. Watch auction (live price + time left + bid history). Close auction and declare winner. Notify winner/loser and trigger payment. Search/browse listings. |
 | **Non-functional** | **Serializable** winning bid — no split-brain winner. Handle burst: 10k rps on a single `auctionId` for last seconds. Durable bid history (auditable). Low latency live updates (<500ms). Highly available reads. |
 | **Clarify** | English auction (ascending, highest wins)? Reserve price hidden or visible? Anti-snipe extension (e.g., +30s if bid in last 30s)? Proxy/auto-bidding supported? Soft vs hard close? Cancellation rules? |
-| **Out of scope v1** | Full-text search relevance tuning (delegate to [Elasticsearch](/system-design/elasticsearch)), recommendation feed, dispute/return flow, seller reputation graph, multi-currency settlement. |
+| **Out of scope v1** | Full-text search relevance tuning (delegate to [Elasticsearch](/hld/elasticsearch)), recommendation feed, dispute/return flow, seller reputation graph, multi-currency settlement. |
 
 ## Scale estimation
 
@@ -36,7 +36,7 @@ Assume 10M active listings, 100M registered users, 5M DAU. Average bids per auct
 | **Storage — auctions** | 10M rows × ~2 KB (metadata + indexes) | ~20 GB |
 | **Storage — bids** | 80M bids/year (10M auctions × 8) × 200 bytes | ~16 GB/year + indexes ~40 GB with replication |
 | **Bandwidth — WS fan-out** | 10k watchers × 1 bid/sec × 200 bytes × 8 bits | ~16 Mbps per hot auction; 100 hot = 1.6 Gbps (needs pub/sub sharding) |
-| **Cache** | Current price + end_at per auction in [Redis](/system-design/redis) | ~10M keys × 200 bytes ≈ 2 GB |
+| **Cache** | Current price + end_at per auction in [Redis](/hld/redis) | ~10M keys × 200 bytes ≈ 2 GB |
 
 Conclusion: DB size is modest; the challenge is **per-key contention and fan-out**, not total volume.
 
@@ -92,11 +92,11 @@ Load Balancer (L7) -> API Gateway (auth, rate-limit, validation)
    |
    +--> Auction Service (CRUD, close scheduler)
    +--> Bid Service (write path — serialized per auction)
-   +--> Search Service -> [Elasticsearch](/system-design/elasticsearch)
-   +--> Notification Service -> [Kafka](/system-design/kafka) -> Email/Push
-   +--> Payment Service -> [payment system](/system-design/payment-system)
+   +--> Search Service -> [Elasticsearch](/hld/elasticsearch)
+   +--> Notification Service -> [Kafka](/hld/kafka) -> Email/Push
+   +--> Payment Service -> [payment system](/hld/payment-system)
    |
-  [Kafka](/system-design/kafka) (bid events, close events)
+  [Kafka](/hld/kafka) (bid events, close events)
    |
  Postgres (source of truth)  <->  Redis (price cache + pub/sub)  <->  S3 (images)
 ```
@@ -111,9 +111,9 @@ graph LR
 ```
 
 **Components:**
-- **API Gateway:** JWT auth, per-user [rate limiter](/system-design/rate-limiter) (e.g., 10 bids/sec), request validation, routes to services.
+- **API Gateway:** JWT auth, per-user [rate limiter](/hld/rate-limiter) (e.g., 10 bids/sec), request validation, routes to services.
 - **Auction Service:** Owns `auctions` table; authoritative clock (server `now()`); idempotent close job.
-- **Bid Service:** Stateless API fronting a **per-auction serialized worker**. For hot auctions, bids are partitioned by `auctionId` to a single [Kafka](/system-design/kafka) partition / single-threaded consumer so DB isn't hit with 10k concurrent `SELECT FOR UPDATE`.
+- **Bid Service:** Stateless API fronting a **per-auction serialized worker**. For hot auctions, bids are partitioned by `auctionId` to a single [Kafka](/hld/kafka) partition / single-threaded consumer so DB isn't hit with 10k concurrent `SELECT FOR UPDATE`.
 - **Redis:** Cache `current_price`, `end_at`, `high_bidder_id` for reads + pub/sub channel `auction:{id}:bids` for WS gateway.
 - **Scheduler:** Cron/DB poll that triggers close at `end_at` (with anti-snipe extensions).
 
@@ -220,7 +220,7 @@ A naive design lets 10k connections all `SELECT FOR UPDATE` the same row — Pos
 
 ## Deep dive — closing, settlement, and notifications
 
-Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SET status='CLOSED' WHERE id=? AND status='OPEN'` — only one closer succeeds. On success, enqueue `AuctionClosed` event to [Kafka](/system-design/kafka). Consumers: charge winner via [payment system](/system-design/payment-system) (with idempotency key `auctionId`), notify watchers via [notification system](/system-design/notification-system), update search index. If payment fails, mark `PAYMENT_FAILED` and retry with backoff — don't revert the winner; surface to ops. Scheduler runs every second with `FOR UPDATE SKIP LOCKED` so multiple schedulers don't double-close.
+Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SET status='CLOSED' WHERE id=? AND status='OPEN'` — only one closer succeeds. On success, enqueue `AuctionClosed` event to [Kafka](/hld/kafka). Consumers: charge winner via [payment system](/hld/payment-system) (with idempotency key `auctionId`), notify watchers via [notification system](/hld/notification-system), update search index. If payment fails, mark `PAYMENT_FAILED` and retry with backoff — don't revert the winner; surface to ops. Scheduler runs every second with `FOR UPDATE SKIP LOCKED` so multiple schedulers don't double-close.
 
 ## Common mistakes
 
@@ -242,7 +242,7 @@ Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SE
 
 1. Proxy / auto-bidding with hidden max — extra state machine and incremental bid loop.
 2. Fraud / shill bidding detection — velocity checks, seller-bidder graph, manual review queue.
-3. Images on [CDN](/system-design/cdn) + listing search via [Elasticsearch](/system-design/elasticsearch) with filters (category, price, ending soon).
+3. Images on [CDN](/hld/cdn) + listing search via [Elasticsearch](/hld/elasticsearch) with filters (category, price, ending soon).
 4. Reserve price not met → `UNSOLD` status, notify seller.
 5. Legal / audit: immutable bid ledger, append-only table, point-in-time recovery.
 

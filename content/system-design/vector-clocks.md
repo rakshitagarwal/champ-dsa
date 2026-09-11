@@ -2,7 +2,7 @@
 
 > Bina global ghadi ke kaun pehle hua pata karo — har node apna counter rakhe.
 
-> **TL;DR Hinglish:** Vector clock ek register jaisa jahan har server apne hisse pe tick maare. `A=[1,0,1]` vs `B=[1,1,0]` dekhe to pata chale ek dusre ka nahi dekha — concurrent, warna ek purana.
+> Vector clock ek register jaisa jahan har server apne hisse pe tick maare. `A=[1,0,1]` vs `B=[1,1,0]` dekhe to pata chale ek dusre ka nahi dekha — concurrent, warna ek purana.
 
 Dynamo, Cassandra, Riak, CRDT me.
 
@@ -42,4 +42,4 @@ OR-Set me vector se pata chale `add` aur `remove` concurrent to add jeete.
 
 **Yaad rakho:** No global clock, `VC1<VC2` all <=, mixed = concurrent, Dynamo sibling.
 
-**See also:** [replication](/system-design/replication), [eventual-consistency](/system-design/eventual-consistency), [dynamodb](/system-design/dynamodb).
+**See also:** [replication](/hld/replication), [eventual-consistency](/hld/eventual-consistency), [dynamodb](/hld/dynamodb).

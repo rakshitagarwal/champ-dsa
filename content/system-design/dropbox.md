@@ -2,7 +2,7 @@
 
 > File sync. The product is **metadata + chunks**, not "put one blob in a table." Conflict handling and upload resume are the senior bits.
 
-> **TL;DR Hinglish:** File ko chunks me kaato, metadata Postgres me, chunks S3 me. Sync me delta + deduplication, conflict me last-write-wins ya version.
+> File ko chunks me kaato, metadata Postgres me, chunks S3 me. Sync me delta + deduplication, conflict me last-write-wins ya version.
 
 ## What they ask
 
@@ -42,7 +42,7 @@
 - Need selective sync (choose folders) or full sync?
 
 **Out of scope (v1):**
-- Full collaborative editing like [Google Docs](/system-design/google-docs) (operational transform / CRDT).
+- Full collaborative editing like [Google Docs](/hld/google-docs) (operational transform / CRDT).
 - Real-time co-authoring cursors, comments, or preview generation beyond thumbnails.
 - Full-text search inside file contents.
 
@@ -133,9 +133,9 @@ Desktop / Mobile Clients  <---WebSocket / Long Poll--->  Notification Service
         |                                                    |
    Postgres (sharded) — users, namespaces, files, revisions, chunks
         |
-   [Redis](/system-design/redis) — delta cursor cache, folder listing cache
+   [Redis](/hld/redis) — delta cursor cache, folder listing cache
         |
-   [Kafka](/system-design/kafka) — async: thumbnail, virus scan, search index
+   [Kafka](/hld/kafka) — async: thumbnail, virus scan, search index
 ```
 
 ```mermaid
@@ -152,8 +152,8 @@ graph LR
 - **Metadata Service:** owns file tree, revisions, and commit logic. Writes to Postgres with CAS. Serves `delta` queries. The consistency boundary.
 - **Object Storage (S3):** holds chunks **content-addressed** (`sha256(bytes)` = chunk id). Identical chunks across users stored once — **deduplication**. Immutable after write; GC orphans later.
 - **Notification Service:** after successful commit, publishes `NamespaceUpdated{ namespaceId, newCursor }`. Pushes via WebSocket/long-poll to subscribed devices. Clients then pull `delta`.
-- **[Kafka](/system-design/kafka) workers:** thumbnails, preview, antivirus, search indexing — off hot path.
-- **[Redis](/system-design/redis):** caches `delta` pages and folder listings per user; stores presence/heartbeat.
+- **[Kafka](/hld/kafka) workers:** thumbnails, preview, antivirus, search indexing — off hot path.
+- **[Redis](/hld/redis):** caches `delta` pages and folder listings per user; stores presence/heartbeat.
 
 **Write flow (upload):** Client `begin` → server returns `uploadId` + `chunkSize`. Client splits file, hashes each chunk, uploads chunks in parallel via pre-signed PUTs (retries idempotent). Then `complete` with ordered `chunkHashes` + `expectedParentRev`. Server validates all chunk hashes exist in S3, then **CAS commit** of metadata row (fails if parent rev changed).
 
@@ -286,7 +286,7 @@ class NotificationService:
 
 **Sharing:** A shared folder is a `namespace` with multiple members. `namespace_members` ACL governs read/write. Share link = capability URL `https://dbx.sh/s/<token>` mapping to `(namespaceId, fileId, permission)` with expiry. Validate token on each access; don't expose internal IDs.
 
-**Hot metadata caching:** Folder listings cached in [Redis](/system-design/redis) as `namespace:{id}:listing:{path} → [fileIds]` with TTL 60s + invalidation on commit. `delta` pages also cached. Reduces DB QPS from 270k/s to <10k/s.
+**Hot metadata caching:** Folder listings cached in [Redis](/hld/redis) as `namespace:{id}:listing:{path} → [fileIds]` with TTL 60s + invalidation on commit. `delta` pages also cached. Reduces DB QPS from 270k/s to <10k/s.
 
 **Sharding:** Shard `files`/`revisions` by `namespace_id` hash. Each shard owns a set of namespaces; cross-namespace queries rare. S3 buckets partitioned by `hash[0:2]` prefix for request rate.
 
@@ -309,7 +309,7 @@ class NotificationService:
 1. How to handle **selective sync** (user chooses folders)? Client sends `sync_filter` to server; `delta` filters by `parent_id` subtree.
 2. How to support **team/enterprise** with 100k members? ACL becomes RBAC + groups table; `namespace_members` too large — use group membership resolution at request time with caching.
 3. **Encryption:** client-side — chunk hash is of ciphertext; server can't dedup across keys. Trade-off: dedup vs zero-knowledge. Mention both.
-4. **Preview/thumbnails:** async [Kafka](/system-design/kafka) workers generate via ImageMagick; store in separate S3 prefix, CDN-cached.
+4. **Preview/thumbnails:** async [Kafka](/hld/kafka) workers generate via ImageMagick; store in separate S3 prefix, CDN-cached.
 5. **Trash & restore:** soft delete (`is_deleted=true`, `deleted_at`), retain 30 days, then hard delete revisions + decrement chunk `ref_count`.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.

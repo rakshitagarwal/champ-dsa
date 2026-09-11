@@ -2,7 +2,7 @@
 
 > Geographic data ko organize karo — location-based search fast karo.
 
-> **TL;DR Hinglish:** Geohashing geographic coordinates (lat, lon) ko encoded string mein convert karta hai — shorter string = smaller area. Quadtree space ko recursive quadrants mein divide karta hai. Location-based search (nearby restaurants, Uber nearby drivers) ke liye use hota hai. Geohash prefix = parent area, shorter prefix = larger area. Uber, Yelp geohash use karte hain nearby search ke liye.
+> Geohashing geographic coordinates (lat, lon) ko encoded string mein convert karta hai — shorter string = smaller area. Quadtree space ko recursive quadrants mein divide karta hai. Location-based search (nearby restaurants, Uber nearby drivers) ke liye use hota hai. Geohash prefix = parent area, shorter prefix = larger area. Uber, Yelp geohash use karte hain nearby search ke liye.
 
 Geohashing geographic coordinates ko compact strings mein encode karta hai:
 
@@ -47,4 +47,4 @@ graph TD
 
 **Yaad rakho (Revision):** Geohash lat/lon to string, longer=more precise, prefix match for nearby, quadtree recursive quadrants, edge cases near boundaries, used by Uber/Yelp.
 
-**See also:** [Uber](/system-design/uber), [Yelp](/system-design/yelp), [Local Delivery Service](/system-design/local-delivery).
+**See also:** [Uber](/hld/uber), [Yelp](/hld/yelp), [Local Delivery Service](/hld/local-delivery).

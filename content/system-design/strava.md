@@ -2,7 +2,7 @@
 
 > Fitness social network. GPS traces are **fat time-series**. Segments and leaderboards are the spicy extra — not just "Instagram for runs."
 
-> **TL;DR Hinglish:** Strava already covered
+> Strava already covered
 
 ## What they ask
 
@@ -151,9 +151,9 @@ graph LR
 **Component roles:**
 - **API Gateway + Activity Service:** validate sport, create `activity` row with `status=processing`, return 201 immediately. Trace bytes never touch app servers.
 - **Pipeline workers (Kafka consumers):** (1) **Simplify** polyline (Douglas-Peucker ε=3-5 m) + generate map thumbnail via tile renderer; (2) **Compute stats** (distance via haversine sum, elevation gain filtered, moving time via speed threshold); (3) **Privacy fuzz** — trim or mask first/last 400 m if user has home zone; (4) **Segment matcher** — query geo index for segments whose bbox intersects activity bbox; (5) **Leaderboard updater** + **feed fan-out**.
-- **Segment geo index:** [Elasticsearch](/system-design/elasticsearch) with `geo_shape` or S2 / H3 index on segment corridor; query by activity bounding box (+ buffer) to get ~50 candidates, not 5M.
-- **Leaderboard store:** [Redis](/system-design/redis) sorted set per segment (`score=elapsedMs`, member=`userId:activityId`) for overall + per-year shards; Postgres `effort` table is source of truth.
-- **Feed store:** push `activityId` to followers' inboxes (Redis sorted set by `createdAt`), similar to [Instagram](/system-design/instagram) but lower QPS.
+- **Segment geo index:** [Elasticsearch](/hld/elasticsearch) with `geo_shape` or S2 / H3 index on segment corridor; query by activity bounding box (+ buffer) to get ~50 candidates, not 5M.
+- **Leaderboard store:** [Redis](/hld/redis) sorted set per segment (`score=elapsedMs`, member=`userId:activityId`) for overall + per-year shards; Postgres `effort` table is source of truth.
+- **Feed store:** push `activityId` to followers' inboxes (Redis sorted set by `createdAt`), similar to [Instagram](/hld/instagram) but lower QPS.
 - **CDN:** serves `line.json` (simplified polyline + elevation array) and static map thumbnail; 1-year immutable cache.
 
 **Write path (upload):** Phone records GPS → `presign` → PUT to S3 → `POST /activities` → Postgres row `processing` → Kafka `ActivityUploaded` → workers run in parallel, each idempotent → mark `ready` → fan-out.
@@ -345,19 +345,19 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 - **Pipeline worker crash:** Kafka offset not committed → replay; idempotent `effort` unique constraint + `activity.status` state machine prevent doubles.
 - **Geo index down:** segment matching pauses, activities stay `ready` without efforts; matcher replays from `ActivityUploaded` topic with retention (7 days).
 - **Postgres down:** activity page serves from Redis `activity:{id}` + S3 polyline via CDN; writes queue in Kafka.
-- **Redis leaderboard hot shard:** consistent hash shards `s:{segmentId}` by hash slot ([Redis](/system-design/redis) cluster); top-page CDN cache absorbs 90% of reads.
+- **Redis leaderboard hot shard:** consistent hash shards `s:{segmentId}` by hash slot ([Redis](/hld/redis) cluster); top-page CDN cache absorbs 90% of reads.
 - **Sharding:** activities sharded by `user_id` hash; segments sharded by geohash region; efforts co-located with segment shard (partition by `segment_id`).
 - **Replication:** Postgres streaming replica per shard; S3 cross-region; Kafka 3×; Redis replica + AOF.
 - **Probes:** pipeline consumer lag, segment match rate (efforts/activity), leaderboard cache hit ratio, GPS parse failure rate, feed fan-out lag.
 
 ## Extra probes / follow-ups
 
-1. **Live segments / beacons:** WebSocket per active activity with TTL in [Redis](/system-design/redis); phone pushes location every 5s; server does corridor check live. Similar to [Uber](/system-design/uber) location.
+1. **Live segments / beacons:** WebSocket per active activity with TTL in [Redis](/hld/redis); phone pushes location every 5s; server does corridor check live. Similar to [Uber](/hld/uber) location.
 2. **Route planning / heatmaps:** nightly batch aggregates `activity` polylines into H3 cells → heatmap tiles served from S3/CDN; not on the hot path.
 3. **Cheating / GPS sanity:** speed sanity filter, duplicate trace hash, flag sudden teleport (> 50 m between 1s points).
 4. **Dedup accidental double uploads:** `hash(raw_file)` + `user_id` uniqueness; or `started_at` + `distance` near-duplicate window 10 min.
 5. **Gear / devices:** FIT file parsing for heart-rate, power; store raw in S3, summarized time-series in a TSDB if needed.
-6. **Analytics:** `segment_effort_created` events to [Kafka](/system-design/kafka) → warehouse for segment popularity, PR notifications via [notification system](/system-design/notification-system).
+6. **Analytics:** `segment_effort_created` events to [Kafka](/hld/kafka) → warehouse for segment popularity, PR notifications via [notification system](/hld/notification-system).
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

@@ -2,7 +2,7 @@
 
 > Data ko multiple servers pe copy karo — availability badhegi, reads faster hongi.
 
-> **TL;DR Hinglish:** Database replication data ko multiple servers pe copy karna. Types: Leader-Follower (ek leader, baaki followers), Multi-Leader (sab leaders), Leaderless (quorum). Synchronous (write wait karta follower pe) vs Asynchronous (follower baad me aata). Read replicas reads fast karte hain, writes leader pe hote hain. Replication lag — data stale ho sakti hai follower pe.
+> Database replication data ko multiple servers pe copy karna. Types: Leader-Follower (ek leader, baaki followers), Multi-Leader (sab leaders), Leaderless (quorum). Synchronous (write wait karta follower pe) vs Asynchronous (follower baad me aata). Read replicas reads fast karte hain, writes leader pe hote hain. Replication lag — data stale ho sakti hai follower pe.
 
 Replication data availability aur read scalability badhata hai:
 
@@ -39,4 +39,4 @@ graph LR
 
 **Yaad rakho (Revision):** Leader-follower, multi-leader, leaderless types, sync vs async replication, read replicas, replication lag, leader failover, split-brain risk.
 
-**See also:** [Replication](/system-design/replication), [CAP Theorem](/system-design/cap-theorem), [Quorum](/system-design/quorum).
+**See also:** [Replication](/hld/replication), [CAP Theorem](/hld/cap-theorem), [Quorum](/hld/quorum).

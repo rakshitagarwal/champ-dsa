@@ -2,7 +2,7 @@
 
 > Data ka jagah — persistent storage options: block, file, object. Har ek ka use case alag hai.
 
-> **TL;DR Hinglish:** Storage 3 types: Block (raw disk, VMs ke liye), File (hierarchy, shared access), Object (blobs, S3, scalable). Database storage (Postgres, MySQL) structured ke liye, cache storage (Redis) fast reads ke liye, object storage (S3) media/files ke liye. CAP theorem se storage decisions lo — consistency vs availability trade-off.
+> Storage 3 types: Block (raw disk, VMs ke liye), File (hierarchy, shared access), Object (blobs, S3, scalable). Database storage (Postgres, MySQL) structured ke liye, cache storage (Redis) fast reads ke liye, object storage (S3) media/files ke liye. CAP theorem se storage decisions lo — consistency vs availability trade-off.
 
 Storage system mein data persist karne ke options:
 
@@ -48,4 +48,4 @@ graph TD
 
 **Yaad rakho (Revision):** Block storage (VMs/DBs), File storage (shared/NFS), Object storage (S3, media), right storage for right use case, replication/snapshots for durability, CAP theorem storage decisions.
 
-**See also:** [Caching Strategies](/system-design/caching-strategies), [Database Replication](/system-design/database-replication), [Distributed Cache](/system-design/distributed-cache).
+**See also:** [Caching Strategies](/hld/caching-strategies), [Database Replication](/hld/database-replication), [Distributed Cache](/hld/distributed-cache).

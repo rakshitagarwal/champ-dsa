@@ -1,8 +1,8 @@
 # Google Docs
 
-> Collaborative editing. The puzzle is **concurrent edits on one document**, not storing files (that's [Dropbox](/system-design/dropbox)).
+> Collaborative editing. The puzzle is **concurrent edits on one document**, not storing files (that's [Dropbox](/hld/dropbox)).
 
-> **TL;DR Hinglish:** Ek doc ek server (consistent hash), OT/CRDT se merge, presence Redis, ops Kafka log + S3 snapshot, cursor sync.
+> Ek doc ek server (consistent hash), OT/CRDT se merge, presence Redis, ops Kafka log + S3 snapshot, cursor sync.
 
 ## What they ask
 
@@ -54,7 +54,7 @@ Example scale: 100M docs, 1M DAU, avg doc 50KB, 10 concurrent editors per hot do
 | Active editing docs | 5% of DAU × 1 doc/user | 50k concurrent docs | 50k primaries to place |
 | Ops rate | 10 editors × 2 ops/sec per hot doc, 5k hot docs | 5k × 20 | **100k ops/sec peak cluster** (avg 1k) |
 | Op storage | 50 bytes/op metadata + range | 100k × 50B = 5MB/s | **~430 GB/day** raw ops before compaction/snapshot |
-| Presence | 50k docs × 3 viewers avg | 150k ephemeral entries | Fits in [Redis](/system-design/redis) memory, TTL 30s |
+| Presence | 50k docs × 3 viewers avg | 150k ephemeral entries | Fits in [Redis](/hld/redis) memory, TTL 30s |
 | Snapshot frequency | every 500 ops or 5 min | 100k ops/sec / 500 | 200 snapshots/sec to S3 — batch and coalesce |
 
 Bandwidth: ops are tiny; fan-out is N per op (N = collaborators on doc, usually <10). 100k ops/sec × 10 fan-out × 100B = 100MB/s egress — manageable if doc-affine.
@@ -138,10 +138,10 @@ graph LR
 **Component roles:**
 - **Doc Metadata Service:** CRUD for `docs` and `acl` in Postgres; validates share; issues doc-scoped token for WS.
 - **Doc Router:** consistent hash `docId → host`; client WS connects to any gateway, gateway looks up primary and proxies or redirects. Keeps single primary per doc (with standby replica) to serialize ops.
-- **Doc Server (the heart):** holds authoritative in-memory document (e.g., string + attributes). On `op(baseRev, ops)`, transforms against concurrent ops since `baseRev`, assigns `seq = ++revision`, appends to durable log ([Kafka](/system-design/kafka) or Postgres `doc_ops`), applies to memory, broadcasts `remoteOp(seq, ops)` to all subscribers. ACKs the sender.
+- **Doc Server (the heart):** holds authoritative in-memory document (e.g., string + attributes). On `op(baseRev, ops)`, transforms against concurrent ops since `baseRev`, assigns `seq = ++revision`, appends to durable log ([Kafka](/hld/kafka) or Postgres `doc_ops`), applies to memory, broadcasts `remoteOp(seq, ops)` to all subscribers. ACKs the sender.
 - **S3 Snapshot Store:** every N ops (500) or T minutes (5), doc server flushes compacted snapshot `rev43.json` to S3 and truncates old ops. New joiners fetch snapshot + tail ops.
-- **Presence Service:** not durable — cursor updates via WS → in-memory → [Redis](/system-design/redis) with TTL; broadcast via same WS fan-out; cleared on disconnect.
-- **[Kafka](/system-design/kafka) / opLog:** durability + replay for history and snapshot rebuild if doc server crashes.
+- **Presence Service:** not durable — cursor updates via WS → in-memory → [Redis](/hld/redis) with TTL; broadcast via same WS fan-out; cleared on disconnect.
+- **[Kafka](/hld/kafka) / opLog:** durability + replay for history and snapshot rebuild if doc server crashes.
 
 **Data flow — write path (typing):** User types "hello" → client sends `op(baseRev=42, insert hello at 10)` over WS → Doc Server locks doc, OT-transforms if `baseRev < currentRev`, assigns `seq=43`, appends to Kafka, applies, broadcasts to 9 other editors, ACKs sender with `seq`. Each remote client applies transformed op to local model.
 
@@ -238,7 +238,7 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 
 ## Deep dive — Presence, history, and reconnect
 
-**Presence is not edits.** Cursors churn at 10Hz — don't write them to Postgres or Kafka. Keep them in-memory on the doc server plus [Redis](/system-design/redis) `SETEX doc:{id}:presence:{userId} '{cursor:15,color:red}' 30` and pub/sub fan-out. On disconnect, TTL expires and user fades from UI.
+**Presence is not edits.** Cursors churn at 10Hz — don't write them to Postgres or Kafka. Keep them in-memory on the doc server plus [Redis](/hld/redis) `SETEX doc:{id}:presence:{userId} '{cursor:15,color:red}' 30` and pub/sub fan-out. On disconnect, TTL expires and user fades from UI.
 
 **History & snapshots:** Replaying 2 years of keystrokes (millions of ops) to open a doc is wasteful. Doc server compacts every N ops: produce snapshot JSON (text + attributes + rev), upload to S3, update `docs.snapshot_s3_key`, and allow truncation of ops before snapshot (keep last K snapshots for version history). `GET /history?fromRev` can fetch snapshot + tail ops or diff ops between revisions.
 
@@ -252,9 +252,9 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 ## Handling failures and scale
 
 - **Sharding:** Docs sharded by `docId` consistent hash across doc servers (e.g., 64 vnodes). No single doc hot-shards the DB because its working set is in memory on its primary; only opLog writes hit shared storage.
-- **Replication & failover:** Each doc primary has a warm standby (replica subscribes to same [Kafka](/system-design/kafka) partition). On primary crash, router promotes standby (takes ~1-2s), replays unapplied Kafka tail, clients auto-reconnect. S3 snapshot + Kafka log = no data loss if both die? Replay from log.
+- **Replication & failover:** Each doc primary has a warm standby (replica subscribes to same [Kafka](/hld/kafka) partition). On primary crash, router promotes standby (takes ~1-2s), replays unapplied Kafka tail, clients auto-reconnect. S3 snapshot + Kafka log = no data loss if both die? Replay from log.
 - **Caching:** ACL cached 5s in Redis + local LRU; snapshot fetched via CDN (`Cache-Control: immutable` per rev). Quote-style invalidation not needed — rev is versioned.
-- **Replication:** Postgres primary-replica for metadata; doc ops in [Kafka](/system-design/kafka) RF=3 or Postgres with streaming replica. S3 is 11-nines durable.
+- **Replication:** Postgres primary-replica for metadata; doc ops in [Kafka](/hld/kafka) RF=3 or Postgres with streaming replica. S3 is 11-nines durable.
 - **Failure modes:**
   - *Split brain (two primaries):* fencing via lease (Redis `SET NX doc:lease:{docId} host 10s`) — only lease holder accepts writes.
   - *Client offline 1 hour:* local ops queued, on reconnect transformed and merged — no silent loss.
@@ -267,9 +267,9 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 1. **Rich text attributes:** How do you represent bold/heading? Attribute ops `{ retain:5, attributes:{bold:true} }` transformed like text ops — composition must carry attributes.
 2. **Suggesting mode:** Overlay layer — edits stored as suggestions with `accept/reject` that apply as normal ops when accepted (extra state machine, not in core OT).
 3. **Access control on WS:** Token is doc-scoped and short-lived (5m); gateway validates on handshake and doc server re-validates every op against cached ACL — revoke propagates within seconds.
-4. **Search:** Index snapshots in [Elasticsearch](/system-design/elasticsearch) asynchronously via Kafka consumer; search doesn't block editing.
-5. **Rate limiting per doc:** Per-user op rate 20/sec via [rate limiter](/system-design/rate-limiter) on gateway; large paste counts as 1 op but size-limited (1MB).
-6. **Compare to [Dropbox](/system-design/dropbox):** Dropbox does file-level LWW + conflict copies; Docs does character-level merge — explain when each is appropriate.
+4. **Search:** Index snapshots in [Elasticsearch](/hld/elasticsearch) asynchronously via Kafka consumer; search doesn't block editing.
+5. **Rate limiting per doc:** Per-user op rate 20/sec via [rate limiter](/hld/rate-limiter) on gateway; large paste counts as 1 op but size-limited (1MB).
+6. **Compare to [Dropbox](/hld/dropbox):** Dropbox does file-level LWW + conflict copies; Docs does character-level merge — explain when each is appropriate.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

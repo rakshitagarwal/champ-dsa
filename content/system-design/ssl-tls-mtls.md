@@ -2,7 +2,7 @@
 
 > Encryption protocols — data secure channel mein bhejo.
 
-> **TL;DR Hinglish:** SSL/TLS data encryption karta hai — client-server communication secure. TLS = updated SSL (TLS 1.2/1.3). mTLS (mutual TLS) dono parties authenticate karte hain — client bhi certificate dikhata server ko. Encryption = data unreadable, Integrity = data unmodified, Authentication = who is communicating. HTTPS = HTTP + TLS. Certificate Authorities (CAs) verify identity. PKI (Public Key Infrastructure) backbone hai.
+> SSL/TLS data encryption karta hai — client-server communication secure. TLS = updated SSL (TLS 1.2/1.3). mTLS (mutual TLS) dono parties authenticate karte hain — client bhi certificate dikhata server ko. Encryption = data unreadable, Integrity = data unmodified, Authentication = who is communicating. HTTPS = HTTP + TLS. Certificate Authorities (CAs) verify identity. PKI (Public Key Infrastructure) backbone hai.
 
 SSL/TLS/mTLS secure communication ke liye:
 
@@ -49,4 +49,4 @@ graph TD
 
 **Yaad rakho (Revision):** TLS 1.2/1.3 current, HTTPS = HTTP+TLS, handshake (client+server hello, certificate, key exchange), mTLS = mutual auth, PKI/CA, certificate expiry risk, TLS 1.3 preferred.
 
-**See also:** [OAuth 2.0 and OIDC](/system-design/oauth2-and-openid-connect), [Single Sign-On](/system-design/single-sign-on), [API Gateway](/system-design/api-gateway).
+**See also:** [OAuth 2.0 and OIDC](/hld/oauth2-and-openid-connect), [Single Sign-On](/hld/single-sign-on), [API Gateway](/hld/api-gateway).

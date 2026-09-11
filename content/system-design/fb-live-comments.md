@@ -2,7 +2,7 @@
 
 > Comments on a **live** video. The problem is **fan-out of a hot firehose** to millions of viewers without one chat server dying.
 
-> **TL;DR Hinglish:** 1M viewers pe polling nahi — sampling + WebSocket fan-out, regional edge, lag acceptable.
+> 1M viewers pe polling nahi — sampling + WebSocket fan-out, regional edge, lag acceptable.
 
 ## What they ask
 
@@ -13,7 +13,7 @@ What the interviewer tests:
 - Can you avoid the naive `poll GET /comments` and the naive `one WS server for 2M viewers`?
 - Can you separate the **write log** (durable, ordered per stream) from the **read fan-out** (sampled, partitioned, pub/sub)?
 - Do you have a story for **backpressure, sampling, and catch-up** when the UI cannot render 1K comments/s?
-- Do you reuse pieces from [Rate Limiter](/system-design/rate-limiter), [Kafka](/system-design/kafka), [Redis](/system-design/redis), [Cassandra](/system-design/cassandra), [WebSocket](/system-design/websocket)?
+- Do you reuse pieces from [Rate Limiter](/hld/rate-limiter), [Kafka](/hld/kafka), [Redis](/hld/redis), [Cassandra](/hld/cassandra), [WebSocket](/hld/websocket)?
 
 A strong answer: *append to per-stream log → partition viewers across subscriber shards → broadcast via pub/sub → sample if overloaded → catch-up from durable store on join*.
 
@@ -34,11 +34,11 @@ Assume a top stream: 2M concurrent viewers, 1% comment at 0.1 comment/min per co
 |---|---|---|
 | Write QPS (comments) | 33–200/s per hot stream; 100 hot streams concurrently | **3K–20K writes/s** globally |
 | Fan-out multiplier | 200 comments/s × 2M viewers = **400M deliveries/s** if every comment to every viewer | Impossible via 1:1 push — must sample/partition |
-| Storage (durable) | 200/s × 300 bytes × 3600s = **~216 MB/hr** per mega-stream | Tiny — goes to [Cassandra](/system-design/cassandra), not hot path |
+| Storage (durable) | 200/s × 300 bytes × 3600s = **~216 MB/hr** per mega-stream | Tiny — goes to [Cassandra](/hld/cassandra), not hot path |
 | Connections | 2M WS per stream × 100 streams = **200M sockets** globally if naïve | Must shard subscriber fleet: 2M / 50K per node = 40 nodes per mega-stream |
 | Bandwidth (sampled) | Deliver 20 comments/s × 300 bytes × 2M = **12 GB/s** if sampled to 20/s | Still huge — requires regional pub/sub + edge aggregation, not one DC |
 
-Conclusion: the **bottleneck is fan-out, not writes**. You can append 200/s to [Kafka](/system-design/kafka) trivially; you cannot push 400M/s 1:1. So you **partition viewers** and **sample**.
+Conclusion: the **bottleneck is fan-out, not writes**. You can append 200/s to [Kafka](/hld/kafka) trivially; you cannot push 400M/s 1:1. So you **partition viewers** and **sample**.
 
 ## API Design
 
@@ -86,12 +86,12 @@ graph LR
 
 **Components:**
 
-- **Comment Service (write):** Validates ([Rate Limiter](/system-design/rate-limiter) per user per stream), appends to [Kafka](/system-design/kafka) topic partitioned by `streamId` (order per stream), dual-writes to [Cassandra](/system-design/cassandra) for catch-up. Returns 201 immediately; moderation is async.
-- **[Kafka](/system-design/kafka) Log:** Single partition per hot stream ensures order without global lock. Retention hours–days. Acts as replay source for new subscriber nodes.
-- **Subscriber Fleet (read):** Holds viewer [WebSocket](/system-design/websocket) connections, sharded by `hash(viewerId)` or LB least-connections. Each shard subscribes to a **dispatcher** that fans Kafka → pub/sub channels `live:{streamId}:{shardId}`. Viewers in a shard get a **sampled** feed (e.g., token bucket 20/s per shard) plus `count` and `highlight` out-of-band.
+- **Comment Service (write):** Validates ([Rate Limiter](/hld/rate-limiter) per user per stream), appends to [Kafka](/hld/kafka) topic partitioned by `streamId` (order per stream), dual-writes to [Cassandra](/hld/cassandra) for catch-up. Returns 201 immediately; moderation is async.
+- **[Kafka](/hld/kafka) Log:** Single partition per hot stream ensures order without global lock. Retention hours–days. Acts as replay source for new subscriber nodes.
+- **Subscriber Fleet (read):** Holds viewer [WebSocket](/hld/websocket) connections, sharded by `hash(viewerId)` or LB least-connections. Each shard subscribes to a **dispatcher** that fans Kafka → pub/sub channels `live:{streamId}:{shardId}`. Viewers in a shard get a **sampled** feed (e.g., token bucket 20/s per shard) plus `count` and `highlight` out-of-band.
 - **Pub/Sub (Redis/NATS):** Regional broadcast. One dispatcher per stream partition publishes to N shard channels; subscriber nodes are simple consumers (no per-viewer Kafka consumer — that would be 2M consumers).
-- **[Cassandra](/system-design/cassandra) / Dynamo:** Durable store `PK=streamId, SK=ts`. Used for `GET /comments?cursor=` catch-up and replay after disconnect.
-- **Presence:** Viewer count in [Redis](/system-design/redis) (`INCR live:{streamId}:viewers` on WS connect with TTL). Not in Postgres.
+- **[Cassandra](/hld/cassandra) / Dynamo:** Durable store `PK=streamId, SK=ts`. Used for `GET /comments?cursor=` catch-up and replay after disconnect.
+- **Presence:** Viewer count in [Redis](/hld/redis) (`INCR live:{streamId}:viewers` on WS connect with TTL). Not in Postgres.
 - **Moderation:** Async consumer of Kafka; marks comment `hidden` and emits `comment.moderated` → dispatcher sends `remove`/`hide` to shards.
 
 **Write flow:** `POST /comments` → Gateway rate-limit → Comment Service `INSERT Cassandra` + `produce Kafka{streamId, comment}` (outbox for exactly-once) → `201` + WS push via dispatcher → sampled delivery.
@@ -184,11 +184,11 @@ Total order of millions of comments is **expensive and useless** — a phone ren
 
 ## Deep dive — backpressure and catch-up on join
 
-If a client is **slow** (bad Wi-Fi), do not buffer unbounded on server — that OOMs the subscriber fleet. Drop with a counter and let client show "You're behind — 3K new comments". On **join**, the viewer first `GET /comments?cursor=latest` gets last N (e.g., 50) from [Cassandra](/system-design/cassandra), then attaches WS for live — so gap between REST and WS is covered by dedup on `commentId`. On **reconnect**, send `cursor=lastSeenCommentId` and server replays from that cursor (Cassandra range), then resumes live. Dispatcher lag is monitored; if a shard lags > 2s, shed sampled rate further.
+If a client is **slow** (bad Wi-Fi), do not buffer unbounded on server — that OOMs the subscriber fleet. Drop with a counter and let client show "You're behind — 3K new comments". On **join**, the viewer first `GET /comments?cursor=latest` gets last N (e.g., 50) from [Cassandra](/hld/cassandra), then attaches WS for live — so gap between REST and WS is covered by dedup on `commentId`. On **reconnect**, send `cursor=lastSeenCommentId` and server replays from that cursor (Cassandra range), then resumes live. Dispatcher lag is monitored; if a shard lags > 2s, shed sampled rate further.
 
 ## Deep dive — moderation and abuse without blocking writes
 
-Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms ML — do not block `POST /comments` on it. Write is `status=pending` → after ML, update to `visible`/`hidden`; dispatcher sends `hide` to shards if hidden. Abuse: [Rate Limiter](/system-design/rate-limiter) **per user per stream** (e.g., 1 comment/2s, burst 5) at the gateway; global per-IP limit as backup. Q&A mode is a separate filtered topic (`live.qna`) with stricter sampling and mod queue.
+Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms ML — do not block `POST /comments` on it. Write is `status=pending` → after ML, update to `visible`/`hidden`; dispatcher sends `hide` to shards if hidden. Abuse: [Rate Limiter](/hld/rate-limiter) **per user per stream** (e.g., 1 comment/2s, burst 5) at the gateway; global per-IP limit as backup. Q&A mode is a separate filtered topic (`live.qna`) with stricter sampling and mod queue.
 
 ## Common mistakes
 
@@ -197,7 +197,7 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 
 ## Handling failures and scale
 
-- **Subscriber node crash:** Viewers reconnect via LB to another node; presence count self-heals via TTL; no message loss because durable log is in [Kafka](/system-design/kafka)/Cassandra — client catches up by cursor.
+- **Subscriber node crash:** Viewers reconnect via LB to another node; presence count self-heals via TTL; no message loss because durable log is in [Kafka](/hld/kafka)/Cassandra — client catches up by cursor.
 - **Dispatcher lag / Kafka consumer lag:** Autoscale dispatchers per hot stream; add partitions only for new streams (hot stream stays one partition for order). If lag > threshold, increase sampling drop rate (deliver 10/s instead of 20/s).
 - **Cassandra hotspot (viral stream):** Single `streamId` partition is hot — use `TWCS` + large partition handling, and front with Redis cache of last 200 comments per stream (updated by dispatcher) so catch-up rarely hits Cassandra.
 - **Redis/NATS pub/sub down:** Fallback to polling `GET /comments?cursor=` every 2s (degraded but functional); writes still append to Kafka.
@@ -207,10 +207,10 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 ## Extra probes / follow-ups
 
 1. **Moderation:** Async ML, delay overlay a few hundred ms — client shows "sending…" then `visible`/`hidden`; human mods get a separate queue.
-2. **Abuse:** Per-user per-stream [Rate Limiter](/system-design/rate-limiter) + global IP limiter; shadow-ban by still 201 but not fanning to others.
+2. **Abuse:** Per-user per-stream [Rate Limiter](/hld/rate-limiter) + global IP limiter; shadow-ban by still 201 but not fanning to others.
 3. **Q&A mode:** Separate filtered topic with upvotes, only `top-K` fanned to all, rest on demand — avoids firehose for questions.
 4. **Reactions (likes/hearts):** Aggregated counter per window, not per-comment fan-out — push `count` every 1s, not each heart.
-5. **See also:** [WebSocket](/system-design/websocket), [Notification System](/system-design/notification-system) for offline highlights.
+5. **See also:** [WebSocket](/hld/websocket), [Notification System](/hld/notification-system) for offline highlights.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

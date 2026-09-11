@@ -2,7 +2,7 @@
 
 > Data organize karne ka method — redundancy kam karne vs read fast karne.
 
-> **TL;DR Hinglish:** Normalization data redundancy kam karta hai — tables mein split karo, relationships se connect karo (1NF, 2NF, 3NF). Denormalization data duplicate karke reads fast karta hai — redundant data ek jagah store karo. Interview mein samjho — normal form mein writes tez hain, reads slow (joins). Denormalized mein reads fast hain, writes slow (update multiple places).
+> Normalization data redundancy kam karta hai — tables mein split karo, relationships se connect karo (1NF, 2NF, 3NF). Denormalization data duplicate karke reads fast karta hai — redundant data ek jagah store karo. Interview mein samjho — normal form mein writes tez hain, reads slow (joins). Denormalized mein reads fast hain, writes slow (update multiple places).
 
 Normalization aur denormalization data organize karne ke opposite approaches:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** 1NF (atomic), 2NF (no partial dep), 3NF (no transitive dep), denormalization (duplicate for speed), OLTP = normalized, OLAP = denormalized, update anomaly risk.
 
-**See also:** [Databases and DBMS](/system-design/databases-and-dbms), [SQL Databases](/system-design/sql-databases), [Database Indexing](/system-design/database-indexing).
+**See also:** [Databases and DBMS](/hld/databases-and-dbms), [SQL Databases](/hld/sql-databases), [Database Indexing](/hld/database-indexing).

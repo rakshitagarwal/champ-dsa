@@ -2,7 +2,7 @@
 
 > Ride hailing. The unique piece is **nearby search on moving drivers**, then a **trip state machine**. Payments and maps are boxes, not the whole hour.
 
-> **TL;DR Hinglish:** Trip state Postgres me lock, driver GPS Redis GEO me. Match = GEOSEARCH + CAS assignment, pricing surge Redis me.
+> Trip state Postgres me lock, driver GPS Redis GEO me. Match = GEOSEARCH + CAS assignment, pricing surge Redis me.
 
 ## What they ask
 
@@ -23,7 +23,7 @@ A strong answer: *per-city geo index in memory → atomic match → durable trip
 |---|---|
 | **Functional** | Rider: see nearby drivers + ETA, request ride (pickup, dropoff, product=UberX/Pool), cancel, track driver, rate. Driver: go online/offline, accept/reject, update location at ~1–4s, start/complete trip. Trip lifecycle: requested → matched → enroute → in_progress → completed/cancelled |
 | **Non-functional** | Match in < 2s, location freshness < 5s, no double-assign, exactly-once money, trip history durable, 10M+ concurrent drivers globally |
-| **Clarify** | v1: one rider per car (no Pool), city-sharded, cash + card (call [Payment System](/system-design/payment-system) a box), surge pricing yes/no, scheduled rides v2 |
+| **Clarify** | v1: one rider per car (no Pool), city-sharded, cash + card (call [Payment System](/hld/payment-system) a box), surge pricing yes/no, scheduled rides v2 |
 | **Out of scope v1** | In-car navigation turn-by-turn, driver payroll, fraud/ML ETA, Pool matching optimization |
 
 ## Scale estimation
@@ -38,7 +38,7 @@ Assume 50M riders, 5M drivers, 10% concurrent.
 | Storage (trips) | 5M × 1 KB = **5 GB/day**, 1.8 TB/year | Postgres per city shard is fine |
 | Bandwidth (WS) | 500K drivers × 200 bytes × 0.33 Hz ≈ 33 MB/s + riders | WebSocket fleet sharded |
 
-Conclusion: **trip writes are tiny**, **location writes dominate** — they belong in [Redis](/system-design/redis) / memory, not `UPDATE drivers SET lat=` in Postgres at 165K TPS.
+Conclusion: **trip writes are tiny**, **location writes dominate** — they belong in [Redis](/hld/redis) / memory, not `UPDATE drivers SET lat=` in Postgres at 165K TPS.
 
 ## API Design
 
@@ -99,11 +99,11 @@ graph LR
 
 **Components:**
 
-- **API Gateway + LB:** Auth, [Rate Limiter](/system-design/rate-limiter), city-aware routing (`city_id` from pickup geohash → shard).
-- **Trip Service:** Source of truth for money. State machine in [Postgres](/system-design/postgres) (or Cockroach) sharded by `city_id`. All transitions via atomic `UPDATE ... WHERE status=expected`.
-- **Location Service:** Drivers stream GPS via WS to a fleet sharded by `city_id`. Each node maintains a [Redis](/system-design/redis) GEO index (`GEOADD drivers:{city} lng lat driverId`) + in-memory TTL map. Never writes to Postgres.
+- **API Gateway + LB:** Auth, [Rate Limiter](/hld/rate-limiter), city-aware routing (`city_id` from pickup geohash → shard).
+- **Trip Service:** Source of truth for money. State machine in [Postgres](/hld/postgres) (or Cockroach) sharded by `city_id`. All transitions via atomic `UPDATE ... WHERE status=expected`.
+- **Location Service:** Drivers stream GPS via WS to a fleet sharded by `city_id`. Each node maintains a [Redis](/hld/redis) GEO index (`GEOADD drivers:{city} lng lat driverId`) + in-memory TTL map. Never writes to Postgres.
 - **Matching / Dispatch:** Finds N closest candidates via GEOSEARCH, filters by product/occupancy, offers via push. First `accept` wins via DB CAS.
-- **WebSocket Fleet:** Holds `userId → {node, conn}` map in Redis; routes `eta_update` and `trip_state` via pub/sub ([Kafka](/system-design/kafka) or Redis PubSub).
+- **WebSocket Fleet:** Holds `userId → {node, conn}` map in Redis; routes `eta_update` and `trip_state` via pub/sub ([Kafka](/hld/kafka) or Redis PubSub).
 - **Pricing / Surge:** Computes fare, multiplier per geohash when `demand/supply` high; cached 30s.
 - **Maps / Routing:** External provider (Google/OSRM) for ETA and route; cache popular edges in Redis.
 
@@ -191,7 +191,7 @@ class WSConnectionRegistry { // backed by Redis hash userId -> nodeId
 
 ### Concurrency & algorithms
 
-- **No double-assign:** `accept` is a single-row atomic transaction. Second driver gets `409`. No distributed lock, no [Kafka](/system-design/kafka) for the assign lock — Kafka is for analytics only.
+- **No double-assign:** `accept` is a single-row atomic transaction. Second driver gets `409`. No distributed lock, no [Kafka](/hld/kafka) for the assign lock — Kafka is for analytics only.
 - **Optimistic locking:** `UPDATE trips SET status=?, version=version+1 WHERE trip_id=? AND version=?` prevents lost start/complete races.
 - **Geo index:** [Redis GEO](https://redis.io/commands/geoadd) = sorted set of geohash; `GEOSEARCH` is O(log N + M). Alternative: S2 cells / quadtree per city for even finer control.
 - **Ghost cars:** TTL 15s; `ZREM` on expiry so stale pins disappear. Client heartbeat every 3s.
@@ -210,7 +210,7 @@ Maps is expensive. Cache route + ETA for popular edges (`geohash5:geohash5 → {
 
 ## Deep dive — exactly-once money
 
-Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.completed` exactly once (outbox pattern: write to `outbox` table in same TX, relay to [Kafka](/system-design/kafka)). Payment service consumes idempotently (`tripId` deduped). If driver app is offline in a tunnel, `complete` still succeeds when it reconnects — location was stale but `status` remained `in_progress` in DB. Cancel/no-show are state transitions with fee rules, not location deletes.
+Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.completed` exactly once (outbox pattern: write to `outbox` table in same TX, relay to [Kafka](/hld/kafka)). Payment service consumes idempotently (`tripId` deduped). If driver app is offline in a tunnel, `complete` still succeeds when it reconnects — location was stale but `status` remained `in_progress` in DB. Cancel/no-show are state transitions with fee rules, not location deletes.
 
 ## Common mistakes
 
@@ -222,7 +222,7 @@ Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.c
 - **Driver WS drop / tunnel:** Trip row persists; rider sees last known location + stale ETA. On reconnect, driver re-registers and replay is unnecessary.
 - **Redis down:** Location degraded (nearby returns fewer drivers, dispatch queues), but trip accept/start/complete still work via Postgres. Fail open for nearby, fail closed for payments.
 - **Double accept race:** DB CAS ensures one winner; loser gets 409 and offer retracted via push.
-- **City hotspot (NYE):** Per-city autoscale + per-city Redis cluster; add read replicas for trip history; throttle `GET /drivers/nearby` with [Rate Limiter](/system-design/rate-limiter) per IP.
+- **City hotspot (NYE):** Per-city autoscale + per-city Redis cluster; add read replicas for trip history; throttle `GET /drivers/nearby` with [Rate Limiter](/hld/rate-limiter) per IP.
 - **Kafka lag:** Analytics/receipts may delay, but trip state never waits on Kafka — only the outbox relay is async and retried.
 - **Clock skew:** Store `server_received_at` for location, not just client timestamp; ETA calc uses server time.
 

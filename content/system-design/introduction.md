@@ -1,74 +1,34 @@
 # Introduction
 
-> System design interview me kaam ka design jaldi pick karo, fir jahan matter karta hai wahan deep jao. Style: [Hello Interview — System Design in a Hurry](https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction) se inspired.
+> Code likhne se pehle system sochna — yahi HLD hai, aur yahi senior engineer ko junior se alag karta hai.
 
-> **TL;DR Hinglish:** Pehle 5 min me requirements + API likho, 10 min me simple boxes se happy path chalao, fir 10 min ek-do deep dive me dikhao ki tum trade-off samajhte ho. Simple working system pehle, scale baad me.
+> HLD (High Level Design) system ka naksha hai — kaunse boxes honge (API, cache, queue, database, CDN), data unke beech kaise bahega, aur load ya failure pe kya hoga. Code se pehle ye tay hota hai, kyunki galat architecture ka kharcha code likhne ke baad das guna padta hai.
 
-Ye notes **product / infrastructure** interviews ke liye hain — "Design Bitly", "Design Uber", "Design Rate Limiter". Fuzzy problem ko API me, fir boxes me todna hai jo scale aur fail dono handle kare.
+HLD ki importance teen jagah dikhti hai. Pehle, bade systems dimaag mein nahi bante — WhatsApp ke 50M connections ya Ticketmaster ki flash sale bina soche handle nahi hoti; boxes aur data flow pehle paper pe prove hote hain. Doosra, HLD team ko ek bhasha deta hai — frontend, backend, DevOps sab same diagram dekh ke kaam karte hain, assumptions chhupti nahi. Teesra, interviews mein HLD round decide karta hai — DSA ke baad yahi wo round hai jo senior roles mein hire ya reject karta hai, kyunki isme trade-off thinking dikhti hai, ratta nahi.
 
-Single sahi diagram nahi hota. Interviewer dekhta hai tum **kaise navigate** karte ho, **trade-off** kaise sochte ho, aur **colleague jaisa communicate** karte ho.
+HLD aur LLD ka farak seedha hai: HLD machines ki baat karta hai (servers, databases, load balancers), LLD classes ki (Parking Lot ke models, SOLID, design patterns). Dono ke interview alag hote hain, dono ki taiyaari alag. Ye section HLD ka hai — concepts, technologies, aur pure design breakdowns.
 
-## What they are testing
+## Why HLD matters
 
-**1. Problem navigation.** Sahi requirements puche, faltu cheez skip ki, aur working system ship kiya? Galti: 20 min CDN design kar diya jab asli puzzle matching/consistency tha.
+**1. Costly mistakes saste mein pakadta hai.** Design phase mein ek galat DB choice whiteboard pe mit jaati hai; production mein wahi migration mahino ka kaam hai. HLD galti ko saste stage pe pakadta hai.
 
-**2. Solution design.** Pieces naam le paaye (cache, queue, DB, CDN) aur data kaise move hoga clear hai? Bina request path ke boxes ka jhaar fail hai.
+**2. Scale aur failure pehle se sochwata hai.** Happy path to koi bhi bana le — HLD poochta hai celebrity post pe fan-out kaise hoga, DB down ho to kya hoga, traffic 10x ho to kaun tootega. Yehi sawal interviewer bhi poochta hai.
 
-**3. Technical excellence.** Tools pata hain — Redis, Kafka, Postgres, S3 — aur kab galat tool hai? "Hamesha MySQL shard karo" 2015 wali advice ab yellow flag hai.
+**3. Trade-off thinking sikhata hai.** HLD mein sahi jawab ek nahi hota — SQL ya NoSQL, sync ya async, strong ya eventual. Har choice ki keemat samajhna hi senior thinking hai, aur ye skill sirf HLD practice se aati hai.
 
-**4. Communication.** Zor se socho (think out loud). Interviewer push kare to adjust karo, bekar design defend mat karo.
-
-Mid-level: complete simple design kaafi. Senior: basics jaldi khatam karke **1-2 deep dive** par time lagao.
-
-## Two interview flavors
-
-**Product design** — Bitly, WhatsApp, YouTube, Uber. Users, APIs, storage, scale.
-
-**Infrastructure design** — rate limiter, distributed cache, job scheduler, web crawler. Yahan product khud ek platform hai.
-
-Ye page **LLD class diagram** (parking lot, elevator) nahi hai. Agar classes + SOLID puche to wo alag interview hai.
-
-## Delivery framework
-
-Working system pehle, fir harden karo. Interview me bolo: *"Pehle simple design jo APIs meet kare, fir scale aur failure ke liye harden karenge."*
-
-1. **Requirements (~5 min).** Top 3 functional ("users can…") + 3-5 non-functional (latency, availability, consistency, scale). Likho. Pucho — 45 min me kya in-scope hai?
-2. **Entities (~2 min).** Nouns: User, Ride, ShortUrl. Rough draft hi.
-3. **API (~5 min).** Default REST. 4-5 endpoints ka sketch.
-4. **High-level design (~10-15 min).** Har API ke liye boxes. **Happy path** end-to-end bolo. "Cache baad me" bolke skip kar sakte ho agar v1 me zaroorat nahi.
-5. **Deep dives (~10 min).** Asli NFR: celebrity fan-out, bid consistency, transcoding, geo search. Senior khud lead kare.
-
-**Capacity math:** naatak mat karo. Estimate tabhi jab number **design badle** ("Top-K ek machine me fit hoga kya?").
-
-## Non-functional checklist
-
-Har product ke liye relevant pick karo, CAP har app pe mat rato.
-
-1. **Consistency vs availability** partition me
-2. **Scale** — read-heavy vs write-heavy; bursty (tickets, auctions)
-3. **Latency** — kaunsa path 200ms ke andar chahiye?
-4. **Durability** — events lose kar sakte kya? Chat vs analytics alag
-5. **Abuse** — rate limits, auth, bots
-6. **Failure** — SPOF, retries, multi-AZ
+**4. Real career value.** Mid-level ke baad promotions aur top companies ke rounds HLD pe tikte hain. System design karna aana matlab bade systems own karne ke layak hona.
 
 ## How to use this section
 
-Pehle **Introduction** padho, fir **Key Technologies** skim karo taaki tool ka naam reason ke saath le sako. Sabse zyada time **Question Breakdowns** par — wahi se yaad hota hai.
+Pehle **Key Concepts** padho — ye HLD ki theory hai (caching, CAP, sharding, consistent hashing) jo har design mein kaam aati hai. Fir **Key Technologies** skim karo taaki tool ka naam reason ke saath le sako (Redis kyun, Kafka kab). Sabse zyada time **Question Breakdowns** par lagao — Bitly, Uber, WhatsApp jaise pure designs se hi pattern yaad hota hai.
 
-Har design page ka same shape: asli sawal kya hai, requirements, APIs, boxes, ek deep dive jo interviewer zarur puchega, aur ek line jo tum bol sakte ho.
+Har design page ka same shape hai: asli sawal kya hai, requirements, APIs, boxes, ek deep dive jo interviewer zaroor puchega. Interview mein bolo: *"Pehle simple design jo APIs meet kare, fir scale aur failure ke liye harden karenge."*
 
-```mermaid
-graph LR
-    A[Requirements<br/>5 min] --> B[API<br/>5 min]
-    B --> C[HLD<br/>10 min]
-    C --> D[Deep Dive<br/>10 min]
-    C --> E[Failure & Scale]
-```
+## Keep in mind
 
-**Yaad rakho (Revision Checklist):**
-1. Har design me happy path pehle
-2. NFR sirf jo is product me matter kare
-3. Trade-off bolke jao — "Agar X to Y, warna Z"
-4. Ek phrase ready rakho har page ka
-
-**Related:** shipping aur Docker → [production notes](/notes/advanced-topics). SQL depth → [SQL & DBMS](/notes/sql).
+- HLD machines ki baat hai, LLD classes ki — farak pehle line mein bolo
+- Design paper pe prove hota hai, code mein nahi — galti saste stage pe pakdo
+- Happy path ke baad hamesha scale aur failure poocho — yehi deep dive hai
+- Ek sahi jawab nahi hota — trade-off bolke jao: "Agar X to Y, warna Z"
+- NFR sirf wahi jo is product mein matter kare — CAP har app pe mat rato
+- Capacity math tabhi jab number design badle — naatak mat karo

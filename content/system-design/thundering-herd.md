@@ -2,7 +2,7 @@
 
 > Ek garam key expire hote hi 10k requests DB pe toot pade — DB marega.
 
-> **TL;DR Hinglish:** Ek samosa 10k bachon ka favourite, dukaan band hote hi sab ek saath daude — dukaan loot gayi. Isliye ek ko jaane do, baaki ko purana samosa do ya wait karwao.
+> Ek samosa 10k bachon ka favourite, dukaan band hote hi sab ek saath daude — dukaan loot gayi. Isliye ek ko jaane do, baaki ko purana samosa do ya wait karwao.
 
 Stampede / Dogpile bhi kehte hain. Har cache wali design me puchenge.
 
@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** Herd = expiry, singleflight 1 DB, jitter random, stale 5 sec.
 
-**See also:** [caching-strategies](/system-design/caching-strategies), [distributed-cache](/system-design/distributed-cache), [redis](/system-design/redis).
+**See also:** [caching-strategies](/hld/caching-strategies), [distributed-cache](/hld/distributed-cache), [redis](/hld/redis).

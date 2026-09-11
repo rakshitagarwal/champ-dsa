@@ -2,7 +2,7 @@
 
 > System kabhi bhi available re — high uptime, fault tolerance, disaster recovery.
 
-> **TL;DR Hinglish:** Availability = system kabhi band nahi hona. SLA (Service Level Agreement) mein uptime guaranteed hota hai (99.9%, 99.99%). Redundancy — copies rakho — server, network, data sab pe. Failover automatic hona chahiye. Active-Active = high availability, Active-Passive = simpler. RTO (recovery time) aur RPO (recovery point) measure karte hain.
+> Availability = system kabhi band nahi hona. SLA (Service Level Agreement) mein uptime guaranteed hota hai (99.9%, 99.99%). Redundancy — copies rakho — server, network, data sab pe. Failover automatic hona chahiye. Active-Active = high availability, Active-Passive = simpler. RTO (recovery time) aur RPO (recovery point) measure karte hain.
 
 Availability system ka uptime hai — kitne % time accessible hai:
 
@@ -38,4 +38,4 @@ graph TD
 
 **Yaad rakho (Revision):** SLA levels (99.9%, 99.99%, 99.999%), RTO (recovery time), RPO (data loss limit), redundancy everywhere, automatic failover, CAP theorem trade-off, SPOF avoidance.
 
-**See also:** [Clustering](/system-design/clustering), [Load Balancing](/system-design/load-balancing), [Disaster Recovery](/system-design/disaster-recovery).
+**See also:** [Clustering](/hld/clustering), [Load Balancing](/hld/load-balancing), [Disaster Recovery](/hld/disaster-recovery).

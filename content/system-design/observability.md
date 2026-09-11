@@ -2,7 +2,7 @@
 
 > Logs, Metrics, Traces — andar kya ho raha hai dekho, warna blind.
 
-> **TL;DR Hinglish:** Observability ek hospital monitor jaisa — Logs = doctor ki notes (kya hua), Metrics = pulse graph (kitna), Traces = X-ray (kahan atka). Teeno bina scale pe debug impossible.
+> Observability ek hospital monitor jaisa — Logs = doctor ki notes (kya hua), Metrics = pulse graph (kitna), Traces = X-ray (kahan atka). Teeno bina scale pe debug impossible.
 
 Har "Metrics Monitoring" question ka base.
 
@@ -51,4 +51,4 @@ graph LR
 
 **Yaad rakho:** Logs line, metrics number, traces safar, Prometheus pull, SLO burn.
 
-**See also:** [metrics-monitoring](/system-design/metrics-monitoring), [api-gateway](/system-design/api-gateway), [kafka](/system-design/kafka).
+**See also:** [metrics-monitoring](/hld/metrics-monitoring), [api-gateway](/hld/api-gateway), [kafka](/hld/kafka).

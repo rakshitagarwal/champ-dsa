@@ -2,7 +2,7 @@
 
 > Durable ordered event log. Boht saare consumers ko fan-out, history replay, aur spikes ko buffer karna ho to Kafka.
 
-> **TL;DR Hinglish:** Kafka ek durable train ki tarah hai — har dabba (partition) me messages order me, disk pe safe. Ek producer, boht saare consumer groups alag-alag speed se read kar sakte hain, purana data replay bhi. Queue nahi, log hai.
+> Kafka ek durable train ki tarah hai — har dabba (partition) me messages order me, disk pe safe. Ek producer, boht saare consumer groups alag-alag speed se read kar sakte hain, purana data replay bhi. Queue nahi, log hai.
 
 Queue vs log vs pub/sub ka fark samjho. Queue me ek message ek consumer kha jata hai. Log me har consumer group pura log padh sakta hai, offset yaad rakhta hai. Isliye analytics + search + notifications sab ek hi event se chal sakte hain.
 
@@ -57,4 +57,4 @@ graph LR
 
 **Yaad rakho:** Log ≠ Queue, partition = order, offset = cursor, outbox for atomic, lag monitor.
 
-**See also:** [notification system](/system-design/notification-system), [ad click aggregator](/system-design/ad-click-aggregator), [Flink](/system-design/flink).
+**See also:** [notification system](/hld/notification-system), [ad click aggregator](/hld/ad-click-aggregator), [Flink](/hld/flink).

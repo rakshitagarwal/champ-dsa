@@ -27,13 +27,13 @@ const ACTIONS: Record<TipsTabSlug, QuickAction[]> = {
   ],
   projects: [
     { label: "DSA Patterns", href: "/patterns", icon: BookOpen },
-    { label: "HLD", href: "/system-design", icon: Network },
+    { label: "HLD", href: "/hld", icon: Network },
     { label: "Score my resume", href: "/jobs", icon: Briefcase },
   ],
   interview: [
     { label: "DSA Patterns", href: "/patterns", icon: BookOpen },
     { label: "Solve", href: "/practice", icon: Code2 },
-    { label: "HLD", href: "/system-design", icon: Network },
+    { label: "HLD", href: "/hld", icon: Network },
   ],
   email: [
     { label: "Browse companies", href: "/companies", icon: Building2 },

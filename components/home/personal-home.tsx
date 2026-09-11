@@ -22,7 +22,7 @@ const SECTIONS = [
     description: "IT companies with career page links.",
   },
   {
-    href: "/system-design",
+    href: "/hld",
     title: "HLD",
     description: "High-level design concepts, technologies, and breakdowns.",
   },

@@ -2,7 +2,7 @@
 
 > Data ko fast search karne ke liye data structures — B-tree, hash, LSM.
 
-> **TL;DR Hinglish:** Database index data search ko fast karta hai — like book's index. B-tree (range queries), hash (exact match), LSM tree (write-heavy) types hain. Index create karna read fast karta hai, lekin write slow karta hai (index bhi update hona padta hai). Covering index = query mein saara data index se mil jaaye, table access nahi zaroori.
+> Database index data search ko fast karta hai — like book's index. B-tree (range queries), hash (exact match), LSM tree (write-heavy) types hain. Index create karna read fast karta hai, lekin write slow karta hai (index bhi update hona padta hai). Covering index = query mein saara data index se mil jaaye, table access nahi zaroori.
 
 Database index data retrieval ko fast karta hai:
 
@@ -44,4 +44,4 @@ graph TD
 
 **Yaad rakho (Revision):** B-tree (range queries), hash (exact match, O(1)), LSM (write-heavy, compaction), composite/covering indexes, read faster/write slower trade-off, selective indexing.
 
-**See also:** [Database Indexing](/system-design/database-indexing), [SQL Databases](/system-design/sql-databases), [NoSQL Databases](/system-design/nosql-databases).
+**See also:** [Database Indexing](/hld/database-indexing), [SQL Databases](/hld/sql-databases), [NoSQL Databases](/hld/nosql-databases).

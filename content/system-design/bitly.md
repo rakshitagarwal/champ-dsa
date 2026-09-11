@@ -2,7 +2,7 @@
 
 > URL shortener. The interesting parts are **unique short codes** and a **read-heavy redirect** path. Analytics is extra, not v1.
 
-> **TL;DR Hinglish:** Short code range allocator se banao, redirect Redis se 50ms me, analytics Kafka se async. 302 vs 301 ka trade-off yaad rakho.
+> Short code range allocator se banao, redirect Redis se 50ms me, analytics Kafka se async. 302 vs 301 ka trade-off yaad rakho.
 
 ## What they ask
 
@@ -54,7 +54,7 @@
 | Reads (redirects) | 100:1 read:write | 38 * 100 | ~3.8k reads/s avg, ~40k/s peak |
 | If 1B redirects/month | — | 1B / 2.6M sec/month | ~385 reads/s per 100M? Actually ~12k/s avg |
 | Storage per mapping | `code(7) + longUrl(avg 200) + metadata ~500B` | 100M * 500B | ~50 GB/month, ~600 GB/year, ~3 TB / 5 years |
-| Cache needed | Hot 20% links serve 80% traffic | 20M * 500B | ~10 GB hot set — fits in [Redis](/system-design/redis) cluster |
+| Cache needed | Hot 20% links serve 80% traffic | 20M * 500B | ~10 GB hot set — fits in [Redis](/hld/redis) cluster |
 | Bandwidth (redirect) | 500B response headers + 302 | 40k * 500B | ~20 MB/s egress at peak |
 
 **Reasoning:** metadata only — not the destination page. Even at 1B links, storage is single-digit TBs. Bottleneck is QPS, not bytes. Show you can do this math in 60 seconds.
@@ -107,13 +107,13 @@ Client (Browser/App)
    |
   CDN (CloudFront / Cloudflare) — caches 301s, shields origin
    |
-  L4 LB → API Gateway (auth, [rate limiter](/system-design/rate-limiter), WAF)
+  L4 LB → API Gateway (auth, [rate limiter](/hld/rate-limiter), WAF)
    |
   +---> Link Service (create + redirect)
    |        |--> ID / Code Generator Service
-   |        |--> Cache ([Redis](/system-design/redis) Cluster)
+   |        |--> Cache ([Redis](/hld/redis) Cluster)
    |        |--> DB (Postgres / DynamoDB)
-   |        `--> [Kafka](/system-design/kafka) → Analytics Workers → ClickHouse / Druid
+   |        `--> [Kafka](/hld/kafka) → Analytics Workers → ClickHouse / Druid
    |
    `--> Analytics Service (reads from OLAP)
 ```
@@ -132,9 +132,9 @@ graph LR
 - **CDN:** offloads hot redirects if using 301; even with 302, absorbs DDoS and TLS termination.
 - **API Gateway:** authenticates creation, rate-limits per API key/IP, validates URLs.
 - **Link Service:** stateless app servers (auto-scaled). Handles both write (allocate code → persist → cache) and read (cache → DB → redirect).
-- **Cache ([Redis](/system-design/redis)):** `code → { longUrl, expiresAt, ownerId }`. TTL-aware. Clustered, replicated. Hot path for 90%+ reads.
+- **Cache ([Redis](/hld/redis)):** `code → { longUrl, expiresAt, ownerId }`. TTL-aware. Clustered, replicated. Hot path for 90%+ reads.
 - **DB (Postgres with read replicas or DynamoDB PK=`code`):** source of truth. Shard by `code` prefix when needed.
-- **[Kafka](/system-design/kafka):** decouples analytics — redirect publishes `LinkClicked{ code, timestamp, ip, ua }` asynchronously.
+- **[Kafka](/hld/kafka):** decouples analytics — redirect publishes `LinkClicked{ code, timestamp, ip, ua }` asynchronously.
 
 **Write flow (create):** Validate URL → check custom alias uniqueness → allocate code (via generator) → `INSERT INTO links` → `SET` in Redis → publish creation event → return `shortUrl`.
 
@@ -214,7 +214,7 @@ class AnalyticsPublisher:
 
 **Why not `md5(url)[:6]`?** Same URL should arguably give same code (dedup), but different URLs collide in 6 hex chars (≈16M space). Birthday paradox guarantees collisions fast. Don't rely on hash truncation without collision handling.
 
-**Preferred — Counter + Base62 with range allocation:** Single logical counter, physically sharded. Each API host fetches a range `[1M, 2M)` from [ZooKeeper](/system-design/zookeeper) / etcd lease. Encodes locally with no network call. Pros: guaranteed unique, short, ordered. Cons: guessable/enumerable — mitigate by shuffling or starting at random offset, or using 7 chars + non-sequential precomputed pool.
+**Preferred — Counter + Base62 with range allocation:** Single logical counter, physically sharded. Each API host fetches a range `[1M, 2M)` from [ZooKeeper](/hld/zookeeper) / etcd lease. Encodes locally with no network call. Pros: guaranteed unique, short, ordered. Cons: guessable/enumerable — mitigate by shuffling or starting at random offset, or using 7 chars + non-sequential precomputed pool.
 
 **Alternative — Key Generation Service (KGS):** Dedicated service pre-generates codes into a DB table `unused_codes(code PK, used BOOLEAN)`. Creation does `SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1` or `POP` from Redis list. Survives bursts because pool is pre-filled. Need to monitor refill lag and handle KGS single-point-of-failure via replicas + standby.
 
@@ -230,7 +230,7 @@ class AnalyticsPublisher:
 
 ## Deep dive — analytics off the hot path
 
-Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: publish to [Kafka](/system-design/kafka) `topic=link-clicks` with `{ code, ts, ip, ua, referrer }`. Consumers batch-write to ClickHouse/Cassandra and increment Redis counters. This keeps redirect latency flat under spike. Mention idempotency: consumers dedup via `(code, requestId)` if needed. For GDPR, hash IPs.
+Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: publish to [Kafka](/hld/kafka) `topic=link-clicks` with `{ code, ts, ip, ua, referrer }`. Consumers batch-write to ClickHouse/Cassandra and increment Redis counters. This keeps redirect latency flat under spike. Mention idempotency: consumers dedup via `(code, requestId)` if needed. For GDPR, hash IPs.
 
 ## Common mistakes
 
@@ -244,7 +244,7 @@ Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: pub
 - **Caching:** Redis Cluster with replicas, eviction `allkeys-lru`. Size for hot set (10-20 GB). On Redis failure, degrade to DB — circuit breaker to avoid DB overload; serve stale CDN copy if available.
 - **Failure modes:** DB down → creations fail (return 503), redirects still served from Redis/CDN (partial availability). KGS down → fall back to range allocator. Kafka down → buffer in memory + retry; redirect still succeeds.
 - **Expiry cleanup:** Lazy on read (`if now > expiresAt → 404 + async delete`) + daily sweeper job deleting `expires_at < now() - 7d`. Use partitioned `click_events` with TTL.
-- **Abuse:** Auth + [rate limiter](/system-design/rate-limiter) (token bucket per API key/IP: 100 creates/min). Blocklist malicious long URLs via async scanner.
+- **Abuse:** Auth + [rate limiter](/hld/rate-limiter) (token bucket per API key/IP: 100 creates/min). Blocklist malicious long URLs via async scanner.
 
 ## Extra probes / follow-ups
 

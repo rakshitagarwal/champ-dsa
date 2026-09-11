@@ -2,7 +2,7 @@
 
 > `R + W > N` to strong read — kitne nodes pe likho aur kitne se padho, tune karo.
 
-> **TL;DR Hinglish:** Quorum ek voting jaisa — `N=3` dabbe, `W=2` pe likho, `R=2` se padho to ek dabba common zaroor — latest data mil hi jayega. `W=1,R=1` tez par purana.
+> Quorum ek voting jaisa — `N=3` dabbe, `W=2` pe likho, `R=2` se padho to ek dabba common zaroor — latest data mil hi jayega. `W=1,R=1` tez par purana.
 
 Tunable consistency ka dil. Cassandra/Dynamo me har query pe `W`, `R` bhejo.
 
@@ -48,4 +48,4 @@ graph LR
 
 **Yaad rakho:** `R+W>N` overlap, `W=1` tez, `QUORUM=2/3`, sloppy for AP.
 
-**See also:** [replication](/system-design/replication), [cassandra](/system-design/cassandra), [cap-theorem](/system-design/cap-theorem).
+**See also:** [replication](/hld/replication), [cassandra](/hld/cassandra), [cap-theorem](/hld/cap-theorem).

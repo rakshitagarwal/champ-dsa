@@ -2,7 +2,7 @@
 
 > Cron for a whole company. The job is **run exactly once (or retry safely)** across many workers, not `crontab` on one VM.
 
-> **TL;DR Hinglish:** Jobs Postgres me durable, workers poll/heartbeats, lease + ZK leader, retry with backoff, exactly-once via idempotent.
+> Jobs Postgres me durable, workers poll/heartbeats, lease + ZK leader, retry with backoff, exactly-once via idempotent.
 
 ## What they ask
 
@@ -34,7 +34,7 @@ Design a distributed job scheduler: users register jobs to run once at a timesta
 | **QPS — dispatch** | 50k jobs, 30% hourly crons: ~15k ticks/hour ≈ 4/sec; + 1k delayed jobs/sec | ~1k–5k dispatches/sec peak |
 | **QPS — workers** | Each dispatch → 1 enqueue + 1 callback | ~2k–10k internal rps |
 | **Storage bandwidth** | Poll `SELECT ... WHERE next_run_at <= now() LIMIT 500` every second | ~500 rows/sec scan, index on `next_run_at` keeps it cheap |
-| **Kafka/SQS** | 5k messages/sec × 1 KB | ~5 MB/s; trivial for [Kafka](/system-design/kafka) |
+| **Kafka/SQS** | 5k messages/sec × 1 KB | ~5 MB/s; trivial for [Kafka](/hld/kafka) |
 
 The bottleneck is **contention on the dispatch query**, not raw throughput.
 
@@ -70,7 +70,7 @@ POST /api/v1/jobs
 { "jobId": "job_abc", "nextRunAt": "2026-08-26T02:00:00Z", "status": "ACTIVE" }
 ```
 
-**Worker contract:** Workers `POST /internal/workers/callback { runId, status, result, error }` or use long-poll `GET /internal/workers/poll?queue=billing` to fetch work. Alternative: push via [Kafka](/system-design/kafka) / SQS.
+**Worker contract:** Workers `POST /internal/workers/callback { runId, status, result, error }` or use long-poll `GET /internal/workers/poll?queue=billing` to fetch work. Alternative: push via [Kafka](/hld/kafka) / SQS.
 
 Headers: `Idempotency-Key` on create; `X-Run-Id` on callbacks.
 
@@ -85,13 +85,13 @@ Client / Admin UI
    |
  Postgres (jobs, runs)  <-- Dispatcher (polls next_run_at, enqueues)
    |                         |
-   |                      [Kafka](/system-design/kafka) / SQS (run queue, per-queue partitions)
+   |                      [Kafka](/hld/kafka) / SQS (run queue, per-queue partitions)
    |                         |
    +---- Workers (poll / consume, execute, heartbeat, callback)
    |
- [Redis](/system-design/redis) (optional lease / fencing token cache)
+ [Redis](/hld/redis) (optional lease / fencing token cache)
    |
- Observability: [metrics](/system-design/metrics-monitoring) + logs + DLQ dashboard
+ Observability: [metrics](/hld/metrics-monitoring) + logs + DLQ dashboard
 ```
 
 ```mermaid
@@ -105,8 +105,8 @@ graph LR
 
 **Components:**
 - **Job Service:** Validates cron (via cron parser), stores UTC `next_run_at`, computes following tick using library (e.g., `cron-utils`). Never trusts client clock.
-- **Dispatcher:** Stateless replicas (3–5) that every 500ms–1s run: `SELECT ... WHERE next_run_at <= now() AND status='ACTIVE' ORDER BY next_run_at LIMIT 500 FOR UPDATE SKIP LOCKED` → for each row, generate `runId = uuid`, insert into `job_runs`, set `next_run_at` to next cron tick (or null for one-shot), enqueue to [Kafka](/system-design/kafka)/SQS. `SKIP LOCKED` ensures two dispatchers never grab the same job.
-- **Queue:** [Kafka](/system-design/kafka) topic `job.runs` partitioned by `jobId` or `queue` name; or SQS per queue for simpler ops. Provides durability if workers are down.
+- **Dispatcher:** Stateless replicas (3–5) that every 500ms–1s run: `SELECT ... WHERE next_run_at <= now() AND status='ACTIVE' ORDER BY next_run_at LIMIT 500 FOR UPDATE SKIP LOCKED` → for each row, generate `runId = uuid`, insert into `job_runs`, set `next_run_at` to next cron tick (or null for one-shot), enqueue to [Kafka](/hld/kafka)/SQS. `SKIP LOCKED` ensures two dispatchers never grab the same job.
+- **Queue:** [Kafka](/hld/kafka) topic `job.runs` partitioned by `jobId` or `queue` name; or SQS per queue for simpler ops. Provides durability if workers are down.
 - **Workers:** Autoscaled pool per queue (billing, email, etc.). Long-poll or Kafka consume; execute handler; send heartbeat every 10s; callback success/fail. On timeout, dispatcher resets `locked_by` via lease expiry.
 - **DLQ:** After `maxRetries` exhausted, move to DLQ topic/table for manual retry.
 
@@ -192,12 +192,12 @@ class RetryPolicy:
 ```
 
 **Concurrency & algorithms:**
-- **SKIP LOCKED:** The core primitive. Two dispatchers run the same `SELECT FOR UPDATE SKIP LOCKED` — the first locks rows, the second skips them. No [ZooKeeper](/system-design/zookeeper) needed for correctness, though leader election can reduce duplicate wakeups.
-- **Lease + fencing token:** Alternative with [Redis](/system-design/redis): `SET job:lock:{id} <token> NX EX 30` — only holder with current token may enqueue. Fencing token (monotonic `runId`) ensures stale holder can't commit.
+- **SKIP LOCKED:** The core primitive. Two dispatchers run the same `SELECT FOR UPDATE SKIP LOCKED` — the first locks rows, the second skips them. No [ZooKeeper](/hld/zookeeper) needed for correctness, though leader election can reduce duplicate wakeups.
+- **Lease + fencing token:** Alternative with [Redis](/hld/redis): `SET job:lock:{id} <token> NX EX 30` — only holder with current token may enqueue. Fencing token (monotonic `runId`) ensures stale holder can't commit.
 - **Jitter for thundering herd:** Instead of `0 * * * *` for 10k jobs, spread `next_run_at` by adding `random(0, 300s)` on creation or using `0-5 * * * *` equivalent. Prevents midnight spike.
 - **Missed ticks:** Policy per job: `SKIP` (email digest — don't send 10 old digests) vs `CATCH_UP_ONCE` (billing — run once with latest payload, not N times). Dispatcher checks `now() - next_run_at > threshold` and applies policy.
 
-**Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/system-design/zookeeper)/etcd).
+**Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/hld/zookeeper)/etcd).
 
 ## Deep dive — exactly-once is a lie (and what to do)
 
@@ -213,7 +213,7 @@ If the dispatcher was down 10 minutes, 500 jobs are overdue. Naively enqueueing 
 
 ## Deep dive — delayed jobs and DAGs
 
-Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. Implementation options: SQS delay queue, [Redis](/system-design/redis) sorted set `ZADD jobs:delayed <run_at> <jobId>` with a poller `ZRANGEBYSCORE ... LIMIT 100`, or [Kafka](/system-design/kafka) with delayed topic + scheduler. For DAGs (Airflow-style), add `job_dependencies(job_id, depends_on_job_id, depends_on_run_status)` and only enqueue when parents succeeded; a DAG scheduler topologically checks readiness after each parent callback.
+Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. Implementation options: SQS delay queue, [Redis](/hld/redis) sorted set `ZADD jobs:delayed <run_at> <jobId>` with a poller `ZRANGEBYSCORE ... LIMIT 100`, or [Kafka](/hld/kafka) with delayed topic + scheduler. For DAGs (Airflow-style), add `job_dependencies(job_id, depends_on_job_id, depends_on_run_status)` and only enqueue when parents succeeded; a DAG scheduler topologically checks readiness after each parent callback.
 
 ## Common mistakes
 
@@ -226,7 +226,7 @@ Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. I
 |---|---|
 | **Dispatcher crash** | Other dispatchers continue via `SKIP LOCKED`; overdue jobs picked up on next tick. No SPOF. |
 | **Worker crash mid-job** | Lease expires → reaper re-enqueues; handler idempotency prevents double charge. |
-| **Queue down ([Kafka](/system-design/kafka)/SQS)** | Dispatcher keeps `PENDING` runs in DB; retries enqueue with backoff; circuit breaker to avoid DB bloat. |
+| **Queue down ([Kafka](/hld/kafka)/SQS)** | Dispatcher keeps `PENDING` runs in DB; retries enqueue with backoff; circuit breaker to avoid DB bloat. |
 | **DB overload** | Index on `next_run_at` keeps poll cheap; shard by `queue` or `jobId` hash; move hot queues to dedicated dispatcher. |
 | **Clock skew** | NTP on all hosts; dispatcher uses DB `now()` as source of truth; never use client-supplied time. |
 | **Poison pill (always fails)** | After `maxRetries`, route to DLQ; alert on DLQ depth; manual replay endpoint. |

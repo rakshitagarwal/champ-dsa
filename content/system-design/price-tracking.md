@@ -2,7 +2,7 @@
 
 > CamelCamelCamel / Honey without the toolbar politics. Watch a product URL, **poll or scrape**, alert when the price drops.
 
-> **TL;DR Hinglish:** Sellers ko poll/scrape → price change Kafka → alert workers, dedup + backoff, chart ke liye time-series DB.
+> Sellers ko poll/scrape → price change Kafka → alert workers, dedup + backoff, chart ke liye time-series DB.
 
 ## What they ask
 
@@ -36,7 +36,7 @@ Design a price tracker where users paste an Amazon (or multi-store) product URL,
 | **Storage — price points** | 100k products × 48 points/day (30 min) × 365 days × 32 bytes | ~56 GB/year raw; with indexes ~120 GB |
 | **Downsampled** | Keep raw 14 days, then daily min/max for history | Long-term: 100k × 365 × 32 ≈ 1.2 GB/year |
 | **Alert QPS** | Assume 5% of fetches trigger a drop | ~3 alerts/sec avg, bursty on sale events |
-| **Cache** | Latest price per product in [Redis](/system-design/redis) | 100k × 200 bytes ≈ 20 MB |
+| **Cache** | Latest price per product in [Redis](/hld/redis) | 100k × 200 bytes ≈ 20 MB |
 
 Dedup is the entire cost story: without it, 5M watches × 48 fetches/day = 240M fetches/day (2777 rps) — 50x more.
 
@@ -98,11 +98,11 @@ Client (Web / Extension)
    |
  Product Catalog (canonical URL -> productId, dedup)
    |
- [Job Scheduler](/system-design/job-scheduler)  <-->  Fetcher Fleet (per-host polite queues)
+ [Job Scheduler](/hld/job-scheduler)  <-->  Fetcher Fleet (per-host polite queues)
    |                                              |
    +--> Postgres (watches, products)              +--> Parser (site adapters, JSON-LD)
-   +--> Time-Series Store (price points)          +--> Alert Service -> [Kafka](/system-design/kafka) -> [notification system](/system-design/notification-system)
-   +--> [Redis](/system-design/redis) (latest price cache, per-host rate limiter)
+   +--> Time-Series Store (price points)          +--> Alert Service -> [Kafka](/hld/kafka) -> [notification system](/hld/notification-system)
+   +--> [Redis](/hld/redis) (latest price cache, per-host rate limiter)
    +--> S3 (raw HTML snapshots for debugging/reparse)
 ```
 
@@ -117,7 +117,7 @@ graph LR
 
 **Components:**
 - **Watch Service:** Validates URL, normalizes to canonical (strip tracking params, resolve redirects), upserts `products` row, creates `watches` row linking user→product. Many users share one `productId`.
-- **[Job Scheduler](/system-design/job-scheduler):** Each product has `next_fetch_at`. Scheduler enqueues `FetchJob{productId, url, site}` to a per-host queue. Interval: popular products (many watchers or recent volatility) every 15 min; long tail every 60 min. Adaptive: if price stable for 7 days, back off to 2h.
+- **[Job Scheduler](/hld/job-scheduler):** Each product has `next_fetch_at`. Scheduler enqueues `FetchJob{productId, url, site}` to a per-host queue. Interval: popular products (many watchers or recent volatility) every 15 min; long tail every 60 min. Adaptive: if price stable for 7 days, back off to 2h.
 - **Fetcher Fleet:** Workers with per-host token bucket (e.g., amazon.com: 5 rps globally, 1 rps per worker). Respect `robots.txt`, rotate User-Agent, backoff on 429/403 (exponential, mark host as `COOLDOWN`). Prefer official APIs (Amazon PA-API) first; scrape as fallback — say this in interview.
 - **Parser:** Site-specific adapters + generic JSON-LD (`schema.org/Offer`) fallback. Extracts `price`, `currency`, `inStock`, `variant`. Validates: reject `price==0` or `price > 10× last price` as `PARSE_FAILED`.
 - **Time-Series Store:** Postgres with TimescaleDB / partitioned table, or dedicated TSDB. Stores `(product_id, ts, price, currency, in_stock)`. Latest price also in Redis for fast reads.
@@ -129,8 +129,8 @@ graph LR
 
 **Write flow — Fetch & alert:**
 1. Scheduler enqueues `FetchJob` → Fetcher dequeues per-host (polite) → fetch HTML/API → Parser extracts price.
-2. Validate → write `price_points` → update `products.current_price` + `Redis` → publish `PriceUpdated` to [Kafka](/system-design/kafka).
-3. Alert Service consumes `PriceUpdated` → for each watch on product where `price <= target`, check dedup → enqueue email/push via [notification system](/system-design/notification-system).
+2. Validate → write `price_points` → update `products.current_price` + `Redis` → publish `PriceUpdated` to [Kafka](/hld/kafka).
+3. Alert Service consumes `PriceUpdated` → for each watch on product where `price <= target`, check dedup → enqueue email/push via [notification system](/hld/notification-system).
 
 **Read flow — History chart:**
 1. `GET /watches/{id}/history` → resolve `productId` → query time-series store with downsampling (raw for 14d, hourly for 90d, daily beyond) → return.
@@ -225,15 +225,15 @@ class AlertService:
 
 **Concurrency & algorithms:**
 - **Dedup by product:** `canonical_url` UNIQUE ensures one `productId` per SKU. All watches share one `next_fetch_at` and one price history — the core scaling win.
-- **Per-host politeness:** Token bucket per domain in [Redis](/system-design/redis): `INCR` with sliding window or `SET` with TTL. Global cap per domain (e.g., 5 rps for amazon.com) shared across fetcher replicas. On 429, set `COOLDOWN` and jitter retry.
+- **Per-host politeness:** Token bucket per domain in [Redis](/hld/redis): `INCR` with sliding window or `SET` with TTL. Global cap per domain (e.g., 5 rps for amazon.com) shared across fetcher replicas. On 429, set `COOLDOWN` and jitter retry.
 - **Downsampling:** Raw points for 14 days; continuous aggregate (Timescale) or cron job computes `SELECT product_id, date_trunc('day', ts), MIN(price), MAX(price) FROM price_points GROUP BY 1,2` for older data. Chart queries pick granularity by `from/to` range.
 - **Alert idempotency:** `idempotency_key = watchId + pricePoint + day` UNIQUE prevents 50 emails for one drop. Also guard: only alert when price *crosses* target downward (track `last_alerted_price`; if last alert was at $80 and price stays $79, don't re-alert until price goes above target then drops again).
 
-**Patterns used:** Shared polling / Flyweight (one fetch per product), Adapter (per-site parsers), Token bucket rate limiting, Time-series partitioning, Idempotency key, Outbox ([Kafka](/system-design/kafka) `PriceUpdated`).
+**Patterns used:** Shared polling / Flyweight (one fetch per product), Adapter (per-site parsers), Token bucket rate limiting, Time-series partitioning, Idempotency key, Outbox ([Kafka](/hld/kafka) `PriceUpdated`).
 
 ## Deep dive — shared watches and ban avoidance
 
-10k users watching 200 unique products → 200 fetch jobs, not 10k. That's the win. Without dedup, you'd need 10k × 48 fetches/day = 480k fetches for those products alone; with dedup, 200 × 48 = 9.6k (50× reduction). For **burst after a viral deal** (e.g., tweet "PS5 $399"), still one fetch per SKU — cache the latest price in [Redis](/system-design/redis) with 30s TTL and serve watch-list reads from cache. For **bans**: mention official APIs first (Amazon PA-API, Best Buy API), scrape only as fallback with `robots.txt` respect, `User-Agent` identifying your bot, and exponential backoff on 403. Adding random jitter and respecting `Crawl-Delay` signals maturity.
+10k users watching 200 unique products → 200 fetch jobs, not 10k. That's the win. Without dedup, you'd need 10k × 48 fetches/day = 480k fetches for those products alone; with dedup, 200 × 48 = 9.6k (50× reduction). For **burst after a viral deal** (e.g., tweet "PS5 $399"), still one fetch per SKU — cache the latest price in [Redis](/hld/redis) with 30s TTL and serve watch-list reads from cache. For **bans**: mention official APIs first (Amazon PA-API, Best Buy API), scrape only as fallback with `robots.txt` respect, `User-Agent` identifying your bot, and exponential backoff on 403. Adding random jitter and respecting `Crawl-Delay` signals maturity.
 
 ## Deep dive — wrong parses and price semantics
 
@@ -241,7 +241,7 @@ class AlertService:
 
 ## Deep dive — alert correctness without spam
 
-Naively alerting on every `price <= target` point spams on a sustained sale (every 30 min fetch sends an email). Correct logic: alert **once per drop event** — when price crosses below target and hasn't been alerted for that crossing. Implementation: `watches.last_alerted_price` + `alert_log` with `idempotency_key = watchId + price + day`. On `PriceUpdated`, if `price <= target` and `(last_alerted_at is null OR price < last_alerted_price - threshold OR now() - last_alerted_at > 24h)` then alert and update `last_alerted_at`. For price rising above target then dropping again, reset so the next drop re-alerts. Use [notification system](/system-design/notification-system) dedup on top.
+Naively alerting on every `price <= target` point spams on a sustained sale (every 30 min fetch sends an email). Correct logic: alert **once per drop event** — when price crosses below target and hasn't been alerted for that crossing. Implementation: `watches.last_alerted_price` + `alert_log` with `idempotency_key = watchId + price + day`. On `PriceUpdated`, if `price <= target` and `(last_alerted_at is null OR price < last_alerted_price - threshold OR now() - last_alerted_at > 24h)` then alert and update `last_alerted_at`. For price rising above target then dropping again, reset so the next drop re-alerts. Use [notification system](/hld/notification-system) dedup on top.
 
 ## Common mistakes
 

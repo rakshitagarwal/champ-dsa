@@ -28,7 +28,7 @@ const navLinks: {
   { href: "/notes", label: "Notes", icon: FileText },
   { href: "/jobs", label: "CV Analyzer", icon: FileCheck },
   { href: "/companies", label: "Companies", icon: Building2 },
-  { href: "/system-design", label: "HLD", icon: Network },
+  { href: "/hld", label: "HLD", icon: Network },
   { href: "/lld", label: "LLD", icon: Boxes },
 ];
 

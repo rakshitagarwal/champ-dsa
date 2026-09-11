@@ -2,7 +2,7 @@
 
 > API kaise dikhe — resource, query, ya streaming pipe.
 
-> **TL;DR Hinglish:** REST ek menu card — `GET /users/123` fixed dish. GraphQL ek buffet — `query { user { name posts } }` jo chahiye wahi lo, ek call me. gRPC ek phone line — binary, streaming, tez par browser me nahi.
+> REST ek menu card — `GET /users/123` fixed dish. GraphQL ek buffet — `query { user { name posts } }` jo chahiye wahi lo, ek call me. gRPC ek phone line — binary, streaming, tez par browser me nahi.
 
 Har "API Design" me yahi puchenge.
 
@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** REST GET cache, GraphQL 1 call DataLoader, gRPC HTTP/2 stream, hybrid common.
 
-**See also:** [api-gateway](/system-design/api-gateway), [websocket](/system-design/websocket), [load-balancer](/system-design/load-balancer).
+**See also:** [api-gateway](/hld/api-gateway), [websocket](/hld/websocket), [load-balancer](/hld/load-balancer).

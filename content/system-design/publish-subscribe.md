@@ -2,7 +2,7 @@
 
 > Event-driven communication — sab subscribers ko message jaati hai.
 
-> **TL;DR Hinglish:** Publish-Subscribe ek messaging pattern hai — producer event publish karta hai topic pe, sab subscribers ko jaati hai. Event-driven architecture mein use hota hai. Producer aur consumers decoupled hain. Fan-out hota hai — ek event sab recipients ko. Kafka topics, Redis PubSub, Google Pub/Sub examples. Fan-out scaling challenge — async consumers, backpressure handle karna zaroori.
+> Publish-Subscribe ek messaging pattern hai — producer event publish karta hai topic pe, sab subscribers ko jaati hai. Event-driven architecture mein use hota hai. Producer aur consumers decoupled hain. Fan-out hota hai — ek event sab recipients ko. Kafka topics, Redis PubSub, Google Pub/Sub examples. Fan-out scaling challenge — async consumers, backpressure handle karna zaroori.
 
 Publish-Subscribe pattern mein events sab subscribers ko propagate hote hain:
 
@@ -42,4 +42,4 @@ graph LR
 
 **Yaad rakho (Revision):** Producer publish topic pe, sab subscribers receive, fan-out, asynchronous, decoupled, offset tracking for replay, idempotent consumers, Kafka topics.
 
-**See also:** [Message Brokers](/system-design/message-brokers), [Event-Driven Architecture](/system-design/event-driven-architecture), [Kafka](/system-design/kafka).
+**See also:** [Message Brokers](/hld/message-brokers), [Event-Driven Architecture](/hld/event-driven-architecture), [Kafka](/hld/kafka).

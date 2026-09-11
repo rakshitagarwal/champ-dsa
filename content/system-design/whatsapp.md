@@ -2,7 +2,7 @@
 
 > Mobile messaging. Online path is **WebSockets**. Offline path is **push + stored messages**. Groups and media are the usual extras.
 
-> **TL;DR Hinglish:** Persist pehle Cassandra me, phir deliver — online ko WebSocket, offline ko push. Group fan-out Kafka se async, media S3.
+> Persist pehle Cassandra me, phir deliver — online ko WebSocket, offline ko push. Group fan-out Kafka se async, media S3.
 
 ## What they ask
 
@@ -10,7 +10,7 @@ Design WhatsApp / Telegram: 1:1 chat, groups (~100–256 members), send text and
 
 What the interviewer tests:
 
-- Do you separate the **hot connection path** (WebSocket) from the **durable log** ([Cassandra](/system-design/cassandra)) and the **offline push** path (FCM/APNS)?
+- Do you separate the **hot connection path** (WebSocket) from the **durable log** ([Cassandra](/hld/cassandra)) and the **offline push** path (FCM/APNS)?
 - Can you handle **fan-out for groups** without blocking `send()` on 100 pushes?
 - Do you have a story for **ordering, presence, and multi-device** sync?
 - Can you keep **media** out of the chat nodes (pre-signed S3 + CDN)?
@@ -33,8 +33,8 @@ Assume 500M DAU, avg 30 messages/user/day, 20% groups.
 | Metric | Math | Result |
 |---|---|---|
 | Message QPS | 500M × 30 / 86400 ≈ **173K msgs/s** avg, peak 2–3× | ~350K/s peak |
-| Storage (text) | 173K × 300 bytes ≈ **52 MB/s** → 4.5 TB/day | 1.6 PB/year — needs [Cassandra](/system-design/cassandra)/Dynamo, not Postgres single node |
-| Storage (media) | 10% msgs with photo 1 MB → 1.7K/s × 1 MB = **1.7 GB/s** → 147 TB/day | Goes to [S3](/system-design/s3) + CDN, not DB |
+| Storage (text) | 173K × 300 bytes ≈ **52 MB/s** → 4.5 TB/day | 1.6 PB/year — needs [Cassandra](/hld/cassandra)/Dynamo, not Postgres single node |
+| Storage (media) | 10% msgs with photo 1 MB → 1.7K/s × 1 MB = **1.7 GB/s** → 147 TB/day | Goes to [S3](/hld/s3) + CDN, not DB |
 | Connections | 500M DAU, 10% concurrent WS | **50M concurrent sockets** → fleets sharded by consistent hash |
 | Bandwidth | 173K × 500 bytes (with overhead) ≈ 86 MB/s messages + media CDN | CDN-served media avoids origin melt |
 
@@ -75,7 +75,7 @@ Headers: `Idempotency-Key: clientMsgId` for dedup. History is cursor-paginated b
         |                       |    `--------> [ Cassandra (messages) ]  PK=chatId, SK=ts
         |                       |
         v                       v
-   [ S3 + CDN (media) ]   [ Push Gateway → FCM/APNS ]  ([Notification System](/system-design/notification-system))
+   [ S3 + CDN (media) ]   [ Push Gateway → FCM/APNS ]  ([Notification System](/hld/notification-system))
                                 |
                            [ Elasticsearch (optional search) — async ]
 ```
@@ -93,12 +93,12 @@ graph LR
 
 **Components:**
 
-- **Chat Fleet (WS servers):** Holds `userId → { nodeId, conn }` in [Redis](/system-design/redis) (hash + TTL heartbeat). Stateless — any node can serve any user via consistent hash or Redis lookup. Routes incoming `send` to `persist → ack → deliver`.
-- **[Cassandra](/system-design/cassandra) / Dynamo:** Message log `PK=chatId, clustering=timestamp/msgId`. Append-only, TTL optional. Provides history pages and catch-up. Hot cache of recent 100 msgs in Redis optional.
-- **[Kafka](/system-design/kafka):** Decouples deliver fan-out for groups: chat node writes to log, publishes `message.created`; fanout workers push to 99 recipient nodes in parallel so `send()` returns after one durable write.
+- **Chat Fleet (WS servers):** Holds `userId → { nodeId, conn }` in [Redis](/hld/redis) (hash + TTL heartbeat). Stateless — any node can serve any user via consistent hash or Redis lookup. Routes incoming `send` to `persist → ack → deliver`.
+- **[Cassandra](/hld/cassandra) / Dynamo:** Message log `PK=chatId, clustering=timestamp/msgId`. Append-only, TTL optional. Provides history pages and catch-up. Hot cache of recent 100 msgs in Redis optional.
+- **[Kafka](/hld/kafka):** Decouples deliver fan-out for groups: chat node writes to log, publishes `message.created`; fanout workers push to 99 recipient nodes in parallel so `send()` returns after one durable write.
 - **Redis:** Presence (`user:{id}:online` with 30s TTL), typing, `userId→node` map, per-chat sequence counter.
 - **S3 + CDN:** Media upload via pre-signed URL, download via CDN signed URL. Chat nodes never proxy bytes.
-- **Push Gateway:** For offline users — enqueues FCM/APNS via [Notification System](/system-design/notification-system) after persist.
+- **Push Gateway:** For offline users — enqueues FCM/APNS via [Notification System](/hld/notification-system) after persist.
 
 **Write flow (online):** Sender WS `send` → Chat node validates, assigns server `msgId/ts` (Snowflake per chat), **persist to Cassandra** → `ack sent` to sender → lookup recipient `nodeId` in Redis → if online: publish to that WS node → recipient gets `message`, replies `delivered` → forwarded to sender as `delivered`. If offline: enqueue push notification.
 
@@ -200,7 +200,7 @@ Publish-Subscribe (Kafka fan-out), Presence with TTL, Cache-Aside (member sets),
 
 ## Deep dive — groups and fan-out
 
-A group of 100 cannot wait for 99 sequential WS pushes inside `send()`. The chat node does exactly one durable write, acks the sender, then publishes to [Kafka](/system-design/kafka) topic `chat.events` (partitioned by `chatId` for order). A pool of **Fanout Workers** consumes and for each member looks up `userId→node` in Redis: if online, `PUBLISH node:{id} {message}` (Redis PubSub / NATS) so the recipient's WS node pushes; if offline, batch enqueue to [Notification System](/system-design/notification-system) (FCM/APNS). For huge broadcast channels (1M), switch to **pull model** — write once, clients poll `GET /messages` — not 1:1 push per member.
+A group of 100 cannot wait for 99 sequential WS pushes inside `send()`. The chat node does exactly one durable write, acks the sender, then publishes to [Kafka](/hld/kafka) topic `chat.events` (partitioned by `chatId` for order). A pool of **Fanout Workers** consumes and for each member looks up `userId→node` in Redis: if online, `PUBLISH node:{id} {message}` (Redis PubSub / NATS) so the recipient's WS node pushes; if offline, batch enqueue to [Notification System](/hld/notification-system) (FCM/APNS). For huge broadcast channels (1M), switch to **pull model** — write once, clients poll `GET /messages` — not 1:1 push per member.
 
 ## Deep dive — receipts, ordering, and exactly-once delivery
 
@@ -229,8 +229,8 @@ Each device is a separate WS connection (`userId:deviceId → node`). A message 
 1. **Multi-device sync:** Each device is a consumer; `read` must sync across devices — use a per-user `device_sync` topic or versioned `user_chats.last_read`.
 2. **Presence & last-seen:** Heartbeat in Redis with TTL; last-seen from Postgres `users.last_seen_at` updated on disconnect. Privacy toggle is a policy check before returning presence.
 3. **Shard chats by `chatId`:** All message, member, and receipt tables are co-partitioned by `chatId` for locality; user inbox is a secondary view.
-4. **Search:** Async [Elasticsearch](/system-design/elasticsearch) indexer over Kafka — not inline.
-5. **Rate limit & abuse:** Per-user [Rate Limiter](/system-design/rate-limiter) on `send`, plus spam ML async.
+4. **Search:** Async [Elasticsearch](/hld/elasticsearch) indexer over Kafka — not inline.
+5. **Rate limit & abuse:** Per-user [Rate Limiter](/hld/rate-limiter) on `send`, plus spam ML async.
 
 **Yaad rakho (Revision):** 1) Persist pehle Cassandra me 2) Group fan-out Kafka async 3) Online WS, offline push 4) Media S3, presence Redis TTL.
 

@@ -2,7 +2,7 @@
 
 > CDN — content geographically distributed servers pe rakhta hai, user ke paas kaam ki jagah se deliver karta hai.
 
-> **TL;DR Hinglish:** CDN content (images, videos, JS, CSS) edge servers pe store karta hai jo user ke paas hain. Cache hit = fast delivery (10-50ms), cache miss = origin se fetch. PoP (Point of Presence) globally hain. TTL se cache control. CDN latency reduce karta hai, origin load bhi kam hota hai.
+> CDN content (images, videos, JS, CSS) edge servers pe store karta hai jo user ke paas hain. Cache hit = fast delivery (10-50ms), cache miss = origin se fetch. PoP (Point of Presence) globally hain. TTL se cache control. CDN latency reduce karta hai, origin load bhi kam hota hai.
 
 CDN content ko geographically distribute karta hai taaki user ko nearest server se mil sake:
 
@@ -39,4 +39,4 @@ graph LR
 
 **Yaad rakho (Revision):** CDN edge PoPs globally, cache hit fast (10-50ms), cache miss origin se fetch, TTL controls, static content (images/JS/CSS), dynamic not cached easily, multi-CDN for HA.
 
-**See also:** [Load Balancing](/system-design/load-balancing), [Proxy](/system-design/proxy), [DNS](/system-design/domain-name-system).
+**See also:** [Load Balancing](/hld/load-balancing), [Proxy](/hld/proxy), [DNS](/hld/domain-name-system).

@@ -2,7 +2,7 @@
 
 > 7 layers ka framework — networking ke concept ko samajhne ke liye ek standard structure.
 
-> **TL;DR Hinglish:** OSI model 7 layers ka hai — Physical se Application tak. Har layer ka kaam alag hai. Jab interview mein network protocol samjhna ho, to is layers ko samjho — Physical hardware, Data Link cables, Network routing, Transport reliability, Session connections, Presentation encryption, Application HTTP/FTP.
+> OSI model 7 layers ka hai — Physical se Application tak. Har layer ka kaam alag hai. Jab interview mein network protocol samjhna ho, to is layers ko samjho — Physical hardware, Data Link cables, Network routing, Transport reliability, Session connections, Presentation encryption, Application HTTP/FTP.
 
 OSI model ek conceptual framework hai jo networking ko 7 layers mein divide karta hai:
 1. **Physical** — cables, signals, bits (0/1)
@@ -48,4 +48,4 @@ graph TD
 
 **Yaad rakho (Revision):** 7 layers — Physical (bits), Data Link (frames/MAC), Network (packets/IP), Transport (segments/TCP), Session (connections), Presentation (encryption), Application (HTTP). TCP/IP 4-layer real model.
 
-**See also:** [TCP and UDP](/system-design/tcp-and-udp), [IP](/system-design/ip), [DNS](/system-design/domain-name-system).
+**See also:** [TCP and UDP](/hld/tcp-and-udp), [IP](/hld/ip), [DNS](/hld/domain-name-system).

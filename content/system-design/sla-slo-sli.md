@@ -2,7 +2,7 @@
 
 > Service quality measure karo — agreements, objectives, indicators.
 
-> **TL;DR Hinglish:** SLA (Service Level Agreement) contractual commitment hai — availability, uptime guarantee. SLO (Service Level Objective) internal target hai — 99.9% uptime. SLI (Service Level Indicator) metric hai jo measure karta performance — latency, error rate, throughput. SLA = contract, SLO = internal target, SLI = measurement. Error budgets se risk manage karo — if error budget exhaust hota hai, deploy freeze.
+> SLA (Service Level Agreement) contractual commitment hai — availability, uptime guarantee. SLO (Service Level Objective) internal target hai — 99.9% uptime. SLI (Service Level Indicator) metric hai jo measure karta performance — latency, error rate, throughput. SLA = contract, SLO = internal target, SLI = measurement. Error budgets se risk manage karo — if error budget exhaust hota hai, deploy freeze.
 
 SLA/SLO/SLI service quality ka framework hai:
 
@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho (Revision):** SLI (measure), SLO (target), SLA (contract), error budget = allowed failures, budget exhausted = deploy freeze, p99/p95 latency, availability targets.
 
-**See also:** [Availability](/system-design/availability), [Metrics Monitoring](/system-design/metrics-monitoring), [Observability](/system-design/observability).
+**See also:** [Availability](/hld/availability), [Metrics Monitoring](/hld/metrics-monitoring), [Observability](/hld/observability).

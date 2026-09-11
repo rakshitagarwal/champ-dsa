@@ -2,7 +2,7 @@
 
 > Cache kaise bharo aur kab khali karo — galat strategy to stale ya DB melt.
 
-> **TL;DR Hinglish:** Cache ek tiffin hai — Cache-aside me bhook lage to bazaar (DB) se lao aur tiffin me rakho. Write-through me khana banate hi tiffin me bhi daalo. TTL + delete-on-write se stale roko.
+> Cache ek tiffin hai — Cache-aside me bhook lage to bazaar (DB) se lao aur tiffin me rakho. Write-through me khana banate hi tiffin me bhi daalo. TTL + delete-on-write se stale roko.
 
 Har design me cache aayega — 90% offload yahi se.
 
@@ -50,4 +50,4 @@ graph LR
 
 **Yaad rakho:** Aside lazy, Through 2 writes, Behind lossy, TTL random, DEL on write.
 
-**See also:** [redis](/system-design/redis), [distributed-cache](/system-design/distributed-cache), [thundering-herd](/system-design/thundering-herd).
+**See also:** [redis](/hld/redis), [distributed-cache](/hld/distributed-cache), [thundering-herd](/hld/thundering-herd).

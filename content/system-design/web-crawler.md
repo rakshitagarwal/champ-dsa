@@ -2,7 +2,7 @@
 
 > Download the web politely. The core is a **URL frontier + dedup + robots.txt**, not a recursive `wget` on one box.
 
-> **TL;DR Hinglish:** URL frontier (queue), politeness per domain, dedup via Bloom/Set, fetcher → parser → dedup → store S3 + index.
+> URL frontier (queue), politeness per domain, dedup via Bloom/Set, fetcher → parser → dedup → store S3 + index.
 
 ## What they ask
 
@@ -10,7 +10,7 @@ Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl bi
 
 **What they really test:** (1) Frontier as a distributed priority queue (not DFS/BFS in memory). (2) Per-host rate limiting + robots.txt cache as first-class. (3) URL canonicalization + seen-set at billions scale (Bloom + exact). (4) Decoupling fetch, parse, store, index via queues. (5) Trade-offs: throughput vs politeness vs freshness.
 
-**Scale anchor:** Web ~40-60B indexable pages (debatable), crawler targeting 1-10B pages. Fetch 10k pages/sec ~ 1B/day requires ~1000 fetcher threads with polite delays. Raw HTML avg ~30KB gzipped ~30KB*1B = 30TB crawl data/day to [S3](/system-design/s3). Frontier holds billions of URLs — cannot be in RAM.
+**Scale anchor:** Web ~40-60B indexable pages (debatable), crawler targeting 1-10B pages. Fetch 10k pages/sec ~ 1B/day requires ~1000 fetcher threads with polite delays. Raw HTML avg ~30KB gzipped ~30KB*1B = 30TB crawl data/day to [S3](/hld/s3). Frontier holds billions of URLs — cannot be in RAM.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl bi
 - Fetch HTML (and optionally PDFs/images) with size/time caps; handle redirects (301/302), retries, and HTTP errors.
 - Respect `robots.txt`, `sitemap.xml`, `Crawl-delay`, and meta `noindex/nofollow`.
 - Canonicalize + deduplicate URLs and content; detect near-duplicates.
-- Store raw pages and extracted links; emit to downstream indexing pipeline ([Elasticsearch](/system-design/elasticsearch)).
+- Store raw pages and extracted links; emit to downstream indexing pipeline ([Elasticsearch](/hld/elasticsearch)).
 - Recrawl: revisit pages based on change frequency, not blindly.
 
 **Non-functional:**
@@ -75,7 +75,7 @@ DELETE /v1/seeds/{jobId} => 204
 POST /internal/fetchResult { "url": "...", "status": 200, "htmlRef": "s3://crawl/raw/...", "links": ["..."], "fetchedAt": "..." }
 ```
 
-Workers communicate via internal [Kafka](/system-design/kafka) topics, not these REST endpoints in steady state. Admin API above is for control plane only.
+Workers communicate via internal [Kafka](/hld/kafka) topics, not these REST endpoints in steady state. Admin API above is for control plane only.
 
 ## High-Level Design (HLD)
 
@@ -103,16 +103,16 @@ graph LR
 ```
 
 **Components:**
-- **URL Frontier:** Disk-backed priority queue, logically sharded by `hash(host) % shards`. Two-level: global priority (PageRank/importance, recency, `Crawl-Delay`) then per-host FIFO to enforce politeness. Backed by [Kafka](/system-design/kafka) + RocksDB or custom disk queue (like Mercator). Must spill to disk — billions of URLs don't fit in Redis alone.
-- **Scheduler:** Pulls from frontier in host-sharded fashion; enforces per-host concurrency = 1-2 and min interval (e.g., 500ms-1s). Uses a [rate limiter](/system-design/rate-limiter) keyed by host/IP (token bucket per domain). Also merges robots.txt fetch into schedule — don't schedule fetch until robots fetched & cached.
-- **Fetcher Workers:** Stateless pods (Go/Java). Steps: DNS resolve (with shared [Redis](/system-design/redis) cache TTL 5 min), check robots cache (cached per host 24h), HTTP GET with timeout 10s + max body 2MB + respect `Crawl-delay` and `Retry-After`, handle redirects (follow ≤5, canonicalize target). Respect `User-Agent` identification.
-- **DNS / robots cache:** Shared cache layer ([Redis](/system-design/redis) or [Memcached](/system-design/memcached)) + local L1. Robots.txt fetched once per host per 24h, stored as parsed rules.
-- **Content Store:** Raw HTML + headers stored to [S3](/system-design/s3) with key `s3://crawl/raw/{date}/{hostHash}/{urlHash}.warc.gz`. Also store metadata in [Cassandra](/system-design/cassandra) for quick lookup.
+- **URL Frontier:** Disk-backed priority queue, logically sharded by `hash(host) % shards`. Two-level: global priority (PageRank/importance, recency, `Crawl-Delay`) then per-host FIFO to enforce politeness. Backed by [Kafka](/hld/kafka) + RocksDB or custom disk queue (like Mercator). Must spill to disk — billions of URLs don't fit in Redis alone.
+- **Scheduler:** Pulls from frontier in host-sharded fashion; enforces per-host concurrency = 1-2 and min interval (e.g., 500ms-1s). Uses a [rate limiter](/hld/rate-limiter) keyed by host/IP (token bucket per domain). Also merges robots.txt fetch into schedule — don't schedule fetch until robots fetched & cached.
+- **Fetcher Workers:** Stateless pods (Go/Java). Steps: DNS resolve (with shared [Redis](/hld/redis) cache TTL 5 min), check robots cache (cached per host 24h), HTTP GET with timeout 10s + max body 2MB + respect `Crawl-delay` and `Retry-After`, handle redirects (follow ≤5, canonicalize target). Respect `User-Agent` identification.
+- **DNS / robots cache:** Shared cache layer ([Redis](/hld/redis) or [Memcached](/hld/memcached)) + local L1. Robots.txt fetched once per host per 24h, stored as parsed rules.
+- **Content Store:** Raw HTML + headers stored to [S3](/hld/s3) with key `s3://crawl/raw/{date}/{hostHash}/{urlHash}.warc.gz`. Also store metadata in [Cassandra](/hld/cassandra) for quick lookup.
 - **Parser / Link Extractor:** Extracts `href`, sitemap links, `rel=canonical`. Canonicalizes (lowercase host, remove `utm_*`, sort query, strip fragment, handle trailing slash). Emits canonical URLs.
 - **Dedup Service:** Checks Bloom filter (fast negative) then exact store (Cassandra/Dynamo `seen_urls`). Content dedup via SHA256 of body (or SimHash for near-dup) — same content via many URLs stored once.
 
 **Write path (crawl):** Seed -> frontier -> scheduler picks host shard -> fetcher -> S3 + parser -> dedup -> frontier (new links) and index pipeline.
-**Read path (search):** Downstream indexer reads S3/queue, builds inverted index in [Elasticsearch](/system-design/elasticsearch). No user-facing read on crawler.
+**Read path (search):** Downstream indexer reads S3/queue, builds inverted index in [Elasticsearch](/hld/elasticsearch). No user-facing read on crawler.
 
 ## Low-Level Design (LLD)
 
@@ -206,7 +206,7 @@ class Parser {
 - **Idempotency:** Fetch result written with `url_hash+fetched_at` key; re-fetch after TTL (e.g., 7 days) not immediate.
 
 **Design patterns:**
-- **Producer-Consumer:** Frontier producers (parsers) decoupled from fetcher consumers via [Kafka](/system-design/kafka) / disk queue.
+- **Producer-Consumer:** Frontier producers (parsers) decoupled from fetcher consumers via [Kafka](/hld/kafka) / disk queue.
 - **Cache-Aside:** DNS + robots.txt cache-aside with TTL.
 - **Token Bucket:** Per-host rate limiting.
 - **Strategy:** Pluggable `PriorityStrategy` (BFS vs PageRank vs recency) for frontier ordering.
@@ -242,8 +242,8 @@ Not all pages change equally: homepages hourly, blog posts never. Track `changeF
 - How to avoid duplicate content across mirrors? — Content SimHash + canonical host preference.
 - How to prioritize important pages? — Seed priority + PageRank-like in-degree count in frontier; or query search click logs.
 - Legal/compliance: obey `robots.txt` is voluntary but assumed; mention `Crawl-delay` and polite identification via `User-Agent`.
-- Alternative queue: Why not [Redis](/system-design/redis) only? — RAM insufficient for 10B URLs; need disk-backed RocksDB/Kafka + Redis cache for hot hosts.
-- Scheduling as [rate limiter](/system-design/rate-limiter) per host — exactly the token-bucket pattern applied to crawler politeness.
+- Alternative queue: Why not [Redis](/hld/redis) only? — RAM insufficient for 10B URLs; need disk-backed RocksDB/Kafka + Redis cache for hot hosts.
+- Scheduling as [rate limiter](/hld/rate-limiter) per host — exactly the token-bucket pattern applied to crawler politeness.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

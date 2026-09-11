@@ -18,19 +18,23 @@ const INTRODUCTION: LldTopicWithNum = {
   short: "Introduction",
   group: "intro",
   num: 0,
-  body: `These notes cover Low Level Design end to end: object-oriented fundamentals, SOLID principles, all major design patterns, and twelve classic interview problems with complete designs.
+  body: `Ye notes Low Level Design ko shuru se aakhir tak cover karte hain: object-oriented fundamentals, SOLID usool, saare major design patterns aur complete designs wale barah classic interview problems. Saare examples JavaScript me hain — JS me classes, Maps aur arrays se har pattern aaram se banta hai.
 
-Start with the fundamentals, then learn each pattern family in order: creational, structural, behavioral. Finish with the interview questions, which combine everything. Every topic follows the same revision shape: short theory, a Java skeleton, and points to keep in mind.
+LLD seekhna kyun zaroori hai? Kyunki code likhne se pehle sochna sasta padta hai. Galat class structure production me technical debt banta hai — har nayi feature me kaam do guna hota hai. Interviews me LLD round tumhari OOP pakad test karta hai, aur senior roles me ye round aksar faisla karta hai.
 
-The interview loop for any LLD problem stays constant. Clarify requirements first. List entities from the nouns in the statement. Define relationships between them. Apply SOLID principles and one or two patterns where they fit. Walk through a use case to prove the design works.
+Pehle fundamentals padho, phir har pattern family tartib se seekho: creational, structural, behavioral. Aakhir me interview questions karo, jo sab kuch jodte hain. Har topic ka revision shape ek jaisa hai: chhoti theory, kaise-kaam-karta hai, JavaScript skeleton, kab use karein, aam galtiyan aur yaad rakhne wale points.
+
+## The interview loop
+
+Kisi bhi LLD problem ka loop constant rehta hai. Pehle requirements clear karo aur scope pakdo. Statement ke nouns se entities nikalo. Unke beech rishte tay karo. SOLID lagao aur ek-do patterns wahan lagao jahan dil se fit hon. Design prove karne ke liye ek use case end tak chala ke dikhao.
 
 ## Keep in mind
 
-- HLD is about machines, LLD is about classes: state this line first.
-- Nouns become classes, verbs become methods.
-- Composition beats inheritance unless there is a true is-a relationship.
-- One or two patterns per design is enough: forced patterns score negatively.
-- Always close with a walkthrough of the happy path plus one edge case.`,
+- HLD machines ki baat hai, LLD classes ki: ye line sabse pehle bolo.
+- Nouns classes bante hain, verbs methods bante hain.
+- Composition inheritance se behtar hai, jab tak sach me is-a rishta na ho.
+- Har design me ek-do patterns kaafi hain: zabardasti lagana negative jata hai.
+- Hamesha happy path plus ek edge case ke walkthrough pe khatm karo.`,
 };
 
 // Curriculum order (1-41)

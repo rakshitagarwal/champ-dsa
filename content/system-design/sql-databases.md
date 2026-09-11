@@ -2,7 +2,7 @@
 
 > Relational databases — structured tables with relationships, ACID transactions.
 
-> **TL;DR Hinglish:** SQL databases structured tables mein data rakhte hain — rows and columns, foreign keys se relate hote hain. ACID properties (Atomicity, Consistency, Isolation, Durability) transactions reliable banate hain. SQL query language se data retrieve karte hain — SELECT, JOIN, WHERE, GROUP BY. Postgres, MySQL, Oracle popular hain. Best for financial apps, inventory, anything structured.
+> SQL databases structured tables mein data rakhte hain — rows and columns, foreign keys se relate hote hain. ACID properties (Atomicity, Consistency, Isolation, Durability) transactions reliable banate hain. SQL query language se data retrieve karte hain — SELECT, JOIN, WHERE, GROUP BY. Postgres, MySQL, Oracle popular hain. Best for financial apps, inventory, anything structured.
 
 SQL databases structured relational data store karte hain:
 
@@ -38,4 +38,4 @@ graph LR
 
 **Yaad rakho (Revision):** Tables + rows + columns, primary/foreign keys, ACID (Atomicity, Consistency, Isolation, Durability), SQL queries, Postgres/MySQL, vertical scaling, read replicas.
 
-**See also:** [PostgreSQL](/system-design/postgresql), [Database Replication](/system-design/database-replication), [Databases and DBMS](/system-design/databases-and-dbms).
+**See also:** [PostgreSQL](/hld/postgresql), [Database Replication](/hld/database-replication), [Databases and DBMS](/hld/databases-and-dbms).

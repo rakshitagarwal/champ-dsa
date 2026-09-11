@@ -2,7 +2,7 @@
 
 > Retail brokerage. **Correctness beats latency.** You are designing order intake + a matching/execution story, not a hedge fund.
 
-> **TL;DR Hinglish:** Order matching engine, ledger Postgres, idempotent `clientOrderId`, market hours check, Kafka for audit.
+> Order matching engine, ledger Postgres, idempotent `clientOrderId`, market hours check, Kafka for audit.
 
 ## What they ask
 
@@ -55,11 +55,11 @@ Example scale: 10M funded accounts, 2M DAU, ~500k orders/day (peak 5k orders/sec
 | DAU | 2M | — | 2M |
 | Orders/day | 500k avg, 2× on volatile day | 500k/86400 | **~6 QPS avg, 50 QPS peak, 5k QPS at open burst** |
 | Quotes QPS | 2M users × poll every 30s + app open 5 symbols | 2M/30 × 5 | **~330k QPS** if polling — must push/cache, not hit DB |
-| Quote ticks ingress | 8k symbols × 1 tick/sec | — | 8k msgs/sec from vendor WS → fan-out via [Redis](/system-design/redis) |
+| Quote ticks ingress | 8k symbols × 1 tick/sec | — | 8k msgs/sec from vendor WS → fan-out via [Redis](/hld/redis) |
 | Ledger entries | 2 entries/order (hold + fill) + cancel releases | 1M/day | **~30M/month**, ~1B/3yr — range-partition by month |
 | Storage | order row 500B, fill 300B, ledger 200B | 1M orders/mo × 1KB | ~1GB/mo orders, 6GB/mo ledger — small, but must be *durable* (multi-AZ) |
 
-Bandwidth dominated by quote distribution — put it behind [Redis](/system-design/redis) / CDN edge, not Postgres.
+Bandwidth dominated by quote distribution — put it behind [Redis](/hld/redis) / CDN edge, not Postgres.
 
 ## API Design
 
@@ -140,11 +140,11 @@ graph LR
 ```
 
 **Component roles:**
-- **Quote Service:** consumes vendor websocket, normalizes ticks, writes to [Redis](/system-design/redis) (`quote:AAPL → {price, ts}` + sorted set for 1m candles). Serves `GET /quotes` from Redis, not DB. Stale quote does not block order (order uses venue's fill price, not displayed quote).
-- **Order Service:** validates `symbol/tradingHours/qty`, checks idempotency `UNIQUE(account_id, idempotency_key)`, atomically creates `orders` row + `holds` ledger entry inside a per-account transaction. Publishes `order.routed` to [Kafka](/system-design/kafka), calls Venue Adapter (async). Owns order state machine.
+- **Quote Service:** consumes vendor websocket, normalizes ticks, writes to [Redis](/hld/redis) (`quote:AAPL → {price, ts}` + sorted set for 1m candles). Serves `GET /quotes` from Redis, not DB. Stale quote does not block order (order uses venue's fill price, not displayed quote).
+- **Order Service:** validates `symbol/tradingHours/qty`, checks idempotency `UNIQUE(account_id, idempotency_key)`, atomically creates `orders` row + `holds` ledger entry inside a per-account transaction. Publishes `order.routed` to [Kafka](/hld/kafka), calls Venue Adapter (async). Owns order state machine.
 - **Account + Ledger Service:** the **money brain**. Holds Postgres tables `accounts`, `positions`, `ledger_entries`. All money mutations go through this service with `SELECT ... FOR UPDATE` on `accounts` row (or per-account Kafka partition serialization) to prevent overspend. Cache (Redis) of buying power is *hint only* — DB wins on conflict.
 - **Venue Adapter:** translates internal order → venue API (FIX or REST), polls or receives webhook fills. On fill callback, validates signature, deduplicates on `execId`, appends ledger entries (release hold → debit cash / credit position), updates order `filledQty`.
-- **[Kafka](/system-design/kafka):** decouples order acceptance from fill processing; drives push notifications and nightly reconciliation without coupling to venue latency.
+- **[Kafka](/hld/kafka):** decouples order acceptance from fill processing; drives push notifications and nightly reconciliation without coupling to venue latency.
 - **WS Gateway:** streams `orderStatusChanged` and quote ticks to subscribed clients; stateless, sticky by `accountId` optional.
 
 **Data flow — buy 10 AAPL market:**
@@ -243,7 +243,7 @@ RiskService         — check PDT, marketHours, sell qty <= position.qty + holds
 ```
 
 **Concurrency / algorithms:**
-- **Per-account serialization:** `SELECT ... FOR UPDATE` on `accounts` inside order placement transaction. Alternative: partition [Kafka](/system-design/kafka) by `accountId` and single-thread per partition consumer. Either prevents the classic race: two devices read $100, both think they can buy $90 — without lock you double-spend.
+- **Per-account serialization:** `SELECT ... FOR UPDATE` on `accounts` inside order placement transaction. Alternative: partition [Kafka](/hld/kafka) by `accountId` and single-thread per partition consumer. Either prevents the classic race: two devices read $100, both think they can buy $90 — without lock you double-spend.
 - **Idempotency:** DB unique constraint `(account_id, idempotency_key)` → double tap returns existing `orderId` without second hold.
 - **Partial fills:** `fills` table dedup on `execId`; `orders.filled_qty += fill.qty` incrementally; ledger entry per fill with idempotency on `fill_exec_id`.
 - **Avg cost:** weighted average on buys; sells don't change avg cost (FIFO lots deferred to v2).
@@ -253,7 +253,7 @@ RiskService         — check PDT, marketHours, sell qty <= position.qty + holds
 
 ## Deep dive — Money races and why cache is not truth
 
-Two phones, $100 cash, two market buys for $90 each at the same millisecond. Both `GET /accounts` see `buyingPower 100`. Without serialization, both `INSERT ledger hold 90` succeed and you've held $180 against $100. Fix: **the ledger transaction locks the account row**. Sequence: Tx1 `SELECT ... FOR UPDATE` gets lock, checks `buyingPower 100 >= 90` → holds 90 → commits. Tx2 now acquires lock, recomputes `buyingPower = cash - holds = 100 - 90 = 10`, sees `10 < 90` → rejects with `insufficient_buying_power`. Never compute buying power in [Redis](/system-design/redis) and treat it as truth — Redis is a display hint populated from ledger after commit. Similarly, sells must check `positions.qty` under lock and hold shares (decrement available) so double-sell doesn't oversell.
+Two phones, $100 cash, two market buys for $90 each at the same millisecond. Both `GET /accounts` see `buyingPower 100`. Without serialization, both `INSERT ledger hold 90` succeed and you've held $180 against $100. Fix: **the ledger transaction locks the account row**. Sequence: Tx1 `SELECT ... FOR UPDATE` gets lock, checks `buyingPower 100 >= 90` → holds 90 → commits. Tx2 now acquires lock, recomputes `buyingPower = cash - holds = 100 - 90 = 10`, sees `10 < 90` → rejects with `insufficient_buying_power`. Never compute buying power in [Redis](/hld/redis) and treat it as truth — Redis is a display hint populated from ledger after commit. Similarly, sells must check `positions.qty` under lock and hold shares (decrement available) so double-sell doesn't oversell.
 
 ## Deep dive — Venue as a flaky colleague and partial fills
 
@@ -266,7 +266,7 @@ We do not build an order book — we delegate to a venue. That means: network ti
 
 ## Handling failures and scale
 
-- **Sharding:** Orders and ledger partitioned by `accountId` hash (or range by `accountId`). Quotes sharded by `symbol` in [Redis](/system-design/redis). [Kafka](/system-design/kafka) topic `order.events` partitioned by `accountId` to preserve per-account ordering.
+- **Sharding:** Orders and ledger partitioned by `accountId` hash (or range by `accountId`). Quotes sharded by `symbol` in [Redis](/hld/redis). [Kafka](/hld/kafka) topic `order.events` partitioned by `accountId` to preserve per-account ordering.
 - **Caching:** Quote Redis is write-through from vendor WS; order/account reads use `Cache-Aside` with short TTL (5s) — but writes always go to Postgres and invalidate cache. Buying power cache invalidated on every ledger commit.
 - **Replication:** Postgres synchronous replication for ledger (zero data loss); async replica for quote-history analytics. Kafka RF=3.
 - **Failure modes:**
@@ -282,9 +282,9 @@ We do not build an order book — we delegate to a venue. That means: network ti
 1. **PDT rule:** Track day trades per account in last 5 business days; block 4th day trade for < $25k accounts — compliance service before `place()`.
 2. **Fractional shares:** Change `qty` to decimal, handle `avgCost` with higher precision, venue may support fractional route vs internal fractional aggregation.
 3. **Short selling:** Needs locate + margin — separate flow, not v1.
-4. **ACH deposits:** Use [payment system](/system-design/payment-system) flow — `pending → posted` days later, ledger holds buying power instantly but settled cash delayed.
+4. **ACH deposits:** Use [payment system](/hld/payment-system) flow — `pending → posted` days later, ledger holds buying power instantly but settled cash delayed.
 5. **Tax lots:** FIFO vs specific lot — store lot table `lots(accountId, symbol, qty, costBasis, acquiredAt)` and consume on sells.
-6. **Related systems:** [Rate limiter](/system-design/rate-limiter) on order placement (10/min per account), [metrics monitoring](/system-design/metrics-monitoring) on fill latency.
+6. **Related systems:** [Rate limiter](/hld/rate-limiter) on order placement (10/min per account), [metrics monitoring](/hld/metrics-monitoring) on fill latency.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

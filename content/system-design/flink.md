@@ -2,7 +2,7 @@
 
 > Stream processing — windows, watermarks, aur exactly-once jobs Kafka ke upar.
 
-> **TL;DR Hinglish:** Flink ek tez dhobi hai jo Kafka ki nadi me behte events ko pakad ke window me jodta hai, late aane walon ka intezam watermark se, aur state RocksDB me safe rakhta hai. Crash hua to checkpoint se wapas.
+> Flink ek tez dhobi hai jo Kafka ki nadi me behte events ko pakad ke window me jodta hai, late aane walon ka intezam watermark se, aur state RocksDB me safe rakhta hai. Crash hua to checkpoint se wapas.
 
 Kafka log hai, Flink us log pe **stateful** kaam karta hai — count, join, session. Batch nahi, continuous.
 
@@ -41,4 +41,4 @@ graph LR
 
 **Yaad rakho:** Window = dibba, watermark = ghadi, state = RocksDB, checkpoint = photo, late → side output.
 
-**See also:** [kafka](/system-design/kafka), [ad-click-aggregator](/system-design/ad-click-aggregator), [youtube-top-k](/system-design/youtube-top-k).
+**See also:** [kafka](/hld/kafka), [ad-click-aggregator](/hld/ad-click-aggregator), [youtube-top-k](/hld/youtube-top-k).

@@ -2,7 +2,7 @@
 
 > Application components ko connect karte hain asynchronously — decoupling.
 
-> **TL;DR Hinglish:** Message broker ek middleware hai jo producers aur consumers ko connect karta hai asynchronously. Decoupling hota hai — producer ko consumer ka existence nahi pata. Types: Point-to-point (queue), Publish-Subscribe (topic). Kafka, RabbitMQ, ActiveMQ popular hain. Benefits: reliability, scalability, async processing. Producer publish karta hai topic/queue pe, consumer subscribe karta hai.
+> Message broker ek middleware hai jo producers aur consumers ko connect karta hai asynchronously. Decoupling hota hai — producer ko consumer ka existence nahi pata. Types: Point-to-point (queue), Publish-Subscribe (topic). Kafka, RabbitMQ, ActiveMQ popular hain. Benefits: reliability, scalability, async processing. Producer publish karta hai topic/queue pe, consumer subscribe karta hai.
 
 Message broker decouples application components ke beech:
 
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** Producer → broker → consumer, decoupling, point-to-point vs pub-sub, Kafka/RabbitMQ, broker SPOF (cluster), message loss (ack), idempotent consumers.
 
-**See also:** [Message Queue](/system-design/message-queue), [Publish-Subscribe](/system-design/publish-subscribe), [Kafka](/system-design/kafka).
+**See also:** [Message Queue](/hld/message-queue), [Publish-Subscribe](/hld/publish-subscribe), [Kafka](/hld/kafka).

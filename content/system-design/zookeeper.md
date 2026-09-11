@@ -2,7 +2,7 @@
 
 > Coordination — leader election, distributed locks, aur config. Kafka pehle ispe tha, ab bhi samajhna zaruri.
 
-> **TL;DR Hinglish:** ZooKeeper ek chhota par pakka register hai jahan saare servers likh ke decide karte hain leader kaun, lock kis ka. Har write quorum pe, read fast. Etcd/Consul iske naye bhai, par concept same.
+> ZooKeeper ek chhota par pakka register hai jahan saare servers likh ke decide karte hain leader kaun, lock kis ka. Har write quorum pe, read fast. Etcd/Consul iske naye bhai, par concept same.
 
 Data nahi, **coordination** ke liye. 3-5 nodes ka ensemble, `2F+1` me se `F+1` quorum pe write. Strong consistent (CP).
 
@@ -43,4 +43,4 @@ graph LR
 
 **Yaad rakho:** Ephemeral = session, sequential = order, quorum = F+1, 3/5 nodes, bada data mat dalo.
 
-**See also:** [kafka](/system-design/kafka), [job-scheduler](/system-design/job-scheduler), [distributed-cache](/system-design/distributed-cache).
+**See also:** [kafka](/hld/kafka), [job-scheduler](/hld/job-scheduler), [distributed-cache](/hld/distributed-cache).

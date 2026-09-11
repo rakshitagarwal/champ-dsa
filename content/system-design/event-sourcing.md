@@ -2,7 +2,7 @@
 
 > State ke liye events store karo — history preserved, audit trail available.
 
-> **TL;DR Hinglish:** Event Sourcing state ke liye events store karta hai — current state events ka aggregate hai. Jab state change ho, event append hota hai (append-only log). Query = events replay karo. Benefits: audit trail, time travel, reproducibility. Challenges: event replay slow, schema changes. CQRS ke saath use hota hai — events store, read model separate build karo.
+> Event Sourcing state ke liye events store karta hai — current state events ka aggregate hai. Jab state change ho, event append hota hai (append-only log). Query = events replay karo. Benefits: audit trail, time travel, reproducibility. Challenges: event replay slow, schema changes. CQRS ke saath use hota hai — events store, read model separate build karo.
 
 Event Sourcing state ke liye event history maintain karta hai:
 
@@ -45,4 +45,4 @@ graph TD
 
 **Yaad rakho (Revision):** Event sourcing append-only log, state = replay events, snapshots for speed, audit trail + time travel, schema evolution challenge, CQRS + event sourcing = powerful combo.
 
-**See also:** [CQRS](/system-design/command-and-query-responsibility-segregation), [Event-Driven Architecture](/system-design/event-driven-architecture), [Message Queue](/system-design/message-queue).
+**See also:** [CQRS](/hld/command-and-query-responsibility-segregation), [Event-Driven Architecture](/hld/event-driven-architecture), [Message Queue](/hld/message-queue).

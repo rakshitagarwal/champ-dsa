@@ -2,7 +2,7 @@
 
 > Count clicks (and impressions) for ads so you can **bill** and show dashboards. The bar is **no lost money** and **late events**, not a fancy UI.
 
-> **TL;DR Hinglish:** Clicks Kafka me, Flink window me count, late events watermark, billing exactly-once via checkpoint + idempotent sink.
+> Clicks Kafka me, Flink window me count, late events watermark, billing exactly-once via checkpoint + idempotent sink.
 
 ## What they ask
 
@@ -118,10 +118,10 @@ graph LR
 ```
 
 **Components:**
-- **Edge Collector:** Stateless edge in 3 regions, behind [Load Balancer](/system-design/load-balancer) + CDN. Validates fields, stamps `receivedAt`, assigns `eventId` if missing, produces to [Kafka](/system-design/kafka) with `acks=all`. Returns 204 in <20ms. No DB on request path. Backpressure via bounded queue + `429` when Kafka unavailable (client retries).
-- **[Kafka](/system-design/kafka):** Two topics `ad.raw.clicks` (12 partitions per 10k eps) and `ad.raw.impressions` (larger). Retention 7-30 days. Compression `lz4`/`zstd`. Partition key `campaignId` (or `adId`) preserves per-campaign ordering for deterministic dedup; but for throughput sometimes round-robin and dedup via global table.
-- **[Flink](/system-design/flink) Pipelines:** (1) **Dedupe processor:** RocksDB state `eventId -> seen` TTL 1h + Bloom pre-filter; drops duplicates. Also handles `user+ad+minute` fallback key for clients without UUID. (2) **Window aggregator:** Keyed by `(campaignId, granularity)` with event-time windows. Maintain `count, sum(cost), HLL uniques` incrementally. Emit updates every 10s to serving store (upsert). Watermark = max event ts - 45s; allowed lateness 5 min.
-- **Serving Store:** [Cassandra](/system-design/cassandra) or ClickHouse/Druid for OLAP slices. Schema optimized for `WHERE campaignId=? AND bucket >=? AND bucket <?`. TTL not needed — keep forever for reporting. Secondary [Redis](/system-design/redis) cache for hottest campaigns (top 1% campaigns = 90% reads) with 30s TTL.
+- **Edge Collector:** Stateless edge in 3 regions, behind [Load Balancer](/hld/load-balancer) + CDN. Validates fields, stamps `receivedAt`, assigns `eventId` if missing, produces to [Kafka](/hld/kafka) with `acks=all`. Returns 204 in <20ms. No DB on request path. Backpressure via bounded queue + `429` when Kafka unavailable (client retries).
+- **[Kafka](/hld/kafka):** Two topics `ad.raw.clicks` (12 partitions per 10k eps) and `ad.raw.impressions` (larger). Retention 7-30 days. Compression `lz4`/`zstd`. Partition key `campaignId` (or `adId`) preserves per-campaign ordering for deterministic dedup; but for throughput sometimes round-robin and dedup via global table.
+- **[Flink](/hld/flink) Pipelines:** (1) **Dedupe processor:** RocksDB state `eventId -> seen` TTL 1h + Bloom pre-filter; drops duplicates. Also handles `user+ad+minute` fallback key for clients without UUID. (2) **Window aggregator:** Keyed by `(campaignId, granularity)` with event-time windows. Maintain `count, sum(cost), HLL uniques` incrementally. Emit updates every 10s to serving store (upsert). Watermark = max event ts - 45s; allowed lateness 5 min.
+- **Serving Store:** [Cassandra](/hld/cassandra) or ClickHouse/Druid for OLAP slices. Schema optimized for `WHERE campaignId=? AND bucket >=? AND bucket <?`. TTL not needed — keep forever for reporting. Secondary [Redis](/hld/redis) cache for hottest campaigns (top 1% campaigns = 90% reads) with 30s TTL.
 - **Dashboard Service:** Reads serving store, merges open (in-flight) + closed buckets, marks `isFinal=false` for current hour. Serves from Redis cache first.
 - **Billing Service:** Cron at `00:05 UTC` closes yesterday's window. Queries serving store for `day=2026-05-10` and cross-checks with **S3 raw replay** (hourly Parquet dump via Kafka Connect) for reconciliation. Billing reads closed windows only.
 
@@ -229,7 +229,7 @@ class BillingService {
 
 ## Deep dive — Money vs dashboards (correctness tiers)
 
-Not all reads need same accuracy. **Dashboards** can be approximate and laggy: show `isFinal=false` badge on current hour, use HLL for uniques, allow 30s staleness via [Redis](/system-design/redis) cache. **Invoices** need closed, auditable numbers: finance runs `closeDay()` at `T+5 min` UTC — that day's `agg_day` rows become immutable (`status='closed'`). Any late event after close doesn't overwrite the row; it inserts into `billing_adjustments(day, campaignId, deltaClicks, deltaSpend)` so the invoice can show "original + adjustments" with audit trail. Reconciliation job (Spark over S3 Parquet) hourly compares `SUM(raw)` per campaign vs `SUM(agg_hour)`; if divergence >0.1% alert and auto-correct via upsert. Timezone handling: store all bucket timestamps in UTC, convert at query time per advertiser preference — never bucket in local time at ingest.
+Not all reads need same accuracy. **Dashboards** can be approximate and laggy: show `isFinal=false` badge on current hour, use HLL for uniques, allow 30s staleness via [Redis](/hld/redis) cache. **Invoices** need closed, auditable numbers: finance runs `closeDay()` at `T+5 min` UTC — that day's `agg_day` rows become immutable (`status='closed'`). Any late event after close doesn't overwrite the row; it inserts into `billing_adjustments(day, campaignId, deltaClicks, deltaSpend)` so the invoice can show "original + adjustments" with audit trail. Reconciliation job (Spark over S3 Parquet) hourly compares `SUM(raw)` per campaign vs `SUM(agg_hour)`; if divergence >0.1% alert and auto-correct via upsert. Timezone handling: store all bucket timestamps in UTC, convert at query time per advertiser preference — never bucket in local time at ingest.
 
 ## Deep dive — Late events, fraud and exactly-once
 
@@ -255,8 +255,8 @@ Not all reads need same accuracy. **Dashboards** can be approximate and laggy: s
 
 - Impression vs click — two topics with 25x volume difference; keep pipelines identical but impression pipeline cheaper retention and sampled for dashboard if needed.
 - Why not write aggregates directly on pixel request? — Would make pixel latency depend on DB and lose events on DB outage; queue decouples.
-- Negative caching / bot flood — [Redis](/system-design/redis) rate limiter per IP at edge drops obvious abuse before Kafka.
-- Compare stores: [Cassandra](/system-design/cassandra) for write-heavy aggregates, Druid/ClickHouse for OLAP slice-and-dice, [Elasticsearch](/system-design/elasticsearch) less ideal for sums.
+- Negative caching / bot flood — [Redis](/hld/redis) rate limiter per IP at edge drops obvious abuse before Kafka.
+- Compare stores: [Cassandra](/hld/cassandra) for write-heavy aggregates, Druid/ClickHouse for OLAP slice-and-dice, [Elasticsearch](/hld/elasticsearch) less ideal for sums.
 - Exactly-once vs at-least-once + dedup — both valid; interviewers often accept latter as simpler.
 - GDPR/purge — don't put raw PII in Kafka if avoidable; hash early.
 

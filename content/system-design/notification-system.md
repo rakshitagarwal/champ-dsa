@@ -2,7 +2,7 @@
 
 > Fan-out "tell the user" across **push, email, SMS, in-app**. Preferences and retries matter more than picking Twilio.
 
-> **TL;DR Hinglish:** Ek Kafka topic per channel (email/push/SMS), preference filter, fan-out chunked 10M pe, idempotency + digest window.
+> Ek Kafka topic per channel (email/push/SMS), preference filter, fan-out chunked 10M pe, idempotency + digest window.
 
 ## What they ask
 
@@ -58,7 +58,7 @@ Example scale framing (to anchor your numbers early): 50M MAU, 5 notifications/u
 | Peak QPS | marketing burst 20M in 600s | 20M/600 | **~33k QPS** burst (enqueue only) |
 | Storage (metadata) | 500 bytes/row + rendered copy 2KB | 50M × 2.5KB | **~125 GB/day**, 3.7 TB/month before TTL/archival |
 | In-app inbox | 20% keep inbox | 10M inbox reads/day | Cache-friendly, Redis badge counters |
-| Push fan-out | viral post 10M followers | 10M pushes × 2KB payload + token lookup | Needs chunked [Kafka](/system-design/kafka) partitions, not inline loop |
+| Push fan-out | viral post 10M followers | 10M pushes × 2KB payload + token lookup | Needs chunked [Kafka](/hld/kafka) partitions, not inline loop |
 
 Bandwidth: push payloads small; email bodies 10-50KB. Throughput is dominated by provider calls, not your ingress. Size your **workers per channel** independently.
 
@@ -149,12 +149,12 @@ graph LR
 ```
 
 **Component roles:**
-- **Notification API (ingest):** validates, checks idempotency (unique constraint), writes `notifications` row `queued`, publishes to [Kafka](/system-design/kafka) via transactional outbox, returns 202. Uses [Redis](/system-design/redis) for dedupe window cache.
-- **Scheduler:** for `sendAt` future and quiet-hours delay; backed by delayed queue (Kafka delay topic or DB polling + [job scheduler](/system-design/job-scheduler)).
+- **Notification API (ingest):** validates, checks idempotency (unique constraint), writes `notifications` row `queued`, publishes to [Kafka](/hld/kafka) via transactional outbox, returns 202. Uses [Redis](/hld/redis) for dedupe window cache.
+- **Scheduler:** for `sendAt` future and quiet-hours delay; backed by delayed queue (Kafka delay topic or DB polling + [job scheduler](/hld/job-scheduler)).
 - **Orchestrator:** consumes `notification.requested`, loads prefs/quietHours/locale/rate limits, renders template (Mustache/Handlebars with strict allowlist), decides channels to actually send, emits per-channel events. Skips disabled/unsubscribed before rendering provider payload.
 - **Per-channel queues + workers:** independent scaling, rate limits, retries. Email throttled by SES reputation, push by FCM quotas, SMS by cost. Each worker idempotent on `notificationId+channel`.
 - **Status + Webhooks:** provider callbacks update `notification_channels` status. Webhook handler verifies signature, deduplicates on `providerEventId`.
-- **In-app inbox:** writes to feed store; badge count in [Redis](/system-design/redis) `INCR/DECR` + periodic reconciliation to DB.
+- **In-app inbox:** writes to feed store; badge count in [Redis](/hld/redis) `INCR/DECR` + periodic reconciliation to DB.
 
 **Data flow — write path:** Caller POST → idempotency check → DB row + outbox → Kafka → Orchestrator → per-channel Kafka → Workers → Provider API → status `sent` → webhook `delivered/bounced`.
 
@@ -248,7 +248,7 @@ InboxService            — write inbox_items, maintain Redis badge counter
 **Important algorithms / concurrency:**
 - **Idempotency:** DB unique constraint is truth; Redis `SETNX idempotencyKey → notificationId` with TTL is fast-path.
 - **Per-user ordering:** Kafka partition key = `userId` so prefs checks and digest windows are ordered per user.
-- **Digest:** Tumbling window per `(userId, groupingKey)` — buffer in [Redis](/system-design/redis) or Kafka Streams state store; flush when `count ≥ threshold` or `window elapsed` → render single collapsed notification.
+- **Digest:** Tumbling window per `(userId, groupingKey)` — buffer in [Redis](/hld/redis) or Kafka Streams state store; flush when `count ≥ threshold` or `window elapsed` → render single collapsed notification.
 - **Quiet hours:** if `now in quietHours && priority != transactional`, compute `nextSendAt = tomorrow quietEnd` and re-enqueue to scheduler.
 - **Retry:** exponential backoff `2^n * base` with jitter, max 5 for email/push, max 2 for SMS (cost). DLQ after max.
 
@@ -260,7 +260,7 @@ InboxService            — write inbox_items, maintain Redis badge counter
 
 **Fan-out storms:** A celebrity post notifying 10M followers cannot be `for (user : followers) await fcm.send()`. Instead: product service writes one `post_created` event; a **fan-out service** chunks follower IDs (e.g., 1k per Kafka message) and enqueues chunk messages. Each chunk is processed by orchestrator workers that respect per-user prefs and push token lookup (batched, cached). Add **sampling/priority** — low-priority "someone liked" push is dropped or digested if user's push budget exceeded; **email** for the same event is always async with hourly batch. Use partitioned topics so hot users don't block transactional OTP lanes (separate topic `notifications.transactional` vs `notifications.bulk`).
 
-**Digest deep dive:** Naive "one notification per like" destroys attention. Implement grouping: `groupingKey = like:postId:recipientId`. Orchestrator writes to [Redis](/system-design/redis) `HINCRBY digest:recipientId:groupingKey count 1` and `EXPIRE window 30m`. First event schedules a timer (via scheduler). On timer fire, read count, render template "Alice, Bob and 48 others liked your post" with latest 2 names fetched from DB, emit one per-channel notification and delete window key. Guarantees at most one push per window per group.
+**Digest deep dive:** Naive "one notification per like" destroys attention. Implement grouping: `groupingKey = like:postId:recipientId`. Orchestrator writes to [Redis](/hld/redis) `HINCRBY digest:recipientId:groupingKey count 1` and `EXPIRE window 30m`. First event schedules a timer (via scheduler). On timer fire, read count, render template "Alice, Bob and 48 others liked your post" with latest 2 names fetched from DB, emit one per-channel notification and delete window key. Guarantees at most one push per window per group.
 
 ## Deep dive — Per-channel reliability and cost control
 
@@ -274,7 +274,7 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
 ## Handling failures and scale
 
 - **Sharding:** Kafka partitions by `userId` hash (e.g., 64 partitions); consumers scale horizontally. Postgres sharded by `userId` for `notifications` and `inbox_items` if single-DB pressure hits; or move inbox to Cassandra.
-- **Caching:** Prefs + push tokens in [Redis](/system-design/redis) with write-through; template renders cached by `(templateId, version, locale)` (immutable). Badge counts in Redis with nightly reconciliation job that `SELECT COUNT(*) WHERE is_read=false` and corrects drift.
+- **Caching:** Prefs + push tokens in [Redis](/hld/redis) with write-through; template renders cached by `(templateId, version, locale)` (immutable). Badge counts in Redis with nightly reconciliation job that `SELECT COUNT(*) WHERE is_read=false` and corrects drift.
 - **Replication:** Postgres primary-replica; reads for inbox/status from replica, writes to primary. Kafka replication factor 3, min ISR 2.
 - **Failure modes:**
   - *Orchestrator down:* Kafka retains messages; no loss, just delay (monitor consumer lag).
@@ -290,7 +290,7 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
 2. **Exactly-once vs at-least-once:** Why not exactly-once end-to-end? Providers are at-least-once; we make effect idempotent instead. Walk through the double-send window after provider call timeout.
 3. **Template versioning:** Deploy `order_shipped_v2` without breaking in-flight `v1` renders — pin `template_version` at enqueue time.
 4. **Unsubscribe before send race:** PUT prefs after enqueue but before worker send — worker must re-check prefs after dequeue (double-check pattern).
-5. **Scheduling at scale:** How to handle 1M `sendAt` in future? Sorted set in [Redis](/system-design/redis) (ZSET score=timestamp) polled by scheduler or DB table with `WHERE send_at <= now()` indexed scan every second + [job scheduler](/system-design/job-scheduler).
+5. **Scheduling at scale:** How to handle 1M `sendAt` in future? Sorted set in [Redis](/hld/redis) (ZSET score=timestamp) polled by scheduler or DB table with `WHERE send_at <= now()` indexed scan every second + [job scheduler](/hld/job-scheduler).
 6. **Cross-region:** Providers are global; do you need multi-region Kafka? Mention but keep single region for 45-min interview.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.

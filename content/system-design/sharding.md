@@ -2,7 +2,7 @@
 
 > Ek bada DB 4 chhote DBs me baanto. Key se decide karo row kis shard pe jayega.
 
-> **TL;DR Hinglish:** Ek diary moti ho gayi to 4 diary me baanto — `userId % 4` se decide. Har diary apna hissa, ek sath search karna mehenga. Shard key galat to ek diary garam, baaki thandi.
+> Ek diary moti ho gayi to 4 diary me baanto — `userId % 4` se decide. Har diary apna hissa, ek sath search karna mehenga. Shard key galat to ek diary garam, baaki thandi.
 
 Jab single Postgres 1TB / 10k QPS cross kare, vertical scale mehenga — shard karo.
 
@@ -54,4 +54,4 @@ graph LR
 
 **Yaad rakho (Revision):** Hash vs Range vs Geo, shard key = high cardinality + query, cross-shard → app join / outbox, hot shard → split/cache.
 
-**See also:** [postgresql](/system-design/postgresql), [consistent-hashing](/system-design/consistent-hashing), [cassandra](/system-design/cassandra).
+**See also:** [postgresql](/hld/postgresql), [consistent-hashing](/hld/consistent-hashing), [cassandra](/hld/cassandra).

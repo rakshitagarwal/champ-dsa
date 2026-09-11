@@ -2,7 +2,7 @@
 
 > Multiple databases pe transaction — consistency maintain karna mushkil.
 
-> **TL;DR Hinglish:** Distributed transactions multiple databases pe kaam karte hain — consistency maintain karna mushkil. Two-Phase Commit (2PC) — prepare phase (sab agree karo) + commit phase (sab commit karo) — but blocking hai. Three-Phase Commit (3PC) — non-blocking but complex. Saga pattern — chain of local transactions, compensation if fail — best for microservices. Eventual consistency accept karo where possible.
+> Distributed transactions multiple databases pe kaam karte hain — consistency maintain karna mushkil. Two-Phase Commit (2PC) — prepare phase (sab agree karo) + commit phase (sab commit karo) — but blocking hai. Three-Phase Commit (3PC) — non-blocking but complex. Saga pattern — chain of local transactions, compensation if fail — best for microservices. Eventual consistency accept karo where possible.
 
 Distributed transactions multiple nodes/databases pe transaction kaam karte hain:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** 2PC (prepare+commit, blocking, SPOF), 3PC (non-blocking), Saga pattern (local txns + compensation), choreography vs orchestration, use Saga for microservices.
 
-**See also:** [Transactions](/system-design/transactions), [ACID vs BASE](/system-design/acid-vs-base), [Event-Driven Architecture](/system-design/event-driven-architecture).
+**See also:** [Transactions](/hld/transactions), [ACID vs BASE](/hld/acid-vs-base), [Event-Driven Architecture](/hld/event-driven-architecture).

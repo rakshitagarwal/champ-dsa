@@ -2,7 +2,7 @@
 
 > CAP ka extension — **P**artition me **A vs C**, **E**lse me **L vs C**.
 
-> **TL;DR Hinglish:** CAP sirf partition ki baat karta hai. PACELC bolta hai normal me bhi tradeoff hai — tez chahiye (Latency) ya pakka consistent chahiye. Har system dono ka jawab deta hai.
+> CAP sirf partition ki baat karta hai. PACELC bolta hai normal me bhi tradeoff hai — tez chahiye (Latency) ya pakka consistent chahiye. Har system dono ka jawab deta hai.
 
 CAP ne bola partition me C ya A. PACELC ne joda: jab partition **nahi** hai tab bhi **L**atency vs **C**onsistency me chunna padta hai.
 
@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho:** CAP=partition, PACELC=else bhi, EL=tez 1 replica, EC=slow quorum.
 
-**See also:** [cap-theorem](/system-design/cap-theorem), [cassandra](/system-design/cassandra), [postgresql](/system-design/postgresql).
+**See also:** [cap-theorem](/hld/cap-theorem), [cassandra](/hld/cassandra), [postgresql](/hld/postgresql).

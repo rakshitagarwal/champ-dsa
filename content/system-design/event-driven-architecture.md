@@ -2,7 +2,7 @@
 
 > Events se system react karta hai — async, decoupled, scalable.
 
-> **TL;DR Hinglish:** Event-Driven Architecture (EDA) events ke basis pe kaam karta hai — koi event hota hai, sab interested services react karte hain. Producer event emit karta hai, consumers listen karte hain. Asynchronous, decoupled, scalable. Kafka, RabbitMQ events handle karte hain. Event sourcing + CQRS EDA ke popular patterns hain. Benefits: real-time processing, scalability, fault isolation. Challenges: debugging, ordering, eventual consistency.
+> Event-Driven Architecture (EDA) events ke basis pe kaam karta hai — koi event hota hai, sab interested services react karte hain. Producer event emit karta hai, consumers listen karte hain. Asynchronous, decoupled, scalable. Kafka, RabbitMQ events handle karte hain. Event sourcing + CQRS EDA ke popular patterns hain. Benefits: real-time processing, scalability, fault isolation. Challenges: debugging, ordering, eventual consistency.
 
 Event-Driven Architecture events se system operates:
 
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** Events se system operates, async + decoupled, producer emits + consumers react, event sourcing + CQRS, event ordering + duplication challenges, eventual consistency.
 
-**See also:** [Event Sourcing](/system-design/event-sourcing), [CQRS](/system-design/command-and-query-responsibility-segregation), [Publish-Subscribe](/system-design/publish-subscribe).
+**See also:** [Event Sourcing](/hld/event-sourcing), [CQRS](/hld/command-and-query-responsibility-segregation), [Publish-Subscribe](/hld/publish-subscribe).

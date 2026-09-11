@@ -1,8 +1,8 @@
 # FB News Feed
 
-> Home feed for a social graph. The classic deep dive is **fan-out on write vs read**, plus ranking. Same family as Twitter and [Instagram](/system-design/instagram).
+> Home feed for a social graph. The classic deep dive is **fan-out on write vs read**, plus ranking. Same family as Twitter and [Instagram](/hld/instagram).
 
-> **TL;DR Hinglish:** Fan-out hybrid — normal users push, celebrity pull. Feed ids time-partitioned, ranking alag, cache aside.
+> Fan-out hybrid — normal users push, celebrity pull. Feed ids time-partitioned, ranking alag, cache aside.
 
 ## What they ask
 
@@ -41,8 +41,8 @@
 - Ads injection — separate slot?
 
 **Out of scope (v1):**
-- Full search over posts ([FB post search](/system-design/fb-post-search)).
-- Real-time comments on live video ([FB live comments](/system-design/fb-live-comments)).
+- Full search over posts ([FB post search](/hld/fb-post-search)).
+- Real-time comments on live video ([FB live comments](/hld/fb-live-comments)).
 - Messenger / chat — separate system.
 - Graph mutations beyond follow/block.
 
@@ -114,20 +114,20 @@ Client (Mobile/Web)
   |
  CDN (media, not feed JSON)
   |
- L4 LB → API Gateway (auth, [rate limiter](/system-design/rate-limiter))
+ L4 LB → API Gateway (auth, [rate limiter](/hld/rate-limiter))
   |
  +-- Post Service (write path) → Postgres/MySQL (posts, media refs) → S3 (media bytes)
- |        `--> publishes PostCreated → [Kafka](/system-design/kafka)
+ |        `--> publishes PostCreated → [Kafka](/hld/kafka)
  |
  +-- Graph Service (follows, friends) → Postgres/Cassandra (adjacency)
  |
  +-- Feed Services  <--- Kafka consumers
  |     |-- Fan-out Service (hybrid push/pull)
- |     |-- Feed Cache ([Redis](/system-design/redis) / [Cassandra](/system-design/cassandra): userId → list<postId>)
+ |     |-- Feed Cache ([Redis](/hld/redis) / [Cassandra](/hld/cassandra): userId → list<postId>)
  |     |-- Ranking Service (ML/heuristic)
  |     `--> Timeline Service (merge + paginate)
  |
- +-- Counter Service ([Redis](/system-design/redis) + Cassandra) — likes, comments count
+ +-- Counter Service ([Redis](/hld/redis) + Cassandra) — likes, comments count
  |
  +-- Search / Notification consumers (off Kafka)
 ```
@@ -142,10 +142,10 @@ graph LR
 ```
 
 **Component roles:**
-- **Post Service:** validates, writes `posts` row to DB, uploads media to S3, publishes `PostCreated{ postId, authorId, timestamp }` to [Kafka](/system-design/kafka). Never fans out synchronously.
-- **Graph Service:** owns `follows(followerId, followeeId)` adjacency; serves follower lists in pages. Cached in [Redis](/system-design/redis).
+- **Post Service:** validates, writes `posts` row to DB, uploads media to S3, publishes `PostCreated{ postId, authorId, timestamp }` to [Kafka](/hld/kafka). Never fans out synchronously.
+- **Graph Service:** owns `follows(followerId, followeeId)` adjacency; serves follower lists in pages. Cached in [Redis](/hld/redis).
 - **Fan-out Service:** Kafka consumer that decides per post: for normal author (followers < threshold e.g., 10k), **push** `postId` into each follower's inbox (`LPUSH` in Redis / append in Cassandra). For celebrity (followers > threshold), **skip push**, leave for pull path.
-- **Feed Cache:** per-user inbox: `userId → sorted list of postIds` (by score/time, capped at ~500-1000). Stored in [Redis](/system-design/redis) (hot) + [Cassandra](/system-design/cassandra) (durable, wide row). This is the **precomputed feed**.
+- **Feed Cache:** per-user inbox: `userId → sorted list of postIds` (by score/time, capped at ~500-1000). Stored in [Redis](/hld/redis) (hot) + [Cassandra](/hld/cassandra) (durable, wide row). This is the **precomputed feed**.
 - **Ranking Service:** given candidate `postIds` (~200-500), hydrates `Post` objects from cache/DB, scores via features (affinity, recency, engagement, media type, unseen), returns top 20 sorted.
 - **Timeline Service:** on `GET /feed`, merges: (a) pushed inbox + (b) pulled celebrity posts (fetch recent posts of celebrities user follows on demand). Deduplicates, filters blocked/unfollowed, then calls Ranking.
 
@@ -303,7 +303,7 @@ class CounterService:
 ## Handling failures and scale
 
 - **Sharding:** `posts` sharded by `authorId` or `postId` hash; `feed_inbox` sharded by `userId` hash (so `GET /feed` hits one shard). Graph adjacency sharded by `followerId`.
-- **Caching:** [Redis](/system-design/redis) Cluster for inboxes (TTL + LRU), post hydrate cache (`post:{id} → JSON` 5m TTL). Celebrity outbox cached with replica.
+- **Caching:** [Redis](/hld/redis) Cluster for inboxes (TTL + LRU), post hydrate cache (`post:{id} → JSON` 5m TTL). Celebrity outbox cached with replica.
 - **Replication:** DB primary + read replicas; fan-out reads replicas for `followers` pages. Kafka replication for durability of `PostCreated`.
 - **Failure modes:** Fan-out consumer down → Kafka lag, feed appears stale but not lost — catch up on restart. Redis down → degrade to pull-only (fetch followees' recent posts directly from DB) — slower but available. Post Service down → writes fail, reads still serve cached feed.
 - **Hot partition:** single user with 1M followers crossing threshold — ensure Graph pagination + batched `ZADD` (pipeline 1k per batch) + backpressure if Redis overloaded.
@@ -311,9 +311,9 @@ class CounterService:
 ## Extra probes / follow-ups
 
 1. **Real-time updates:** `WS /feed/updates` pushes `new_post` count badge; client fetches next page when user pulls to refresh — don't push full feed over WS.
-2. **Counter service:** Likes via [Redis](/system-design/redis) `INCR post:{id}:likes` + async flush to `posts.like_count` every second; don't `COUNT(*)` on hot posts.
+2. **Counter service:** Likes via [Redis](/hld/redis) `INCR post:{id}:likes` + async flush to `posts.like_count` every second; don't `COUNT(*)` on hot posts.
 3. **De-duplication:** Same post via push + pull (if follower threshold flapped) — dedup by `postId` before ranking.
-4. **Search is not the feed:** Post search is inverted index ([FB post search](/system-design/fb-post-search)), separate from timeline merge.
+4. **Search is not the feed:** Post search is inverted index ([FB post search](/hld/fb-post-search)), separate from timeline merge.
 5. **A/B ranking:** Feature flag ranking weights; shadow-rank and compare engagement lift before rollout.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.

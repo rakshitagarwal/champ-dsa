@@ -30,7 +30,7 @@ export function SdSidebar({ docs, className }: Props) {
     >
       <div className="border-b border-border px-4 py-4">
           <Link
-            href="/system-design"
+            href="/hld"
             className="text-sm font-semibold text-foreground hover:text-primary"
           >
             HLD
@@ -58,7 +58,7 @@ export function SdSidebar({ docs, className }: Props) {
                 )}
               >
                 {items.map((doc, idx) => {
-                  const href = `/system-design/${doc.slug}`;
+                  const href = `/hld/${doc.slug}`;
                   const active = pathname === href;
                   const num = String(idx + 1).padStart(2, "0");
                   return (

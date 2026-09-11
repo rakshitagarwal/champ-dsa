@@ -2,7 +2,7 @@
 
 > Same request 2 baar aaye to 2 baar kaam nahi — ek hi baar.
 
-> **TL;DR Hinglish:** Idempotency ek ticket counter jaisa — same ticket 2 baar dikhao to ek hi seat. `Idempotency-Key` header se server pehle dekhe "ye key pehle ki kya?", haan to purana jawab de do, nahi to kaam karke yaad rakho.
+> Idempotency ek ticket counter jaisa — same ticket 2 baar dikhao to ek hi seat. `Idempotency-Key` header se server pehle dekhe "ye key pehle ki kya?", haan to purana jawab de do, nahi to kaam karke yaad rakho.
 
 Network retry, user double-click, Kafka at-least-once — har jagah duplicate aayega.
 
@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** Key = UUID, SETNX, TTL 24h, PUT idempotent, POST nahi, Kafka msgId.
 
-**See also:** [payment-system](/system-design/payment-system), [whatsapp](/system-design/whatsapp), [kafka](/system-design/kafka).
+**See also:** [payment-system](/hld/payment-system), [whatsapp](/hld/whatsapp), [kafka](/hld/kafka).

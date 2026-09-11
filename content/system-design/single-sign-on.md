@@ -2,7 +2,7 @@
 
 > Ek login poore applications pe kaam kare — centralized authentication.
 
-> **TL;DR Hinglish:** SSO ek hi login poore applications ke liye kaam karta hai. Identity Provider (IdP) authenticate karta hai, applications IdP pe depend karte hain. SAML, OIDC, OAuth 2.0 protocols use hote hain. Benefits: better UX (one login), security centralized (IdP manage karta), less password fatigue. Kerberos, SAML, OIDC popular protocols hain. Jab user login karta hai IdP pe, token milega applications ko — no re-login needed.
+> SSO ek hi login poore applications ke liye kaam karta hai. Identity Provider (IdP) authenticate karta hai, applications IdP pe depend karte hain. SAML, OIDC, OAuth 2.0 protocols use hote hain. Benefits: better UX (one login), security centralized (IdP manage karta), less password fatigue. Kerberos, SAML, OIDC popular protocols hain. Jab user login karta hai IdP pe, token milega applications ko — no re-login needed.
 
 Single Sign-On ek hi credential se multiple apps access karta hai:
 
@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho (Revision):** SSO = one login multiple apps, IdP manages authentication, protocols (SAML/OIDC/Kerberos), IdP SPOF risk, token theft risk, SLO for logout, better UX + centralized security.
 
-**See also:** [OAuth 2.0 and OIDC](/system-design/oauth2-and-openid-connect), [SSL, TLS, mTLS](/system-design/ssl-tls-mtls), [Microservices](/system-design/microservices).
+**See also:** [OAuth 2.0 and OIDC](/hld/oauth2-and-openid-connect), [SSL, TLS, mTLS](/hld/ssl-tls-mtls), [Microservices](/hld/microservices).

@@ -2,7 +2,7 @@
 
 > Data ko key se tukdon me baanto — har partition alag node pe, scale horizontal.
 
-> **TL;DR Hinglish:** Partition ek kitaab ke chapters jaisa — har chapter alag almari. Hash se decide karo kaunsa chapter kahan, warna ek almari bhar jayegi, baaki khali.
+> Partition ek kitaab ke chapters jaisa — har chapter alag almari. Hash se decide karo kaunsa chapter kahan, warna ek almari bhar jayegi, baaki khali.
 
 Sharding ka hi dusra naam, par partitioned table me bhi same.
 
@@ -43,4 +43,4 @@ Celebrity `userId=123` pe 100k QPS → uska partition garam. Fix: `key#shard` (`
 
 **Yaad rakho:** Hash barabar, range me skew, geo locality, hot → split, rebalance ring.
 
-**See also:** [sharding](/system-design/sharding), [consistent-hashing](/system-design/consistent-hashing), [replication](/system-design/replication).
+**See also:** [sharding](/hld/sharding), [consistent-hashing](/hld/consistent-hashing), [replication](/hld/replication).

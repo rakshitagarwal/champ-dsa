@@ -2,7 +2,7 @@
 
 > Server se push kaise? Polling waste, long-hold, SSE one-way, WS two-way.
 
-> **TL;DR Hinglish:** Short polling har 2 sec darwaza khatkhatana — thak gaye. Long polling darwaza pakad ke khade raho, khule to bolo. SSE ek speaker jisse server bolta rahe, WS phone call.
+> Short polling har 2 sec darwaza khatkhatana — thak gaye. Long polling darwaza pakad ke khade raho, khule to bolo. SSE ek speaker jisse server bolta rahe, WS phone call.
 
 Har realtime design me yahi puchenge.
 
@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** Short 2s, long 20s hold, SSE `text/event-stream`, WS 101 + 2-way.
 
-**See also:** [websocket](/system-design/websocket), [whatsapp](/system-design/whatsapp), [fb-live-comments](/system-design/fb-live-comments).
+**See also:** [websocket](/hld/websocket), [whatsapp](/hld/whatsapp), [fb-live-comments](/hld/fb-live-comments).

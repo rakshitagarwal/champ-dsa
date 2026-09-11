@@ -2,7 +2,7 @@
 
 > Multiple databases ek saath use karo — sharding, federation, virtualization.
 
-> **TL;DR Hinglish:** Database federation multiple databases ko ek logical database jaisa dikhata hai. Query federation — ek query saari databases pe run karo. Data federation — data physically alag, logically ek. Sharding data ko multiple databases mein split karo by key. Federation useful jab data across multiple systems ho — read from DB1, DB2, write to both. Polyglot persistence — alag DBs alag data ke liye.
+> Database federation multiple databases ko ek logical database jaisa dikhata hai. Query federation — ek query saari databases pe run karo. Data federation — data physically alag, logically ek. Sharding data ko multiple databases mein split karo by key. Federation useful jab data across multiple systems ho — read from DB1, DB2, write to both. Polyglot persistence — alag DBs alag data ke liye.
 
 Database federation multiple databases ko integrate karta hai:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** Query federation (single query), data federation (virtual layer), sharding (split by key), polyglot persistence, cross-shard queries slow, rebalancing painful, operational complexity.
 
-**See also:** [Sharding](/system-design/sharding), [Consistent Hashing](/system-design/consistent-hashing), [Partitioning](/system-design/partitioning).
+**See also:** [Sharding](/hld/sharding), [Consistent Hashing](/hld/consistent-hashing), [Partitioning](/hld/partitioning).

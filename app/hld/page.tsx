@@ -20,5 +20,5 @@ export default function SystemDesignIndexPage() {
       </div>
     );
   }
-  redirect(`/system-design/${first.slug}`);
+  redirect(`/hld/${first.slug}`);
 }

@@ -2,7 +2,7 @@
 
 > Nodes add/remove pe kam se kam data hile. Normal `hash(key) % N` pe ek node badla to 90% keys hil jayengi — consistent pe sirf `1/N`.
 
-> **TL;DR Hinglish:** Normal hashing me 4 dabbe se 5 dabbe kiye to saara samaan hil gaya. Consistent me gol ghadi (ring) pe dabbe aur keys dono, key ko agla dabba mil jata hai — sirf ek dabbe ka samaan hilega, baaki safe.
+> Normal hashing me 4 dabbe se 5 dabbe kiye to saara samaan hil gaya. Consistent me gol ghadi (ring) pe dabbe aur keys dono, key ko agla dabba mil jata hai — sirf ek dabbe ka samaan hilega, baaki safe.
 
 Har distributed cache, sharding, aur WS fleet me yahi use hota hai.
 
@@ -58,4 +58,4 @@ graph LR
 
 **Yaad rakho (Revision):** `hash%N` fail, ring + clockwise, virtual 100, replication next N, hot key split.
 
-**See also:** [distributed-cache](/system-design/distributed-cache), [sharding](/system-design/sharding), [load-balancer](/system-design/load-balancer).
+**See also:** [distributed-cache](/hld/distributed-cache), [sharding](/hld/sharding), [load-balancer](/hld/load-balancer).

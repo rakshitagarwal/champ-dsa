@@ -2,7 +2,7 @@
 
 > Video platform. Bytes go through **object storage + CDN + transcoding**. The API only stores metadata and the user never waits on FFmpeg.
 
-> **TL;DR Hinglish:** Upload → S3 presign → transcode workers async → HLS ladder S3 + CDN. Views Kafka se batch, metadata Postgres.
+> Upload → S3 presign → transcode workers async → HLS ladder S3 + CDN. Views Kafka se batch, metadata Postgres.
 
 ## What they ask
 
@@ -34,10 +34,10 @@ Assume 300M DAU, 2% creators upload 1 video/week, average original 1.5 GB, 5 ren
 |---|---|---|
 | Upload QPS | 300M × 2% / 7 days = ~860K uploads/day ≈ **10 uploads/s** peak 3× → ~30/s | ~30 writes/s |
 | Playback QPS | 300M × 5 plays/day = 1.5B plays/day ≈ **17K plays/s**, peak 50K/s | 17–50K reads/s |
-| Storage (originals) | 860K × 1.5 GB = **1.3 PB/day** → 475 PB/year before renditions | PB scale — needs [Object Storage](/system-design/s3) (S3/GCS) |
+| Storage (originals) | 860K × 1.5 GB = **1.3 PB/day** → 475 PB/year before renditions | PB scale — needs [Object Storage](/hld/s3) (S3/GCS) |
 | Storage (renditions) | 1.3 PB × 1.4 (ladder + thumbs + manifest) | ~1.8 PB/day |
 | Bandwidth | 1.5B plays × 30 MB avg (ABR mix) = 45 PB/day ≈ **4.2 Tbps** avg | CDN-served, not origin |
-| Metadata | 1 row/video ~2 KB → 860K × 2 KB = **1.7 GB/day** in [Postgres](/system-design/postgres) | Tiny vs blobs |
+| Metadata | 1 row/video ~2 KB → 860K × 2 KB = **1.7 GB/day** in [Postgres](/hld/postgres) | Tiny vs blobs |
 
 Key insight: metadata QPS and storage are trivial. Bandwidth and blob storage dominate — which is why the **CDN + object store** are the system, the API is just the index.
 
@@ -106,12 +106,12 @@ graph LR
 
 - **Client / Player:** Uploads via pre-signed URL, plays via HLS/DASH. ABR logic lives in player (hls.js / ExoPlayer) — not server.
 - **CDN:** Serves 95%+ of bytes. Origin is S3. Cache key = `videoId/rendition/segment`. Signed cookies for region/privacy.
-- **API Gateway + LB:** Terminates TLS, validates JWT, enforces [Rate Limiter](/system-design/rate-limiter) per user/IP.
-- **Video Service:** Owns metadata, upload session, state machine `created → uploading → processing → ready/failed`. Writes Postgres, emits `video.upload.completed` to [Kafka](/system-design/kafka).
+- **API Gateway + LB:** Terminates TLS, validates JWT, enforces [Rate Limiter](/hld/rate-limiter) per user/IP.
+- **Video Service:** Owns metadata, upload session, state machine `created → uploading → processing → ready/failed`. Writes Postgres, emits `video.upload.completed` to [Kafka](/hld/kafka).
 - **Transcode Workers:** Stateless consumers. Pull task, download source from S3, run FFmpeg ladder (144p…4K), pack HLS segments + master manifest, upload renditions back to S3, update DB via orchestrator. GPU autoscaled.
-- **Metadata DB:** [Postgres](/system-design/postgres) for videos, users. Read replicas for `GET /videos`. Not on byte path.
-- **Search & Counts:** Async [Elasticsearch](/system-design/elasticsearch) indexer and a separate counter pipeline ([YouTube Top K](/system-design/youtube-top-k)) — never inline `views+1`.
-- **Cache:** [Redis](/system-design/redis) for hot video metadata, view-count write-behind buffer.
+- **Metadata DB:** [Postgres](/hld/postgres) for videos, users. Read replicas for `GET /videos`. Not on byte path.
+- **Search & Counts:** Async [Elasticsearch](/hld/elasticsearch) indexer and a separate counter pipeline ([YouTube Top K](/hld/youtube-top-k)) — never inline `views+1`.
+- **Cache:** [Redis](/hld/redis) for hot video metadata, view-count write-behind buffer.
 
 **Write flow (upload):** `POST /videos` → create row `status=created` + presign S3 → client PUT to S3 → `POST /complete` → set `processing` → publish Kafka event. Returns 202 immediately.
 
@@ -198,11 +198,11 @@ Strategy (codec choice), State Machine (video lifecycle), Producer-Consumer (Kaf
 
 ## Deep dive — never block on transcode
 
-Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/system-design/websocket) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
+Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/hld/websocket) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
 
 ## Deep dive — view counts and hot videos
 
-Do **not** `UPDATE videos SET views=views+1` on every play — that row becomes a hot lock at 50K QPS. Instead the player heartbeats every ~30s debounced, hits a stateless `ViewIngest` service that `INCR` in [Redis](/system-design/redis) (or [Kafka](/system-design/kafka) → aggregator). Flusher aggregates per minute and batch-upserts `views_daily`. Reads use `cached_total + redis_delta`. Same reason search is async: DB write → Kafka → [Elasticsearch](/system-design/elasticsearch) — so indexing never blocks upload.
+Do **not** `UPDATE videos SET views=views+1` on every play — that row becomes a hot lock at 50K QPS. Instead the player heartbeats every ~30s debounced, hits a stateless `ViewIngest` service that `INCR` in [Redis](/hld/redis) (or [Kafka](/hld/kafka) → aggregator). Flusher aggregates per minute and batch-upserts `views_daily`. Reads use `cached_total + redis_delta`. Same reason search is async: DB write → Kafka → [Elasticsearch](/hld/elasticsearch) — so indexing never blocks upload.
 
 ## Deep dive — copyright, regions, and thumbnail hot path
 
@@ -224,7 +224,7 @@ Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stage
 
 ## Extra probes / follow-ups
 
-1. **Comments:** Shard by `videoId`; for viral videos reuse the [FB Live Comments](/system-design/fb-live-comments) sampled fan-out pattern rather than loading all comments.
+1. **Comments:** Shard by `videoId`; for viral videos reuse the [FB Live Comments](/hld/fb-live-comments) sampled fan-out pattern rather than loading all comments.
 2. **Recommendations:** Offline candidate generation + ranking service; online serving via feature store — not part of upload/playback critical path.
 3. **Live streaming:** Separate ingest — RTMP/WebRTC → packager → low-latency CDN (LL-HLS) — not the VOD ladder; needs edge transcode and DVR window.
 4. **Dedupe / re-upload:** Content hash (e.g., perceptual hash) to detect re-uploads; optionally reuse existing renditions copy-on-write.

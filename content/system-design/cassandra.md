@@ -2,7 +2,7 @@
 
 > Wide-column store, boht zyada writes aur jahan key pata ho. Relations pe nahi, queries pe model karo.
 
-> **TL;DR Hinglish:** Cassandra ek badi diary hai jahan har page (partition) me rows time pe sorted hain. Write sasta, read tabhi tez jab tumhe pata ho kaunsa page kholna hai (`chatId`). Query pehle socho, table baad me banao.
+> Cassandra ek badi diary hai jahan har page (partition) me rows time pe sorted hain. Write sasta, read tabhi tez jab tumhe pata ho kaunsa page kholna hai (`chatId`). Query pehle socho, table baad me banao.
 
 SQL me pehle tables normal karte ho. Cassandra me ulta — **query per table**. Messages ke liye `PRIMARY KEY ((chatId), sentAt)` — matlab `chatId` ka partition, andar time pe sorted. Dusri query chahiye to dusra table.
 
@@ -14,7 +14,7 @@ Ring me nodes, har key `hash(key) % ring` pe ek node leader, 2 replicas.
 - Key pe lookup — `chatId`, `userId`
 - TTL chahiye — `WITH default_time_to_live = 86400`
 
-**Mat lo:** joins, ad-hoc search, transactions — wahan [PostgreSQL](/system-design/postgresql).
+**Mat lo:** joins, ad-hoc search, transactions — wahan [PostgreSQL](/hld/postgresql).
 
 ## How it works
 
@@ -53,4 +53,4 @@ graph LR
 
 **Yaad rakho:** Query-per-table, `((partition), clustering)`, hot partition → bucket, quorum R+W>N.
 
-**See also:** [whatsapp](/system-design/whatsapp), [metrics-monitoring](/system-design/metrics-monitoring), [dynamodb](/system-design/dynamodb).
+**See also:** [whatsapp](/hld/whatsapp), [metrics-monitoring](/hld/metrics-monitoring), [dynamodb](/hld/dynamodb).

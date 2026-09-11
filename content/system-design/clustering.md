@@ -2,7 +2,7 @@
 
 > Multiple servers ek saath kaam karte hain — fault tolerance, scalability, availability sab badhte hain.
 
-> **TL;DR Hinglish:** Clustering ek se zyada servers ko ek system jaisa dikhata hai. Types: Active-Active (sab handle karte hain), Active-Passive (backup ready). Stateless vs Stateful — stateless easy scale hota hai, stateful session sync mushkil. Shared nothing architecture preferred hai — server me kuch shared nahi, DB alag hai.
+> Clustering ek se zyada servers ko ek system jaisa dikhata hai. Types: Active-Active (sab handle karte hain), Active-Passive (backup ready). Stateless vs Stateful — stateless easy scale hota hai, stateful session sync mushkil. Shared nothing architecture preferred hai — server me kuch shared nahi, DB alag hai.
 
 Clustering mein multiple servers ek saath kaam karte hain — agar ek fail ho, doosre take over karte hain:
 
@@ -51,4 +51,4 @@ graph LR
 
 **Yaad rakho (Revision):** Active-Active vs Active-Passive, stateless vs stateful, shared-nothing preferred, session store (Redis), split-brain risk, quorum se bachna.
 
-**See also:** [Load Balancing](/system-design/load-balancing), [Redis](/system-design/redis), [Availability](/system-design/availability).
+**See also:** [Load Balancing](/hld/load-balancing), [Redis](/hld/redis), [Availability](/hld/availability).

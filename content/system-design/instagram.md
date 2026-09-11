@@ -1,14 +1,14 @@
 # Instagram
 
-> Photo-first social network. Same feed bones as [FB news feed](/system-design/fb-news-feed), with **heavier media** and a simpler graph (follow, not friends).
+> Photo-first social network. Same feed bones as [FB news feed](/hld/fb-news-feed), with **heavier media** and a simpler graph (follow, not friends).
 
-> **TL;DR Hinglish:** Photo S3 + CDN, feed hybrid fan-out, stories TTL 24h Redis, Explore async Kafka se.
+> Photo S3 + CDN, feed hybrid fan-out, stories TTL 24h Redis, Explore async Kafka se.
 
 ## What they ask
 
 "Design Instagram." Interviewer means: follow users, post photos/reels (multi-image carousel + short video), scroll a ranked home feed, view profile grids, like/comment, stories that vanish in 24h, and maybe Explore.
 
-What they really test: can you separate **bytes** (images/video, CDN, transcode) from **metadata** (post row, graph, feed ids)? Can you explain why a naive push fan-out breaks for a 50M-follower celebrity and pick **hybrid fan-out**? Can you describe ranking without hand-waving a full ML system? And can you avoid the classic mistake of stuffing JPEGs into [Redis](/system-design/redis)?
+What they really test: can you separate **bytes** (images/video, CDN, transcode) from **metadata** (post row, graph, feed ids)? Can you explain why a naive push fan-out breaks for a 50M-follower celebrity and pick **hybrid fan-out**? Can you describe ranking without hand-waving a full ML system? And can you avoid the classic mistake of stuffing JPEGs into [Redis](/hld/redis)?
 
 Example scale: 2B users, 500M DAU, 100M new posts/day (avg 1.5 media per post), each post fanned out to ~300 followers on average. Home feed: ~1B feed fetches/day. Stories: ~400M daily story posts. Video is ~60% of bytes.
 
@@ -148,7 +148,7 @@ graph LR
 
 **Component roles:**
 - **Media Processor:** on `MediaUploaded` event, generates thumbs (150, 800, 1080), strips EXIF, runs NSFW classifier, and for video enqueues transcode. Marks `media.status=ready` else `rejected`.
-- **Post Service:** validates `mediaIds` are owned + ready, inserts `post` row in sharded Postgres, emits `PostCreated` to [Kafka](/system-design/kafka).
+- **Post Service:** validates `mediaIds` are owned + ready, inserts `post` row in sharded Postgres, emits `PostCreated` to [Kafka](/hld/kafka).
 - **Graph Service:** owns `follow` table; on follow/unfollow emits event so Feed Service can backfill/trim inboxes.
 - **Fan-out workers:** consume `PostCreated`; for normal authors push `postId` to each follower's inbox (Redis sorted set or Cassandra `user_timeline`), except **celebrity** authors (>threshold, e.g. 500k followers) — skip push, mark post as `celebrity:true` for pull-on-read.
 - **Feed Service:** on `GET /feed`, reads caller's inbox ids (push), pulls recent celebrity posts from followed celebrities (pull), hydrates metadata from Postgres/Redis cache, calls ranker, paginates with cursor.
@@ -283,7 +283,7 @@ class MediaProcessor {
 **Concurrency / algorithms:**
 - **Hybrid fan-out threshold:** `if followerCount > 500k → celebrity (pull)` else push. Threshold tunable per cluster. Keeps p99 fan-out < 1s for 99.9% of posts; celebrity post costs zero writes but extra read-time merge.
 - **Idempotent fan-out:** dedup by `(postId)` in inbox (`ZADD NX`), consumer uses idempotent Kafka offset handling.
-- **Hydration:** feed cache stores ids+types only; `MGET post:{id}` from [Redis](/system-design/redis) with fallback to Postgres replica; never store JPEGs in Redis.
+- **Hydration:** feed cache stores ids+types only; `MGET post:{id}` from [Redis](/hld/redis) with fallback to Postgres replica; never store JPEGs in Redis.
 - **Cursor:** opaque `base64(last_score:last_postId:last_createdAt)` for stable pagination after ranking.
 
 **Patterns:** Fan-out-on-write (CQRS), Cache-Aside + TTL for post hydration, Outbox for Kafka, Strategy for ranking (ranker interface), Saga-lite for media pipeline.
@@ -322,11 +322,11 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 ## Extra probes / follow-ups
 
 1. **Explore / For You:** candidate generation from embeddings (user vector vs post vectors via ANN in a vector DB) → ranker → feed. Don't claim to train it; say "candidate source is pluggable".
-2. **Hashtags:** `hashtag → postIds` in [Elasticsearch](/system-design/elasticsearch) or a dedicated `hashtag_post` table (sharded by hashtag hash) with time-ordered ids; ingest parses `#tag` from caption on post creation.
+2. **Hashtags:** `hashtag → postIds` in [Elasticsearch](/hld/elasticsearch) or a dedicated `hashtag_post` table (sharded by hashtag hash) with time-ordered ids; ingest parses `#tag` from caption on post creation.
 3. **Abuse / moderation:** photo moderation async (not blocking upload ACK), report queue, shadow-ban — workers mark `media.status=rejected` and remove postId from inboxes.
 4. **Live / Real-time:** new posts via WebSocket / SSE to feed clients with long-poll fallback; likes/comments via pub/sub per post (`post:{id}:live`).
 5. **Data retention / GDPR:** hard-delete flows purge S3 objects + DB rows + inboxes + search index; story auto-expiry handles most.
-6. **Analytics:** impression + engagement events to [Kafka](/system-design/kafka) → warehouse for ranking experiments.
+6. **Analytics:** impression + engagement events to [Kafka](/hld/kafka) → warehouse for ranking experiments.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

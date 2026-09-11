@@ -2,7 +2,7 @@
 
 > Trending videos. The interview is **counting at scale** and keeping a **cheap Top-K**, not training YouTube's real recommender.
 
-> **TL;DR Hinglish:** Views ko Flink window me count karo, Top-K heap per window, cache me rakho. Late events watermark se handle.
+> Views ko Flink window me count karo, Top-K heap per window, cache me rakho. Late events watermark se handle.
 
 ## What they ask
 
@@ -22,10 +22,10 @@ Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally an
 - Historical windows (last 24h sliding) not just calendar day.
 
 **Non-functional:**
-- Read latency p95 < 80ms (served from [Redis](/system-design/redis) / CDN); ingest not on critical path — async pipeline.
+- Read latency p95 < 80ms (served from [Redis](/hld/redis) / CDN); ingest not on critical path — async pipeline.
 - Eventual consistency OK: trending can lag 10-30 seconds, never miss billing-grade accuracy here but avoid wild rank flips.
 - No thundering read on DB: Top-K recompute is O(K log K + distinct) not O(N log N) over video catalog.
-- Fault-tolerant: lost Flink state rebuilds from [Kafka](/system-design/kafka); serving layer survives AZ loss.
+- Fault-tolerant: lost Flink state rebuilds from [Kafka](/hld/kafka); serving layer survives AZ loss.
 - Cost-aware: do not keep 24h of raw events in memory on one box; sketch or incremental aggregation.
 
 **Clarify:**
@@ -111,10 +111,10 @@ graph LR
 ```
 
 **Components:**
-- **Edge Collector / API Gateway:** Lightweight Go/Netty service that validates, batches (100 events / 50ms), returns 202, produces to [Kafka](/system-design/kafka). Never blocks on DB. Rate-limits per IP for bot mitigation.
-- **[Kafka](/system-design/kafka):** Durable log, 3x replication, 100+ partitions. Retention 7 days. Topic `views.raw` (raw), `views.deduped` (after dedupe processor).
-- **[Flink](/system-design/flink) / Kafka Streams:** Keyed aggregations. Two-stage: (a) dedupe by `eventId` (RocksDB state TTL 1h), (b) windowed count per `(videoId, region, category)`. Sliding window 24h sliding every 1 minute (or 30s). Maintains min-heap Top-K per region in state and emits diffs every 15-30s to [Redis](/system-design/redis). Handles late events via watermark + allowed lateness 5 min.
-- **Serving Store:** [Redis](/system-design/redis) Cluster holds precomputed lists `trending:IN:24h` (sorted set or JSON list) + per-video counts hash `counts:{videoId}` TTL 2x window. [Cassandra](/system-design/cassandra) for durable windowed counts if you need point queries and backfill.
+- **Edge Collector / API Gateway:** Lightweight Go/Netty service that validates, batches (100 events / 50ms), returns 202, produces to [Kafka](/hld/kafka). Never blocks on DB. Rate-limits per IP for bot mitigation.
+- **[Kafka](/hld/kafka):** Durable log, 3x replication, 100+ partitions. Retention 7 days. Topic `views.raw` (raw), `views.deduped` (after dedupe processor).
+- **[Flink](/hld/flink) / Kafka Streams:** Keyed aggregations. Two-stage: (a) dedupe by `eventId` (RocksDB state TTL 1h), (b) windowed count per `(videoId, region, category)`. Sliding window 24h sliding every 1 minute (or 30s). Maintains min-heap Top-K per region in state and emits diffs every 15-30s to [Redis](/hld/redis). Handles late events via watermark + allowed lateness 5 min.
+- **Serving Store:** [Redis](/hld/redis) Cluster holds precomputed lists `trending:IN:24h` (sorted set or JSON list) + per-video counts hash `counts:{videoId}` TTL 2x window. [Cassandra](/hld/cassandra) for durable windowed counts if you need point queries and backfill.
 - **Trending Service:** Stateless, reads Redis, hydrates titles from video metadata cache (Caffeine L1 + Redis L2) and returns ranking. Hydration misses bulk-load from primary DB via read replica.
 - **Batch Reconciler (optional):** Hourly Spark job over S3 raw logs corrects Flink counts and publishes adjustment if drift > threshold — keeps Flink's approximation honest.
 
@@ -207,7 +207,7 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - **Flink subtask fails:** Checkpoint every 30s to S3; on restore replays from last offset. Exactly-once via checkpoint + idempotent Redis `SET` + Cassandra `upsert` (last-write-wins on count). No double counting after dedupe window.
 - **Redis hot shard:** Replicate `trending:IN:24h` to 3 replicas via read replicas; Trending Service reads from replica, writes to primary. Hot key replication + L1 Caffeine 5s in service mitigates.
 - **Cassandra compaction lag:** Counts table TTL auto-expires old windows; add time-bucketed partitions to avoid tombstone storm.
-- **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/system-design/load-balancer). Stale snapshot served with `Age` header if writer stalls — never 500.
+- **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/hld/load-balancer). Stale snapshot served with `Age` header if writer stalls — never 500.
 - **Scale knobs:** Add Kafka partitions + Flink parallelism linearly; sharding by region for heaps (each region heap independent). CDN caches `GET /trending` 15-30s, absorbing 90%+ reads.
 
 ## Extra probes / follow-ups
@@ -217,7 +217,7 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - Decaying trending score — `score = view_count * exp(-age/half_life)` or weight last hour 3x — same pipeline, just weighted sum in Flink.
 - Fraud/bot filtering — separate processor checks `userId` rate, data-center ASN, headless fingerprint; taints event with `is_valid` flag before counting.
 - Cold start / new video boost — separate "Rising" list ranked by velocity (`views last 10 min / views last hour`).
-- Compare pipeline choice: [Kafka](/system-design/kafka) + [Flink](/system-design/flink) vs Kinesis + Spark Structured Streaming — same idea, Flink wins on low latency.
+- Compare pipeline choice: [Kafka](/hld/kafka) + [Flink](/hld/flink) vs Kinesis + Spark Structured Streaming — same idea, Flink wins on low latency.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

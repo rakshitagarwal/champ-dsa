@@ -2,7 +2,7 @@
 
 > Infrastructure abstraction — VMs heavy, containers lightweight.
 
-> **TL;DR Hinglish:** VM full operating system virtualize karta hai — hypervisor pe OS run hota hai, heavy, boot slow. Container application + dependencies share host OS kernel — lightweight, boot fast, portable. Docker containers popular hain, Kubernetes manage karta container orchestration ke liye. VMs better for isolation, containers better for microservices. VM = full OS, container = app-level isolation.
+> VM full operating system virtualize karta hai — hypervisor pe OS run hota hai, heavy, boot slow. Container application + dependencies share host OS kernel — lightweight, boot fast, portable. Docker containers popular hain, Kubernetes manage karta container orchestration ke liye. VMs better for isolation, containers better for microservices. VM = full OS, container = app-level isolation.
 
 VM aur containers infrastructure abstraction ke tools hain:
 
@@ -47,4 +47,4 @@ graph TD
 
 **Yaad rakho (Revision):** VM = full OS + hypervisor, heavy + slow boot, strong isolation. Container = app + dependencies + shared kernel, lightweight + fast. Docker + Kubernetes for orchestration.
 
-**See also:** [Microservices](/system-design/microservices), [Clustering](/system-design/clustering), [N-tier Architecture](/system-design/n-tier-architecture).
+**See also:** [Microservices](/hld/microservices), [Clustering](/hld/clustering), [N-tier Architecture](/hld/n-tier-architecture).

@@ -2,17 +2,17 @@
 
 > In-memory data structure store. Interview me ye hamesha **cache, sessions, rate limits, ya presence** hota hai — source of truth kabhi nahi.
 
-> **TL;DR Hinglish:** Redis ek single-threaded server hai jo RAM me data rakhta hai, isliye ~1ms me jawab. Process mara to cache khali — isliye DB hamesha source of truth. Cache-Aside + TTL + delete-on-write, aur sabse garam keys pe stampede ka dhyan.
+> Redis ek single-threaded server hai jo RAM me data rakhta hai, isliye ~1ms me jawab. Process mara to cache khali — isliye DB hamesha source of truth. Cache-Aside + TTL + delete-on-write, aur sabse garam keys pe stampede ka dhyan.
 
 Redis single-threaded hai (per instance), simple protocol bolta hai. Same datacenter me reads/writes ~1ms. Data RAM me, optional snapshot/AOF disk pe. Persistence nahi to process marega to cache khali. DB ko hamesha answer dena aana chahiye — socho `Redis = tez yaad-dasht, Postgres = permanent diary`.
 
 ## When you pick it
 
 1. Garam keys jo Postgres ko pighla dengi (session, feed page 1, short URL lookup) — *socho 50k QPS same key*
-2. Counters aur sliding windows [rate limiting](/system-design/rate-limiter) ke liye
+2. Counters aur sliding windows [rate limiting](/hld/rate-limiter) ke liye
 3. Pub/sub ya presence heartbeats chat ke liye
 4. Distributed locks (`SET key nx ex`) — soch samajh ke, lease + fencing zaruri
-5. Chhote job lists — kam volume theek, bada backlog → [Kafka](/system-design/kafka)
+5. Chhote job lists — kam volume theek, bada backlog → [Kafka](/hld/kafka)
 
 **Mat dalo:** user ke bade blobs, full search, ya saalon ka analytics. RAM mehengi hai, eviction surprise dega.
 
@@ -60,4 +60,4 @@ graph LR
 
 **Yaad rakho (Revision):** Cache-aside default, TTL random, hot key split, eviction = cache khali ho sakta hai, cluster me `{}` tags.
 
-**See also:** [distributed cache](/system-design/distributed-cache), [rate limiter](/system-design/rate-limiter), [Bitly](/system-design/bitly).
+**See also:** [distributed cache](/hld/distributed-cache), [rate limiter](/hld/rate-limiter), [Bitly](/hld/bitly).

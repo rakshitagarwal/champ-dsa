@@ -2,7 +2,7 @@
 
 > Traffic ko distribute karte hain across servers — single server collapse nahi hoga, availability badhegi.
 
-> **TL;DR Hinglish:** Load balancer traffic distribute karta hai multiple servers pe. Algorithms: Round Robin (cyclic), Least Connections (kam load wale ko), Hash (same client same server). Layer 4 (TCP) vs Layer 7 (HTTP). Health checks se dead servers detect. Load balancer single point of failure ho sakta hai — isliye HA pairs use karte hain.
+> Load balancer traffic distribute karta hai multiple servers pe. Algorithms: Round Robin (cyclic), Least Connections (kam load wale ko), Hash (same client same server). Layer 4 (TCP) vs Layer 7 (HTTP). Health checks se dead servers detect. Load balancer single point of failure ho sakta hai — isliye HA pairs use karte hain.
 
 Jab ek server pe sab load nahi jata, load balancer traffic distribute karta hai:
 
@@ -52,4 +52,4 @@ graph LR
 
 **Yaad rakho (Revision):** LB algorithms (RR, Least Conn, IP Hash), L4 vs L7, health checks, HA pairs, session affinity sticky sessions, SSL termination.
 
-**See also:** [Clustering](/system-design/clustering), [IP](/system-design/ip), [Availability](/system-design/availability).
+**See also:** [Clustering](/hld/clustering), [IP](/hld/ip), [Availability](/hld/availability).

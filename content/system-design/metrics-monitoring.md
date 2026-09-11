@@ -2,7 +2,7 @@
 
 > Datadog / Prometheus-shaped system. Ingest **time series**, downsample, alert when an SLO burns. Dashboards are a read model.
 
-> **TL;DR Hinglish:** Agents → Kafka → Flink downsample → Cassandra/ClickHouse, alert on SLO, retention tiers.
+> Agents → Kafka → Flink downsample → Cassandra/ClickHouse, alert on SLO, retention tiers.
 
 ## What they ask
 
@@ -22,7 +22,7 @@ Example scale: 5k hosts × 100 metrics/host × 1 sample/15s = 33k samples/sec. W
 - **Ingest:** push (StatsD/Datadog agent) and pull (Prometheus scrape) — `metric name + labels/tags + timestamp → value`.
 - **Query:** range query `GET /query?metric=http_latency&tags=service:api,status:500&from=&to=&agg=avg|p99|sum`, instant query, and dashboard widgets (line, heatmap).
 - **Dashboards:** CRUD, templated variables, sharing; widget cache.
-- **Alerts:** CRUD rule `expr: avg(http_latency{service=api}) > 300ms for 5m`, notify via [notification system](/system-design/notification-system) (PagerDuty/Slack/email), with grouping, inhibition, silencing.
+- **Alerts:** CRUD rule `expr: avg(http_latency{service=api}) > 300ms for 5m`, notify via [notification system](/hld/notification-system) (PagerDuty/Slack/email), with grouping, inhibition, silencing.
 - **Labels/tags:** arbitrary key-value, but with cardinality guardrails.
 - **Retention & downsampling:** tiered: raw → 1m → 1h.
 
@@ -163,16 +163,16 @@ graph LR
 
 **Component roles:**
 - **Agents:** per-host daemon (Datadog agent / Prometheus exporter) — aggregates counters, buffers locally on disk if Kafka down, compresses batch, pushes every 10s or exposes `/metrics` for pull. Tags host-level labels automatically.
-- **Ingest Gateway:** validates schema, enforces cardinality limit (`max_series_per_metric`), hashes `(metric, tags)` to partition, writes to [Kafka](/system-design/kafka). Returns 429 if cardinality would explode.
-- **[Kafka](/system-design/kafka) buffer:** decouples bursty ingest from TSDB write; retention 6h enough to absorb TSDB compaction pause or Writer crash.
+- **Ingest Gateway:** validates schema, enforces cardinality limit (`max_series_per_metric`), hashes `(metric, tags)` to partition, writes to [Kafka](/hld/kafka). Returns 429 if cardinality would explode.
+- **[Kafka](/hld/kafka) buffer:** decouples bursty ingest from TSDB write; retention 6h enough to absorb TSDB compaction pause or Writer crash.
 - **TSDB Cluster:** write-optimized LSM/col-store. Hot shard holds raw 15s for 24h on SSD (fast queries). Downsampler continuously aggregates `avg/sum/min/max` per 1m and 1h buckets and moves to warm/cold. Uses delta-of-delta + XOR encoding for values.
-- **Query Gateway/Engine:** parses PromQL-ish, fans out to TSDB shards by time range + metric hash, merges, applies `avg/p99` (p99 via pre-aggregated histograms/t-digests). Caches dashboard widget results in [Redis](/system-design/redis) (30s) to absorb refresh storms.
+- **Query Gateway/Engine:** parses PromQL-ish, fans out to TSDB shards by time range + metric hash, merges, applies `avg/p99` (p99 via pre-aggregated histograms/t-digests). Caches dashboard widget results in [Redis](/hld/redis) (30s) to absorb refresh storms.
 - **Rule Evaluator:** loads alert rules from Postgres, evaluates `expr` every 30s by querying TSDB (same path as dashboards but with `for` hold). State machine prevents flapping — must stay `> threshold` for `for` duration before firing.
-- **Alert Manager:** groups by `labels` (e.g., `alertname+service`), inhibits lower severity if higher fires, respects silences, dedups, then calls [notification system](/system-design/notification-system).
+- **Alert Manager:** groups by `labels` (e.g., `alertname+service`), inhibits lower severity if higher fires, respects silences, dedups, then calls [notification system](/hld/notification-system).
 
 **Data flow — ingest:** App `http_latency 42` → Agent batch → Ingest Gateway validates → hash → Kafka partition `metrics.raw` → TSDB Writer consumes → writes to hot TSDB + WAL → ack.
 
-**Data flow — query:** Dashboard `GET /query_range?http.latency last 1h step 1m` → Query Gateway checks [Redis](/system-design/redis) widget cache → miss → fan-out to hot shard only (since 1h) → merge + `avg` per step → cache → return.
+**Data flow — query:** Dashboard `GET /query_range?http.latency last 1h step 1m` → Query Gateway checks [Redis](/hld/redis) widget cache → miss → fan-out to hot shard only (since 1h) → merge + `avg` per step → cache → return.
 
 **Data flow — alert:** Rule `avg(latency{service=api}) > 300 for 5m` → Evaluator every 30s queries TSDB for last 5m → sees 4/5 samples above → state `pending`; 5th sample still above → `firing` → Alert Manager groups and pages PagerDuty via notification service.
 
@@ -247,7 +247,7 @@ DashboardService      — CRUD dashboards, render widget cache key = hash(query+
 ```
 
 **Important algorithms / concurrency:**
-- **Cardinality control:** On ingest, `seriesId = hash(metric, sorted labels)`. Check `series_cardinality[metric]` counter in [Redis](/system-design/redis) (approx via HyperLogLog). If `count > threshold (100k per metric)`, reject new series with `429 cardinality_exceeded` and suggest using logs instead. This prevents `userId` explosion: one metric × 10M users = 10M series → blocked at gateway.
+- **Cardinality control:** On ingest, `seriesId = hash(metric, sorted labels)`. Check `series_cardinality[metric]` counter in [Redis](/hld/redis) (approx via HyperLogLog). If `count > threshold (100k per metric)`, reject new series with `429 cardinality_exceeded` and suggest using logs instead. This prevents `userId` explosion: one metric × 10M users = 10M series → blocked at gateway.
 - **p99 without storing every sample:** Ingest histogram buckets (e.g., `latency_bucket{le=100} 42`) or t-digest sketches per minute. Query merges sketches → estimates p99 with <1% error, no need to keep raw samples for a year.
 - **Downsampling correctness:** `1m avg = sum(raw values in minute)/count`; for counters, store `rate` (delta). Use **counter reset detection** — if value drops, treat as new counter.
 - **Push vs pull:** Pull (Prometheus) gives service discovery and staleness detection (if target down, no scrape = gap); push (Datadog) works through NAT and for short-lived jobs. Support both via adapter — ingest gateway accepts push, separate **Scraper** pulls `/metrics` and pushes into same Kafka.
@@ -258,11 +258,11 @@ DashboardService      — CRUD dashboards, render widget cache key = hash(query+
 
 ## Deep dive — Cardinality: how this design dies
 
-Unbounded tags are the #1 outage cause. Example anti-pattern: `http.requests{userId=12345}` — each user creates a new series, 10M users × 10 endpoints = 100M series, index explodes, query `avg(http.requests)` must scan 100M series. Rule of thumb: **metrics are for systems, logs/traces for entities**. Metrics labels should be low-cardinality (service, endpoint, status, AZ, version) — cardinality < 10k per metric. High-cardinality dimensions (userId, requestId, IP) belong in logs ([Elasticsearch](/system-design/elasticsearch)) or tracing (Jaeger) where per-event storage is expected, or as **exemplars** (sampled traceId attached to histogram bucket). At ingest, enforce `max_label_count=10`, `max_series_per_metric=100k`, and `deny_list=[userId, email]`. Provide a "cardinality explorer" dashboard showing top metrics by series count so teams self-correct. If a team truly needs per-user metrics, suggest **aggregation at agent** — emit `unique_users` as a gauge, not per-user counter.
+Unbounded tags are the #1 outage cause. Example anti-pattern: `http.requests{userId=12345}` — each user creates a new series, 10M users × 10 endpoints = 100M series, index explodes, query `avg(http.requests)` must scan 100M series. Rule of thumb: **metrics are for systems, logs/traces for entities**. Metrics labels should be low-cardinality (service, endpoint, status, AZ, version) — cardinality < 10k per metric. High-cardinality dimensions (userId, requestId, IP) belong in logs ([Elasticsearch](/hld/elasticsearch)) or tracing (Jaeger) where per-event storage is expected, or as **exemplars** (sampled traceId attached to histogram bucket). At ingest, enforce `max_label_count=10`, `max_series_per_metric=100k`, and `deny_list=[userId, email]`. Provide a "cardinality explorer" dashboard showing top metrics by series count so teams self-correct. If a team truly needs per-user metrics, suggest **aggregation at agent** — emit `unique_users` as a gauge, not per-user counter.
 
 ## Deep dive — Alert burn rate and grouping
 
-Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Better: **SLO burn rate**. Define SLI `request_success = status<500`, SLO `99.9% over 30d`. Error budget = 0.1%. Alert when `burnRate = (errors in 5m)/(budget per 5m) > 2` sustained. This pages only when you're eating budget fast. Implement as recording rule `job:errors:rate5m` + `job:requests:rate5m` evaluated continuously, stored as new series (like [Flink](/system-design/flink) derived metrics). Grouping: if 50 hosts fire `HostDown`, Alert Manager groups by `cluster` and sends one page with count, not 50. Inhibition: if `ClusterDown` fires, suppress `HostDown` children. Silencing: maintenance window mutes by matcher. All alerts go through [notification system](/system-design/notification-system) with priority so `page` vs `ticket` use separate channels/rate limits.
+Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Better: **SLO burn rate**. Define SLI `request_success = status<500`, SLO `99.9% over 30d`. Error budget = 0.1%. Alert when `burnRate = (errors in 5m)/(budget per 5m) > 2` sustained. This pages only when you're eating budget fast. Implement as recording rule `job:errors:rate5m` + `job:requests:rate5m` evaluated continuously, stored as new series (like [Flink](/hld/flink) derived metrics). Grouping: if 50 hosts fire `HostDown`, Alert Manager groups by `cluster` and sends one page with count, not 50. Inhibition: if `ClusterDown` fires, suppress `HostDown` children. Silencing: maintenance window mutes by matcher. All alerts go through [notification system](/hld/notification-system) with priority so `page` vs `ticket` use separate channels/rate limits.
 
 ## Common mistakes
 
@@ -272,7 +272,7 @@ Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Bett
 ## Handling failures and scale
 
 - **Sharding:** Ingest shards by `hash(metric)` (e.g., 32 TSDB writers); query shards same hash so fan-out is minimal for single-metric dashboards. Time-based partitioning (2h blocks) lets you drop old raw blocks after downsampling.
-- **Caching:** Widget result cache in [Redis](/system-design/redis) `key=hash(metric+tags+step+from+to)` TTL 30s absorbs dashboard refresh thundering herd. Query engine also caches seriesId → posting list for 1 min.
+- **Caching:** Widget result cache in [Redis](/hld/redis) `key=hash(metric+tags+step+from+to)` TTL 30s absorbs dashboard refresh thundering herd. Query engine also caches seriesId → posting list for 1 min.
 - **Replication:** Kafka RF=3, min ISR 2; TSDB replication factor 2 (or 3 for hot). Cold blocks erasure-coded on S3 (cheaper than 3× replica).
 - **Failure modes:**
   - *TSDB hot shard down:* writes buffer in Kafka (6h), reads fall back to warm (1m) with slightly stale/coarser data — dashboard shows "data may be delayed" banner.
@@ -287,8 +287,8 @@ Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Bett
 1. **Prometheus vs Datadog:** Prometheus pulls, good for K8s service discovery; Datadog pushes, good for ephemeral lambdas. Say which you pick and why — either scores if justified.
 2. **Logs vs metrics vs traces:** When to use each — metrics for aggregates, logs for per-event debug, traces for request flow. Don't store `userId` in metrics.
 3. **Long-term query cost:** How to keep 1y query <5s — pre-aggregated 1h blocks + S3 with columnar format (Parquet) + query engine that skips cold unless range requires it.
-4. **Multi-tenancy:** Add `tenantId` label, enforce per-tenant cardinality and query isolation via [API Gateway](/system-design/api-gateway) + row-level filter on TSDB.
-5. **Derived metrics:** Use [Flink](/system-design/flink) to compute `rate`/`increase` over Kafka raw stream and feed back into TSDB as recording rules — reduces query-time compute.
+4. **Multi-tenancy:** Add `tenantId` label, enforce per-tenant cardinality and query isolation via [API Gateway](/hld/api-gateway) + row-level filter on TSDB.
+5. **Derived metrics:** Use [Flink](/hld/flink) to compute `rate`/`increase` over Kafka raw stream and feed back into TSDB as recording rules — reduces query-time compute.
 6. **Cost control:** Retention by team — infra team 90d raw, product team 7d — different downsample configs; S3 Intelligent-Tiering for cold.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.

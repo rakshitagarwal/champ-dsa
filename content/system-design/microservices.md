@@ -2,7 +2,7 @@
 
 > Ek bada app vs bahut chhote apps — kaise todo aur kaise jodo.
 
-> **TL;DR Hinglish:** Monolith ek bada dabba — sab code ek jagah, deploy ek saath, simple. Microservices me dabba tod ke 10 chhote dabbe (user, order, pay) — har dabba alag team deploy kare, par network + failure badhega. Start monolith, badhe to todo.
+> Monolith ek bada dabba — sab code ek jagah, deploy ek saath, simple. Microservices me dabba tod ke 10 chhote dabbe (user, order, pay) — har dabba alag team deploy kare, par network + failure badhega. Start monolith, badhe to todo.
 
 Har "Design Netflix/ Uber" me puchenge architecture kya?
 
@@ -16,7 +16,7 @@ Har "Design Netflix/ Uber" me puchenge architecture kya?
 
 ## Microservices
 
-- Har domain alag service + alag DB (Database per service) + [API Gateway](/system-design/api-gateway) + [Service Discovery](/system-design/service-discovery).
+- Har domain alag service + alag DB (Database per service) + [API Gateway](/hld/api-gateway) + [Service Discovery](/hld/service-discovery).
 - Pros: alag deploy, alag scale (pay 10 boxes, user 2), alag tech (Python ML, Go API), fault isolate (pay down to feed chalu).
 - Cons: network latency (10ms per hop), distributed transaction mushkil (Saga), observability mushkil (trace), ops 10x.
 
@@ -48,4 +48,4 @@ graph LR
 
 **Yaad rakho:** 1 repo vs N services, DB per service, sync vs async, Saga for TX, strangler.
 
-**See also:** [api-gateway](/system-design/api-gateway), [service-discovery](/system-design/service-discovery), [gossip-protocol](/system-design/gossip-protocol).
+**See also:** [api-gateway](/hld/api-gateway), [service-discovery](/hld/service-discovery), [gossip-protocol](/hld/gossip-protocol).

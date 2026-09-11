@@ -2,7 +2,7 @@
 
 > Ek hi TCP pe dono taraf jab chahe bhejo — HTTP request-response nahi, persistent pipe.
 
-> **TL;DR Hinglish:** HTTP ek chitthi jaisa — har baar naya lifafa. WebSocket ek phone call — ek baar connect, fir jab tak kaato nahi dono bol-sun sakte. Chat, live comments, docs cursor ke liye yahi.
+> HTTP ek chitthi jaisa — har baar naya lifafa. WebSocket ek phone call — ek baar connect, fir jab tak kaato nahi dono bol-sun sakte. Chat, live comments, docs cursor ke liye yahi.
 
 HTTP me client puche tabhi server bole. Live me server ko push karna hai (`typing...`, new message) — tab WS.
 
@@ -51,4 +51,4 @@ graph LR
 
 **Yaad rakho (Revision):** Polling waste, SSE 1-way, WS 2-way, 101 upgrade, ping 25s, Redis user→node + pub/sub, ACK + `since` catch-up, backoff.
 
-**See also:** [whatsapp](/system-design/whatsapp), [google-docs](/system-design/google-docs), [fb-live-comments](/system-design/fb-live-comments).
+**See also:** [whatsapp](/hld/whatsapp), [google-docs](/hld/google-docs), [fb-live-comments](/hld/fb-live-comments).

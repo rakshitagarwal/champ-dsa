@@ -2,7 +2,7 @@
 
 > Structured data ko organize, store, manage karne ke liye software system.
 
-> **TL;DR Hinglish:** Database structured data store karta hai — tables, rows, columns. DBMS (Database Management System) database manage karta hai — create, read, update, delete (CRUD). Relational databases (Postgres, MySQL) tables with relationships, Non-relational (MongoDB, Cassandra) flexible schema. ACID properties reliability ensure karte hain.
+> Database structured data store karta hai — tables, rows, columns. DBMS (Database Management System) database manage karta hai — create, read, update, delete (CRUD). Relational databases (Postgres, MySQL) tables with relationships, Non-relational (MongoDB, Cassandra) flexible schema. ACID properties reliability ensure karte hain.
 
 Database structured data ko organize karta hai:
 
@@ -39,4 +39,4 @@ graph TD
 
 **Yaad rakho (Revision):** SQL vs NoSQL, ACID properties, relational (Postgres/MySQL) vs NoSQL (Mongo/Cassandra/Redis), schema rigidity vs flexibility, choose based on needs.
 
-**See also:** [SQL databases](/system-design/sql-databases), [NoSQL databases](/system-design/nosql-databases), [PostgreSQL](/system-design/postgresql).
+**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [PostgreSQL](/hld/postgresql).

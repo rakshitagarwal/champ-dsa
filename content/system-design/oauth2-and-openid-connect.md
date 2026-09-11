@@ -2,7 +2,7 @@
 
 > Authorization + Authentication protocols — secure API access, user identity.
 
-> **TL;DR Hinglish:** OAuth 2.0 authorization protocol hai — app ko user ke behalf access dena bina password diye. OIDC (OpenID Connect) authentication layer hai OAuth 2.0 ke upar — user identity verify karta hai. OAuth 2.0 = "kya access hai", OIDC = "kyun hai ye". Flows: Authorization Code (web apps), Client Credentials (server-to-server), PKCE (mobile). Access tokens + Refresh tokens use hote hain.
+> OAuth 2.0 authorization protocol hai — app ko user ke behalf access dena bina password diye. OIDC (OpenID Connect) authentication layer hai OAuth 2.0 ke upar — user identity verify karta hai. OAuth 2.0 = "kya access hai", OIDC = "kyun hai ye". Flows: Authorization Code (web apps), Client Credentials (server-to-server), PKCE (mobile). Access tokens + Refresh tokens use hote hain.
 
 OAuth 2.0 aur OIDC secure access aur identity ke liye:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** OAuth 2.0 = authorization (access), OIDC = authentication (identity), access token (short-lived) + refresh token, flows (Auth Code, Client Credentials, PKCE), least privilege.
 
-**See also:** [Single Sign-On](/system-design/single-sign-on), [SSL, TLS, mTLS](/system-design/ssl-tls-mtls), [Microservices](/system-design/microservices).
+**See also:** [Single Sign-On](/hld/single-sign-on), [SSL, TLS, mTLS](/hld/ssl-tls-mtls), [Microservices](/hld/microservices).

@@ -2,7 +2,7 @@
 
 > Central hub — sab services communicate karte hain ESB ke through.
 
-> **TL;DR Hinglish:** ESB ek central middleware hub hai jo enterprise services ko connect karta hai. Message routing, transformation, protocol conversion karta hai. Legacy system integration ke liye useful. Service-oriented architecture (SOA) mein use hota tha. But ESB SPOF hai, bottleneck banta hai — microservices era mein less popular. ESB vs API Gateway — ESB heavy transformation, API Gateway simpler routing.
+> ESB ek central middleware hub hai jo enterprise services ko connect karta hai. Message routing, transformation, protocol conversion karta hai. Legacy system integration ke liye useful. Service-oriented architecture (SOA) mein use hota tha. But ESB SPOF hai, bottleneck banta hai — microservices era mein less popular. ESB vs API Gateway — ESB heavy transformation, API Gateway simpler routing.
 
 ESB enterprise ke services ko central hub se connect karta hai:
 
@@ -48,4 +48,4 @@ graph LR
 
 **Yaad rakho (Revision):** ESB central hub, SOA pattern, message routing + transformation + protocol conversion, ESB vs API Gateway, SPOF + bottleneck, less popular in microservices era.
 
-**See also:** [API Gateway](/system-design/api-gateway), [Microservices](/system-design/microservices), [Message Brokers](/system-design/message-brokers).
+**See also:** [API Gateway](/hld/api-gateway), [Microservices](/hld/microservices), [Message Brokers](/hld/message-brokers).

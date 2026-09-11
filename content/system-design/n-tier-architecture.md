@@ -2,7 +2,7 @@
 
 > Application ko layers mein split karo — presentation, logic, data separately.
 
-> **TL;DR Hinglish:** N-tier architecture application ko 3 ya zyada layers mein divide karta hai — presentation (UI), application logic (business rules), data (database). Monolith sab ek layer mein, microservices alag alag services mein. 2-tier (client-server), 3-tier (client-app-db), N-tier (multiple logic layers). Scalability aur maintainability badhata hai layers alag hone se.
+> N-tier architecture application ko 3 ya zyada layers mein divide karta hai — presentation (UI), application logic (business rules), data (database). Monolith sab ek layer mein, microservices alag alag services mein. 2-tier (client-server), 3-tier (client-app-db), N-tier (multiple logic layers). Scalability aur maintainability badhata hai layers alag hone se.
 
 N-tier architecture application ko logical layers mein split karta hai:
 
@@ -40,4 +40,4 @@ graph TD
 
 **Yaad rakho (Revision):** Presentation, application logic, data layers. 2-tier vs 3-tier vs N-tier, layers separate = scalable/maintainable, not same as microservices.
 
-**See also:** [Microservices](/system-design/microservices), [API Gateway](/system-design/api-gateway), [Message Queue](/system-design/message-queue).
+**See also:** [Microservices](/hld/microservices), [API Gateway](/hld/api-gateway), [Message Queue](/hld/message-queue).

@@ -2,7 +2,7 @@
 
 > Write ke baad turant sabko fresh nahi — thodi der baad sab converge.
 
-> **TL;DR Hinglish:** Eventual ek WhatsApp group jaisa — ek ne message bheja, 2 sec me sabke phone pe aaya, beech me kisi ne purana dekha to chalega. Strong me sabko turant same dikhega par slow.
+> Eventual ek WhatsApp group jaisa — ek ne message bheja, 2 sec me sabke phone pe aaya, beech me kisi ne purana dekha to chalega. Strong me sabko turant same dikhega par slow.
 
 AP systems (Cassandra, Dynamo, S3) me yehi.
 
@@ -43,4 +43,4 @@ graph LR
 
 **Yaad rakho:** Strong=R+W>N, eventual R=1, read repair + hinted handoff, likes vs bank.
 
-**See also:** [quorum](/system-design/quorum), [cap-theorem](/system-design/cap-theorem), [replication](/system-design/replication).
+**See also:** [quorum](/hld/quorum), [cap-theorem](/hld/cap-theorem), [replication](/hld/replication).

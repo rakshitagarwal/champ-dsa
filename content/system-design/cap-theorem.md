@@ -2,7 +2,7 @@
 
 > Distributed system me 3 me se 2 hi pakka ek saath: **Consistency, Availability, Partition tolerance**. Partition aaya to C ya A me se ek chunna padega.
 
-> **TL;DR Hinglish:** Network toot gaya (partition) to socho — sabko same jawab doge (Consistency) ya sabko kuch na kuch jawab doge (Availability). Dono ek saath partition me nahi. CP = Postgres quorum, AP = Cassandra/Dynamo. PACELC bhi yaad rakho.
+> Network toot gaya (partition) to socho — sabko same jawab doge (Consistency) ya sabko kuch na kuch jawab doge (Availability). Dono ek saath partition me nahi. CP = Postgres quorum, AP = Cassandra/Dynamo. PACELC bhi yaad rakho.
 
 CAP ka matlab ye nahi ki 3 me se hamesha 2 chuno — **P to hamesha chahiye**, partition aata hi hai. Asal sawaal: **partition me C ya A?** Aur normal me (no partition) **Latency vs Consistency (PACELC)**.
 
@@ -60,4 +60,4 @@ Cassandra/Dynamo me `R + W > N` to strong-ish: `W=QUORUM, R=QUORUM` → majority
 
 **Yaad rakho (Revision):** P hamesha, partition me C=consistent fail ya A=available stale, normal me L vs C, `R+W>N` = strong, Ticket=CP, Likes=AP.
 
-**See also:** [cassandra](/system-design/cassandra), [dynamodb](/system-design/dynamodb), [postgresql](/system-design/postgresql), [zookeeper](/system-design/zookeeper).
+**See also:** [cassandra](/hld/cassandra), [dynamodb](/hld/dynamodb), [postgresql](/hld/postgresql), [zookeeper](/hld/zookeeper).

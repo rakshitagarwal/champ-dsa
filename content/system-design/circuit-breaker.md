@@ -2,7 +2,7 @@
 
 > Downstream mar gaya to usko aur mat maaro — fail fast, thodi der baad fir try.
 
-> **TL;DR Hinglish:** Circuit breaker ghar ka MCB jaisa — light short hua to MCB trip, baar-baar switch on nahi karte. Thodi der baad half-on karke dekho, theek to chalu.
+> Circuit breaker ghar ka MCB jaisa — light short hua to MCB trip, baar-baar switch on nahi karte. Thodi der baad half-on karke dekho, theek to chalu.
 
 Microservices me har call pe lagao — Payment, Search, sab.
 
@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** Closed normal, Open fast fail, Half-open probe, retry storm rokho, fallback.
 
-**See also:** [load-balancer](/system-design/load-balancer), [api-gateway](/system-design/api-gateway), [replication](/system-design/replication).
+**See also:** [load-balancer](/hld/load-balancer), [api-gateway](/hld/api-gateway), [replication](/hld/replication).

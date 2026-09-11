@@ -20,7 +20,7 @@ export function SdMobileNav({ docs, className }: Props) {
         docs
           .filter((d) => d.group === group.id)
           .map((doc, idx) => {
-            const href = `/system-design/${doc.slug}`;
+            const href = `/hld/${doc.slug}`;
             const active = pathname === href;
             const num = String(idx + 1).padStart(2, "0");
             return (

@@ -2,7 +2,7 @@
 
 > Flexible schema, horizontal scaling — documents, key-value, wide-column, graphs.
 
-> **TL;DR Hinglish:** NoSQL databases flexible schema rakhte hain — predefined table structure nahi. Document (MongoDB), key-value (Redis), wide-column (Cassandra), graph (Neo4j) types hain. Horizontal scaling naturally hoti hai — sharding built-in. High throughput, low latency. Best for real-time apps, social media, IoT — unstructured/flexible data.
+> NoSQL databases flexible schema rakhte hain — predefined table structure nahi. Document (MongoDB), key-value (Redis), wide-column (Cassandra), graph (Neo4j) types hain. Horizontal scaling naturally hoti hai — sharding built-in. High throughput, low latency. Best for real-time apps, social media, IoT — unstructured/flexible data.
 
 NoSQL databases flexible, scalable data store karte hain:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** Document/key-value/wide-column/graph types, flexible schema, horizontal scaling built-in, eventual consistency (tunable), polyglot persistence, MongoDB/Redis/Cassandra/DynamoDB.
 
-**See also:** [Cassandra](/system-design/cassandra), [DynamoDB](/system-design/dynamodb), [Redis](/system-design/redis), [Databases and DBMS](/system-design/databases-and-dbms).
+**See also:** [Cassandra](/hld/cassandra), [DynamoDB](/hld/dynamodb), [Redis](/hld/redis), [Databases and DBMS](/hld/databases-and-dbms).

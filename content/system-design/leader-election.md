@@ -2,7 +2,7 @@
 
 > Kai servers me se ek ko leader chuno — wahi kaam kare, baaki standby.
 
-> **TL;DR Hinglish:** Leader ek class monitor jaisa — ek hi bolega, baaki sunenge. Monitor bimar to naya chun lo. ZooKeeper/Raft me `ephemeral` + `lease` se.
+> Leader ek class monitor jaisa — ek hi bolega, baaki sunenge. Monitor bimar to naya chun lo. ZooKeeper/Raft me `ephemeral` + `lease` se.
 
 Scheduler, Kafka controller, shard primary — sab me leader.
 
@@ -41,4 +41,4 @@ graph LR
 
 **Yaad rakho:** Smallest = leader, ephemeral auto delete, lease 10s, fencing token.
 
-**See also:** [zookeeper](/system-design/zookeeper), [replication](/system-design/replication), [gossip-protocol](/system-design/gossip-protocol).
+**See also:** [zookeeper](/hld/zookeeper), [replication](/hld/replication), [gossip-protocol](/hld/gossip-protocol).

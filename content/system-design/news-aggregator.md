@@ -2,7 +2,7 @@
 
 > Google News / Apple News lite. Ingest many publishers, **dedupe stories**, rank a feed. Crawling is a means, not the product.
 
-> **TL;DR Hinglish:** Publishers poll/crawl → dedupe (SimHash) → ranking (fresh + personal) → feed per user cache.
+> Publishers poll/crawl → dedupe (SimHash) → ranking (fresh + personal) → feed per user cache.
 
 ## What they ask
 
@@ -11,7 +11,7 @@ Design a news aggregator that pulls articles from ~1k–10k publishers, clusters
 **Scenario:** Users open the app and expect a fresh feed in <200ms. Behind the scenes, publishers publish at unpredictable rates; some offer RSS/sitemaps, others only HTML. The same wire story appears with different titles across 50 outlets. You must be polite (don't DDoS), deduplicate, rank, and serve a precomputed feed — not scatter-gather 1k publishers on every `GET /feed`.
 
 **What interviewer tests:**
-- Polite ingest ([web crawler](/system-design/web-crawler) etiquette, robots.txt, backoff)
+- Polite ingest ([web crawler](/hld/web-crawler) etiquette, robots.txt, backoff)
 - Canonicalization + near-duplicate clustering (hashing vs embeddings)
 - Ranking and personalization without per-request fan-out
 - Freshness vs. load trade-offs and legal/copyright handling
@@ -49,7 +49,7 @@ Ingest is I/O-bound and politeness-limited; serve is cache-friendly.
 | `GET` | `/api/v1/topics` | Available topics |
 | `GET` | `/api/v1/articles/{id}` | Single article metadata (or redirect) |
 | `POST` | `/internal/ingest/webhook` | Publisher push (if supported) |
-| `GET` | `/api/v1/search?q=&cursor=` | Search stories (via [Elasticsearch](/system-design/elasticsearch)) |
+| `GET` | `/api/v1/search?q=&cursor=` | Search stories (via [Elasticsearch](/hld/elasticsearch)) |
 
 **Feed — Response:**
 ```json
@@ -104,8 +104,8 @@ Publishers (RSS / Sitemap / HTML / Webhook)
    |
  API Service (serves precomputed feed) -> Client
    |
- Search Indexer -> [Elasticsearch](/system-design/elasticsearch)
- Notification Service -> [notification system](/system-design/notification-system) (breaking news push)
+ Search Indexer -> [Elasticsearch](/hld/elasticsearch)
+ Notification Service -> [notification system](/hld/notification-system) (breaking news push)
 ```
 
 ```mermaid
@@ -118,15 +118,15 @@ graph LR
 ```
 
 **Components:**
-- **Crawler Fleet:** Per-host queue with token bucket (e.g., 1 rps/host, burst 2). Respects `robots.txt` and `sitemap.xml`. Priority queues: tier-1 publishers (Reuters, AP) polled every 60s; long tail every 15 min. Uses [web crawler](/system-design/web-crawler) pattern. Backoff on 429/403 with exponential + jitter.
+- **Crawler Fleet:** Per-host queue with token bucket (e.g., 1 rps/host, burst 2). Respects `robots.txt` and `sitemap.xml`. Priority queues: tier-1 publishers (Reuters, AP) polled every 60s; long tail every 15 min. Uses [web crawler](/hld/web-crawler) pattern. Backoff on 429/403 with exponential + jitter.
 - **Parser Service:** Site-specific parsers + generic fallback (JSON-LD, OpenGraph, readability). Extracts canonical URL, publish time, geo/topic hints. Stores raw HTML in S3 for reprocessing.
 - **Canonicalizer:** URL normalization (strip UTM, lower host, sort query), content hash (SimHash/MinHash) to collapse same article with different URLs.
 - **Clustering Service:** Near-duplicate grouping (see LLD). Assigns `clusterId`; first source in creates cluster, later attach if similarity > threshold within time window.
-- **Ranking Service:** Batch job + streaming updates. Score = `w1*recency + w2*sourceAuthority + w3*engagement + w4*personalization`. Personalization: user topic weights in [Redis](/system-design/redis), blended at serve time.
-- **Materializer:** Every 30–60s rebuilds `feed:topic:{world|tech|...}` sorted sets in Redis and warms [CDN](/system-design/cdn). `GET /feed` never crawls — it reads precomputed list.
+- **Ranking Service:** Batch job + streaming updates. Score = `w1*recency + w2*sourceAuthority + w3*engagement + w4*personalization`. Personalization: user topic weights in [Redis](/hld/redis), blended at serve time.
+- **Materializer:** Every 30–60s rebuilds `feed:topic:{world|tech|...}` sorted sets in Redis and warms [CDN](/hld/cdn). `GET /feed` never crawls — it reads precomputed list.
 
 **Write flow — Ingest article:**
-1. Crawler fetches URL (polite queue) → store raw HTML to S3 → enqueue `ParseJob` to [Kafka](/system-design/kafka).
+1. Crawler fetches URL (polite queue) → store raw HTML to S3 → enqueue `ParseJob` to [Kafka](/hld/kafka).
 2. Parser extracts fields → canonicalize URL + hash body → check dedup table (exact hash hit → skip).
 3. Clustering service computes blocking key (time bucket + topic/geo) → similarity check → assign `clusterId`.
 4. Upsert article + cluster mapping → enqueue `RankUpdate`.
@@ -225,10 +225,10 @@ class FeedMaterializer:
 **Concurrency & algorithms:**
 - **SimHash / MinHash:** Shingle title + first 500 chars into 3-grams, compute MinHash signature (e.g., 128 perms). Jaccard similarity ≈ fraction of matching minhashes. Faster than full embedding for v1; upgrade to embeddings (e.g., sentence-transformers) for semantic near-dup when scale allows.
 - **Blocking:** Don't compare every article to every cluster (O(n²)). Block by 2-hour window + topic/geo; only compare within block — reduces candidates 1000x.
-- **Per-host politeness:** Token bucket per domain in [Redis](/system-design/redis) or local limiter: `allow = tokens >0 ? consume : delay`. Shared across crawler replicas via Redis cell.
+- **Per-host politeness:** Token bucket per domain in [Redis](/hld/redis) or local limiter: `allow = tokens >0 ? consume : delay`. Shared across crawler replicas via Redis cell.
 - **Idempotent ingest:** `canonical_url` UNIQUE + `content_hash` UNIQUE ensures re-crawls don't duplicate.
 
-**Patterns used:** Producer-Consumer ([Kafka](/system-design/kafka) between fetch→parse→cluster→rank), Cache-aside + Materialized view (precomputed feed), CQRS (write path ingest vs read path serve), Content hashing, Leaderless per-host queues.
+**Patterns used:** Producer-Consumer ([Kafka](/hld/kafka) between fetch→parse→cluster→rank), Cache-aside + Materialized view (precomputed feed), CQRS (write path ingest vs read path serve), Content hashing, Leaderless per-host queues.
 
 ## Deep dive — clustering
 
@@ -263,9 +263,9 @@ Poll important publishers every 60s, long tail every 15 min. Use conditional fet
 
 ## Extra probes / follow-ups
 
-1. Breaking news: push via [notification system](/system-design/notification-system) when cluster `sourceCount` spikes in 5 min.
+1. Breaking news: push via [notification system](/hld/notification-system) when cluster `sourceCount` spikes in 5 min.
 2. Spam / SEO farms — denylist + authority threshold; downrank low-authority clusters.
-3. Search — [Elasticsearch](/system-design/elasticsearch) on cluster titles + snippets, with dedup (one result per cluster).
+3. Search — [Elasticsearch](/hld/elasticsearch) on cluster titles + snippets, with dedup (one result per cluster).
 4. De-duplication across languages — multilingual embeddings + translation layer (v2).
 5. Trending topics — `SELECT topic, count(*) FROM clusters WHERE created_at > now()-1h GROUP BY topic`.
 

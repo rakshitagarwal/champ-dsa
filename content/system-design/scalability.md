@@ -2,7 +2,7 @@
 
 > System handle kar sake badhne ho gaye load ko — scale up ya scale out.
 
-> **TL;DR Hinglish:** Scalability = system handle kar sake badhne ho gaye load ko. Scale up = server badhao (CPU/RAM) — simple par limited. Scale out = servers badhao (distributed) — better, cost effective, complex. Horizontal vs Vertical scaling. Scale out ke liye stateless servers, load balancer, distributed DB zaroori. Auto-scaling = traffic pe based servers auto add/remove.
+> Scalability = system handle kar sake badhne ho gaye load ko. Scale up = server badhao (CPU/RAM) — simple par limited. Scale out = servers badhao (distributed) — better, cost effective, complex. Horizontal vs Vertical scaling. Scale out ke liye stateless servers, load balancer, distributed DB zaroori. Auto-scaling = traffic pe based servers auto add/remove.
 
 System kabhi badhne wale load ko handle karne ke liye scale karna padta hai:
 
@@ -42,4 +42,4 @@ graph TD
 
 **Yaad rakho (Revision):** Scale up (vertical, limited) vs scale out (horizontal, better), stateless architecture needed for scale out, LB + distributed DB + sharding, auto-scaling, database bottleneck read replicas se.
 
-**See also:** [Clustering](/system-design/clustering), [Load Balancing](/system-design/load-balancing), [Sharding](/system-design/sharding).
+**See also:** [Clustering](/hld/clustering), [Load Balancing](/hld/load-balancing), [Sharding](/hld/sharding).

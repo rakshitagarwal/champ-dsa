@@ -2,7 +2,7 @@
 
 > Kaam ko queue me daalo — producer bhage, consumer aaram se peeche aaye.
 
-> **TL;DR Hinglish:** Message queue ek dhaba ka token system — order lo token do, kitchen peeche banaye, bheed badhe to token line badhe, kitchen tez nahi to nahi. Producer aur consumer alag, spike buffer.
+> Message queue ek dhaba ka token system — order lo token do, kitchen peeche banaye, bheed badhe to token line badhe, kitchen tez nahi to nahi. Producer aur consumer alag, spike buffer.
 
 Har async design me aayega — notification, analytics, transcode.
 
@@ -49,4 +49,4 @@ graph LR
 
 **Yaad rakho:** Queue 1 consumer, log replay, SQS simple, Rabbit routing, Kafka high + replay, DLQ must.
 
-**See also:** [kafka](/system-design/kafka), [backpressure](/system-design/backpressure), [idempotency](/system-design/idempotency).
+**See also:** [kafka](/hld/kafka), [backpressure](/hld/backpressure), [idempotency](/hld/idempotency).

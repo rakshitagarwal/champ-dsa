@@ -2,7 +2,7 @@
 
 > Har node thodi der me random dost ko khabar de — khabar epidemic jaise faile.
 
-> **TL;DR Hinglish:** Gossip ek afwah jaisa — Ram ne Shyam ko bola, Shyam ne 2 ko, har round double. `O(log N)` me sabko pata, koi master nahi. Cassandra, Consul membership me yahi.
+> Gossip ek afwah jaisa — Ram ne Shyam ko bola, Shyam ne 2 ko, har round double. `O(log N)` me sabko pata, koi master nahi. Cassandra, Consul membership me yahi.
 
 Failure detection, membership list, aur config spread me.
 
@@ -50,4 +50,4 @@ Har node ka `phi` = kitna time se heartbeat nahi aaya. `phi > 8` to suspect, `>1
 
 **Yaad rakho:** Random push-pull, log N, phi accrual, no leader, eventual.
 
-**See also:** [cassandra](/system-design/cassandra), [replication](/system-design/replication), [leader-election](/system-design/leader-election).
+**See also:** [cassandra](/hld/cassandra), [replication](/hld/replication), [leader-election](/hld/leader-election).

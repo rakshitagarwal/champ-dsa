@@ -2,7 +2,7 @@
 
 > Online judge. The scary part is **running stranger's code** without torching your cluster, plus fair queues when a contest starts.
 
-> **TL;DR Hinglish:** Untrusted code ko Docker me isolate, queue me daalo, workers grade kare, result Postgres, rate limit + sandbox must.
+> Untrusted code ko Docker me isolate, queue me daalo, workers grade kare, result Postgres, rate limit + sandbox must.
 
 ## What they ask
 
@@ -121,7 +121,7 @@ Client (Web/IDE)
   |
  CDN (problem statements)
   |
- L4 LB → API Gateway (auth, [rate limiter](/system-design/rate-limiter): submissions/min)
+ L4 LB → API Gateway (auth, [rate limiter](/hld/rate-limiter): submissions/min)
   |
  API Service → Postgres (problems, submissions metadata) → S3 (source if large)
   |     `--> publish to Queue per language → [SQS / Rabbit / Kafka partitioned]
@@ -312,13 +312,13 @@ class Leaderboard:
 - **Sharding:** `submissions` by `userId` hash or `problemId`; Postgres partitioned by `created_at` (monthly). S3 source keys by `hash`.
 - **Caching:** Redis for dedup `cache:{hash} → result` TTL 1h; submission result cache `sub:{id} → JSON` TTL 5m.
 - **Replication:** Postgres primary + replicas for reads (history); queue (SQS/Kafka) replicated. Worker fleet across AZs.
-- **Rate limiting:** [rate limiter](/system-design/rate-limiter) `POST /submissions` 20/min per user, burst 5; contest participants get higher burst via token.
+- **Rate limiting:** [rate limiter](/hld/rate-limiter) `POST /submissions` 20/min per user, burst 5; contest participants get higher burst via token.
 
 ## Extra probes / follow-ups
 
 1. **Custom checkers:** compile checker binary per problem, run outside sandbox with `actual` vs `expected` + `input`.
 2. **Large sources:** if `source > 64KB`, store in S3 `sources/{hash}.txt`, DB holds `source_key`; worker fetches via pre-signed URL.
-3. **Leaderboard:** [Redis](/system-design/redis) `ZADD contest:{id}:board score userId`; score = `solved*100 - time_penalty`; update on each `accepted`.
+3. **Leaderboard:** [Redis](/hld/redis) `ZADD contest:{id}:board score userId`; score = `solved*100 - time_penalty`; update on each `accepted`.
 4. **Partial credit:** for problems with subtasks, return `passed=7/10 → score 70`.
 5. **Security audit:** log all syscalls via gVisor trace, alert on `socket` attempts, quarantine user after 3 violations.
 

@@ -2,7 +2,7 @@
 
 > Same data ko kai nodes pe copy rakho — read tez, fail pe backup.
 
-> **TL;DR Hinglish:** Replication ek register ki photocopy jaisa — ek master likhe, 2 xerox alag dukaan pe. Ek dukaan band to dusri se kaam, par xerox me thoda delay.
+> Replication ek register ki photocopy jaisa — ek master likhe, 2 xerox alag dukaan pe. Ek dukaan band to dusri se kaam, par xerox me thoda delay.
 
 Har DB replication karta hai — Postgres, MySQL, Cassandra, Kafka bhi.
 
@@ -41,4 +41,4 @@ graph LR
 
 **Yaad rakho:** Master-slave vs leaderless, async lag → read-your-writes, failover election.
 
-**See also:** [postgresql](/system-design/postgresql), [quorum](/system-design/quorum), [cap-theorem](/system-design/cap-theorem).
+**See also:** [postgresql](/hld/postgresql), [quorum](/hld/quorum), [cap-theorem](/hld/cap-theorem).

@@ -2,7 +2,7 @@
 
 > Ek box bada karo vs bahut boxes jodo — scale up vs scale out.
 
-> **TL;DR Hinglish:** Vertical = ek hi computer me RAM/CPU badhao (16GB→64GB) — simple par ek limit ke baad mehenga aur SPOF. Horizontal = 1 se 10 servers jodo + load balancer — thoda complex par unlimited aur fault-tolerant. Interview me 90% horizontal bolo.
+> Vertical = ek hi computer me RAM/CPU badhao (16GB→64GB) — simple par ek limit ke baad mehenga aur SPOF. Horizontal = 1 se 10 servers jodo + load balancer — thoda complex par unlimited aur fault-tolerant. Interview me 90% horizontal bolo.
 
 Har system design me puchenge — "scale kaise karoge?"
 
@@ -16,7 +16,7 @@ Har system design me puchenge — "scale kaise karoge?"
 
 ## Horizontal (Scale Out)
 
-- Chhote-chhote N boxes + [Load Balancer](/system-design/load-balancer) + sharding/partitioning.
+- Chhote-chhote N boxes + [Load Balancer](/hld/load-balancer) + sharding/partitioning.
 - Pros: unlimited boxes, ek mara to baaki zinda, rolling deploy.
 - Cons: app ko shard key sochna padega, cross-box join mushkil, network partition handle.
 
@@ -50,4 +50,4 @@ graph LR
 
 **Yaad rakho:** Up = big box simple limit, Out = many boxes + shard key, stateless zaruri.
 
-**See also:** [sharding](/system-design/sharding), [partitioning](/system-design/partitioning), [load-balancer](/system-design/load-balancer).
+**See also:** [sharding](/hld/sharding), [partitioning](/hld/partitioning), [load-balancer](/hld/load-balancer).

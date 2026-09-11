@@ -2,7 +2,7 @@
 
 > Charges, refunds, a **ledger**. Idempotency and webhooks. You wrap Stripe/Adyen; you still need an internal source of truth.
 
-> **TL;DR Hinglish:** Ledger double-entry, idempotent charges via idempotency-key, saga for multi-step, webhooks retry, never double-spend.
+> Ledger double-entry, idempotent charges via idempotency-key, saga for multi-step, webhooks retry, never double-spend.
 
 ## What they ask
 
@@ -23,7 +23,7 @@ Example scale: 1M orders/day, $50 avg ticket, 2% refunds, 10k checkout QPS peak 
 - **Capture** — full or partial capture of authorized amount; auto-capture for simple checkout.
 - **Refund** — full or partial refund against a captured payment; multiple refunds until remaining.
 - **List/get** payments with status and remaining refundable amount.
-- **Webhooks inbound** from processor (Stripe/Adyen) — `authorized`, `captured`, `failed`, `refunded`, `disputed` — and **outbound webhooks** to product (orders, [notification system](/system-design/notification-system)).
+- **Webhooks inbound** from processor (Stripe/Adyen) — `authorized`, `captured`, `failed`, `refunded`, `disputed` — and **outbound webhooks** to product (orders, [notification system](/hld/notification-system)).
 - **Idempotent creates** via `idempotencyKey` — same key returns same payment, no second charge.
 - Payment methods: cards (tokenized), wallets, saved tokens; 3DS/SCA redirect flow.
 
@@ -145,11 +145,11 @@ graph LR
 ```
 
 **Component roles:**
-- **Payment Service (API):** validates amount/currency, checks idempotency (`SELECT` on `idempotency_keys`), inserts `payments` row `created → authorized` inside transaction with ledger entry, publishes outbox event to [Kafka](/system-design/kafka) for product, returns to caller. Owns state machine.
+- **Payment Service (API):** validates amount/currency, checks idempotency (`SELECT` on `idempotency_keys`), inserts `payments` row `created → authorized` inside transaction with ledger entry, publishes outbox event to [Kafka](/hld/kafka) for product, returns to caller. Owns state machine.
 - **Processor Adapter:** wraps Stripe/Adyen SDK. On `authorize`, calls `POST /payment_intents` with `idempotency_key=paymentId` (provider-level idempotency) and `amount`. On timeout, **does not blindly retry** — does `GET /payment_intents?clientKey` to check if already created, then reconciles. Handles 3DS redirect by returning `next_action` to client.
-- **Webhook Handler:** verifies HMAC (`Stripe-Signature` / Adyen HMAC), enqueues raw event to [Kafka](/system-design/kafka) (`webhook.raw`), returns 200 immediately. Consumer deduplicates on `processor_event_id` (unique constraint) and applies state transition idempotently.
+- **Webhook Handler:** verifies HMAC (`Stripe-Signature` / Adyen HMAC), enqueues raw event to [Kafka](/hld/kafka) (`webhook.raw`), returns 200 immediately. Consumer deduplicates on `processor_event_id` (unique constraint) and applies state transition idempotently.
 - **Postgres (ledger):** source of truth. All money moves are ledger entries; `payments` row holds derived aggregates (`authorizedAmount`, `capturedAmount`, `refundableAmount`) recomputed from ledger.
-- **[Kafka](/system-design/kafka):** decouples product (orders shouldn’t block on Stripe latency) — product listens to `PaymentCaptured` to release inventory. Don't put inventory mutation inside Stripe client.
+- **[Kafka](/hld/kafka):** decouples product (orders shouldn’t block on Stripe latency) — product listens to `PaymentCaptured` to release inventory. Don't put inventory mutation inside Stripe client.
 
 **Data flow — happy path (auth + capture):**
 1. Frontend tokenizes card → `pm_abc`; calls `POST /payments {amount:5000, capture:false, idempotencyKey: k1}`.
@@ -247,7 +247,7 @@ IdempotencyStore        — SETNX idempotencyKey→paymentId in Redis + DB uniqu
 - **Double-click safety:** `INSERT payments ... ON CONFLICT (idempotency_key) DO NOTHING` — second POST returns existing row without calling Stripe twice. Adapter also uses provider idempotency `paymentId` so even if two app hosts race to call Stripe, Stripe dedups.
 - **Retrieve-before-retry:** On `TimeoutException` from Stripe, do `GET /payment_intents?client_reference=pay_1` before retry. If found, reconcile local state to processor state instead of creating second intent.
 - **Partial capture math:** `capturableRemaining = authorizedAmount - capturedAmount`; reject capture if `amount > capturableRemaining`. Refundable = `capturedAmount - refundedAmount`; sum of refunds must not exceed.
-- **Per-payment serialization:** `SELECT ... FOR UPDATE` on `payments` row for capture/refund to prevent concurrent partial captures overshooting. Or serialize per `paymentId` via [Kafka](/system-design/kafka) partition.
+- **Per-payment serialization:** `SELECT ... FOR UPDATE` on `payments` row for capture/refund to prevent concurrent partial captures overshooting. Or serialize per `paymentId` via [Kafka](/hld/kafka) partition.
 - **Webhook idempotency:** `INSERT processor_events(event_id) ON CONFLICT DO NOTHING` — second delivery of same `evt_123` is no-op, even if handling is retried.
 
 **Design patterns:** Transactional Outbox, Idempotent Receiver, State Machine, Double-Entry Ledger, Circuit Breaker on processor client, Saga (payment → order fulfillment via Kafka).
@@ -268,8 +268,8 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
 ## Handling failures and scale
 
 - **Sharding:** Payments partitioned by `orderId` or `paymentId` hash; ledger range-partitioned by `created_at` (monthly). Webhook topic partitioned by `paymentId` for ordered per-payment processing.
-- **Caching:** Payment `GET` cached 5s in [Redis](/system-design/redis), invalidated on capture/refund. No caching of ledger — always read from DB. Idempotency keys cached in [Redis](/system-design/redis) `SETNX` with 24h TTL as fast-path, DB as truth.
-- **Replication:** Postgres synchronous commit for `payments`/`ledger` (durability > latency). Read replicas for list queries. [Kafka](/system-design/kafka) RF=3, min ISR 2.
+- **Caching:** Payment `GET` cached 5s in [Redis](/hld/redis), invalidated on capture/refund. No caching of ledger — always read from DB. Idempotency keys cached in [Redis](/hld/redis) `SETNX` with 24h TTL as fast-path, DB as truth.
+- **Replication:** Postgres synchronous commit for `payments`/`ledger` (durability > latency). Read replicas for list queries. [Kafka](/hld/kafka) RF=3, min ISR 2.
 - **Failure modes:**
   - *Processor timeout:* retrieve-before-retry, don't double-charge.
   - *Duplicate webhook (at-least-once):* `processor_events.event_id` PK drops duplicate; state machine guards illegal transitions.
@@ -284,8 +284,8 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
 2. **Marketplace payouts:** Separate flow `payouts` table `pending → paid → failed` with its own ledger accounts (`platform_cash → seller_payable`); don't reuse refund state machine.
 3. **Saved cards / network tokens:** Store `pm_xxx` per user, allow `POST /payments { savedMethodId }` with re-auth of CVV — still tokenized.
 4. **Disputes/chargebacks:** Webhook `charge.dispute.created` creates `disputes` row and withholds seller payout; manual review queue.
-5. **Rate limiter:** Per-user and per-card fingerprint limits to block card testing (10 attempts/min) via [rate limiter](/system-design/rate-limiter).
-6. **Related:** [Robinhood](/system-design/robinhood) ACH deposits are async T+1 days but reuse same ledger+reconciliation pattern.
+5. **Rate limiter:** Per-user and per-card fingerprint limits to block card testing (10 attempts/min) via [rate limiter](/hld/rate-limiter).
+6. **Related:** [Robinhood](/hld/robinhood) ACH deposits are async T+1 days but reuse same ledger+reconciliation pattern.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

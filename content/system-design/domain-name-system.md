@@ -2,7 +2,7 @@
 
 > DNS — domain name ko IP address mein translate karta hai. Ye internet ka phone book hai.
 
-> **TL;DR Hinglish:** DNS domain name (google.com) ko IP address (142.250.74.46) mein convert karta hai. Hierarchical hai — root → TLD (.com) → authoritative server. Caching se speed hota hai — browser, OS, router, ISP sab cache karte hain. TTL bolta hai kitna cache karana.
+> DNS domain name (google.com) ko IP address (142.250.74.46) mein convert karta hai. Hierarchical hai — root → TLD (.com) → authoritative server. Caching se speed hota hai — browser, OS, router, ISP sab cache karte hain. TTL bolta hai kitna cache karana.
 
 Jab hum `google.com` type karte hain, browser ko IP address chahiye. DNS is translate karta hai:
 
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** DNS hierarchical resolution (root→TLD→auth), recursive vs iterative, caching everywhere, record types (A, AAAA, CNAME, MX), TTL for cache expiry.
 
-**See also:** [IP](/system-design/ip), [Load Balancing](/system-design/load-balancing), [CDN](/system-design/cdn).
+**See also:** [IP](/hld/ip), [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn).

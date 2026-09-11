@@ -2,7 +2,7 @@
 
 > Realtime game. **Authoritative server**, clocks, matchmaking. Cheating and disconnects matter more than drawing a board in React.
 
-> **TL;DR Hinglish:** Matchmaking queue, game room per match (state in Redis), clock sync WebSocket, move validation server pe, anti-cheat.
+> Matchmaking queue, game room per match (state in Redis), clock sync WebSocket, move validation server pe, anti-cheat.
 
 ## What they ask
 
@@ -56,7 +56,7 @@ Example scale: 1M DAU, 100k concurrent games, 20k seeking at peak, 2 moves/sec p
 | Moves/sec | avg game 40 moves, 5 min, 200k games/day | 8M moves/day | **~93 moves/sec avg, 2k/sec peak** (tiny, but latency-sensitive) |
 | Move payload | UCI 5B + clocks 20B + metadata | 50B/move | **~5KB/s per game** with clocks — negligible bandwidth |
 | Storage (games) | 200k/day × 2KB PGN + metadata | — | **~400MB/day**, 146GB/year — small, keep in Postgres |
-| Matchmaking queue | 20k seekers × 100B | — | **2MB** in [Redis](/system-design/redis) sorted set — in-memory |
+| Matchmaking queue | 20k seekers × 100B | — | **2MB** in [Redis](/hld/redis) sorted set — in-memory |
 | WS fan-out | featured game 10k spectators × 2 moves/sec × 100B | — | **2MB/s** per hot game — need per-game fan-out service, not per-move DB write |
 
 Throughput is low, latency and correctness are king — keep game state in memory, persist moves asynchronously but durably.
@@ -153,11 +153,11 @@ graph LR
 ```
 
 **Component roles:**
-- **Seek Service (matchmaking):** holds seekers in [Redis](/system-design/redis) — e.g., `ZSET seeks:{timeControl}` scored by `rating` or `waitTime`. Ticker every 100ms scans for pairable neighbors within `|r1-r2| ≤ 100 + waitSec*10` (widens with wait). On pair, `MULTI` remove both, create `games` row `playing`, publish `matched` to both users via push/WS. Challenges bypass queue.
-- **Game Router:** consistent hash `gameId → host`; gateway looks up `game_host:{gameId}` in [Redis](/system-design/redis) and proxies WS. If host dies, router reassigns to warm replica that replays move log.
+- **Seek Service (matchmaking):** holds seekers in [Redis](/hld/redis) — e.g., `ZSET seeks:{timeControl}` scored by `rating` or `waitTime`. Ticker every 100ms scans for pairable neighbors within `|r1-r2| ≤ 100 + waitSec*10` (widens with wait). On pair, `MULTI` remove both, create `games` row `playing`, publish `matched` to both users via push/WS. Challenges bypass queue.
+- **Game Router:** consistent hash `gameId → host`; gateway looks up `game_host:{gameId}` in [Redis](/hld/redis) and proxies WS. If host dies, router reassigns to warm replica that replays move log.
 - **Game Server (authoritative):** in-memory `Game` object: `fen`, `clocks{white,black}`, `lastMoveAt`, `subscribers`. On `move(uci)`: validate `isLegal(fen, uci)` via chess library, check `toMove == moverColor`, compute `elapsed = now - lastMoveAt`, deduct from mover's clock (add increment after), check flag (`remaining <=0 → flag loss`), apply move → new FEN, append to durable log, broadcast `moveAccepted` with new FEN+clocks to players + spectators. Illegal → reply only to sender, no state change.
-- **Persistence:** move log is source of truth — `moves(gameId, ply, uci, fen, clocks, at)`; `games` row holds `snapshotFEN` every N ply for fast reconnect. Rating service consumes `gameEnd` event from [Kafka](/system-design/kafka) and updates `ratings` async (Glicko-2).
-- **[Kafka](/system-design/kafka):** decouples move persistence from broadcast latency — broadcast is immediate from memory, persistence is async but WAL-level durable within 100ms; if server crashes before Kafka ack, client will retry move (idempotent on `clientSeq`).
+- **Persistence:** move log is source of truth — `moves(gameId, ply, uci, fen, clocks, at)`; `games` row holds `snapshotFEN` every N ply for fast reconnect. Rating service consumes `gameEnd` event from [Kafka](/hld/kafka) and updates `ratings` async (Glicko-2).
+- **[Kafka](/hld/kafka):** decouples move persistence from broadcast latency — broadcast is immediate from memory, persistence is async but WAL-level durable within 100ms; if server crashes before Kafka ack, client will retry move (idempotent on `clientSeq`).
 
 **Data flow — write (move):** Player sends `e2e4` → Gateway → Game Server (owner of `game_abc`) → `if legal && toMove==white && whiteClock>0` → `whiteClock -= elapsed; whiteClock += increment` → `fen = apply(fen, e2e4)` → `moves.append` → broadcast to both + spectators → persist to Postgres.
 
@@ -259,7 +259,7 @@ AntiCheatFlagger    — flagIf: move time < 100ms for many moves + engine correl
 
 ## Deep dive — Authority, cheat, and why client is dumb
 
-If client could say "I captured your king," the game is meaningless. Server runs the rules. Attack vectors: (1) send illegal `uci` — server rejects with `illegal`; (2) send `move` for opponent's turn — reject; (3) spoof clock — server ignores client timestamp; (4) spam moves — [rate limiter](/system-design/rate-limiter) per socket (10/sec). Engine abuse: stockfish-level accuracy in bullet is suspicious — flag for human review (don't build real-time engine detection; mention you would compare move match % vs engine top-3 over last 20 moves and flag if >95% at <2s/move). Packet replay: `clientSeq` dedup. Spectator cheat (helping player): not solvable technically — mention but defer.
+If client could say "I captured your king," the game is meaningless. Server runs the rules. Attack vectors: (1) send illegal `uci` — server rejects with `illegal`; (2) send `move` for opponent's turn — reject; (3) spoof clock — server ignores client timestamp; (4) spam moves — [rate limiter](/hld/rate-limiter) per socket (10/sec). Engine abuse: stockfish-level accuracy in bullet is suspicious — flag for human review (don't build real-time engine detection; mention you would compare move match % vs engine top-3 over last 20 moves and flag if >95% at <2s/move). Packet replay: `clientSeq` dedup. Spectator cheat (helping player): not solvable technically — mention but defer.
 
 ## Deep dive — Disconnects, persistence, and fair pairing
 
@@ -274,8 +274,8 @@ If client could say "I captured your king," the game is meaningless. Server runs
 
 ## Handling failures and scale
 
-- **Sharding:** Game servers sharded by `gameId` hash (e.g., 50 hosts × 2k games each). Matchmaking shards by `timeControl` (each pool independent). [Kafka](/system-design/kafka) `game.moves` partitioned by `gameId` to preserve order per game.
-- **Caching:** Game state in memory is primary; [Redis](/system-design/redis) holds `game_host:{id}` routing + seek queues. No DB read per move — only validation + memory op + async persist. Snapshot in Postgres is for reconnect and history, not hot path.
+- **Sharding:** Game servers sharded by `gameId` hash (e.g., 50 hosts × 2k games each). Matchmaking shards by `timeControl` (each pool independent). [Kafka](/hld/kafka) `game.moves` partitioned by `gameId` to preserve order per game.
+- **Caching:** Game state in memory is primary; [Redis](/hld/redis) holds `game_host:{id}` routing + seek queues. No DB read per move — only validation + memory op + async persist. Snapshot in Postgres is for reconnect and history, not hot path.
 - **Replication:** Game server has warm standby (replica subscribes to same Kafka partition) — on primary crash, standby replays tail moves and takes over with `SETNX game_host`. Postgres primary-replica, S3 archive of PGN for cold history. Kafka RF=3.
 - **Failure modes:**
   - *Game server crash mid-game:* moves already in Kafka/Postgres replayed on new host, clients reconnect, clocks corrected by `now - lastMoveAt` (small drift). No Illegal position.
@@ -287,12 +287,12 @@ If client could say "I captured your king," the game is meaningless. Server runs
 
 ## Extra probes / follow-ups
 
-1. **Tournaments:** Need [job scheduler](/system-design/job-scheduler) for round start times, Swiss pairing algorithm, broadcast of standings — separate service that creates games via same Game Server.
+1. **Tournaments:** Need [job scheduler](/hld/job-scheduler) for round start times, Swiss pairing algorithm, broadcast of standings — separate service that creates games via same Game Server.
 2. **Puzzles:** Server-generated from game positions where one move is winning — async puzzle service, not in game path.
 3. **Analysis engine:** After `gameEnd`, enqueue `analysisJob` → Stockfish evaluates each position → store `analysis` with blunders — defer from real-time.
-4. **Chat:** Per-game chat channel separate from moves, filtered, rate-limited, not persisted as moves — analogous to [WhatsApp](/system-design/whatsapp) presence tricks.
+4. **Chat:** Per-game chat channel separate from moves, filtered, rate-limited, not persisted as moves — analogous to [WhatsApp](/hld/whatsapp) presence tricks.
 5. **Variants 960:** Only change is initial FEN generation — same clock + validation path.
-6. **Mobile background:** App may suspend WS — server keeps clock running, push notifies "your move" via [notification system](/system-design/notification-system).
+6. **Mobile background:** App may suspend WS — server keeps clock running, push notifies "your move" via [notification system](/hld/notification-system).
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

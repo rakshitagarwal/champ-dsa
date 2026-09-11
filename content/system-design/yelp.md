@@ -2,7 +2,7 @@
 
 > Local business search. Combine **text + geo + rating** without scanning the planet. Photos and reviews are the heavy extras.
 
-> **TL;DR Hinglish:** ES geo_point + text + rating, distance decay ranking, autocomplete separate index, hot cities cache.
+> ES geo_point + text + rating, distance decay ranking, autocomplete separate index, hot cities cache.
 
 ## What they ask
 
@@ -55,7 +55,7 @@ Example scale to anchor: 30M businesses worldwide, 200M reviews, 50M photos. US 
 | Business page QPS | ~40k avg (0.5× search, click-through) | cached 80% | ~8k DB QPS after cache |
 | Write QPS | ~150 reviews/sec peak (US evening) + photo uploads | tiny vs reads | DB easily handles |
 | Index size (ES) | Per doc: name + categories + geo_point + denorm fields ~1.5 KB | 30M × 1.5 KB × 1.3 overhead | ~60 GB index, 3 shards × 2 replicas |
-| Cache | Hot search tiles `geohash(5)+q+filters` Top 100k keys, 4 KB each | — | ~400 MB in [Redis](/system-design/redis) |
+| Cache | Hot search tiles `geohash(5)+q+filters` Top 100k keys, 4 KB each | — | ~400 MB in [Redis](/hld/redis) |
 | Bandwidth - search | 200k × 0.5 KB | — | ~100 MB/s |
 | Bandwidth - photos | 50k photo views/s × 80 KB thumb | — | ~4 GB/s via CDN (origin tiny) |
 
@@ -150,8 +150,8 @@ graph LR
 - **API Gateway:** validates `lat/lng`, normalizes query, enforces rate limits per IP/user, routes to services.
 - **Search Service:** builds ES query, checks Redis tile cache first, falls back to ES, blends distance decay, applies post-filter for `openNow` edge cases, paginates.
 - **Business Service:** serves detail page from Redis (key `biz:{id}`) else Postgres read replica; hydrates aggregate rating.
-- **Review/Photo Service:** writes to Postgres transactionally, emits `ReviewCreated` to [Kafka](/system-design/kafka), triggers async ES reindex + rating recompute.
-- **Indexer workers:** consume CDC/Kafka, bulk-index into [Elasticsearch](/system-design/elasticsearch) with retry + DLQ.
+- **Review/Photo Service:** writes to Postgres transactionally, emits `ReviewCreated` to [Kafka](/hld/kafka), triggers async ES reindex + rating recompute.
+- **Indexer workers:** consume CDC/Kafka, bulk-index into [Elasticsearch](/hld/elasticsearch) with retry + DLQ.
 - **Postgres:** source of truth. Partition reviews by `business_id` hash if 200M+ grows.
 - **S3:** photo originals + derived sizes via async worker (thumb 200px, feed 800px).
 
@@ -307,9 +307,9 @@ Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timez
 1. **Sponsored ranking:** blend a separate `sponsored` slot with `isAd:true` label; score = `bid * relevance`; never mix into organic ranking — say "ads are a second list merged at the top".
 2. **Price / attribute facets:** ES aggregations (`terms` on categories, `range` on price) for the left filter panel; compute from the same ES query.
 3. **Pagination deep pages:** cursor (`search_after`) beats `OFFSET`; explain why deep offset is expensive.
-4. **Personalization:** re-rank top 50 by user history (past cuisines) — fetch history from [Redis](/system-design/redis) and multiply score lightly; defer to v2.
+4. **Personalization:** re-rank top 50 by user history (past cuisines) — fetch history from [Redis](/hld/redis) and multiply score lightly; defer to v2.
 5. **Moderation + photos:** async NSFW scan (Rekognition-style) before marking `photo.status=ready`; S3 lifecycle to delete rejected originals.
-6. **Analytics:** `search_logged` events to [Kafka](/system-design/kafka) → warehouse for CTR / conversion of ranking tweaks.
+6. **Analytics:** `search_logged` events to [Kafka](/hld/kafka) → warehouse for CTR / conversion of ranking tweaks.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

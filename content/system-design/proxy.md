@@ -2,7 +2,7 @@
 
 > Proxy client ka wakil hai — requests forward karta hai, cache karta hai, security add karta hai.
 
-> **TL;DR Hinglish:** Proxy client aur server ke beech ka middleman hai. Types: Forward proxy (client ke liye — ban request karta hai), Reverse proxy (server ke liye — traffic distribute karta hai). Reverse proxy = load balancer jaisa kaam karta hai + caching, SSL termination, rate limiting. CDN reverse proxy ka ek type hai.
+> Proxy client aur server ke beech ka middleman hai. Types: Forward proxy (client ke liye — ban request karta hai), Reverse proxy (server ke liye — traffic distribute karta hai). Reverse proxy = load balancer jaisa kaam karta hai + caching, SSL termination, rate limiting. CDN reverse proxy ka ek type hai.
 
 Proxy ek intermediary hai — client aur server ke beech:
 
@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho (Revision):** Forward proxy (client, privacy), reverse proxy (server, LB+SSL+cache), Nginx/HAProxy examples, HA pairs for reverse proxy, caching + rate limiting features.
 
-**See also:** [Load Balancing](/system-design/load-balancing), [CDN](/system-design/cdn), [API Gateway](/system-design/api-gateway).
+**See also:** [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn), [API Gateway](/hld/api-gateway).

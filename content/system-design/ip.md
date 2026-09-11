@@ -2,7 +2,7 @@
 
 > Internet Protocol — har device ko ek unique address deta hai taake packets sahi jagah pahunch sakein.
 
-> **TL;DR Hinglish:** IP ek addressing system hai — har device ko IP address milta hai (jaise ghar ka pin code). Packet mein source aur destination IP hota hai, routers iske basis pe forward karte hain. IPv4 (32-bit) aur IPv6 (128-bit) dono hain.
+> IP ek addressing system hai — har device ko IP address milta hai (jaise ghar ka pin code). Packet mein source aur destination IP hota hai, routers iske basis pe forward karte hain. IPv4 (32-bit) aur IPv6 (128-bit) dono hain.
 
 IP networking ka foundation hai. Har device ka IP address hota hai — IPv4 32-bit (e.g., `192.168.1.1`), IPv6 128-bit (e.g., `2001:db8::1`) taaki addresses na khatam ho. Packet mein header mein source IP, destination IP, TTL (time-to-live), protocol type hota hai. Routers is IP address ko dekhte hain aur packet forward karte hain — hop-by-hop routing.
 
@@ -39,4 +39,4 @@ graph LR
 
 **Yaad rakho (Revision):** IPv4 32-bit, IPv6 128-bit, packet header mein src/dest IP + TTL, routers forward karte hain, spoofing/fragmentation risk.
 
-**See also:** [TCP and UDP](/system-design/tcp-and-udp), [DNS](/system-design/domain-name-system), [Load Balancing](/system-design/load-balancing).
+**See also:** [TCP and UDP](/hld/tcp-and-udp), [DNS](/hld/domain-name-system), [Load Balancing](/hld/load-balancing).

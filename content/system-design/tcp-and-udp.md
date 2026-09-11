@@ -2,7 +2,7 @@
 
 > Transport layer protocols — TCP reliable hai, UDP fast hai. Interview mein ye dono bohot important hain.
 
-> **TL;DR Hinglish:** TCP connection-oriented hai — 3-way handshake se connection banaata hai, guaranteed delivery deta hai, ordering bhi. UDP connectionless hai — bas send karta hai, guarantee nahi. TCP jaise chat, email; UDP jaise video streaming, gaming, DNS lookup.
+> TCP connection-oriented hai — 3-way handshake se connection banaata hai, guaranteed delivery deta hai, ordering bhi. UDP connectionless hai — bas send karta hai, guarantee nahi. TCP jaise chat, email; UDP jaise video streaming, gaming, DNS lookup.
 
 TCP aur UDP dono Transport layer ke protocols hain:
 
@@ -57,4 +57,4 @@ graph LR
 
 **Yaad rakho (Revision):** TCP 3-way handshake, reliable + ordered, flow/congestion control. UDP fast + connectionless, no guarantee. TCP = HTTP/FTP, UDP = video/gaming/DNS.
 
-**See also:** [IP](/system-design/ip), [Load Balancing](/system-design/load-balancing), [Long Polling vs SSE vs WebSocket](/system-design/long-polling).
+**See also:** [IP](/hld/ip), [Load Balancing](/hld/load-balancing), [Long Polling vs SSE vs WebSocket](/hld/long-polling).

@@ -2,7 +2,7 @@
 
 > Swipe app. The product is **geo + recs + a cheap deck**, not a full social graph. Don't design Facebook.
 
-> **TL;DR Hinglish:** Geo + filters se candidate nikalo, swipe queue, recommendation async. Location Redis GEO, photos S3 + CDN.
+> Geo + filters se candidate nikalo, swipe queue, recommendation async. Location Redis GEO, photos S3 + CDN.
 
 ## What they ask
 
@@ -24,7 +24,7 @@
 - Recs: `GET /recs?limit=20` — ranked, filtered, excluding already-swiped and blocked.
 - Swipe: `POST /swipes{ targetId, dir: left|right }` — record direction, detect mutual like → create match.
 - Match: list matches, unmatch/block.
-- Chat: 1:1 only if matched (reuse [WhatsApp](/system-design/whatsapp) lite — WebSocket + history).
+- Chat: 1:1 only if matched (reuse [WhatsApp](/hld/whatsapp) lite — WebSocket + history).
 
 **Non-functional:**
 - **Latency:** deck load p95 < 200ms; swipe < 100ms; match notification < 1s.
@@ -54,7 +54,7 @@
 | Swipes per day | 500M | 500M / 86400 | ~5.8k/s avg, ~30k/s peak (evening) |
 | Recs QPS | Each active user 20 recs/day | 5M*20/86400 | ~1.2k/s avg, ~6k/s peak |
 | Swipe storage | 500M rows/day * ~50B (userId+targetId+dir+ts) | 500M*50B | ~25 GB/day, ~9 TB/year — before compression; TTL or cold archive |
-| Geo index | 5M active users * ~100B geo entry | 5M*100B | ~500 MB per replica — fits in [Redis](/system-design/redis) GEO |
+| Geo index | 5M active users * ~100B geo entry | 5M*100B | ~500 MB per replica — fits in [Redis](/hld/redis) GEO |
 | Photos | 5 photos/user avg 500KB | 50M*5*500KB | ~125 TB in S3 — CDN cached |
 | Bandwidth (recs) | 20 profiles * 2KB meta + thumb URLs | 20*2KB=40KB *6k QPS | ~240 MB/s |
 
@@ -109,19 +109,19 @@ Client (Mobile)
   |
  CDN (photos)
   |
- L4 LB → API Gateway (auth, [rate limiter](/system-design/rate-limiter): swipes/min)
+ L4 LB → API Gateway (auth, [rate limiter](/hld/rate-limiter): swipes/min)
   |
  +-- Profile Service → Postgres (users, prefs) + S3 (photos)
  |
- +-- Location Service → [Redis](/system-design/redis) GEO / ES geo / S2 index
+ +-- Location Service → [Redis](/hld/redis) GEO / ES geo / S2 index
  |        `--> GEOADD tinder:geo:nyc lng lat userId
  |
  +-- Recs Service → orchestrates: geo query ∩ filters − swiped set → rank → deck cache
- |        |--> [Redis](/system-design/redis) deck cache: deck:{userId} → list<userId> (next 50)
- |        |--> [Redis](/system-design/redis) Bloom filter: swiped:{userId} → Bloom
+ |        |--> [Redis](/hld/redis) deck cache: deck:{userId} → list<userId> (next 50)
+ |        |--> [Redis](/hld/redis) Bloom filter: swiped:{userId} → Bloom
  |        `--> Offline scorer (batch) → score table
  |
- +-- Swipe Service → Cassandra/Dynamo (swipes PK=userId SK=targetId) → Match check → [Kafka](/system-design/kafka)
+ +-- Swipe Service → Cassandra/Dynamo (swipes PK=userId SK=targetId) → Match check → [Kafka](/hld/kafka)
  |        `--> Match table (Postgres) + Notification
  |
  +-- Chat Service (WS + Cassandra history) — only if match
@@ -252,7 +252,7 @@ class ChatService:
 ```
 
 **Algorithms / concurrency:**
-- **Geo query:** `[Redis](/system-design/redis) GEO`: `GEORADIUS tinder:geo:nyc lng lat 50 km WITHDIST COUNT 200 ASC` then filter by age/gender in app or via Lua/ES. Alternative: geohash prefix scan — query `geohash[0:5]` cell + 8 neighbors, then Haversine prune.
+- **Geo query:** `[Redis](/hld/redis) GEO`: `GEORADIUS tinder:geo:nyc lng lat 50 km WITHDIST COUNT 200 ASC` then filter by age/gender in app or via Lua/ES. Alternative: geohash prefix scan — query `geohash[0:5]` cell + 8 neighbors, then Haversine prune.
 - **Already-swiped filter:** keep `swiped:{userId}` as Redis SET (`SADD` on swipe) for exact check, plus Bloom filter for memory efficiency on large history (10k swipes/user → Bloom ~12KB at 1% FP). On Bloom positive, confirm via DB.
 - **Match detection:** double-key check idempotent:
   ```python
@@ -293,7 +293,7 @@ class ChatService:
 
 **Passport / travel:** user can set `lat/lng` manually to another city — treat as normal location update but flag `is_passport=true` for analytics.
 
-**Safety:** block creates `blocks` row + removes from deck/matches; photo moderation via async [Kafka](/system-design/kafka) workers (Rekognition); GDPR delete purges `swipes`, `matches`, deck cache, and S3 photos.
+**Safety:** block creates `blocks` row + removes from deck/matches; photo moderation via async [Kafka](/hld/kafka) workers (Rekognition); GDPR delete purges `swipes`, `matches`, deck cache, and S3 photos.
 
 ## Common mistakes
 
@@ -303,10 +303,10 @@ class ChatService:
 ## Handling failures and scale
 
 - **Sharding:** `users` by `geohash` region or `userId` hash; `swipes` by `userId` hash (so `has_swiped` local); `matches` by `least(user_a,user_b)` hash. Redis GEO sharded by city (`tinder:geo:{city}`).
-- **Caching:** deck cache in [Redis](/system-design/redis) with TTL 10m + invalidation on location change; profile hydrate cache (`user:{id} → JSON` 1m TTL). Swipe Bloom in Redis, rebuilt from `swipes` table on miss.
+- **Caching:** deck cache in [Redis](/hld/redis) with TTL 10m + invalidation on location change; profile hydrate cache (`user:{id} → JSON` 1m TTL). Swipe Bloom in Redis, rebuilt from `swipes` table on miss.
 - **Replication:** Postgres primary + replicas for profiles; Cassandra multi-AZ for swipes/matches. Kafka for swipe→match→notification.
 - **Failure modes:** Redis GEO down → degrade to Postgres `WHERE geohash LIKE 'dr5ru%'` (slower, fewer recs but available). Swipe DB down → queue swipes in Kafka, replay when back (show "swipe queued"). Match notification via push; if push fails, client polls `GET /matches`.
-- **Abuse:** [rate limiter](/system-design/rate-limiter) 100 swipes/min, device attestation, shadow-ban suspicious bots (serve empty deck).
+- **Abuse:** [rate limiter](/hld/rate-limiter) 100 swipes/min, device attestation, shadow-ban suspicious bots (serve empty deck).
 
 ## Extra probes / follow-ups
 

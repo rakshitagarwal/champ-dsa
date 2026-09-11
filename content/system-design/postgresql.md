@@ -2,7 +2,7 @@
 
 > Default relational database. Transactions, joins, indexes — shuru yahan se karo, scale ne majboor kiya to hi niklo.
 
-> **TL;DR Hinglish:** Postgres ek full-featured diary hai — table, relation, transaction sab pakka. 90% apps yahi se start karo. Index sahi to 10k QPS bhi handle, galat to 100 pe marega. Shard tabhi jab single node ka CPU/disk full ho.
+> Postgres ek full-featured diary hai — table, relation, transaction sab pakka. 90% apps yahi se start karo. Index sahi to 10k QPS bhi handle, galat to 100 pe marega. Shard tabhi jab single node ka CPU/disk full ho.
 
 Jab tak 10k QPS aur 1TB se neeche ho, Postgres hi best. Managed RDS/Aurora le lo, khud ka cluster mat banao.
 
@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho:** B-tree default, `(a,b)` left match, replica lag → master read, PgBouncer must, `FOR UPDATE` for booking.
 
-**See also:** [ticketmaster](/system-design/ticketmaster), [payment-system](/system-design/payment-system), [dynamodb](/system-design/dynamodb).
+**See also:** [ticketmaster](/hld/ticketmaster), [payment-system](/hld/payment-system), [dynamodb](/hld/dynamodb).

@@ -2,7 +2,7 @@
 
 > System fail hone pe recover karo — backup, restore, failover plans.
 
-> **TL;DR Hinglish:** Disaster Recovery (DR) system fail hone pe recover karne ka plan hai. RTO (Recovery Time Objective) = kitni time mein recover hona chahiye. RPO (Recovery Point Objective) = kitna data loss acceptable hai. Strategies: Pilot Light (minimal running), Warm Standby (scaled-down), Multi-site Active-Active (full redundancy). Backup strategies: full, incremental, differential. DR testing regular karo — plan without testing = no plan.
+> Disaster Recovery (DR) system fail hone pe recover karne ka plan hai. RTO (Recovery Time Objective) = kitni time mein recover hona chahiye. RPO (Recovery Point Objective) = kitna data loss acceptable hai. Strategies: Pilot Light (minimal running), Warm Standby (scaled-down), Multi-site Active-Active (full redundancy). Backup strategies: full, incremental, differential. DR testing regular karo — plan without testing = no plan.
 
 Disaster Recovery system fail hone pe recover karne ka plan hai:
 
@@ -45,4 +45,4 @@ graph TD
 
 **Yaad rakho (Revision):** RTO (recovery time), RPO (data loss), strategies (backup/restore, pilot light, warm standby, multi-site active-active), test regularly, regional disaster = multi-region.
 
-**See also:** [Availability](/system-design/availability), [Clustering](/system-design/clustering), [Database Replication](/system-design/database-replication).
+**See also:** [Availability](/hld/availability), [Clustering](/hld/clustering), [Database Replication](/hld/database-replication).

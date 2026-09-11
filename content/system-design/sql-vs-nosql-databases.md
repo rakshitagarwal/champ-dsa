@@ -2,7 +2,7 @@
 
 > Kaunsa database choose karo — structured ya flexible? ACID ya scale?
 
-> **TL;DR Hinglish:** SQL vs NoSQL ka sawaal: structured + ACID (SQL) vs flexible + scale (NoSQL). SQL = tables, joins, ACID, vertical scaling. NoSQL = documents, flexible schema, horizontal scaling, eventual consistency. Jab financial data ho SQL, jab real-time social data ho NoSQL. Polyglot persistence — dono use karo alag-alag purposes ke liye.
+> SQL vs NoSQL ka sawaal: structured + ACID (SQL) vs flexible + scale (NoSQL). SQL = tables, joins, ACID, vertical scaling. NoSQL = documents, flexible schema, horizontal scaling, eventual consistency. Jab financial data ho SQL, jab real-time social data ho NoSQL. Polyglot persistence — dono use karo alag-alag purposes ke liye.
 
 SQL aur NoSQL ka comparison — interview mein bohot poochha jaata hai:
 
@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** SQL (structured, ACID, joins, vertical) vs NoSQL (flexible, scale, eventual, horizontal), when to choose which, polyglot persistence (use both).
 
-**See also:** [SQL databases](/system-design/sql-databases), [NoSQL databases](/system-design/nosql-databases), [Database Replication](/system-design/database-replication).
+**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [Database Replication](/hld/database-replication).
