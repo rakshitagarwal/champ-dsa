@@ -40,6 +40,92 @@ function heapPop(h, less = (a, b) => a < b) {
 const heap = [];
 for (const x of nums) { heapPush(heap, x); if (heap.length > k) heapPop(heap); }
 ```
+## MinHeap Class
+
+Copy-paste wali class — parent hamesha children se chhota, top pe minimum. Kth largest, Top-K, merge K lists, Dijkstra me kaam aati hai.
+
+```js
+// Hinglish: MinHeap class — copy karke har heap sawal me use karo
+class MinHeap {
+  constructor() { this.h = []; } // Hinglish: array hi heap hai
+  size() { return this.h.length; } // Hinglish: kitne elements
+  peek() { return this.h[0]; } // Hinglish: top dekho, nikalo mat — O(1)
+  push(val) {
+    this.h.push(val); // Hinglish: aakhir me daalo
+    let i = this.h.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1; // Hinglish: parent index
+      if (this.h[i] >= this.h[p]) break; // Hinglish: jagah sahi hai
+      [this.h[i], this.h[p]] = [this.h[p], this.h[i]]; // Hinglish: upar bubble
+      i = p;
+    }
+  }
+  pop() {
+    const top = this.h[0], last = this.h.pop(); // Hinglish: top nikalo
+    if (!this.h.length) return top;
+    this.h[0] = last; // Hinglish: aakhri ko top pe rakho
+    let i = 0;
+    while (true) {
+      let m = i, l = i * 2 + 1, r = l + 1; // Hinglish: left/right child
+      if (l < this.h.length && this.h[l] < this.h[m]) m = l;
+      if (r < this.h.length && this.h[r] < this.h[m]) m = r;
+      if (m === i) break; // Hinglish: jagah sahi hai
+      [this.h[i], this.h[m]] = [this.h[m], this.h[i]]; // Hinglish: neeche bubble
+      i = m;
+    }
+    return top;
+  }
+}
+
+// Hinglish: use kaise karo
+// const mh = new MinHeap();
+// mh.push(5); mh.push(2); mh.peek(); // 2
+// mh.pop(); // 2 nikla
+```
+
+## MaxHeap Class
+
+Same structure, comparison ulta — parent hamesha children se bada, top pe maximum. Kth smallest, Last Stone Weight, median ke ek half me kaam aata hai.
+
+```js
+// Hinglish: MaxHeap class — MinHeap jaisa, bas tulna ulti
+class MaxHeap {
+  constructor() { this.h = []; } // Hinglish: array hi heap hai
+  size() { return this.h.length; } // Hinglish: kitne elements
+  peek() { return this.h[0]; } // Hinglish: top dekho, nikalo mat — O(1)
+  push(val) {
+    this.h.push(val); // Hinglish: aakhir me daalo
+    let i = this.h.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1; // Hinglish: parent index
+      if (this.h[i] <= this.h[p]) break; // Hinglish: jagah sahi hai
+      [this.h[i], this.h[p]] = [this.h[p], this.h[i]]; // Hinglish: upar bubble
+      i = p;
+    }
+  }
+  pop() {
+    const top = this.h[0], last = this.h.pop(); // Hinglish: top nikalo
+    if (!this.h.length) return top;
+    this.h[0] = last; // Hinglish: aakhri ko top pe rakho
+    let i = 0;
+    while (true) {
+      let m = i, l = i * 2 + 1, r = l + 1; // Hinglish: left/right child
+      if (l < this.h.length && this.h[l] > this.h[m]) m = l;
+      if (r < this.h.length && this.h[r] > this.h[m]) m = r;
+      if (m === i) break; // Hinglish: jagah sahi hai
+      [this.h[i], this.h[m]] = [this.h[m], this.h[i]]; // Hinglish: neeche bubble
+      i = m;
+    }
+    return top;
+  }
+}
+
+// Hinglish: use kaise karo
+// const xh = new MaxHeap();
+// xh.push(5); xh.push(9); xh.peek(); // 9
+// xh.pop(); // 9 nikla
+```
+
 ## Kth Largest Element in an Array
 
 Min-heap of size k. The top is the kth largest. Everything smaller got popped.

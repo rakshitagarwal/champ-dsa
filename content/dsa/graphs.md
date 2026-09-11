@@ -34,7 +34,20 @@ while (queue.length) {
 const q = nodes.filter(n => indeg[n] === 0);
 while (q.length) { const u = q.shift(); for (const v of graph[u]) if (--indeg[v] === 0) q.push(v); }
 ```
-## Number of Islands
+
+## 1. BFS & DFS Traversal (Grid as Graph)
+
+**Pehchan:** "Pahuch sakte ho?", "kitne groups/islands?", "poora blob paint karo" — ye sab traversal hai. Grid dikhe to use graph samjho: har cell ke 4 neighbors (upar, neeche, left, right), bounds check ke saath.
+
+**DFS vs BFS:** DFS recursion se gehra jata hai — components paint karna, flood fill, path exist karta hai ya nahi. BFS level by level — unweighted shortest steps ke liye. Dono me `visited` mark karna farz hai, nahi to infinite loop.
+
+**Grid template:** Bounds check + value check + mark, fir 4 directions recurse. Mark karne ke do tareeke: grid me hi likh do (`"1"` → `"0"`) ya alag `seen` matrix rakho.
+
+**Complexity:** Time `O(V+E)` — grid me `O(rows * cols)`. Space recursion stack ya queue tak.
+
+**Traps:** Visited mark karna bhoolna (loop); grid bounds ulta likhna (`r >= rows` vs `c >= cols`); Clone Graph me map ke bina infinite recursion.
+
+### Number of Islands
 
 Each unvisited `"1"` is a new island. DFS (or BFS) paints the whole blob to `"0"`.
 
@@ -65,7 +78,7 @@ function numIslands(grid) {
 }
 ```
 
-## Clone Graph
+### Clone Graph
 
 Map old node → new node. DFS: if I already cloned it, return that. Else create, then clone neighbors.
 
@@ -90,112 +103,33 @@ function cloneGraph(node) {
 }
 ```
 
-## Course Schedule
+### Surrounded Regions
 
-Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each taken course unlocks neighbors. If I took all, no cycle.
+Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
 
-[Course Schedule](https://leetcode.com/problems/course-schedule/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — Kahn topo
-// LC: https://leetcode.com/problems/course-schedule/
-function canFinish(numCourses, prerequisites) {
-  // Hinglish: step 1 — base case check karo
-  const graph = Array.from({ length: numCourses }, () => []);
-  const indeg = Array(numCourses).fill(0);
-  for (const [a, b] of prerequisites) {
-    graph[b].push(a);
-    indeg[a]++;
-  }
-  const q = [];
-  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
-  let taken = 0;
-  while (q.length) {
-    const u = q.shift();
-    taken++;
-    for (const v of graph[u]) {
-      indeg[v]--;
-      if (indeg[v] === 0) q.push(v);
-    }
-  }
-  return taken === numCourses;
-}
-```
-
-## Rotting Oranges
-
-All rotten oranges start in the queue together. Each level of BFS is one minute. If a fresh orange never rots, `-1`.
-
-[Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
+[Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
 ```js
 // Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — multi-source
-// LC: https://leetcode.com/problems/rotting-oranges/
-function orangesRotting(grid) {
-  // Hinglish: step 1 — base case check karo
-  const rows = grid.length, cols = grid[0].length;
-  const q = [];
-  let fresh = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === 2) q.push([r, c]);
-      if (grid[r][c] === 1) fresh++;
-    }
+// LC: https://leetcode.com/problems/surrounded-regions/
+function solve(board) {
+  // Hinglish: border O ko mark karo
+  const R=board.length, C=board[0].length;
+  const dfs=(r,c)=>{
+    if(r<0||c<0||r>=R||c>=C||board[r][c]!=='O') return;
+    board[r][c]='S'; // Hinglish: safe mark
+    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
+  };
+  for(let r=0;r<R;r++){ dfs(r,0); dfs(r,C-1); }
+  for(let c=0;c<C;c++){ dfs(0,c); dfs(R-1,c); }
+  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+    if(board[r][c]==='O') board[r][c]='X'; // Hinglish: surrounded to X
+    else if(board[r][c]==='S') board[r][c]='O'; // Hinglish: safe wapas O
   }
-  let minutes = 0;
-  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-  while (q.length && fresh) {
-    const n = q.length;
-    for (let i = 0; i < n; i++) {
-      const [r, c] = q.shift();
-      for (const [dr, dc] of dirs) {
-        const nr = r + dr, nc = c + dc;
-        if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || grid[nr][nc] !== 1) continue;
-        grid[nr][nc] = 2;
-        fresh--;
-        q.push([nr, nc]);
-      }
-    }
-    minutes++;
-  }
-  return fresh ? -1 : minutes;
 }
 ```
 
-## Word Ladder
-
-Each word is a node. Neighbors = same length, one letter off. BFS from beginWord. First time I hit endWord, that distance is the answer. (Build a map of `*ot` patterns so I do not compare every pair.)
-
-[Word Ladder](https://leetcode.com/problems/word-ladder/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — one letter at a time
-// LC: https://leetcode.com/problems/word-ladder/
-function ladderLength(beginWord, endWord, wordList) {
-  const set = new Set(wordList);
-  if (!set.has(endWord)) return 0;
-  const q = [[beginWord, 1]];
-  const seen = new Set([beginWord]);
-  while (q.length) {
-    const [word, d] = q.shift();
-    if (word === endWord) return d;
-    for (let i = 0; i < word.length; i++) {
-      for (let c = 97; c <= 122; c++) {
-        const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
-        if (!set.has(next) || seen.has(next)) continue;
-        seen.add(next); // Hinglish: visit mark
-        q.push([next, d + 1]);
-      }
-    }
-  }
-  return 0;
-}
-```
-
-## Pacific Atlantic Water Flow
+### Pacific Atlantic Water Flow
 
 Water flows down or flat. I BFS/DFS uphill from the Pacific edge and from the Atlantic edge. Cells in both sets are the answer.
 
@@ -237,7 +171,211 @@ function pacificAtlantic(heights) {
 }
 ```
 
-## Network Delay Time
+### Number of Provinces
+
+Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
+
+[Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/number-of-provinces/
+function findCircleNum(isConnected) {
+  // Hinglish: visited + DFS
+  const n=isConnected.length, seen=Array(n).fill(false);
+  let provinces=0;
+  const dfs=(u)=>{
+    seen[u]=true;
+    for(let v=0; v<n; v++) if(isConnected[u][v] && !seen[v]) dfs(v); // Hinglish: juda hai to jao
+  };
+  for(let i=0;i<n;i++) if(!seen[i]){ dfs(i); provinces++; } // Hinglish: naya component
+  return provinces;
+}
+```
+
+## 2. Topological Sort (Kahn's vs DFS)
+
+**Pehchan:** "Pehle ye, phir wo" — courses, build order, tasks with dependencies. Edge `b → a` matlab b pehle. Ye sirf DAG (Directed Acyclic Graph) pe kaam karta hai — cycle hui to order impossible hai.
+
+**Kahn's (BFS):** In-degree gino (kitne edges andar aate hain). In-degree 0 wale queue me — unki koi dependency nahi. Nikalo, neighbors ka in-degree ghatao, jo 0 ho use queue me. Sab liye (`taken == n`) to order mila, nahi to cycle hai.
+
+**DFS method:** Visit ke baad stack me push karo, aakhir me reverse karo. Cycle detect karne ke liye 3 colors: 0=white (unvisited), 1=grey (visiting — wapas aaya to back-edge = cycle), 2=black (done).
+
+**Complexity:** Dono `O(V+E)`. Kahn order deta hai, DFS cycle detect karta hai — dono aane chahiye.
+
+**Traps:** Edge direction ulta banana (b→a vs a→b); undirected graph pe topo lagana (wahan kaam nahi karta); Kahn me `taken != n` check bhoolna.
+
+### Course Schedule
+
+Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each taken course unlocks neighbors. If I took all, no cycle.
+
+[Course Schedule](https://leetcode.com/problems/course-schedule/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Graph BFS — Kahn topo
+// LC: https://leetcode.com/problems/course-schedule/
+function canFinish(numCourses, prerequisites) {
+  // Hinglish: step 1 — base case check karo
+  const graph = Array.from({ length: numCourses }, () => []);
+  const indeg = Array(numCourses).fill(0);
+  for (const [a, b] of prerequisites) {
+    graph[b].push(a);
+    indeg[a]++;
+  }
+  const q = [];
+  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
+  let taken = 0;
+  while (q.length) {
+    const u = q.shift();
+    taken++;
+    for (const v of graph[u]) {
+      indeg[v]--;
+      if (indeg[v] === 0) q.push(v);
+    }
+  }
+  return taken === numCourses;
+}
+```
+
+### Course Schedule II (Order Return)
+
+Topo order wapas bhi karna hai, sirf possible/impossible nahi. Kahn me nikalte time order array me push karo.
+
+[Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/course-schedule-ii/
+// Kahn — indegree queue se order
+function findOrder(numCourses, prerequisites) {
+  // Hinglish: graph + indegree banao
+  const g = Array.from({length:numCourses}, ()=>[]);
+  const indeg = Array(numCourses).fill(0);
+  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; } // Hinglish: b -> a
+  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i); // Hinglish: zero wale start
+  const order = [];
+  while(q.length){
+    const u = q.shift();
+    order.push(u); // Hinglish: order me daalo
+    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); } // Hinglish: neighbor unlock
+  }
+  return order.length===numCourses ? order : []; // Hinglish: cycle to []
+}
+```
+
+### Detect Cycle in Directed Graph (DFS 3-Color)
+
+Grey node pe wapas aana = back-edge = cycle. White/grey/black colors se ek DFS me cycle pakdo.
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Detect cycle DFS — 3 colors
+function hasCycleDFS(n, edges){
+  // Hinglish: 0=white, 1=grey, 2=black
+  const g = Array.from({length:n}, ()=>[]);
+  for(const [u,v] of edges) g[u].push(v);
+  const color = Array(n).fill(0);
+  let hasCycle = false;
+  const dfs = (u)=>{
+    color[u]=1; // Hinglish: visiting
+    for(const v of g[u]){
+      if(color[v]===1) hasCycle=true; // Hinglish: back edge
+      else if(color[v]===0) dfs(v);
+    }
+    color[u]=2; // Hinglish: done
+  };
+  for(let i=0;i<n;i++) if(color[i]===0) dfs(i);
+  return hasCycle;
+}
+```
+
+## 3. Shortest Path Algorithms
+
+**Pehchan:** "Sabse tez/sasta rasta" — weights hon to algorithm weight type se chuno. Bina weight (steps) ho to seedha BFS kaam karta hai.
+
+**Kaunsa kab:**
+- **BFS (unweighted):** Sab edges barabar — level number hi distance hai. Word Ladder, Rotting Oranges (multi-source: saare sources ek saath queue me).
+- **Dijkstra:** Non-negative weights, single source. Har baar sabse chhota `dist` wala node pick karo (min-heap), edges relax karo. `O((V+E) log V)`.
+- **Bellman-Ford:** Negative weights chalenge, aur hops limited hon (K stops = K+1 edges = K+1 rounds). Har round me saare edges relax karo — same round ka updated value use mat karo (copy rakho). Nth round me bhi update = negative cycle.
+- **Floyd-Warshall:** All pairs — har `k` ko beech me daalo: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])`. `O(V³)`, V ≤ 400 tak theek.
+- **0-1 BFS:** Weights sirf 0/1 hon to deque — 0 wala aage, 1 wala peeche. Dijkstra se tez.
+
+**Traps:** Dijkstra me negative weight (galat answer, error nahi — isliye khatarnak); Bellman-Ford me same-round reuse (unlimited hops ban jayenge); `dist` init `Infinity` bhoolna; unreachable ka `-1` handle karna.
+
+### Rotting Oranges (Multi-Source BFS)
+
+All rotten oranges start in the queue together. Each level of BFS is one minute. If a fresh orange never rots, `-1`.
+
+[Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Graph BFS — multi-source
+// LC: https://leetcode.com/problems/rotting-oranges/
+function orangesRotting(grid) {
+  // Hinglish: step 1 — base case check karo
+  const rows = grid.length, cols = grid[0].length;
+  const q = [];
+  let fresh = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c] === 2) q.push([r, c]);
+      if (grid[r][c] === 1) fresh++;
+    }
+  }
+  let minutes = 0;
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  while (q.length && fresh) {
+    const n = q.length;
+    for (let i = 0; i < n; i++) {
+      const [r, c] = q.shift();
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || grid[nr][nc] !== 1) continue;
+        grid[nr][nc] = 2;
+        fresh--;
+        q.push([nr, nc]);
+      }
+    }
+    minutes++;
+  }
+  return fresh ? -1 : minutes;
+}
+```
+
+### Word Ladder (Unweighted Shortest Path)
+
+Each word is a node. Neighbors = same length, one letter off. BFS from beginWord. First time I hit endWord, that distance is the answer. (Build a map of `*ot` patterns so I do not compare every pair.)
+
+[Word Ladder](https://leetcode.com/problems/word-ladder/)
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Graph BFS — one letter at a time
+// LC: https://leetcode.com/problems/word-ladder/
+function ladderLength(beginWord, endWord, wordList) {
+  const set = new Set(wordList);
+  if (!set.has(endWord)) return 0;
+  const q = [[beginWord, 1]];
+  const seen = new Set([beginWord]);
+  while (q.length) {
+    const [word, d] = q.shift();
+    if (word === endWord) return d;
+    for (let i = 0; i < word.length; i++) {
+      for (let c = 97; c <= 122; c++) {
+        const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
+        if (!set.has(next) || seen.has(next)) continue;
+        seen.add(next); // Hinglish: visit mark
+        q.push([next, d + 1]);
+      }
+    }
+  }
+  return 0;
+}
+```
+
+### Network Delay Time (Dijkstra)
 
 Dijkstra: always pick the unvisited node with smallest time. Relax its edges. Answer is the max time among nodes I reached, or -1 if someone is unreachable.
 
@@ -272,132 +410,9 @@ function networkDelayTime(times, n, k) {
 }
 ```
 
-## Cheapest Flights Within K Stops
+### Network Delay Time — Heap Version
 
-At most K stops = at most K+1 edges. Bellman-Ford: copy dist, relax every flight, K+1 rounds. Do not reuse the same array in one round (that would be unlimited hops).
-
-[Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph — Bellman-Ford K+1 rounds
-// LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
-function findCheapestPrice(n, flights, src, dst, k) {
-  // Hinglish: step 1 — base case check karo
-  let dist = Array(n).fill(Infinity);
-  dist[src] = 0;
-  for (let hop = 0; hop <= k; hop++) {
-    const next = dist.slice();
-    for (const [u, v, w] of flights) {
-      if (dist[u] === Infinity) continue;
-      next[v] = Math.min(next[v], dist[u] + w);
-    }
-    dist = next;
-  }
-  return dist[dst] === Infinity ? -1 : dist[dst];
-}
-```
-
-## Surrounded Regions
-
-Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
-
-[Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/surrounded-regions/
-function solve(board) {
-  // Hinglish: border O ko mark karo
-  const R=board.length, C=board[0].length;
-  const dfs=(r,c)=>{
-    if(r<0||c<0||r>=R||c>=C||board[r][c]!=='O') return;
-    board[r][c]='S'; // Hinglish: safe mark
-    dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
-  };
-  for(let r=0;r<R;r++){ dfs(r,0); dfs(r,C-1); }
-  for(let c=0;c<C;c++){ dfs(0,c); dfs(R-1,c); }
-  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
-    if(board[r][c]==='O') board[r][c]='X'; // Hinglish: surrounded to X
-    else if(board[r][c]==='S') board[r][c]='O'; // Hinglish: safe wapas O
-  }
-}
-```
-
-## Number of Provinces
-
-Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
-
-[Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/number-of-provinces/
-function findCircleNum(isConnected) {
-  // Hinglish: visited + DFS
-  const n=isConnected.length, seen=Array(n).fill(false);
-  let provinces=0;
-  const dfs=(u)=>{
-    seen[u]=true;
-    for(let v=0; v<n; v++) if(isConnected[u][v] && !seen[v]) dfs(v); // Hinglish: juda hai to jao
-  };
-  for(let i=0;i<n;i++) if(!seen[i]){ dfs(i); provinces++; } // Hinglish: naya component
-  return provinces;
-}
-```
-
-## Topological Sort — Kahn vs DFS
-
-DAG me order nikalna jahan `u -> v` matlab `u` pehle. Kahn: indegree 0 ko queue me daalo, nikal ke neighbors ka indegree ghatao. DFS: visit ke baad stack me push, reverse karo. Cycle hai to order nahi — Kahn me `taken != n`, DFS me back-edge.
-
-**Topo se hi hota:** Course Schedule, Course Schedule II (order return), Alien Dictionary, Build order.
-
-[Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
-
-```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/course-schedule-ii/
-// Kahn — indegree queue se order
-function findOrder(numCourses, prerequisites) {
-  // Hinglish: graph + indegree banao
-  const g = Array.from({length:numCourses}, ()=>[]);
-  const indeg = Array(numCourses).fill(0);
-  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; } // Hinglish: b -> a
-  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i); // Hinglish: zero wale start
-  const order = [];
-  while(q.length){
-    const u = q.shift();
-    order.push(u); // Hinglish: order me daalo
-    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); } // Hinglish: neighbor unlock
-  }
-  return order.length===numCourses ? order : []; // Hinglish: cycle to []
-}
-
-// DFS topo — recursion + stack
-function topoDFS(n, edges){
-  // Hinglish: 0=unvisited, 1=visiting, 2=done (cycle detect)
-  const g = Array.from({length:n}, ()=>[]);
-  for(const [u,v] of edges) g[u].push(v);
-  const state = Array(n).fill(0), stack=[];
-  let hasCycle=false;
-  const dfs = (u)=>{
-    state[u]=1; // Hinglish: visiting
-    for(const v of g[u]){
-      if(state[v]===1) { hasCycle=true; return; } // Hinglish: back edge = cycle
-      if(state[v]===0) dfs(v);
-    }
-    state[u]=2; stack.push(u); // Hinglish: done to stack
-  };
-  for(let i=0;i<n;i++) if(state[i]===0) dfs(i);
-  return hasCycle ? [] : stack.reverse(); // Hinglish: reverse = topo
-}
-```
-
-## Dijkstra — Shortest Path with Heap (Non-negative weights)
-
-Har baar sabse chhota `dist` wala node pick karo (min-heap), uske edges relax karo: `dist[v] = min(dist[v], dist[u]+w)`. Negative weight nahi chalega.
-
-[Network Delay Time — Heap Version](https://leetcode.com/problems/network-delay-time/)
+Same Dijkstra, min-heap se `O((V+E) log V)`. Purani heap entry dikhe to skip karo (`d !== dist[u]`).
 
 ```js
 // Hinglish: DFS/BFS traversal — ek-ek step comment dekho
@@ -426,29 +441,38 @@ function networkDelayTimeHeap(times, n, k){
 }
 ```
 
-## Bellman-Ford — K Stops + Negative weights
+### Cheapest Flights Within K Stops (Bellman-Ford)
 
-Har round me saare edges relax karo. `K` stops = `K+1` edges, to `K+1` rounds. Negative cycle detect: `N`th round me bhi update hua to cycle.
+At most K stops = at most K+1 edges. Bellman-Ford: copy dist, relax every flight, K+1 rounds. Do not reuse the same array in one round (that would be unlimited hops).
 
-[Cheapest Flights Within K Stops — Bellman-Ford samjho](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
+[Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 ```js
 // Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Bellman-Ford — K+1 rounds, same round me updated value use nahi karna
-function findCheapestPriceBellman(n, flights, src, dst, k){
-  // Hinglish: dist copy rakhna zaruri
-  let dist = Array(n).fill(Infinity); dist[src]=0;
-  for(let hop=0; hop<=k; hop++){
-    const nxt = dist.slice(); // Hinglish: is round ka copy
-    for(const [u,v,w] of flights){
-      if(dist[u]===Infinity) continue;
-      if(nxt[v] > dist[u]+w) nxt[v]=dist[u]+w; // Hinglish: relax
+// Graph — Bellman-Ford K+1 rounds
+// LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
+function findCheapestPrice(n, flights, src, dst, k) {
+  // Hinglish: step 1 — base case check karo
+  let dist = Array(n).fill(Infinity);
+  dist[src] = 0;
+  for (let hop = 0; hop <= k; hop++) {
+    const next = dist.slice();
+    for (const [u, v, w] of flights) {
+      if (dist[u] === Infinity) continue;
+      next[v] = Math.min(next[v], dist[u] + w);
     }
-    dist=nxt;
+    dist = next;
   }
-  return dist[dst]===Infinity ? -1 : dist[dst];
+  return dist[dst] === Infinity ? -1 : dist[dst];
 }
+```
 
+### Negative Cycle Check (Bellman-Ford Extra Round)
+
+N-1 rounds normal chalao, Nth round me bhi update hua to negative cycle hai. Super source trick: sab `dist` 0 se start karo taaki disconnected components bhi check hon.
+
+```js
+// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Negative cycle check (agar puche)
 function hasNegativeCycle(n, edges){
   // Hinglish: n-1 rounds normal, nth me update = cycle
@@ -462,7 +486,7 @@ function hasNegativeCycle(n, edges){
 }
 ```
 
-## Floyd Warshall — All Pairs Shortest Path
+### Find the City (Floyd-Warshall, All Pairs)
 
 Har `k` ko intermediate banao: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])`. `O(V^3)`, `V <= 400` tak theek. Transitively closure bhi same.
 
@@ -495,31 +519,53 @@ function findTheCity(n, edges, distanceThreshold){
 }
 ```
 
-## Detect Cycle in Directed Graph + BFS 0-1 / Multi-source
+## 4. Minimum Spanning Tree (Kruskal & Prim)
 
-DAG cycle = topo fail ya DFS back-edge. BFS 0-1 ke liye deque, multi-source BFS jaise Rotting Oranges me sab sources ek saath queue me.
+**Pehchan:** Saare points judne chahiye, total edge weight minimum, aur koi loop nahi — ye MST hai. "Minimum cost to connect all" dikhe to samjho MST.
 
-[Course Schedule — Detect Cycle (DFS)](https://leetcode.com/problems/course-schedule/)
+**Kruskal:** Saare edges chhote se bade sort karo, ek-ek karke lo — loop banta ho to chhodo. Loop check ke liye Disjoint Set Union (DSU) chahiye: `find` with path compression, `union` by rank. `O(E log E)` sort ki wajah se.
+
+**Prim:** Ek point se start karo, tree ko hamesha sabse saste next edge se badhao (min-heap). Dense graph me behtar. `O((V+E) log V)`.
+
+**DSU skeleton:** `parent[i] = i`, `find` me path compression, `union` me rank. Kruskal me `n-1` edges milte hi ruk jao.
+
+**Complexity:** Kruskal `O(E log E)`, Prim `O((V+E) log V)`. Dono ka answer same weight hota hai (tree alag ho sakta hai).
+
+**Traps:** Manhattan vs Euclidean distance (points wale sawal me Manhattan use karo); `n-1` edges pe rukna bhoolna; DSU me path compression ke bina TLE.
+
+### Min Cost to Connect All Points (Kruskal + DSU)
+
+Har pair ka Manhattan edge banao, sort karo, DSU se loop check karke jodo. `n-1` edges milte hi answer.
+
+[Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
 // Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Detect cycle DFS — 3 colors
-function canFinishDFS(numCourses, prerequisites){
-  // Hinglish: 0=white, 1=grey, 2=black
-  const g=Array.from({length:numCourses}, ()=>[]);
-  for(const [a,b] of prerequisites) g[b].push(a);
-  const color=Array(numCourses).fill(0);
-  let hasCycle=false;
-  const dfs=(u)=>{
-    color[u]=1; // Hinglish: visiting
-    for(const v of g[u]){
-      if(color[v]===1) hasCycle=true; // Hinglish: back edge
-      else if(color[v]===0) dfs(v);
+// Graph — Kruskal + DSU
+// LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
+function minCostConnectPoints(points) {
+  // Hinglish: step 1 — saare edges banao (Manhattan)
+  const n = points.length;
+  const edges = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const w = Math.abs(points[i][0] - points[j][0]) + Math.abs(points[i][1] - points[j][1]);
+      edges.push([w, i, j]);
     }
-    color[u]=2; // Hinglish: done
-  };
-  for(let i=0;i<numCourses;i++) if(color[i]===0) dfs(i);
-  return !hasCycle;
+  }
+  edges.sort((a, b) => a[0] - b[0]); // Hinglish: chhota pehle
+  // Hinglish: DSU — parent + path compression
+  const parent = Array.from({ length: n }, (_, i) => i);
+  const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+  let cost = 0, used = 0;
+  for (const [w, u, v] of edges) {
+    const ru = find(u), rv = find(v);
+    if (ru !== rv) { // Hinglish: loop nahi banega
+      parent[ru] = rv;
+      cost += w;
+      if (++used === n - 1) break; // Hinglish: n-1 edges kaafi
+    }
+  }
+  return cost;
 }
 ```
-
