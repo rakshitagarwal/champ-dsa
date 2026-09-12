@@ -1,10 +1,10 @@
-# Stack & Queue
+# Stack
 
-**Definition:** **Stack** LIFO hai (last-in, first-out) — plate ka dher, ek hi end se push/pop, `O(1)`. **Queue** FIFO hai (first-in, first-out) — line, tail se enqueue head se dequeue. Stack nesting/undo sambhalta hai; queue ordering/levels.
+**Definition:** Stack LIFO hai (last-in, first-out) — plate ka dher, ek hi end se push/pop, `O(1)`. Nesting, undo aur "pichhla yaad rakho" wale kaam stack ke hain.
 
-**When to use:** Stack → valid brackets, min so far, RPN evaluate, DFS recursion, monotonic next greater (alag page). Queue → BFS levels, sliding window deque, task order.
+**When to use:** Valid brackets, min so far, RPN evaluate, DFS recursion, monotonic next greater (alag page), ya do stack se queue banana.
 
-**How it works:** Stack: open push, close par matching pop; empty/mismatch check. Queue JS me array `push`/`shift` (ya deque pointer). Min-stack ke liye parallel minima stack. Time `O(n)`, space `O(n)`.
+**How it works:** Open push, close par matching pop; empty/mismatch check. Min-stack ke liye parallel minima stack rakho. Time `O(n)`, space `O(n)`.
 
 ```js
 // Stack skeleton — brackets / nesting
@@ -17,11 +17,6 @@ for (const ch of s) {
   }
 }
 if (stack.length) return false; // kuch bacha to invalid
-
-// Queue skeleton — BFS me use (Trees/Graphs dekho)
-// Hinglish: line me lagao, aage se nikalo
-const q = [start];
-while (q.length) { const x = q.shift(); /* ... q.push(neighbors) */ }
 ```
 ## Valid Parentheses
 
@@ -150,4 +145,38 @@ function asteroidCollision(asteroids) {
   }
   return st;
 }
+```
+
+## Implement Queue using Stacks
+
+Do stack lo — ek me push, doosre se pop. Pop/peek pe doosra khaali ho to pehle ka sab ulta daalo. Amortized `O(1)`.
+
+[Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
+
+```js
+// Hinglish: stack push-pop — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/implement-queue-using-stacks/
+function MyQueue() {
+  // Hinglish: in me push, out se pop
+  this.inSt = [];
+  this.outSt = [];
+}
+MyQueue.prototype.push = function (x) {
+  this.inSt.push(x); // Hinglish: andar daalo
+};
+MyQueue.prototype.pop = function () {
+  if (!this.outSt.length) {
+    while (this.inSt.length) this.outSt.push(this.inSt.pop()); // Hinglish: ulta daalo
+  }
+  return this.outSt.pop(); // Hinglish: aage wala nikala
+};
+MyQueue.prototype.peek = function () {
+  if (!this.outSt.length) {
+    while (this.inSt.length) this.outSt.push(this.inSt.pop());
+  }
+  return this.outSt.at(-1);
+};
+MyQueue.prototype.empty = function () {
+  return !this.inSt.length && !this.outSt.length;
+};
 ```

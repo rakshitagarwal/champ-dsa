@@ -8,11 +8,29 @@ export type DsaNoteMeta = {
 };
 
 export const DSA_CATALOG: DsaNoteMeta[] = [
-  // Roadmap order: Foundation -> Core -> Advanced (easy to hard)
+  // Roadmap order: Introduction -> Arrays -> DP (revision flow)
+  {
+    slug: "introduction",
+    title: "Introduction",
+    description: "Roadmap to follow to get better at DSA.",
+    tier: "foundation",
+  },
   {
     slug: "arrays-strings",
     title: "Arrays",
     description: "In-place scans, reverse, rotate, Kadane.",
+    tier: "foundation",
+  },
+  {
+    slug: "strings",
+    title: "Strings",
+    description: "Scan, count, palindrome, anagram — string tricks.",
+    tier: "foundation",
+  },
+  {
+    slug: "sorting-techniques",
+    title: "Sorting",
+    description: "Bubble, selection, insertion, merge, quick — templates with complexity.",
     tier: "foundation",
   },
   {
@@ -28,12 +46,6 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     tier: "core",
   },
   {
-    slug: "sorting",
-    title: "Intervals",
-    description: "Sort by start or end, then merge or insert.",
-    tier: "foundation",
-  },
-  {
     slug: "two-pointers",
     title: "Two Pointers",
     description: "Two indices that eat the array from the ends or the middle.",
@@ -46,9 +58,21 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     tier: "core",
   },
   {
-    slug: "stack-queue",
-    title: "Stack & Queue",
-    description: "Match, undo, nest. Last-in or first-in.",
+    slug: "sorting",
+    title: "Intervals",
+    description: "Sort by start or end, then merge or insert.",
+    tier: "foundation",
+  },
+  {
+    slug: "stack",
+    title: "Stack",
+    description: "Last-in first-out. Nest, undo, match.",
+    tier: "optional",
+  },
+  {
+    slug: "queue",
+    title: "Queue",
+    description: "First-in first-out. Levels, windows, order.",
     tier: "optional",
   },
   {
@@ -70,9 +94,27 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     tier: "core",
   },
   {
+    slug: "recursion",
+    title: "Recursion",
+    description: "Base case first, trust the recursion.",
+    tier: "core",
+  },
+  {
+    slug: "backtracking",
+    title: "Backtracking",
+    description: "Try it, recurse, undo. That is the whole trick.",
+    tier: "optional",
+  },
+  {
     slug: "trees",
     title: "Trees (DFS/BFS)",
     description: "Recurse on kids, or queue one level at a time.",
+    tier: "core",
+  },
+  {
+    slug: "bst",
+    title: "BST",
+    description: "Left small, right big. Validate, kth, LCA.",
     tier: "core",
   },
   {
@@ -84,7 +126,25 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "graphs",
     title: "Graphs",
-    description: "Visit neighbors. BFS for steps, DFS for components. Topo, Dijkstra, Floyd.",
+    description: "BFS for steps, DFS for components. Grid as graph.",
+    tier: "core",
+  },
+  {
+    slug: "topological-sort",
+    title: "Topological Sort",
+    description: "Kahn vs DFS. Order with dependencies, detect cycle.",
+    tier: "core",
+  },
+  {
+    slug: "shortest-path",
+    title: "Shortest Path",
+    description: "Dijkstra, Bellman-Ford, Floyd — pick by weights.",
+    tier: "core",
+  },
+  {
+    slug: "mst",
+    title: "MST",
+    description: "Connect all with minimum cost. Kruskal + DSU.",
     tier: "core",
   },
   {
@@ -92,18 +152,6 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     title: "Union Find",
     description: "Merge groups. Same root means connected.",
     tier: "optional",
-  },
-  {
-    slug: "backtracking",
-    title: "Backtracking",
-    description: "Try it, recurse, undo. That is the whole trick.",
-    tier: "optional",
-  },
-  {
-    slug: "dp",
-    title: "Dynamic Programming",
-    description: "Same subproblem twice? Save the answer.",
-    tier: "core",
   },
   {
     slug: "greedy",
@@ -124,10 +172,22 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     tier: "optional",
   },
   {
+    slug: "matrix",
+    title: "Matrix",
+    description: "2D arrays. Spiral, rotate, zeroes, search.",
+    tier: "optional",
+  },
+  {
     slug: "range-queries",
     title: "Range Queries",
     description: "Point updates + range sums. Fenwick / merge-sort count.",
     tier: "optional",
+  },
+  {
+    slug: "dp",
+    title: "Dynamic Programming",
+    description: "Same subproblem twice? Save the answer.",
+    tier: "core",
   },
 ];
 
