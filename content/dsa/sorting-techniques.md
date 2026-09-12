@@ -150,3 +150,70 @@ function countingSort(nums, maxVal) {
 - **Quick:** `O(n log n)` avg time, `O(log n)` space, unstable — default fast choice, pivot dhyan se.
 - **Counting:** `O(n+k)` time, `O(k)` space — range chhoti ho to sabse tez.
 - **JS sort:** TimSort `O(n log n)`, stable — par comparator farz hai numbers ke liye.
+
+## Sort an Array
+
+Khud sort implement karo — merge sort likho (stable, pakka `O(n log n)`). Interview me technique poochhi jaati hai, built-in nahi.
+
+[Sort an Array](https://leetcode.com/problems/sort-an-array/)
+
+```js
+// Hinglish: merge sort lagao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/sort-an-array/
+function sortArray(nums) {
+  // Hinglish: step 1 — base case check karo
+  if (nums.length <= 1) return nums;
+  const mid = nums.length >> 1;
+  const left = sortArray(nums.slice(0, mid)); // Hinglish: left todo
+  const right = sortArray(nums.slice(mid)); // Hinglish: right todo
+  const out = [];
+  let i = 0, j = 0;
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) out.push(left[i++]); // Hinglish: chhota pehle
+    else out.push(right[j++]);
+  }
+  return out.concat(left.slice(i), right.slice(j)); // Hinglish: bacha jodo
+}
+```
+
+## Largest Number
+
+Numbers ko aise jodo ki sabse bada number bane — comparator custom hai: `a` pehle aayega agar `a+b > b+a`. Sab zero hon to `"0"` lautao.
+
+[Largest Number](https://leetcode.com/problems/largest-number/)
+
+```js
+// Hinglish: custom comparator — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/largest-number/
+function largestNumber(nums) {
+  // Hinglish: step 1 — strings banao
+  const strs = nums.map(String);
+  strs.sort((a, b) => {
+    const ab = a + b, ba = b + a;
+    if (ba === ab) return 0;
+    return ba > ab ? 1 : -1; // Hinglish: jo aage bada banaye wo pehle
+  });
+  if (strs[0] === "0") return "0"; // Hinglish: sab zero
+  return strs.join("");
+}
+```
+
+## H-Index
+
+Sort karke dekho kahaan `citations[i] >= n-i` hota hai — wahi h-index hai. Pehli baar milte hi ruko.
+
+[H-Index](https://leetcode.com/problems/h-index/)
+
+```js
+// Hinglish: sort karke scan — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/h-index/
+function hIndex(citations) {
+  // Hinglish: step 1 — sort karo
+  citations.sort((a, b) => a - b);
+  const n = citations.length;
+  for (let i = 0; i < n; i++) {
+    if (citations[i] >= n - i) return n - i; // Hinglish: h papers, h+ citations
+  }
+  return 0;
+}
+```

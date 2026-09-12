@@ -3,7 +3,7 @@ import type { LldTopic } from "./types";
 export const PROBLEMS: LldTopic[] = [
   {
     slug: "tic-tac-toe",
-    title: "Design Tic Tac Toe game (Interview Question)",
+    title: "Design Tic Tac Toe game",
     tag: "Interview Question",
     body: `Tic Tac Toe warm-up LLD problem hai: itna chhota ki poora ho jaye, itna gehra ki tareeka dikh jaye. Requirements 3x3 board, X aur O ki baari, rows/columns/diagonals me jeet ki pehchan, aur board bharne pe draw. Board size pehle clear karo: interviewer aksar baad me NxN generalize karwata hai.
 
@@ -48,7 +48,7 @@ Pehla player (0,0) pe X lagata hai — place true, counters update, koi jeet nah
   },
   {
     slug: "elevator-system",
-    title: "LLD of Elevator System with Complete Implementation (Interview Question)",
+    title: "LLD of Elevator System with Complete Implementation",
     tag: "Interview Question",
     body: `Elevator system concurrent state machines aur scheduling test karta hai. Requirements: kayi floors pe kayi elevators, andar panel buttons plus bahar up/down buttons, darwaza khulne-band hone wali movement, aur har request pe best elevator chunne wali dispatch strategy. Concurrency fitri hai: elevators chalte rehte hain, passengers buttons dabate rehte hain.
 
@@ -94,7 +94,7 @@ class Dispatcher {
   },
   {
     slug: "car-rental-system",
-    title: "LLD of Car Rental System with Concurrency handling (Interview Question)",
+    title: "LLD of Car Rental System with Concurrency handling",
     tag: "Interview Question",
     body: `Car rental khaas taur pe concurrency test karne ko chuna jaata hai: do users overlapping dates me same car book na kar payein. Requirements me stores pe vehicle inventory, type aur date range se search, payment ke saath reservation, aur billing ke saath return aata hai. Double-booking race hi asal puzzle hai — ispe seedha waar karo.
 
@@ -139,7 +139,7 @@ User SUV dhoondhta hai 10-12 tareekh ke liye — search available cars deti hai.
   },
   {
     slug: "snake-and-ladder",
-    title: "LLD of Snake and Ladder game (Interview Question)",
+    title: "LLD of Snake and Ladder game",
     tag: "Interview Question",
     body: `Snake and Ladder saaf turn-based modeling test karta hai, movement rules me twist ke saath. Requirements: numbered board, do ya zyada players, dice rolls, aage kudane wali ladders, peeche ghaseetne wale snakes, exact-landing win rule, aur standard rules me sixes pe extra turns. Rules pehle clear karo kyunki variants alag hote hain.
 
@@ -184,7 +184,7 @@ Player 4 pe hai, 3 aaya — 7 pe utra jahan ladder 7-se-21 hai, seedha 21. Agli 
   },
   {
     slug: "parking-lot",
-    title: "Design Parking Lot with Complete Implementation (Interview Question)",
+    title: "Design Parking Lot with Complete Implementation",
     tag: "Interview Question",
     body: `Parking Lot sabse zyada poochha jaane wala LLD problem hai, isliye bar complete working design hai. Requirements: bikes, cars aur trucks ke sizes wale spots ke saath kayi floors, ticket dene wale entry gates, duration aur vehicle type se fee nikaalne wale exit gates, aur real-time availability display. Entry pe concurrency matter karti hai: do cars ko same spot kabhi na mile.
 
@@ -229,7 +229,7 @@ Car entry gate pe aati hai — system nearest free car-size spot nikaal ke atomi
   },
   {
     slug: "bookmyshow",
-    title: "LLD of BookMyShow (Interview Question) | Design MovieTicketBooking",
+    title: "LLD of BookMyShow | Design MovieTicketBooking",
     tag: "Interview Question",
     body: `BookMyShow ek sakht problem pe khada hai: do users same seat na jhapte hon. Requirements movies, theatres, seat maps wale shows, temporary seat holds, payment aur cancellation ke saath confirmed bookings tak phaili hain. Timeout wala hold-then-confirm flow hi wo design hai jo har interviewer sunna chahta hai.
 
@@ -320,7 +320,7 @@ Card dala, PIN sahi — 5000 manga. System limits (daily), balance aur machine s
   },
   {
     slug: "splitwise",
-    title: "LLD of Splitwise (Interview Question)",
+    title: "LLD of Splitwise",
     tag: "Interview Question",
     body: `Splitwise app ke bhees me graph problem hai: kisne kya diya track karo, kaun kiska den-daar hai nikalo, aur udhaar simplify karo. Requirements users, groups, equal ya custom splits wale expenses, payments recording aur har user/group ke balance sheets tak hain. Simplification algorithm hi achche jawab ko great se alag karta hai.
 
@@ -540,5 +540,288 @@ User 500 pay karta hai idempotency key ke saath — Payment Initiated banta hai,
 - Webhooks untrusted, duplicate aur unordered hain: verify, dedupe, phir lagao.
 - Method variety Strategy hai: cards, UPI, netbanking, wallets ek naam ke peeche.
 - Bank settlements se roz reconciliation wo pakadta hai jo automation miss kare.`,
+  },
+  {
+    slug: "chess-game",
+    title: "Design Chess Game",
+    tag: "Interview Question",
+    body: `Chess Tic-Tac-Toe ka bada bhai hai — same turn-based dhancha, par mohre alag chaal chalte hain. Requirements: 8x8 board, do players, 6 mohre types ke legal moves, baari-badli, check/checkmate/stalemate pehchan, move validation aur game history. Scope pehle tay karo — AI opponent nahi, do human players hain.
+
+Design Board (8x8 cells), Piece base class jisse 6 subclasses (ya move-strategy), Player, Move record aur Game loop pe khada hai. Sabse important faisla check detection hai: har move ke baad dekho apna king hamle me to nahi — simulate karke check karo. Castling, en passant aur promotion edge cases hain — naam lo, time ho to banao.
+
+## Core classes
+
+Board (cells), Piece base plus 6 roop (Pawn, Rook, Knight, Bishop, Queen, King), Player (color), Move (from, to, captured), Game (turn loop, status).
+
+\`\`\`js
+// Har mohra apni chaal jaanta hai — Game sirf baari chalata hai
+class Piece {
+  constructor(color) { this.color = color; }
+  legalMoves(board, from) { throw new Error('mohra batayega'); }
+}
+class Knight extends Piece {
+  legalMoves(board, from) { /* 8 L-jumps, board ke andar + apna mohra nahi */ }
+}
+class Game {
+  play() { /* baari lo, move validate karo, check/checkmate dekho */ }
+}
+\`\`\`
+
+## Key decisions
+
+- **Move generation har piece me:** Game me switch mat lagao — polymorphism use karo.
+- **Check detection:** move simulate karke apna king safe hai ya nahi dekho.
+- **Special moves scope me rakho:** castling, en passant, promotion — naam lo, time pe banao.
+- **History rakho:** Move records se undo aur draw-by-repetition nikalta hai.
+
+## Walkthrough
+
+White e2-e4 chalता hai — Pawn ki legal moves se validate hota hai, Board update hota hai, check test hota hai (nahi hai), baari Black ki. Black e7-e5 jawab deta hai. Aise chalte hue jab king pakda jaye aur koi legal move na bache to checkmate — Game status khatm elaan karta hai.
+
+**🔴 Galti:** "Saari chaal Game me if-else" — 6 mohre ka switch jungle banega; har piece apni chaal khud jaane.
+**✅ Sahi:** "Piece base plus 6 roop, check simulate karke dekho, special moves scope me rakho."
+
+## Keep in mind
+
+- Har mohra apni legal moves jaanta hai — Game me switch mat lagao.
+- Check detection simulate karke hoti hai — move ke baad king safe hai ya nahi.
+- Castling, en passant, promotion edge cases hain — naam lo, time pe banao.
+- Move history rakho — undo aur draw claims isi se nikalte hain.
+- Tic-Tac-Toe wala turn loop yahan bhi chalta hai — pattern dobara use karo.`,
+  },
+  {
+    slug: "lru-cache",
+    title: "Design LRU Cache",
+    tag: "Interview Question",
+    body: `LRU Cache taqreeban lazmi LLD problem hai: fixed capacity me get/put O(1) me, jagah khatm ho to sabse purana (least recently used) nikalo. Requirements seedhi hain — get, put, capacity — par O(1) ki shart design tay karti hai.
+
+Tarkeeb HashMap plus doubly linked list hai: Map key se node tak O(1) pohchata hai, list order rakhti hai — head fresh (MRU), tail purana (LRU). Get pe node nikaal ke head pe lagao (refresh), put pe naya head pe lagao aur capacity cross ho to tail udao. JS walon ke liye shortcut: Map insertion order rakhta hai — delete karke dobara set karo to fresh ho jaata hai, to Map akela bhi O(1) LRU de deta hai.
+
+## Core classes
+
+LRUCache (capacity, Map, head/tail), Node (key, value, prev, next). Get refresh karta hai, put evict karta hai.
+
+\`\`\`js
+// Map + doubly linked list: O(1) get, O(1) put, O(1) evict
+class LRUCache {
+  constructor(capacity) { this.cap = capacity; this.map = new Map(); this.head = null; this.tail = null; }
+  get(key) {
+    if (!this.map.has(key)) return -1;
+    const node = this.map.get(key);
+    this.refresh(node); // haal me use hua — head pe lao
+    return node.value;
+  }
+  put(key, value) { /* naya head pe, purana tail se, cap cross to evict */ }
+}
+\`\`\`
+
+## Key decisions
+
+- **Map plus DLL:** Map O(1) pahunch, list O(1) order — dono mil ke O(1) cache.
+- **Head fresh, tail purana:** get/put dono head pe laagao, evict hamesha tail se.
+- **JS shortcut:** Map order rakhta hai — delete+set se refresh, chhote interview me kaafi.
+- **Capacity check put pe:** cross ho to tail udao, phir naya jodo.
+
+## Walkthrough
+
+Capacity 2 hai — put(1,1), put(2,2) head se judte hain. get(1) 1 lautata hai aur node head pe aata hai. put(3,3) aata hai — jagah nahi to tail (key 2) udta hai. get(2) ab -1 deta hai. Har operation O(1) me hua.
+
+**🔴 Galti:** "Array se order rakho" — Beech se nikalna O(n) hai; linked list ya Map order chahiye.
+**✅ Sahi:** "Map se pahunch, list se order — get pe refresh, put pe tail evict, sab O(1)."
+
+## Keep in mind
+
+- Map O(1) pahunch deta hai, list O(1) order — dono chahiye.
+- Head fresh (MRU), tail purana (LRU) — disha pakki rakho.
+- Get bhi refresh karta hai — sirf put nahi, ye bhoolna aam bug hai.
+- Evict hamesha tail se, capacity check put pe.
+- JS Map order rakhta hai — delete+set shortcut interview me batao.`,
+  },
+  {
+    slug: "logger-system",
+    title: "Design Logger / Logging Library",
+    tag: "Interview Question",
+    body: `Logger design teeno patterns ka sangam hai — isliye interviewer ko pasand hai. Requirements: log levels (DEBUG/INFO/WARN/ERROR), kai outputs (console, file, remote), app ko slow na kare (async), aur file rotation (size/time pe nayi file). Har request log call kare, system kabhi ruke nahi.
+
+Design Logger singleton entry point pe khada hai, level filtering Chain of Responsibility se hoti hai (message apne level se neeche walon ko nahi dikhta), aur outputs Observer sinks hain (console sink, file sink, remote sink judte-hat-te rehte hain). Heavy kaam — file write, network — background worker queue se kare taaki app thread kabhi block na ho.
+
+## Core classes
+
+Logger (singleton entry, level set karta hai), Handler chain (level filter), Sink implementations (console, file, remote), AsyncWorker (queue se likhta hai), Rotator (size/time pe file badalta hai).
+
+\`\`\`js
+// Level chain filter kare, sinks likhein, worker background me
+class Logger {
+  constructor() { this.level = 'INFO'; this.sinks = []; }
+  addSink(sink) { this.sinks.push(sink); } // Observer jaise judte hain
+  log(level, msg) {
+    if (!this.passes(level)) return; // Chain: level se neeche wale nahi
+    for (const s of this.sinks) s.write(level, msg);
+  }
+}
+\`\`\`
+
+## Key decisions
+
+- **Levels ordered hon:** DEBUG < INFO < WARN < ERROR — set level se neeche sab chhupe.
+- **Sinks Observer jaise:** judna-hatna runtime pe, logger ko parwah nahi kaun sun raha.
+- **Async likhai:** queue plus worker — app thread block kabhi nahi.
+- **Rotation policy:** size ya time pe nayi file, purani archive — disk bharna nahi chahiye.
+
+## Walkthrough
+
+App logger.info('order placed') bulata hai — level INFO set hai to pass hota hai. Console sink turant print karta hai, file sink worker queue me daalta hai jo background me likhta hai. File 10MB cross kare to rotator nayi file kholta hai. DEBUG messages set level se neeche hone se shuru me hi kat jaate hain.
+
+**🔴 Galti:** "Har log sync file me likho" — Disk wait app ko rok dega; likhai hamesha async honi chahiye.
+**✅ Sahi:** "Level chain filter kare, sinks Observer jaise judein, worker background me likhe, rotation policy ho."
+
+## Keep in mind
+
+- Teen patterns ek saath: Chain (levels), Observer (sinks), Singleton (entry).
+- Levels ordered hain: set level se neeche wale kat jaate hain.
+- Likhai async honi chahiye — app thread block kabhi nahi.
+- Rotation policy must hai — disk bharna failure hai.
+- Sinks runtime pe judte-hat-te hain — logger ko parwah nahi.`,
+  },
+  {
+    slug: "pubsub-system",
+    title: "Design Pub-Sub / Message Queue",
+    tag: "Interview Question",
+    body: `Pub-Sub LLD me HLD messaging ka chhota bhai hai — Kafka/RabbitMQ ke concepts classes me utaaro. Requirements: topics banao, subscribe/unsubscribe karo, publish pe sab subscribers ko mile, durable (baad me aane wala purana padhe) vs ephemeral chunna ho, aur delivery guarantee tay ho.
+
+Design Topic (subscriber list plus message log), Subscriber (callback plus offset), Message (payload plus id) aur Broker (sab sambhalta hai) pe khada hai. Ordering per-topic FIFO rakho, fan-out loop me karo. Delivery at-least-once rakho aur idempotent subscribers maango — exactly-once ka vaada mat karo, ye distributed jhooth hai.
+
+## Core classes
+
+Topic (subscribers plus log), Subscriber (callback, offset), Message (id, payload, time), Broker (publish/subscribe/unsubscribe chalata hai).
+
+\`\`\`js
+// Broker hub hai — dost ek doosre ko nahi jaante (Mediator jaisa)
+class Broker {
+  constructor() { this.topics = new Map(); }
+  subscribe(topic, subscriber) { /* list me jodo, offset note karo */ }
+  publish(topic, message) {
+    const t = this.topics.get(topic);
+    t.log.push(message); // durable ho to store karo
+    for (const s of t.subscribers) s.deliver(message); // fan-out
+  }
+}
+\`\`\`
+
+## Key decisions
+
+- **Durable vs ephemeral:** baad me aane wala purana padhega ya nahi — shuru me tay karo.
+- **Ordering per-topic FIFO:** global order ka vaada mat karo.
+- **At-least-once plus idempotent:** duplicate aa sakta hai — subscriber dedupe kare.
+- **Slow subscriber:** peeche rehne wale ko drop ya buffer policy chahiye — warna hub marega.
+
+## Walkthrough
+
+Order service order.created publish karta hai — Broker topic log me daalta hai aur teeno subscribers (email, inventory, analytics) ko deliver karta hai. Inventory slow hai to uska offset peeche rehta hai, baaki aage badhte hain. Naya analytics subscriber judta hai to durable log se purane events padh leta hai.
+
+**🔴 Galti:** "Exactly-once delivery ka vaada" — Distributed me ye jhooth hai; at-least-once plus idempotent bolo.
+**✅ Sahi:** "Topic-wise FIFO, durable log, at-least-once delivery, idempotent subscribers — HLD Kafka ka chhota roop."
+
+## Keep in mind
+
+- Dost hub se baat karein — Mediator pattern yahan fit hota hai.
+- Durable vs ephemeral shuru me tay karo — baad me badalna mushkil hai.
+- Ordering per-topic FIFO rakho, global ka vaada mat karo.
+- Duplicate delivery hogi — idempotent subscribers maango.
+- Slow subscriber ke liye drop/buffer policy rakho.`,
+  },
+  {
+    slug: "meeting-scheduler",
+    title: "Design Meeting Scheduler",
+    tag: "Interview Question",
+    body: `Meeting Scheduler interval problems ka LLD roop hai. Requirements: users, time-range wali meetings, rooms, clash detection, recurring meetings aur notifications. Do meetings overlap na karein — yehi invariant hai, aur rooms minimum lagne chahiye.
+
+Design User, Meeting (start, end, attendees, room), Room aur Scheduler pe khada hai. Clash detection interval overlap check hai: nayi meeting tabhi jab kisi maujooda se na takraye. Minimum rooms nikalna classic interval partitioning hai — min-heap se end times track karo. Recurring meetings ko rule (har Monday) plus instances me todo.
+
+## Core classes
+
+User, Meeting (range plus attendees plus room), Room, Scheduler (book/cancel, clash check, room allocate), RecurrenceRule.
+
+\`\`\`js
+// Overlap check hi poora khel hai
+class Scheduler {
+  overlaps(a, b) { return a.start < b.end && b.start < a.end; }
+  book(meeting) {
+    for (const m of this.meetings) {
+      if (this.overlaps(m, meeting)) throw new Error('Clash hai — doosra time lo');
+    }
+    meeting.room = this.allocateRoom(meeting);
+    this.meetings.push(meeting);
+  }
+}
+\`\`\`
+
+## Key decisions
+
+- **Overlap formula:** a.start < b.end && b.start < a.end — ye ek line rat lo.
+- **Rooms minimum:** end-times ka min-heap — khaali room mile to reuse, warna naya.
+- **Recurring alag rakho:** rule store karo, instances zaroorat pe banao — infinite list mat banao.
+- **Timezone:** sab UTC me store karo, display pe convert — ye detail impress karti hai.
+
+## Walkthrough
+
+User 10-11 ki meeting book karta hai Room A me — koi clash nahi, confirm. Doosra user 10:30-11:30 maangta hai — overlap pakda gaya, Room B milta hai (khaali hai). Teesra 10:15-10:45 maange to dono rooms busy — reject ya waitlist. Cancel pe room free, waitlist ko notify.
+
+**🔴 Galti:** "Rooms gin ke hardcode kar do" — Load pe rooms kam padenge; min-heap se allocate karo.
+**✅ Sahi:** "Overlap formula se clash pakdo, min-heap se rooms allocate karo, recurring rule se banao."
+
+## Keep in mind
+
+- Overlap formula rat lo: a.start < b.end && b.start < a.end.
+- Minimum rooms min-heap se — khaali reuse, warna naya.
+- Recurring meetings rule store karo, instances mat gino.
+- Time sab UTC me rakho — timezone bug interview me pakda jaata hai.
+- Cancel pe waitlist notify karo — poora flow band karo.`,
+  },
+  {
+    slug: "library-system",
+    title: "Design Library Management System",
+    tag: "Interview Question",
+    body: `Library System classic OOP practice problem hai — state machine plus Strategy dono dikhane ka mauka. Requirements: books (kai copies), members, due dates wali borrowing, jurmana (fines), reservations aur search. Har copy ki haalat track honi chahiye.
+
+Design Book (title/author metadata), BookCopy (barcode wali asli copy — Available/Borrowed/Reserved states), Member, Loan (copy plus dates) aur Reservation pe khada hai. Jurmana Strategy me rakho (student vs faculty alag rates). Copy ki state machine transitions guard karti hai — Borrowed copy dobara issue nahi ho sakti.
+
+## Core classes
+
+Book (metadata), BookCopy (barcode plus state), Member, Loan (copy, member, due date), Reservation (queue), FineStrategy.
+
+\`\`\`js
+// Copy ki state machine galat transitions rokti hai
+class BookCopy {
+  constructor(barcode) { this.barcode = barcode; this.status = 'Available'; }
+  borrow() {
+    if (this.status !== 'Available') throw new Error('Ye copy uplabdh nahi');
+    this.status = 'Borrowed';
+  }
+  returnCopy() { this.status = 'Reserved'; } // reservation ho to, warna Available
+}
+\`\`\`
+
+## Key decisions
+
+- **Book vs BookCopy alag rakho:** metadata ek, copies kai — ye farak core hai.
+- **State machine:** Available/Borrowed/Reserved — galat transition code me impossible ho.
+- **Jurmana Strategy me:** member type pe rates badlein, code na badle.
+- **Reservation queue:** return pe pehle waitlist ko mauka mile.
+
+## Walkthrough
+
+Member "Clean Code" maangta hai — available copy milti hai, Loan banta hai 14-din due date ke saath, copy Borrowed hoti hai. Time pe return — Available wapas. Late return — FineStrategy se jurmana nikalta hai. Dono copies busy hon to Reservation queue me naam judta hai, return pe pehle usko khabar milti hai.
+
+**🔴 Galti:** "Book aur copy ek hi class" — Copies track nahi hongi; metadata aur physical copy alag rakho.
+**✅ Sahi:** "Book vs BookCopy alag karo, state machine se transitions guard karo, jurmana Strategy me rakho."
+
+## Keep in mind
+
+- Book (metadata) aur BookCopy (physical) alag — ye sabse pehla faisla hai.
+- Copy states Available/Borrowed/Reserved rakho — galat issue impossible banao.
+- Jurmana Strategy me — member type pe rate badle.
+- Reservation queue rakho — return pe waitlist ko pehle mauka.
+- Due dates aur fines walkthrough me chala ke dikhao.`,
   },
 ];

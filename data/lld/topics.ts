@@ -41,11 +41,16 @@ Kisi bhi LLD problem ka loop constant rehta hai. Pehle requirements clear karo a
 const ORDER = [
   "what-is-lld",
   "solid-principles",
+  "oop-pillars",
+  "uml-diagrams",
+  "concurrency-essentials",
+  "dependency-injection",
   "strategy-pattern",
   "observer-pattern",
   "decorator-pattern",
   "factory-vs-abstract-factory",
   "tic-tac-toe",
+  "chess-game",
   "elevator-system",
   "car-rental-system",
   "chain-of-responsibility",
@@ -80,6 +85,11 @@ const ORDER = [
   "all-behavioral-patterns",
   "payment-gateway",
   "object-pool-pattern",
+  "lru-cache",
+  "logger-system",
+  "pubsub-system",
+  "meeting-scheduler",
+  "library-system",
 ];
 
 const SHORT_TITLES: Record<string, string> = {
@@ -124,6 +134,16 @@ const SHORT_TITLES: Record<string, string> = {
   "all-behavioral-patterns": "All Behavioral",
   "payment-gateway": "Payment Gateway",
   "object-pool-pattern": "Object Pool",
+  "oop-pillars": "OOP Pillars",
+  "uml-diagrams": "UML Diagrams",
+  "concurrency-essentials": "Concurrency",
+  "dependency-injection": "Dependency Injection",
+  "chess-game": "Chess Game",
+  "lru-cache": "LRU Cache",
+  "logger-system": "Logger System",
+  "pubsub-system": "Pub-Sub System",
+  "meeting-scheduler": "Meeting Scheduler",
+  "library-system": "Library System",
 };
 
 const QUESTION_SLUGS = new Set([
@@ -139,6 +159,12 @@ const QUESTION_SLUGS = new Set([
   "inventory-management",
   "coupons-shopping-cart",
   "payment-gateway",
+  "chess-game",
+  "lru-cache",
+  "logger-system",
+  "pubsub-system",
+  "meeting-scheduler",
+  "library-system",
 ]);
 
 export type LldTopicWithNum = Omit<LldTopic, "short" | "group"> & {

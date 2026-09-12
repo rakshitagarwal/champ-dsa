@@ -92,4 +92,204 @@ class NotificationService {
 - DIP: role lo, implementation inject karo — testing aur swapping aasan ho jaati hai.
 - Har usool pe ek violation aur ek fix suna do, interviewer maan jayega.`,
   },
+  {
+    slug: "oop-pillars",
+    title: "OOP Pillars (Encapsulation, Inheritance, Polymorphism, Abstraction)",
+    tag: "Concept",
+    body: `OOP ke chaar stambh har LLD interview ki neenv hain. Encapsulation matlab data aur uspe chalne wale methods ek class me bandho, bahar walon ko sirf zaroori chehra dikhao. Inheritance matlab nayi class purani ka bartav paaye (is-a rishta). Polymorphism matlab ek naam, kai roop — same method call alag objects pe alag kaam kare. Abstraction matlab kya karna hai dikhao, kaise hota hai chhupao.
+
+JS me do baatein yaad rakho: interface keyword nahi hota — same method naam (duck typing) hi contract hai. Aur overloading nahi hoti — same naam ka doosra method pehle wale ko overwrite kar deta hai, isliye alag naam ya optional parameters lo. Composition (has-a) ko inheritance (is-a) pe tarjeeh do — ye line har interview me bolo.
+
+## How it works
+
+1. **Encapsulation:** fields class ke andar, bahar se sirf methods — JS me # se truly private banao.
+2. **Inheritance:** extends se paao, override se badlo — sirf sach me is-a ho tabhi.
+3. **Polymorphism:** same method naam, alag classes me alag kaam — caller ko farq nahi padta.
+4. **Abstraction:** base class dhancha de, detail subclass chhupaye.
+
+\`\`\`js
+// Chaaron stambh ek misaal me
+class Animal { // abstraction: khaaka yahan
+  speak() { throw new Error('subclass bolegi'); }
+}
+class Dog extends Animal { // inheritance: is-a rishta
+  #name; // encapsulation: bahar se band
+  constructor(name) { super(); this.#name = name; }
+  speak() { return this.#name + ' barks'; } // polymorphism: same naam, apna kaam
+}
+\`\`\`
+
+## When to use
+
+- Har LLD problem ki shuruaat me — entities ke rishte inhi chaaron se bante hain.
+- Inheritance vs composition ka faisla karna ho.
+- Interviewer seedha poochhe "OOP pillars samjhao" — ye theory round hai.
+
+## Common mistakes
+
+- **Har cheez inherit karna:** code reuse ke liye extends — has-a ko is-a mat banao, composition lo.
+- **Encapsulation todna:** har field public kar diya to class ka vaada khatam — # lagao.
+- **JS me overloading:** do same-naam methods me doosri pehli ko maar deti hai — alag naam do.
+
+**🔴 Galti:** "Theory rat ke suna dena" — Bina misaal ke pillars khokhle lagte hain, har ek pe ek-line example do.
+**✅ Sahi:** "Chaar stambh naam plus ek-line misaal ke saath — aur composition-over-inheritance ki line zaroor bolo."
+
+## Keep in mind
+
+- Encapsulation: data band, chehra khula — # se truly private banao.
+- Inheritance sirf is-a pe — reuse ke liye composition lo.
+- Polymorphism: ek naam, kai roop — caller ko farq nahi padta.
+- Abstraction: kya dikhao, kaise chhupao.
+- JS me interface nahi (duck typing) aur overloading nahi — ye do farak bolo.`,
+  },
+  {
+    slug: "uml-diagrams",
+    title: "UML Class Diagrams for Interviews",
+    tag: "Concept",
+    body: `UML class diagram whiteboard pe design samjhane ki zubaan hai. Har class ek dabba hai teen khaanon me: naam, fields, methods. Nishaan (+ public, - private, # protected) se visibility dikhao. Interview me 5-6 dabbe saaf bane hon to aadhi baat wahin ban jaati hai — code baad me aata hai, diagram pehle.
+
+Asli kaam teeron (arrows) ka hai — chaar rishte, chaar nishaan: inheritance khokhla triangle (Dog se Animal), association seedhi line (Player khelta hai Game), aggregation khokhla diamond (Team ke paas Players — alag jee sakte hain), composition bhara diamond (House ke Rooms — saath jeete-marte hain). Dependency dotted line hai (sirf use karta hai).
+
+## How it works
+
+1. **Dabbe banao:** har entity ek box — naam upar, fields beech me, methods neeche.
+2. **Teer jodo:** rishta pehchano — is-a (triangle), has-a kamzor (khokhla diamond), has-a pakka (bhara diamond), use-karta (dotted).
+3. **Multiplicity likho:** 1, *, 1..* — ek ParkingLot me * Floors, ye line confusion khatam karti hai.
+
+\`\`\`js
+// UML rishton ka JS me matlab
+class Engine { /* ... */ }
+class Car {
+  constructor() { this.engine = new Engine(); } // composition: Car mare to Engine mare
+  setDriver(d) { this.driver = d; } // aggregation: Driver alag jee sakta hai
+}
+class EV extends Car {} // inheritance: is-a rishta
+\`\`\`
+
+## When to use
+
+- Har LLD interview ke shuru me — code se pehle diagram banao.
+- Rishte samjhane hon — teer dekh ke interviewer turant pakadta hai.
+- Design review ya documentation me.
+
+## Common mistakes
+
+- **Bina teer ke dabbe:** rishte na dikhe to diagram adhura hai — har jod pe teer lagao.
+- **Aggregation vs composition mix:** lifecycle saath hai ya alag — yehi farak hai, bolo.
+- **Bahut detail:** har getter-setter mat likho — important fields/methods hi dikhao.
+
+**🔴 Galti:** "Seedha code, diagram skip" — Interviewer tumhari soch diagram me dekhta hai, code me nahi.
+**✅ Sahi:** "Pehle 5-6 dabbe teeron ke saath — rishte dikhe to design aadha samajh aa gaya."
+
+## Keep in mind
+
+- Dabba teen khaane: naam, fields, methods (+/-/# visibility).
+- Chaar teer: triangle (inheritance), line (association), khokhla diamond (aggregation), bhara diamond (composition).
+- Composition me lifecycle saath hai, aggregation me alag — ye farak bolo.
+- Multiplicity likho: 1, *, 1..* — confusion khatam.
+- Detail kam rakho — important cheezein hi dikhao.`,
+  },
+  {
+    slug: "concurrency-essentials",
+    title: "Concurrency Essentials for LLD",
+    tag: "Concept",
+    body: `Concurrency ka matlab hai kai kaam aage-peeche chal rahe hon aur shared cheez ko chhoote hon — aur wahi race shuru hoti hai. LLD me ye booking problems me aata hai: do users same seat, do cars same spot. Critical section wo hissa hai jahan ek time pe ek hi hona chahiye — isko lock (mutex) se guard karte hain. Check-then-act do kadam me toota to race pakki: check aur act ek atomic unit me hone chahiye.
+
+Deadlock chaar sharton pe hota hai: mutual exclusion, hold-and-wait, no preemption, circular wait. Bachav: locks hamesha same order me lo, timeouts rakho. Optimistic tareeka version check hai — padhte time version note karo, likhte time wahi ho to likho, warna dobara try karo. Aur JS walon ke liye khaas baat: JS single-threaded hai (event loop), isliye shared memory race hoti hi nahi — par DB calls ke beech ka gap phir bhi race deta hai, isliye DB-level atomicity chahiye.
+
+## How it works
+
+1. **Critical section pehchano:** shared cheez chhoone wala hissa lock karo.
+2. **Check-and-act jodo:** check plus act ek atomic unit — beech me koi na ghuse.
+3. **Version se ladho:** optimistic approach — version badli to retry karo.
+4. **Deadlock roko:** lock order fix rakho, timeouts lagao.
+
+\`\`\`js
+// Optimistic version check: padho, badlo sirf agar waisa hi ho
+function holdSeat(seat, seenVersion) {
+  if (seat.version !== seenVersion) {
+    throw new Error('Seat badal chuki — dobara try karo');
+  }
+  seat.version++;
+  seat.status = 'Held';
+}
+// DB me ye version check + update ek transaction me hota hai
+\`\`\`
+
+## When to use
+
+- Booking/inventory problems me (seats, cars, stock) — race wahi hoti hai.
+- Counter ya shared state badal rahi ho.
+- Interviewer "do users ek saath aaye to?" poochhe — yehi jawab hai.
+
+## Common mistakes
+
+- **Check phir act, alag-alag:** beech ka gap hi race hai — atomic unit banao.
+- **Har jagah lock:** poora method lock kar diya to throughput mari — critical section chhota rakho.
+- **Lock order ulta:** do locks alag order me liye to deadlock pakka — order fix rakho.
+- **JS me lock dhoondhna:** event loop me race nahi hoti — DB atomicity hi jawab hai.
+
+**🔴 Galti:** "Concurrency ka zikr hi nahi karna" — Booking problem me race na bolo to design adhura hai.
+**✅ Sahi:** "Critical section pehchano, check-and-act atomic karo, version se retry karo — DB level pe."
+
+## Keep in mind
+
+- Race check-then-act ke gap me hoti hai — dono ek atomic unit me rakho.
+- Deadlock chaar sharton pe: order fix + timeout se bacho.
+- Optimistic version check: padho, wahi ho to likho, warna retry.
+- Critical section chhota rakho — poora method lock mat karo.
+- JS single-threaded hai — race DB gap me hoti hai, DB atomicity lo.`,
+  },
+  {
+    slug: "dependency-injection",
+    title: "Dependency Injection (DI)",
+    tag: "Concept",
+    body: `Dependency Injection ka matlab hai class apni zarooratein khud na banaye — bahar se le. OrderService ko PaymentGateway chahiye to andar new mat karo, constructor me lo. Faayda dohra hai: testing me mock de sakte ho, production me asli — aur DIP usool apne aap lag jaata hai.
+
+Teen tareeke hain: constructor injection (sabse saaf — zaroori cheezein), setter injection (optional cheezein), aur container (Spring, InversifyJS) jo bada system me wiring sambhalta hai. Service locator se bacho — wo chhupa global state hai, DI ka ulta. JS me constructor injection hi 90% cases me kaafi hai.
+
+## How it works
+
+1. **Maango, mat banao:** zaroorat constructor parameter banao.
+2. **Bahir se do:** banate time asli ya mock inject karo.
+3. **Role pe nirbhar raho:** concrete class nahi, duck-typed role lo.
+
+\`\`\`js
+// Maango, mat banao — testing aur swapping muft me
+class OrderService {
+  constructor(paymentGateway, notifier) {
+    this.payment = paymentGateway; // asli ya mock, bahar se aayega
+    this.notify = notifier;
+  }
+  checkout(cart) {
+    this.payment.charge(cart.total());
+    this.notify.send(cart.user());
+  }
+}
+// test: new OrderService(mockPay, mockNotify) — production code untouched
+\`\`\`
+
+## When to use
+
+- Testing me mocks chahiye hon — bina DI mock ghusana mushkil hai.
+- Implementation badalni ho (test gateway vs real gateway).
+- Bada system ho jahan wiring haath se mushkil ho — container lo.
+
+## Common mistakes
+
+- **Andar new karna:** har new testing ka darwaza band karta hai.
+- **Service locator:** global se nikalna DI nahi, chhupa coupling hai.
+- **Har cheez inject:** stable value objects (Money, DateRange) inject mat karo — banate raho.
+
+**🔴 Galti:** "DI matlab framework" — Framework container hai, DI usool hai — constructor se shuru hota hai.
+**✅ Sahi:** "Zaroorat constructor me lo — test me mock, production me asli; value objects inject mat karo."
+
+## Keep in mind
+
+- Maango, mat banao — constructor injection sabse saaf hai.
+- Testing muft me milti hai: mock do, code untouched rahe.
+- Role lo (duck typing), concrete class nahi.
+- Service locator DI nahi hai — chhupa global state hai.
+- Stable value objects inject mat karo — unhe banate raho.`,
+  },
 ];

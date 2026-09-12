@@ -87,6 +87,41 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "tech",
   },
   {
+    slug: "rabbitmq",
+    title: "RabbitMQ",
+    description:
+      "Smart broker with exchanges and routing keys — flexible routing, per-message acks, and task queues.",
+    group: "tech",
+  },
+  {
+    slug: "nats-jetstream",
+    title: "NATS (JetStream)",
+    description:
+      "Lightweight messaging plus persistence — streams, consumers, and replay with simpler ops than Kafka.",
+    group: "tech",
+  },
+  {
+    slug: "mongodb",
+    title: "MongoDB",
+    description:
+      "Document database with flexible schema — collections, replica sets, and sharding for product data.",
+    group: "tech",
+  },
+  {
+    slug: "s3",
+    title: "S3 (Object Storage)",
+    description:
+      "Object storage for media, backups, and static files — presigned URLs, versioning, and lifecycle tiers.",
+    group: "tech",
+  },
+  {
+    slug: "clickhouse",
+    title: "ClickHouse",
+    description:
+      "Columnar OLAP for real-time analytics — MergeTree, ordering keys, and dashboards over billions of rows.",
+    group: "tech",
+  },
+  {
     slug: "ip",
     title: "IP",
     description:
