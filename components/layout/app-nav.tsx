@@ -12,6 +12,7 @@ import {
   Network,
   Boxes,
   PenLine,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const navLinks: {
 }[] = [
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
   { href: "/practice", label: "Solve", icon: PenLine },
+  { href: "/solutions", label: "Solutions", icon: ScrollText },
   { href: "/tips", label: "Tips & Tricks", icon: Lightbulb },
   { href: "/compiler", label: "Compiler", icon: Code2 },
   { href: "/notes", label: "Notes", icon: FileText },

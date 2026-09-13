@@ -12,6 +12,11 @@ const SECTIONS = [
     description: "LeetCode problems grouped by pattern.",
   },
   {
+    href: "/solutions",
+    title: "Solutions",
+    description: "383 LeetCode solutions in JavaScript with comments.",
+  },
+  {
     href: "/notes",
     title: "Notes",
     description: "JavaScript, TypeScript, React, Node, SQL, and more.",
