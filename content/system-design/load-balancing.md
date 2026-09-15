@@ -1,55 +1,47 @@
 # Load Balancing
 
-> Traffic ko distribute karte hain across servers — single server collapse nahi hoga, availability badhegi.
+> Spread traffic so no single server melts — with health checks removing the dead.
 
-> Load balancer traffic distribute karta hai multiple servers pe. Algorithms: Round Robin (cyclic), Least Connections (kam load wale ko), Hash (same client same server). Layer 4 (TCP) vs Layer 7 (HTTP). Health checks se dead servers detect. Load balancer single point of failure ho sakta hai — isliye HA pairs use karte hain.
+> A load balancer sits in front of server pools and assigns each request by algorithm. Layer 4 balances on IP and port (TCP/UDP level, fast, dumb). Layer 7 understands HTTP — URL, headers, cookies — enabling smart routing, path rules, and session affinity.
 
-Jab ek server pe sab load nahi jata, load balancer traffic distribute karta hai:
+## Algorithms
 
-**Algorithms:**
-- **Round Robin** — cyclic order mein distribute
-- **Least Connections** — jo server ka least active connections hai, usko do
-- **Weighted** — powerful server ko zyada traffic
-- **IP Hash** — same client IP same server pe jaaye (session affinity)
+- **Round Robin** — cyclic order; simple, assumes equal servers.
+- **Weighted Round Robin** — powerful servers get proportionally more traffic.
+- **Least Connections** — send to the server with fewest active connections; best for uneven request costs.
+- **IP Hash** — same client IP lands on the same server; gives session affinity without cookies.
+- **Least Response Time** — combine connections with observed latency.
 
-**Layer 4 vs Layer 7:**
-- **L4 (Transport)** — TCP/UDP level, source/dest IP + port dekhta hai
-- **L7 (Application)** — HTTP level, URL, headers, cookies dekhta hai
+## Consistent Hashing
 
-## How it works
+When servers cache, random distribution destroys hit rates on scaling. Consistent hashing maps servers and keys onto a ring — adding a server moves only `1/N` of keys. Virtual nodes (100+ per server) even out the load. This is how caches and shards scale without mass invalidation.
 
-1. Client request load balancer pe aata hai
-2. LB algorithm select karta hai server
-3. Request us server pe forwarded hota hai
-4. Response client tak LB se jaati hai
-5. **Health checks** — LB regularly ping karta servers pe, dead server remove
+## Health Checks and Failover
+
+The balancer pings servers (HTTP `/health`, TCP connect); failures leave the pool, recoveries rejoin after consecutive passes. Checks must be cheap and fast — aggressive timeouts flap servers in and out. Failover is automatic; clients never notice dead servers.
+
+## Sticky Sessions
+
+IP hash or cookies pin a user to one server — needed only for stateful servers. Prefer stateless servers plus a shared session store instead; stickiness complicates failover and scaling.
+
+## Reverse Proxy
+
+A reverse proxy (Nginx, HAProxy) is a load balancer plus extras: SSL termination, caching, compression, rate limiting, DDoS absorption. In practice the LB and reverse proxy are the same box. Forward proxies serve clients (VPNs, corporate filtering) — the mirror image.
 
 ```mermaid
 graph LR
-    A[Client] --> B[Load Balancer]
-    B -->|Round Robin| C[Server 1]
-    B -->|Round Robin| D[Server 2]
-    B -->|Round Robin| E[Server 3]
-    C --> F[(Database)]
-    D --> F
-    E --> F
-    B -->|Health Check| C
-    B -->|Health Check| D
-    B -->|Health Check| E
+    A[Client] --> B[LB + Reverse Proxy]
+    B -->|least-connections| C[Server 1]
+    B -->|least-connections| D[Server 2]
+    B -->|health checks| C
+    B -->|health checks| D
 ```
 
-## Failure modes to mention
+## Keep in mind
 
-1. **LB as SPOF** — Single load balancer fail = entire system down — HA pairs (active-passive) se bachna
-2. **Sticky sessions** — Session affinity fail = user logged out — session affinity important
-3. **Health check too aggressive** — Server restart pe LB remove hota, slow to come back
-4. **SSL termination** — LB SSL decrypt, server HTTP — LB pe overhead
-
-**🔴 Galti:** "Load balancer single hai, sab theek" — LB SPOF hai — active-passive ya active-active pairs lagao.
-**✅ Sahi:** "Load balancer distributes traffic with algorithms, health checks remove dead servers. Use HA pairs to avoid SPOF. Layer 7 for smart routing."
-
-**Phrase:** Load balancer distributes traffic across servers using algorithms (round-robin, least-connections, hash). Layer 4 (IP+port) vs Layer 7 (HTTP). Health checks + HA pairs for availability.
-
-**Yaad rakho (Revision):** LB algorithms (RR, Least Conn, IP Hash), L4 vs L7, health checks, HA pairs, session affinity sticky sessions, SSL termination.
-
-**See also:** [Clustering](/hld/clustering), [IP](/hld/ip), [Availability](/hld/availability).
+- L4 sees IP and port; L7 sees HTTP — pick L7 for smart routing.
+- Least connections for uneven costs; IP hash for affinity.
+- Consistent hashing protects caches when servers change.
+- Health checks must be cheap, with hysteresis before rejoining.
+- The balancer itself is a single point of failure — run HA pairs.
+- Prefer stateless servers over sticky sessions.

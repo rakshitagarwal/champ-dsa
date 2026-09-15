@@ -57,4 +57,4 @@ graph LR
 
 **Yaad rakho (Revision):** TCP 3-way handshake, reliable + ordered, flow/congestion control. UDP fast + connectionless, no guarantee. TCP = HTTP/FTP, UDP = video/gaming/DNS.
 
-**See also:** [IP](/hld/ip), [Load Balancing](/hld/load-balancing), [Long Polling vs SSE vs WebSocket](/hld/long-polling).
+**See also:** [IP](/hld/networking), [Load Balancing](/hld/load-balancing), [Long Polling vs SSE vs WebSocket](/hld/api-design).

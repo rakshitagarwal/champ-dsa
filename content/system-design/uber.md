@@ -100,7 +100,7 @@ graph LR
 **Components:**
 
 - **API Gateway + LB:** Auth, [Rate Limiter](/hld/rate-limiter), city-aware routing (`city_id` from pickup geohash → shard).
-- **Trip Service:** Source of truth for money. State machine in [Postgres](/hld/postgres) (or Cockroach) sharded by `city_id`. All transitions via atomic `UPDATE ... WHERE status=expected`.
+- **Trip Service:** Source of truth for money. State machine in [Postgres](/hld/postgresql) (or Cockroach) sharded by `city_id`. All transitions via atomic `UPDATE ... WHERE status=expected`.
 - **Location Service:** Drivers stream GPS via WS to a fleet sharded by `city_id`. Each node maintains a [Redis](/hld/redis) GEO index (`GEOADD drivers:{city} lng lat driverId`) + in-memory TTL map. Never writes to Postgres.
 - **Matching / Dispatch:** Finds N closest candidates via GEOSEARCH, filters by product/occupancy, offers via push. First `accept` wins via DB CAS.
 - **WebSocket Fleet:** Holds `userId → {node, conn}` map in Redis; routes `eta_update` and `trip_state` via pub/sub ([Kafka](/hld/kafka) or Redis PubSub).

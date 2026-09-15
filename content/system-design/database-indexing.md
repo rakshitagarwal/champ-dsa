@@ -47,4 +47,4 @@ graph LR
 
 **Yaad rakho:** Index = chhota sorted map, composite left, partial chhota, LSM write tez, EXPLAIN.
 
-**See also:** [postgresql](/hld/postgresql), [elasticsearch](/hld/elasticsearch), [sharding](/hld/sharding).
+**See also:** [postgresql](/hld/postgresql), [elasticsearch](/hld/elasticsearch), [sharding](/hld/databases-sql).

@@ -16,7 +16,7 @@ Har system design me puchenge — "scale kaise karoge?"
 
 ## Horizontal (Scale Out)
 
-- Chhote-chhote N boxes + [Load Balancer](/hld/load-balancer) + sharding/partitioning.
+- Chhote-chhote N boxes + [Load Balancer](/hld/load-balancing) + sharding/partitioning.
 - Pros: unlimited boxes, ek mara to baaki zinda, rolling deploy.
 - Cons: app ko shard key sochna padega, cross-box join mushkil, network partition handle.
 
@@ -50,4 +50,4 @@ graph LR
 
 **Yaad rakho:** Up = big box simple limit, Out = many boxes + shard key, stateless zaruri.
 
-**See also:** [sharding](/hld/sharding), [partitioning](/hld/partitioning), [load-balancer](/hld/load-balancer).
+**See also:** [sharding](/hld/databases-sql), [partitioning](/hld/databases-sql), [load-balancer](/hld/load-balancing).

@@ -1,42 +1,46 @@
-# Content Delivery Network
+# CDN
 
-> CDN — content geographically distributed servers pe rakhta hai, user ke paas kaam ki jagah se deliver karta hai.
+> Serve static bytes from next door — edge locations absorb the traffic origins cannot.
 
-> CDN content (images, videos, JS, CSS) edge servers pe store karta hai jo user ke paas hain. Cache hit = fast delivery (10-50ms), cache miss = origin se fetch. PoP (Point of Presence) globally hain. TTL se cache control. CDN latency reduce karta hai, origin load bhi kam hota hai.
+> Content Delivery Networks replicate cacheable content to edge points of presence worldwide, so users download from nearby servers. Hit rates above 95% turn terabyte-scale video and image traffic into a solved problem. Dynamic API responses stay at origin; everything static moves to the edge.
 
-CDN content ko geographically distribute karta hai taaki user ko nearest server se mil sake:
+## CDN Fundamentals and Edge Locations
 
-**How CDN works:**
-1. User request CDN edge server pe aata hai (nearest PoP)
-2. Agar content cached hai (cache hit) → directly serve karo (10-50ms)
-3. Agar not cached (cache miss) → origin server se fetch → cache karo → serve karo
-4. **PoPs** globally hain — America, Europe, Asia me alag alag
-5. **TTL** cache duration decide karta — expire hone pe refresh hota hai
+PoPs sit in major metros near users; requests route to the nearest healthy edge via DNS anycast. Edges form tiers — edge fetches from regional mid-tier caches before origin, shielding origins further.
+
+## Origin Server
+
+The source of truth that edges fill from on cache misses. Origins must survive miss storms (thundering herds on expiry) via request collapsing, stale-while-revalidate, and tiered caching. Keep origins lean — they serve misses only.
+
+## Static Content Caching
+
+Images, videos, JS, CSS, fonts — immutable-versioned URLs (`app.a3f9.js`) cache forever with far-future expiry. Cache keys include what varies (device, region) sparingly — over-varying fragments hit rates.
+
+## Cache-Control and TTL
+
+`Cache-Control: max-age` sets edge and browser lifetimes; `s-maxage` separates shared caches; `must-revalidate` forces freshness checks. TTL blends freshness needs with origin protection — minutes for feeds, years for versioned assets.
+
+## Cache Invalidation
+
+Purge by URL, tag, or wildcard when content changes early. Prefer versioned URLs (new deploy, new name) over purges — invalidation is eventually consistent and rate-limited. Purge APIs exist for emergencies, not workflows.
+
+## CloudFront and Cloudflare
+
+CloudFront (AWS-native, tight S3 and Lambda@Edge integration) versus Cloudflare (global edge network with Workers, WAF, and DDoS bundled). Both do caching, TLS, and signed URLs; pick by existing cloud plus edge-compute and security needs.
 
 ```mermaid
 graph LR
-    A[User in India] --> B[CDN Edge India]
-    A2[User in US] --> C[CDN Edge US]
-    B -->|Cache hit| D[Content served]
-    B -->|Cache miss| E[Origin Server]
-    C -->|Cache hit| F[Content served]
-    C -->|Cache miss| E
-    E -->|Fetch + Cache| B
-    E -->|Fetch + Cache| C
+    A[User in India] --> B[Edge PoP India]
+    A2[User in US] --> C[Edge PoP US]
+    B -->|hit 95%| D[Served]
+    B -->|miss| E[Mid-tier]
+    E -->|miss| F[Origin]
 ```
 
-## Failure modes to mention
+## Keep in mind
 
-1. **Cache stampede** — Cache expire hone pe sab requests origin pe — lock/singleflight use karo
-2. **Stale content** — Cache expired, naya content nahi aaya — TTL carefully set karo
-3. **CDN outage** — Entire site slow — multi-CDN strategy ya origin fallback
-4. **Cache invalidation** — Content update hone pe purana cache delete karna mushkil — versioned URLs
-
-**🔴 Galti:** "CDN sab content cache karta hai" — Dynamic content (API responses) CDN pe cache nahi hota easily, static content (images, JS, CSS) hota hai.
-**✅ Sahi:** "CDN caches static content (images, JS, CSS) at edge PoPs globally. Dynamic content goes to origin. TTL controls cache expiry, invalidation versioned URLs se."
-
-**Phrase:** CDN content ko edge servers pe globally store karta hai — nearest PoP se fast delivery, cache hit fast, cache miss origin se, TTL cache control, static content ke liye best.
-
-**Yaad rakho (Revision):** CDN edge PoPs globally, cache hit fast (10-50ms), cache miss origin se fetch, TTL controls, static content (images/JS/CSS), dynamic not cached easily, multi-CDN for HA.
-
-**See also:** [Load Balancing](/hld/load-balancing), [Proxy](/hld/proxy), [DNS](/hld/domain-name-system).
+- Static content to edges, dynamic APIs to origin — never mix.
+- Versioned URLs beat purges for cache invalidation.
+- Tiered edges plus request collapsing protect origins from miss storms.
+- TTL balances freshness against origin load — minutes to years by content.
+- Signed URLs and cookies gate private content at the edge.

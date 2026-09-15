@@ -1,34 +1,24 @@
 # Introduction
 
-> Code likhne se pehle system sochna — yahi HLD hai, aur yahi senior engineer ko junior se alag karta hai.
+> Design the system on paper before writing code — HLD is what separates senior thinking from junior execution.
 
-> HLD (High Level Design) system ka naksha hai — kaunse boxes honge (API, cache, queue, database, CDN), data unke beech kaise bahega, aur load ya failure pe kya hoga. Code se pehle ye tay hota hai, kyunki galat architecture ka kharcha code likhne ke baad das guna padta hai.
+> High Level Design is the map of a system — which boxes exist (API, cache, queue, database, CDN), how data flows between them, and what happens under load or failure. It gets decided before code because a wrong architecture costs ten times more after code is written.
 
-HLD ki importance teen jagah dikhti hai. Pehle, bade systems dimaag mein nahi bante — WhatsApp ke 50M connections ya Ticketmaster ki flash sale bina soche handle nahi hoti; boxes aur data flow pehle paper pe prove hote hain. Doosra, HLD team ko ek bhasha deta hai — frontend, backend, DevOps sab same diagram dekh ke kaam karte hain, assumptions chhupti nahi. Teesra, interviews mein HLD round decide karta hai — DSA ke baad yahi wo round hai jo senior roles mein hire ya reject karta hai, kyunki isme trade-off thinking dikhti hai, ratta nahi.
+HLD matters in three places. First, big systems are never built in someone's head — 50M WhatsApp connections or a Ticketmaster flash sale cannot be handled without thinking. Boxes and data flow get proven on paper first. Second, HLD gives a team one language — frontend, backend, and DevOps all work from the same diagram, so assumptions stop hiding. Third, interviews hinge on the HLD round — after DSA, it is the round that hires or rejects for senior roles, because it reveals trade-off thinking, not memorization.
 
-HLD aur LLD ka farak seedha hai: HLD machines ki baat karta hai (servers, databases, load balancers), LLD classes ki (Parking Lot ke models, SOLID, design patterns). Dono ke interview alag hote hain, dono ki taiyaari alag. Ye section HLD ka hai — concepts, technologies, aur pure design breakdowns.
-
-## Why HLD matters
-
-**1. Costly mistakes saste mein pakadta hai.** Design phase mein ek galat DB choice whiteboard pe mit jaati hai; production mein wahi migration mahino ka kaam hai. HLD galti ko saste stage pe pakadta hai.
-
-**2. Scale aur failure pehle se sochwata hai.** Happy path to koi bhi bana le — HLD poochta hai celebrity post pe fan-out kaise hoga, DB down ho to kya hoga, traffic 10x ho to kaun tootega. Yehi sawal interviewer bhi poochta hai.
-
-**3. Trade-off thinking sikhata hai.** HLD mein sahi jawab ek nahi hota — SQL ya NoSQL, sync ya async, strong ya eventual. Har choice ki keemat samajhna hi senior thinking hai, aur ye skill sirf HLD practice se aati hai.
-
-**4. Real career value.** Mid-level ke baad promotions aur top companies ke rounds HLD pe tikte hain. System design karna aana matlab bade systems own karne ke layak hona.
+HLD versus LLD is simple: HLD talks about machines (servers, databases, load balancers), LLD talks about classes (Parking Lot models, SOLID, design patterns). Different interviews, different preparation. This section is HLD — concepts, technologies, and complete design breakdowns.
 
 ## How to use this section
 
-Pehle **Key Concepts** padho — ye HLD ki theory hai (caching, CAP, sharding, consistent hashing) jo har design mein kaam aati hai. Fir **Key Technologies** skim karo taaki tool ka naam reason ke saath le sako (Redis kyun, Kafka kab). Sabse zyada time **Question Breakdowns** par lagao — Bitly, Uber, WhatsApp jaise pure designs se hi pattern yaad hota hai.
+Start with **Key Concepts** — the theory behind every design (fundamentals, networking, databases, caching, queues, distributed systems). Skim **Key Technologies** so you can name each tool with a reason (why Redis, when Kafka). Spend the most time on **Question Breakdowns** — Bitly, Uber, and WhatsApp style walkthroughs are where patterns stick.
 
-Har design page ka same shape hai: asli sawal kya hai, requirements, APIs, boxes, ek deep dive jo interviewer zaroor puchega. Interview mein bolo: *"Pehle simple design jo APIs meet kare, fir scale aur failure ke liye harden karenge."*
+Every design page follows the same shape: what the real question is, requirements, APIs, boxes, one deep dive the interviewer will definitely probe, and one line you can say out loud. Say in the interview: *"First a simple design that meets the APIs, then harden it for scale and failure."*
 
 ## Keep in mind
 
-- HLD machines ki baat hai, LLD classes ki — farak pehle line mein bolo
-- Design paper pe prove hota hai, code mein nahi — galti saste stage pe pakdo
-- Happy path ke baad hamesha scale aur failure poocho — yehi deep dive hai
-- Ek sahi jawab nahi hota — trade-off bolke jao: "Agar X to Y, warna Z"
-- NFR sirf wahi jo is product mein matter kare — CAP har app pe mat rato
-- Capacity math tabhi jab number design badle — naatak mat karo
+- HLD is about machines, LLD is about classes — say this line first.
+- Prove the design on paper, not in code — catch mistakes at the cheap stage.
+- After the happy path, always ask about scale and failure — that is the deep dive.
+- There is no single right answer — reason with trade-offs: "If X then Y, else Z."
+- Apply non-functionals only where the product needs them — don't recite CAP for every app.
+- Do capacity math only when the number changes the design — no theater.

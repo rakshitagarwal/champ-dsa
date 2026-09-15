@@ -49,4 +49,4 @@ graph TD
 
 **Yaad rakho (Revision):** TLS 1.2/1.3 current, HTTPS = HTTP+TLS, handshake (client+server hello, certificate, key exchange), mTLS = mutual auth, PKI/CA, certificate expiry risk, TLS 1.3 preferred.
 
-**See also:** [OAuth 2.0 and OIDC](/hld/oauth2-and-openid-connect), [Single Sign-On](/hld/single-sign-on), [API Gateway](/hld/api-gateway).
+**See also:** [OAuth 2.0 and OIDC](/hld/security), [Single Sign-On](/hld/security), [API Gateway](/hld/api-gateway).

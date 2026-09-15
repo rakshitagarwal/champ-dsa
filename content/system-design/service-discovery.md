@@ -47,4 +47,4 @@ graph LR
 
 **Yaad rakho:** Register 10s, cache 30s, watch, DNS TTL, K8s Service.
 
-**See also:** [load-balancer](/hld/load-balancer), [zookeeper](/hld/zookeeper), [gossip-protocol](/hld/gossip-protocol).
+**See also:** [load-balancer](/hld/load-balancing), [zookeeper](/hld/distributed-systems), [gossip-protocol](/hld/distributed-systems).

@@ -1,48 +1,34 @@
 # DynamoDB
 
-> Managed key-value, scale ka tension AWS le. Partition keys, GSIs, aur hot partitions se bacho.
+> Managed auto-scale key-value — hand over a partition key, get single-digit millisecond reads back.
 
-> DynamoDB ek managed auto-scale locker hai — chabi (partition key) do, samaan lo. GSIs se dusri chabi se bhi dhoondh sakte ho, par har GSI alag kharcha. Hot key ek hi locker ko garam kar degi to throttle.
+> DynamoDB is a managed locker service: give a key, take the item. Global Secondary Indexes allow lookup by alternate keys, each at its own cost. Auto-scaling and on-demand modes absorb spikes without cluster operations. Hot keys throttle single partitions — design keys to spread.
 
-Table me **Partition Key (PK)** zaruri — `hash(PK) % partitions` pe data. **Sort Key (SK)** optional — andar range query (`PK=userId, SK=ts`).
+## When to pick it
 
-## When you pick it
+1. Key-value access at any scale without operating clusters
+2. Spiky serverless workloads (on-demand billing, scale to zero-ish)
+3. Session, cart, and metadata stores with predictable patterns
+4. Multi-region active-active via Global Tables
 
-- Key-value lookups 10k-100k QPS, auto-scale chahiye, ops nahi karna
-- Serverless — Lambda + Dynamo
-- Streams se async fan-out (Dynamo Streams → Lambda → ES)
+**Don't use for:** heavy joins, ad-hoc analytics (that's [PostgreSQL](/hld/databases-sql)), or hot single keys.
 
-**Mat lo:** heavy joins, ad-hoc analytics — wahan [PostgreSQL](/hld/postgresql).
+## How keys and indexes work
 
-## Important points
+Partition key hashes to a storage node; sort key orders items within it. GSIs project alternate query paths with independent throughput. Choose high-cardinality partition keys — user IDs spread, status flags concentrate. On-demand mode bills per request; provisioned with autoscaling saves money on steady loads.
 
-**Hash vs Range:** PK sirf = point query. PK+SK = `userId` ke saare items time order me, `begins_with`, `between`.
+## Failure modes to mention
 
-**GSI/LSI:** GSI = naya PK/SK, alag throughput, eventual consistent. LSI = same PK, alag SK, sirf bana ke time. Interview me 1-2 GSI enough bolo.
+1. **Hot partitions** — one key's traffic throttles while others idle; split keys or cache in front.
+2. **GSI lag and cost** — indexes replicate asynchronously and bill separately; every GSI is a new table to fund.
+3. **Item limits** — 400KB per item; large blobs belong in S3 with pointers here.
+4. **Scan storms** — full scans on big tables burn throughput; design queries, never scan.
 
-**Single-table design:** Sab entities ek table me `PK=USER#123, SK=ORDER#456`. Senior ke liye wow, junior ke liye overkill — tradeoff bolke jao.
+**Mistake:** "Low-cardinality partition keys like status."
+**Correct:** "High-cardinality keys spread load; GSIs add access paths at their own price."
 
-**Hot partition:** Ek PK pe 10k WPS → ek partition throttle (3000 RCU/1000 WCU per partition). Fix: `PK = userId#shard` random suffix.
+**Phrase:** "DynamoDB is the managed locker — partition key in, milliseconds out; spread keys, mind GSI costs."
 
-**Limits:** Item 400KB, partition 10GB, strongly consistent read double cost. Throttling pe SDK retry + exponential backoff.
+**Remember (Revision):** Partition plus sort keys, GSIs cost extra, on-demand for spikes, 400KB items, hot keys throttle, scans are the enemy.
 
-```mermaid
-graph LR
-    A[App] --> B[DynamoDB<br/>PK=userId<br/>SK=ts]
-    B --> C[GSI1<br/>PK=email]
-    B --> D[Streams] --> E[Lambda]
-    B --> F[DAX<br/>cache]
-```
-
-**Streams:** CDC jaisa — har write ka image Lambda me.
-
-**DAX:** Dynamo ka Redis — cache, par alag cost.
-
-**🔴 Galti:** "Scan se saare users nikalo" — pura table scan, paise aur time dono gaye.
-**✅ Sahi:** "Query on PK, GSI tabhi jab access pattern clear ho, Scan kabhi hot path pe nahi."
-
-**Phrase:** "PK se distribution, SK se range, GSI se dusra access pattern, hot key ko shard karo, Streams se async."
-
-**Yaad rakho:** PK=hash, SK=range, GSI alag table jaisa, 400KB limit, hot partition → `userId#rand`.
-
-**See also:** [cassandra](/hld/cassandra), [postgresql](/hld/postgresql), [chatgpt](/hld/chatgpt).
+**See also:** [cassandra](/hld/nosql-databases), [postgresql](/hld/databases-sql), [chatgpt](/hld/chatgpt).

@@ -42,4 +42,4 @@ graph LR
 
 **Yaad rakho (Revision):** Producer publish topic pe, sab subscribers receive, fan-out, asynchronous, decoupled, offset tracking for replay, idempotent consumers, Kafka topics.
 
-**See also:** [Message Brokers](/hld/message-brokers), [Event-Driven Architecture](/hld/event-driven-architecture), [Kafka](/hld/kafka).
+**See also:** [Message Brokers](/hld/message-queues), [Event-Driven Architecture](/hld/microservices), [Kafka](/hld/kafka).

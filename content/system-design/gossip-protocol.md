@@ -50,4 +50,4 @@ Har node ka `phi` = kitna time se heartbeat nahi aaya. `phi > 8` to suspect, `>1
 
 **Yaad rakho:** Random push-pull, log N, phi accrual, no leader, eventual.
 
-**See also:** [cassandra](/hld/cassandra), [replication](/hld/replication), [leader-election](/hld/leader-election).
+**See also:** [cassandra](/hld/cassandra), [replication](/hld/distributed-systems), [leader-election](/hld/distributed-systems).

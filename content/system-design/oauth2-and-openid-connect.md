@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** OAuth 2.0 = authorization (access), OIDC = authentication (identity), access token (short-lived) + refresh token, flows (Auth Code, Client Credentials, PKCE), least privilege.
 
-**See also:** [Single Sign-On](/hld/single-sign-on), [SSL, TLS, mTLS](/hld/ssl-tls-mtls), [Microservices](/hld/microservices).
+**See also:** [Single Sign-On](/hld/security), [SSL, TLS, mTLS](/hld/networking), [Microservices](/hld/microservices).

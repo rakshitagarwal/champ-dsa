@@ -38,4 +38,4 @@ graph TD
 
 **Yaad rakho (Revision):** SLA levels (99.9%, 99.99%, 99.999%), RTO (recovery time), RPO (data loss limit), redundancy everywhere, automatic failover, CAP theorem trade-off, SPOF avoidance.
 
-**See also:** [Clustering](/hld/clustering), [Load Balancing](/hld/load-balancing), [Disaster Recovery](/hld/disaster-recovery).
+**See also:** [Clustering](/hld/fundamentals), [Load Balancing](/hld/load-balancing), [Disaster Recovery](/hld/reliability-fault-tolerance).

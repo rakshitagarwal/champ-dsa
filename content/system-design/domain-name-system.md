@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** DNS hierarchical resolution (root→TLD→auth), recursive vs iterative, caching everywhere, record types (A, AAAA, CNAME, MX), TTL for cache expiry.
 
-**See also:** [IP](/hld/ip), [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn).
+**See also:** [IP](/hld/networking), [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn).

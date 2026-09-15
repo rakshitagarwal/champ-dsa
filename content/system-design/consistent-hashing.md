@@ -58,4 +58,4 @@ graph LR
 
 **Yaad rakho (Revision):** `hash%N` fail, ring + clockwise, virtual 100, replication next N, hot key split.
 
-**See also:** [distributed-cache](/hld/distributed-cache), [sharding](/hld/sharding), [load-balancer](/hld/load-balancer).
+**See also:** [distributed-cache](/hld/distributed-cache), [sharding](/hld/databases-sql), [load-balancer](/hld/load-balancing).

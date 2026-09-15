@@ -48,4 +48,4 @@ graph LR
 
 **Yaad rakho:** `R+W>N` overlap, `W=1` tez, `QUORUM=2/3`, sloppy for AP.
 
-**See also:** [replication](/hld/replication), [cassandra](/hld/cassandra), [cap-theorem](/hld/cap-theorem).
+**See also:** [replication](/hld/distributed-systems), [cassandra](/hld/cassandra), [cap-theorem](/hld/distributed-systems).

@@ -1,48 +1,37 @@
 # API Gateway
 
-> Single front door — TLS, auth, rate limits, routing. Business logic isme mat dalo.
+> Single front door: TLS, auth, rate limits, routing. Keep business logic out of it.
 
-> Gateway ek building ka main gate hai — har request yahan se hoke jaayegi, gate pe hi ID check (auth), bheed control (rate limit), aur sahi office (service) me bhej do. Andar ka kaam service kare, gate nahi.
-
-Ye app servers ke aage khada hota hai. Client ko bas `api.example.com` pata hai, peeche 20 services hain pata nahi. Gateway L7 (HTTP) pe kaam karta hai, Load Balancer L4 (TCP) pe. Dono saath rehte hain: LB → Gateway → Services.
+> The gateway is a building's main gate — every request passes through, IDs get checked (auth), crowds get controlled (rate limits), and visitors route to the right office (service). Services handle the actual work; the gate never does.
 
 ## What it does
 
-- **TLS terminate** — HTTPS yahan khatam, andar plain HTTP
-- **Auth** — JWT verify, `userId` header aage bhejo
-- **Rate limiting** — per user/IP, [Redis](/hld/redis) counter
-- **Routing** — `/v1/pay` → Payment Service, `/v1/search` → Search Service
-- **Validation** — schema check, size limit
-- **Observability** — request ID inject, logs/metrics
+Terminate TLS, validate JWTs, enforce rate limits per user and IP, route by path to services, aggregate responses for mobile (Backend-for-Frontend), and emit access logs plus metrics. Cross-cutting concerns live here once instead of in every service.
 
-## What not to do
+## What it must not do
 
-Business rules, DB queries, heavy compute — gateway ko halka rakho warna har request yahi atke. Fat gateway = SPOF.
-
-**LB vs Gateway:** LB = traffic baanto (round-robin, health check). Gateway = HTTP samjho, auth/rate-limit/routing.
+Business logic, data joins across services, or heavy transformation — those belong in services. A fat gateway becomes untestable shared code deployed on every change. Route and guard; never decide.
 
 ```mermaid
 graph LR
-    A[Client] --> B[L4 LB]
-    B --> C[API Gateway<br/>auth, rate-limit, routing]
-    C --> D[Service A]
-    C --> E[Service B]
-    C --> F[Service C]
-    C -->|WS upgrade| G[Chat Fleet]
+    A[Client] -->|TLS| B[API Gateway]
+    B -->|auth + rate limit| B
+    B -->|/orders/*| C[Order Service]
+    B -->|/pay/*| D[Payment Service]
 ```
 
 ## Failure modes to mention
 
-- **SPOF:** Gateway gira to sab gira — multi-AZ, 3+ replicas, health check, circuit breaker.
-- **Timeouts:** downstream slow to gateway queue full → 504, retry with backoff, idempotent.
-- **WS draining:** deploy pe connections gracefully close + client reconnect.
-- **Config:** rate limit rules etcd/Consul se, hot reload.
+1. **Single point of failure** — gateway down means everything down; run HA pairs across zones.
+2. **Latency added** — every hop costs; keep gateway logic O(1) and cacheable.
+3. **Fat gateway** — business rules leaking in create deploy coupling; push back to services.
+4. **Rate limit misconfiguration** — legitimate traffic 429s during launches; tier limits carefully.
 
-**🔴 Galti:** "Gateway me hi payment logic likh do" — Scale nahi hoga, deploy risky.
-**✅ Sahi:** "Gateway sirf cross-cutting: auth, limit, route. Logic service me."
+**Mistake:** "Implement business workflows in the gateway."
+**Correct:** "Gateway routes and guards — auth, limits, routing. Services own every decision."
 
-**Phrase:** "Gateway front door hai — auth/rate-limit/routing yahan, business logic peeche. LB L4, Gateway L7."
+**Phrase:** "Single front door: TLS, auth, rate limits, routing — business logic stays in services."
 
-**Yaad rakho:** Front door, L7 vs L4, halka rakho, multi-AZ warna SPOF.
+**Remember (Revision):** Thin gateway (route + guard), HA pairs, O(1) logic, tiered limits, BFF aggregation for mobile.
 
-**See also:** [rate limiter](/hld/rate-limiter), [notification system](/hld/notification-system).
+**See also:** [api design](/hld/api-design), [rate limiting](/hld/rate-limiting), [microservices](/hld/microservices).

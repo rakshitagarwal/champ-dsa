@@ -1,23 +1,21 @@
 # NATS (JetStream)
 
-> Halka-phulka messaging — NATS core aag ki tarah tez pub-sub hai, JetStream uspe tikau parat hai.
+> Featherweight messaging — NATS core is blazing pub-sub, JetStream adds the durable layer.
 
-> NATS core me koi persistence nahi — subscriber live nahi to message gaya. JetStream persistence jodta hai: streams (message store), consumers (kaun kya padhega), acks aur replay. Philosophy Kafka se ulti hai — simplicity aur low ops cost, raw throughput nahi.
+> Core NATS is at-most-once fire-and-forget — no persistence, offline subscribers miss out. JetStream adds durability on top: streams store messages, consumers read at their pace, ack, and replay history. Philosophy inverts Kafka's — simplicity and low ops cost over raw throughput.
 
-NATS ke do hisse samjho. **Core NATS** at-most-once fire-and-forget hai — microservices ke beech halki events, service discovery, request-reply ke liye perfect. **JetStream** uske upar durability hai — subject pe aaye messages stream me store hote hain, consumers apni raftaar se padhte hain, ack karte hain, aur purana replay kar sakte hain. Subjects dot-wale hote hain (`orders.created.eu`) aur wildcards (`*` ek level, `>` sab levels) se subscribe hota hai.
+## When to pick it
 
-## When you pick it
+1. Lightweight microservice messaging wanted — clusters up in minutes, near-zero ops burden
+2. Edge or IoT boxes with thin resources — single binary, tiny footprint
+3. Request-reply plus some durability needed — core plus JetStream combined
+4. Key-Value or Object Store wanted without another database — JetStream includes both
 
-1. Microservices ke beech halki messaging chahiye ho — setup minutes me, ops bojh na ke barabar
-2. Edge/IoT ya resource-kam machines hon — single binary, chhota footprint
-3. Request-reply plus thodi durability dono chahiye hon — core + JetStream combo
-4. Key-Value ya Object Store chahiye ho bina alag DB ke — JetStream built-in deta hai
-
-**Mat lo:** 100k+ msgs/s submitted historian... matlab bhaari log analytics, lambe retention wale event sourcing, ya complex stream processing — wahan [Kafka](/system-design/kafka) ya Flink dekho.
+**Don't use for:** 100k+ msgs/s log analytics, long-retention event sourcing, or complex stream processing — look at [Kafka](/hld/kafka) or Flink.
 
 ## How JetStream works
 
-**Publisher → Subject → Stream (store) → Consumer (push/pull) → Ack.** Stream subject match karke messages pakadta hai aur retention policy se rakhta hai — limits (size/age), workqueue (ack pe delete), ya interest (sab consumers padh lein to delete). Consumer do tarah: push (server bhejta hai) aur pull (client maangta hai — backpressure natural hai). Durable consumers restart survive karte hain, ephemeral nahi.
+**Publisher → Subject → Stream (store) → Consumer (push/pull) → Ack.** Streams capture matching subjects and retain by policy — limits (size/age), workqueue (delete on ack), or interest (delete when all consumers read). Consumers come push (server sends) or pull (client asks — natural backpressure). Durable consumers survive restarts; ephemeral ones don't. Subjects use dots (`orders.created.eu`) with wildcards (`*` one level, `>` all levels).
 
 ```mermaid
 graph LR
@@ -30,24 +28,23 @@ graph LR
 
 ## JetStream vs Kafka
 
-- **Ops:** JetStream single binary, minutes me cluster; Kafka ZooKeeper/KRaft + tuning mangta hai.
-- **Throughput:** Kafka 100k+ msgs/s; JetStream tens of thousands — moderate load ka raja hai.
-- **Model:** Dono log + replay dete hain; Kafka ecosystem (Connect, Streams, Flink) bada hai.
-- **Footprint:** Edge aur chhoti teams ke liye JetStream halka hai.
-- **Super-cluster:** NATS ka geo-distributed leafnode/supercluster setup aasan hai.
+- **Ops:** single binary clustering in minutes vs ZooKeeper/KRaft plus tuning.
+- **Throughput:** Kafka clears 100k+ msgs/s; JetStream serves tens of thousands for moderate loads.
+- **Model:** both log plus replay; Kafka's ecosystem (Connect, Streams, Flink) runs deeper.
+- **Footprint:** JetStream wins edges and small teams.
 
 ## Failure modes to mention
 
-1. **Slow consumer** — Consumer peeche reh jaye to stream bhar jayegi — max age/bytes retention + pull consumers se bachao.
-2. **Ack expiry** — Time pe ack nahi aaya to redelivery — duplicate handle karne wale idempotent consumers rakho.
-3. **No consumers (interest policy)** — Koi consumer nahi to message turant ud jayega — policy samajh ke chuno.
-4. **Memory storage** — Stream memory me rakhi to restart pe gayi — file storage lo durability chahiye to.
+1. **Slow consumers** — lagging consumers fill streams; size retention plus pull consumers defend.
+2. **Ack expiry** — unacked in time means redelivery; keep consumers idempotent.
+3. **Interest policy surprises** — no consumers means instant deletion; choose policies deliberately.
+4. **Memory streams** — restarts wipe them; file storage when durability matters.
 
-**🔴 Galti:** "Core NATS me persistence expect karna" — Core fire-and-forget hai; durability chahiye to JetStream stream banao.
-**✅ Sahi:** "Halki fast messaging NATS core se, durability JetStream streams + durable consumers se. Bhaari log ho to Kafka."
+**Mistake:** "Expect persistence from core NATS."
+**Correct:** "Core is fire-and-forget; durability needs JetStream streams plus durable consumers."
 
-**Phrase:** "NATS core tez pub-sub hai, JetStream uspe tikau parat — streams store karte hain, consumers ack karte hain. Ops halka, throughput moderate."
+**Phrase:** "NATS core is fast pub-sub, JetStream the durable layer — streams store, consumers ack. Light ops, moderate throughput."
 
-**Yaad rakho (Revision):** Core = fire-and-forget, JetStream = streams + consumers + acks + replay, subjects dot-wale + wildcards, retention policies (limits/workqueue/interest), pull se backpressure, file storage for durability.
+**Remember (Revision):** Core fire-and-forget, JetStream streams plus consumers plus acks plus replay, dotted subjects with wildcards, retention policies, pull backpressure, file storage for durability.
 
-**See also:** [kafka](/system-design/kafka), [message brokers](/system-design/message-brokers), [microservices](/system-design/microservices).
+**See also:** [message queues](/hld/message-queues), [microservices](/hld/microservices).

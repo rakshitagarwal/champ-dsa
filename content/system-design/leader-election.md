@@ -41,4 +41,4 @@ graph LR
 
 **Yaad rakho:** Smallest = leader, ephemeral auto delete, lease 10s, fencing token.
 
-**See also:** [zookeeper](/hld/zookeeper), [replication](/hld/replication), [gossip-protocol](/hld/gossip-protocol).
+**See also:** [zookeeper](/hld/distributed-systems), [replication](/hld/distributed-systems), [gossip-protocol](/hld/distributed-systems).

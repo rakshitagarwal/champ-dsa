@@ -1,46 +1,34 @@
 # ZooKeeper
 
-> Coordination — leader election, distributed locks, aur config. Kafka pehle ispe tha, ab bhi samajhna zaruri.
+> Coordination: leader election, distributed locks, and config. Kafka used to need it; the patterns still matter.
 
-> ZooKeeper ek chhota par pakka register hai jahan saare servers likh ke decide karte hain leader kaun, lock kis ka. Har write quorum pe, read fast. Etcd/Consul iske naye bhai, par concept same.
+> ZooKeeper is a tiny strongly-consistent store (znodes in a tree) that systems use to agree: who leads, who holds the lock, what the config says. Watches notify clients of changes. CP by design — minorities fail during partitions rather than split brains.
 
-Data nahi, **coordination** ke liye. 3-5 nodes ka ensemble, `2F+1` me se `F+1` quorum pe write. Strong consistent (CP).
+## When to pick it
+
+1. Leader election (one active writer among replicas)
+2. Distributed locks with fencing and leases
+3. Service configuration and membership (who is alive)
+4. Coordination primitives behind Kafka, Hadoop, and friends
+
+**Don't use for:** general storage, queues, or high-throughput reads — etcd serves the same role in Kubernetes-native stacks.
 
 ## How it works
 
-**ZNode:** file jaisa, path `/election/candidate-0001`. Types:
-- **Persistent** — permanent
-- **Ephemeral** — session khatam to auto delete (presence)
-- **Sequential** — naam me `0001, 0002` auto — lock/election me order
+Clients create ephemeral znodes (vanish on disconnect) and set watches; the ensemble (odd-numbered, usually 3 or 5) orders all writes through a leader with Zab consensus. Reads serve locally and fast; writes need a quorum. Recipes (locks, elections, barriers) compose from sequential ephemeral nodes plus watches.
 
-**Watch:** koi key badli to notify — config change.
+## Failure modes to mention
 
-**Herd effect:** 100 clients ek znode watch kare, ek change pe sab jage → thunder. Fix: watch per client ya sequential.
+1. **Herd effect** — every client watching one node thunders on change; use hierarchical watches.
+2. **Session expiry** — GC pauses kill sessions, dropping ephemeral nodes; tune timeouts to pause times.
+3. **Write bottleneck** — all writes funnel through the leader; keep data tiny and coordination-only.
+4. **Split brain avoided by design** — minority partitions stop serving; plan capacity accordingly.
 
-```mermaid
-graph LR
-    A[Ensemble<br/>3 nodes] -->|quorum| B[Leader]
-    B --> C[Followers]
-    D[App 1] -->|create ephemeral /election/n_0001| A
-    E[App 2] -->|create n_0002| A
-    D -->|watch n_0001| A
-```
+**Mistake:** "Store application data in ZooKeeper."
+**Correct:** "Coordination only — tiny znodes, ephemeral membership, watches for change."
 
-## How to answer in interview
+**Phrase:** "ZooKeeper is the agreement box — leaders elected, locks fenced, config watched, all strongly consistent."
 
-1. **Leader election:** ` /election` me sequential ephemeral banao, sabse chhota leader. Dead to next.
-2. **Lock:** `/locks/my-lock` me `lock-0001` banao, smallest hold kare, baaki watch.
-3. **Config/service discovery:** `/config/featureFlag` watch, change pe reload.
+**Remember (Revision):** Ephemeral znodes plus watches, odd ensembles, quorum writes, coordination data only, herd effect guarded.
 
-**Ensemble:** 3 nodes → 1 fail ok, 5 → 2 fail ok. 4 se fayda nahi (quorum 3 hi). Latency quorum pe.
-
-**Modern:** Kafka ne KRaft (Raft) se ZK hataya, aur systems Etcd/Consul (Raft) use karte hain — concept same, API alag.
-
-**🔴 Galti:** "ZK me bada data" — ZK chhota (1MB), data S3/DB me.
-**✅ Sahi:** "Chhota coordination data, watch + ephemeral, 3/5 nodes quorum."
-
-**Phrase:** "ZooKeeper CP coordination — ephemeral+sequential zNodes se election/lock, quorum write, watch for config."
-
-**Yaad rakho:** Ephemeral = session, sequential = order, quorum = F+1, 3/5 nodes, bada data mat dalo.
-
-**See also:** [kafka](/hld/kafka), [job-scheduler](/hld/job-scheduler), [distributed-cache](/hld/distributed-cache).
+**See also:** [distributed systems](/hld/distributed-systems), [kafka](/hld/kafka), [job scheduler](/hld/job-scheduler).

@@ -51,7 +51,7 @@ Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees
 | Search reads | 200k QPS | 200k * 10 results | ~2M doc fetches/sec after fan-out |
 | Index shards | 100TB / 50GB per shard | 2000 shards | ~666 nodes at 3 shards/node + replicas |
 | Friend list fetch | 200k QPS * 300 friends | 60M IDs/sec | Must cache — no per-query DB friend fetch |
-| Hydration cache | 10 results * 200k QPS = 2M post fetches/sec | 2M * 5KB | 10 GB/s if uncached → needs [Memcached](/hld/memcached) |
+| Hydration cache | 10 results * 200k QPS = 2M post fetches/sec | 2M * 5KB | 10 GB/s if uncached → needs Memcached |
 
 Index dominates cost; ACL tricks save query fan-out.
 
@@ -113,7 +113,7 @@ graph LR
 - **Indexer Workers:** Stateless consumers, batch 100 docs or 1 sec. Build ES document: `{ postId, authorId, text, tokens, createdAt, audienceType, visibilitySet?, groupId? }`. For friends-only posts, store `authorId` + `audience=friends` rather than expanding 4000 friend IDs into doc (that would bloat index and stale on unfriend). Update is upsert; delete is hard delete.
 - **[Elasticsearch](/hld/elasticsearch):** Sharded by `postId` hash (not author — avoids hot shards for celebrities). 2000 shards across 600+ nodes, 1 replica. Index mapping includes `text` (BM25), `authorId` (keyword), `createdAt` (date), `audienceType` (keyword), `groupId`. Refresh interval 5-10s for near-real-time.
 - **Social Graph Service / TAO Cache:** [Redis](/hld/redis) + TAO-like cache for `friendList(viewer)` and `groupMembership(viewer)`. Precomputed "searchable author set" — not raw 5000 IDs per query, but a cached bitset/roaring bitmap of authors you interact with most plus tiered expansion. Hit rate critical.
-- **Search Service:** Stateless. Steps: (1) resolve viewerId, (2) fetch constrained author set from graph cache, (3) build ES query: `text match + filter(authors in set OR audience=public OR groupId in memberGroups)`, (4) ES returns top 100 IDs, (5) hydrate from Post Service via [Memcached](/hld/memcached) bulk get, (6) re-check ACL via Post Service (source of truth) and drop any leaked hit, (7) rank.
+- **Search Service:** Stateless. Steps: (1) resolve viewerId, (2) fetch constrained author set from graph cache, (3) build ES query: `text match + filter(authors in set OR audience=public OR groupId in memberGroups)`, (4) ES returns top 100 IDs, (5) hydrate from Post Service via Memcached bulk get, (6) re-check ACL via Post Service (source of truth) and drop any leaked hit, (7) rank.
 - **Ranker:** BM25 + recency decay (`exp(-age/30days)`) + author affinity (interaction count) + social proof (likes/comments). Not Google quality — simple weighted sum. Optional second-stage ML re-rank for top 50.
 
 **Write path:** create post -> DB -> Kafka -> indexer -> ES (5-10s).
@@ -229,7 +229,7 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 - **ES shard failure:** Replica serves reads; indexer retries failed docs via DLQ; source of truth remains DB so index can be rebuilt per shard from Kafka replay.
 - **Indexer lag:** Kafka consumer lag alert >10s; scale indexer workers horizontally; ES bulk queue size bounded to avoid OOM.
 - **Graph cache miss storm:** On cache eviction, 200k QPS * graph fetch would DDoS DB. Use singleflight (only one rebuild per viewerId concurrent), stale-while-revalidate (serve slightly stale friend list), and rate-limit graph DB reads.
-- **Hydration hot key (celebrity post):** Viral post hydrated 100k times/sec — cache in [Memcached](/hld/memcached) with 60s TTL + L1 Caffeine in Search Service; use `mget` batching to reduce RTT.
+- **Hydration hot key (celebrity post):** Viral post hydrated 100k times/sec — cache in Memcached with 60s TTL + L1 Caffeine in Search Service; use `mget` batching to reduce RTT.
 - **ES refresh storm:** Don't set refresh to 1s for 2000 shards (heavy). Keep 5-10s and accept that freshness trade-off; important posts can be force-refreshed via `?refresh=wait_for` on demand.
 - **Clock skew on edits:** Use `updatedAt` version, not wall clock, to decide last write wins; Cassandra-style LWW if distributed.
 - **Scale knobs:** Add ES data nodes + shards; cache graph sets; CDN not useful for personalized search, but edge caching for public-only queries possible.

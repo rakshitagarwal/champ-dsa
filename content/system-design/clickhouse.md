@@ -1,23 +1,21 @@
 # ClickHouse
 
-> Analytics ka engine — arabon rows pe dashboard queries seconds me, columnar storage ki wajah se.
+> Analytics engine — dashboard queries over billions of rows in seconds, thanks to columnar storage.
 
-> OLTP databases (Postgres) rows store karte hain — poori row padhni padti hai. ClickHouse columns store karta hai — `SUM(revenue)` me sirf revenue column padhta hai, baaki touch nahi hota. Isliye dashboards, ad-tech aggregates, log analytics aur observability iski jagah hai. Writes append-only batches me aate hain, updates se nafrat hai.
+> OLTP databases store rows — every query reads whole rows. ClickHouse stores columns — a `SUM(revenue)` reads only the revenue column, touching nothing else. Dashboards, ad-tech aggregates, log analytics, and observability live here. Writes arrive as append-only batches; updates are unwelcome.
 
-Core **MergeTree** engine hai: data parts me likha jaata hai, background me merge hote hain. **Ordering key** sabse important decision hai — queries isi order me tez chalti hain (time + campaign jaisa). **Partitioning** (month-wise) purana data drop karna aasan karta hai. **Materialized views** pehle se aggregate karke rakhti hain taaki dashboard precomputed numbers uthaye. Replicas + shards ZooKeeper/Keeper ke saath chalte hain.
+## When to pick it
 
-## When you pick it
+1. Dashboards over billions of rows (ad-tech, product analytics) needing real-time aggregates
+2. Log and observability analytics ([metrics](/hld/metrics-monitoring) style) — heavy ingest, fast group-bys
+3. Funnels and cohorts — range scans on ordering keys run fast
+4. Batch appends (from Kafka) — trickle writes hurt, batches fly
 
-1. Dashboards hon arabon rows pe (ad-tech, product analytics) — real-time aggregates chahiye hon
-2. Log/observability analytics ho ([metrics](/system-design/metrics-monitoring) jaisa) — high-ingest, fast group-by
-3. Funnels aur cohorts nikalne hon — ordering key pe range scans tez hain
-4. Batch appends hon (Kafka se) — trickle writes ke bajaye batches daalo
-
-**Mat lo:** transactions (Postgres lo), full-text search ([Elasticsearch](/system-design/elasticsearch) lo), frequent updates/deletes (mutations bhaari hain), ya chhota data (Postgres kaafi hai).
+**Don't use for:** transactions (Postgres), full-text search (a search engine like Elasticsearch), frequent updates or deletes (mutations cost dearly), or small data (Postgres suffices).
 
 ## How it works
 
-**Write:** [Kafka](/system-design/kafka) se batches aate hain → parts me likhe jaate hain → background merge. **Read:** query ordering key pe range lagati hai → sirf zaroori columns padhti hai → materialized view ho to precomputed jawab. **Scale:** shard key pe distribute, har shard ke replicas Keeper se coordinate hote hain.
+**Write:** [Kafka](/hld/kafka) batches land as parts; background merges compact them. **Read:** queries range over the ordering key, touching only needed columns; materialized views serve precomputed answers. **Scale:** distribution by shard key, replicas coordinated via Keeper.
 
 ```mermaid
 graph LR
@@ -30,24 +28,24 @@ graph LR
 
 ## ClickHouse vs others
 
-- **vs Postgres:** OLTP rows vs OLAP columns — transactions Postgres, analytics ClickHouse.
-- **vs Elasticsearch:** Search (text relevance) ES ka hai; numbers pe group-by ClickHouse tez aur sasta hai.
-- **vs Druid/Pinot:** Same parivaar — ClickHouse ops me halka, SQL jaisi query bhasha deta hai.
-- **vs Flink:** Flink stream compute karta hai; ClickHouse computed ko store + serve karta hai — saath chalte hain.
+- **vs Postgres:** OLTP rows vs OLAP columns — transactions to Postgres, analytics to ClickHouse.
+- **vs Elasticsearch:** text relevance belongs to search engines; numeric group-bys run faster and cheaper here.
+- **vs Druid/Pinot:** same family — ClickHouse operates lighter with SQL-like queries.
+- **vs Flink:** Flink computes streams; ClickHouse stores plus serves results — they pair up.
 
 ## Failure modes to mention
 
-1. **High-cardinality GROUP BY** — userId pe group karo to memory phat-ti hai — approx (HLL/uniq) ya pre-aggregation lo.
-2. **Too many parts** — Chhote-chhote inserts parts ka dher banate hain — async inserts / batches rakho.
-3. **Heavy JOINs** — Distributed joins mehengi hain — denormalize karo, star schema yahan nahi chalta.
-4. **Mutations** — UPDATE/DELETE part rewrite karta hai — design append-only rakho.
-5. **Wrong ordering key** — Galat key matlab har query full scan — query pattern pehle, key baad me.
+1. **High-cardinality GROUP BY** — grouping by userId explodes memory; approximate (HLL/uniq) or pre-aggregate.
+2. **Too many parts** — tiny inserts pile parts endlessly; use async inserts and batches.
+3. **Heavy JOINs** — distributed joins cost dearly; denormalize, star schemas don't apply.
+4. **Mutations** — UPDATE/DELETE rewrites parts; design append-only.
+5. **Wrong ordering key** — bad keys force full scans; pick keys from query patterns first.
 
-**🔴 Galti:** "Postgres me billion-row analytics" — Row store pe dashboard crawl karega; analytics alag engine mangta hai.
-**✅ Sahi:** "Real-time analytics ClickHouse me — MergeTree + ordering key + materialized views, Kafka se batches, joins nahi denormalize karo."
+**Mistake:** "Billion-row analytics in Postgres."
+**Correct:** "Real-time analytics in ClickHouse — MergeTree plus ordering keys plus materialized views, batches from Kafka, denormalized not joined."
 
-**Phrase:** "ClickHouse columns padhta hai rows nahi — isliye arabon rows pe dashboard tez hai. Ordering key sahi rakho, batches me likho, joins mat maango."
+**Phrase:** "ClickHouse reads columns, not rows — dashboards over billions stay fast. Order keys right, write in batches, never ask for joins."
 
-**Yaad rakho (Revision):** Columnar vs row store, MergeTree + parts + background merge, ordering key = sabse important decision, partitioning (month), materialized views, replicas via Keeper, async inserts, denormalize (no joins).
+**Remember (Revision):** Columnar vs row stores, MergeTree plus parts plus background merge, ordering key as top decision, monthly partitioning, materialized views, Keeper replicas, async inserts, denormalize always.
 
-**See also:** [elasticsearch](/system-design/elasticsearch), [flink](/system-design/flink), [kafka](/system-design/kafka), [metrics-monitoring](/system-design/metrics-monitoring).
+**See also:** [flink](/hld/flink), [kafka](/hld/kafka), [metrics monitoring](/hld/metrics-monitoring).

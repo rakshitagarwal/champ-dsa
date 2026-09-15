@@ -37,7 +37,7 @@ Assume 300M DAU, 2% creators upload 1 video/week, average original 1.5 GB, 5 ren
 | Storage (originals) | 860K × 1.5 GB = **1.3 PB/day** → 475 PB/year before renditions | PB scale — needs [Object Storage](/hld/s3) (S3/GCS) |
 | Storage (renditions) | 1.3 PB × 1.4 (ladder + thumbs + manifest) | ~1.8 PB/day |
 | Bandwidth | 1.5B plays × 30 MB avg (ABR mix) = 45 PB/day ≈ **4.2 Tbps** avg | CDN-served, not origin |
-| Metadata | 1 row/video ~2 KB → 860K × 2 KB = **1.7 GB/day** in [Postgres](/hld/postgres) | Tiny vs blobs |
+| Metadata | 1 row/video ~2 KB → 860K × 2 KB = **1.7 GB/day** in [Postgres](/hld/postgresql) | Tiny vs blobs |
 
 Key insight: metadata QPS and storage are trivial. Bandwidth and blob storage dominate — which is why the **CDN + object store** are the system, the API is just the index.
 
@@ -109,7 +109,7 @@ graph LR
 - **API Gateway + LB:** Terminates TLS, validates JWT, enforces [Rate Limiter](/hld/rate-limiter) per user/IP.
 - **Video Service:** Owns metadata, upload session, state machine `created → uploading → processing → ready/failed`. Writes Postgres, emits `video.upload.completed` to [Kafka](/hld/kafka).
 - **Transcode Workers:** Stateless consumers. Pull task, download source from S3, run FFmpeg ladder (144p…4K), pack HLS segments + master manifest, upload renditions back to S3, update DB via orchestrator. GPU autoscaled.
-- **Metadata DB:** [Postgres](/hld/postgres) for videos, users. Read replicas for `GET /videos`. Not on byte path.
+- **Metadata DB:** [Postgres](/hld/postgresql) for videos, users. Read replicas for `GET /videos`. Not on byte path.
 - **Search & Counts:** Async [Elasticsearch](/hld/elasticsearch) indexer and a separate counter pipeline ([YouTube Top K](/hld/youtube-top-k)) — never inline `views+1`.
 - **Cache:** [Redis](/hld/redis) for hot video metadata, view-count write-behind buffer.
 
@@ -198,7 +198,7 @@ Strategy (codec choice), State Machine (video lifecycle), Producer-Consumer (Kaf
 
 ## Deep dive — never block on transcode
 
-Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/hld/websocket) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
+Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/hld/api-design) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
 
 ## Deep dive — view counts and hot videos
 

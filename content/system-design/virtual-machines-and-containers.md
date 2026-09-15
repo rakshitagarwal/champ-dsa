@@ -47,4 +47,4 @@ graph TD
 
 **Yaad rakho (Revision):** VM = full OS + hypervisor, heavy + slow boot, strong isolation. Container = app + dependencies + shared kernel, lightweight + fast. Docker + Kubernetes for orchestration.
 
-**See also:** [Microservices](/hld/microservices), [Clustering](/hld/clustering), [N-tier Architecture](/hld/n-tier-architecture).
+**See also:** [Microservices](/hld/microservices), [Clustering](/hld/fundamentals), [N-tier Architecture](/hld/microservices).

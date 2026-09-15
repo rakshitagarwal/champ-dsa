@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** ACID = pura ya zero + strong, BASE = available + eventual, payment ACID, likes BASE.
 
-**See also:** [cap-theorem](/hld/cap-theorem), [eventual-consistency](/hld/eventual-consistency), [postgresql](/hld/postgresql).
+**See also:** [cap-theorem](/hld/distributed-systems), [eventual-consistency](/hld/distributed-systems), [postgresql](/hld/postgresql).

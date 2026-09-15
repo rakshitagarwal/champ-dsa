@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho:** CAP=partition, PACELC=else bhi, EL=tez 1 replica, EC=slow quorum.
 
-**See also:** [cap-theorem](/hld/cap-theorem), [cassandra](/hld/cassandra), [postgresql](/hld/postgresql).
+**See also:** [cap-theorem](/hld/distributed-systems), [cassandra](/hld/cassandra), [postgresql](/hld/postgresql).

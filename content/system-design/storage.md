@@ -1,51 +1,50 @@
 # Storage
 
-> Data ka jagah — persistent storage options: block, file, object. Har ek ka use case alag hai.
+> Durable bytes in three shapes — pick by access pattern, not habit.
 
-> Storage 3 types: Block (raw disk, VMs ke liye), File (hierarchy, shared access), Object (blobs, S3, scalable). Database storage (Postgres, MySQL) structured ke liye, cache storage (Redis) fast reads ke liye, object storage (S3) media/files ke liye. CAP theorem se storage decisions lo — consistency vs availability trade-off.
+> Storage splits three ways: object (flat buckets, infinite scale), block (raw disks for VMs and databases), file (hierarchical shared folders). Media and backups go object; database volumes go block; shared team files go file storage.
 
-Storage system mein data persist karne ke options:
+## Object Storage
 
-**Block Storage:**
-- Raw block-level storage, like a hard disk
-- Attached to VMs, high performance
-- Use cases: databases, VMs, transactional apps
-- Examples: EBS (AWS), Persistent Disk (GCP)
+Flat namespaces of buckets and keys, no real folders, practically unlimited scale with eleven-nines durability. S3, GCS, and Azure Blob lead. Immutable versions, rich metadata, and lifecycle tiers come standard.
 
-**File Storage:**
-- Hierarchical (folders/files), shared access
-- NFS/SMB protocols, network-accessible
-- Use cases: shared files, media libraries, CMS
-- Examples: EFS (AWS), Azure Files
+## Block Storage
 
-**Object Storage:**
-- Flat namespace (buckets), scalable, durable
-- Metadata-rich, versionable
-- Use cases: images, videos, backups, archives
-- Examples: S3 (AWS), GCS (Google Cloud)
+Raw volumes attached to single machines — EBS, Persistent Disk. Databases and VM filesystems live here for low-latency random I/O. Snapshots back them up; replication is the provider's job.
+
+## File Storage
+
+Shared hierarchical filesystems over NFS or SMB — EFS, Filr, Azure Files. Teams and legacy apps share files directly. Slower than block, simpler than building sharing yourself.
+
+## S3 Deep Dive
+
+Buckets hold versioned objects addressed by key. Lifecycle rules tier aging data (Standard → Infrequent Access → Glacier) to cut bills. Cross-region replication guards against regional loss. Event notifications trigger pipelines on upload.
+
+## Blob Storage and Presigned URLs
+
+Never proxy bytes through app servers: issue time-boxed presigned URLs so clients upload and download directly from object storage. The server authenticates and authorizes; the bytes bypass it entirely.
+
+## Multipart and Large File Upload
+
+Split big files into parts uploaded in parallel with per-part retries; the server completes the assembly. Resumable uploads survive flaky mobile networks. Past ~100MB, multipart is mandatory.
+
+## Data Lifecycle, Backup and Recovery
+
+Lifecycle policies age data across tiers then expire it. Backups pair snapshots with tested restores — untested backups are wishes. Define RPO (acceptable data loss) and RTO (acceptable downtime) first; they size every storage decision.
 
 ```mermaid
-graph TD
-    A[Storage Types] --> B[Block]
-    A --> C[File]
-    A --> D[Object]
-    B -->|High perf, VMs| E[(Database, VMs)]
-    C -->|Shared files| F[(CMS, Media Library)]
-    D -->|Scalable, durable| G[(Images, Videos, Backups)]
+graph LR
+    A[Client] -->|presigned URL| B[App Server<br/>auth only]
+    A -->|multipart PUT| C[S3 Bucket]
+    A -->|GET| D[CDN]
+    D -->|miss| C
+    C -->|lifecycle| E[Glacier archive]
 ```
 
-## Failure modes to mention
+## Keep in mind
 
-1. **Data loss** — Storage failure = data lost — replication/snapshots se bachna
-2. **Consistency issues** — Distributed storage mein stale reads possible — quorum read/write
-3. **Latency** — Remote storage = network latency — caching, CDN, local cache
-4. **Cost** — Object storage cheap, block storage expensive — right storage for right use
-
-**🔴 Galti:** "S3 jaise object storage database replace kar sakta hai" — Object storage queries nahi support karta, structured queries ke liye RDBMS needed.
-**✅ Sahi:** "Block = raw disk (VMs/DBs), File = hierarchical (shared access), Object = flat buckets (S3/media). Use RDBMS for queries, S3 for files, Redis for cache."
-
-**Phrase:** Storage 3 types — block (raw disk, VMs), file (hierarchical, shared), object (S3 buckets, scalable, media). RDBMS for structured data, cache for speed, object for files.
-
-**Yaad rakho (Revision):** Block storage (VMs/DBs), File storage (shared/NFS), Object storage (S3, media), right storage for right use case, replication/snapshots for durability, CAP theorem storage decisions.
-
-**See also:** [Caching Strategies](/hld/caching-strategies), [Database Replication](/hld/database-replication), [Distributed Cache](/hld/distributed-cache).
+- Object for media and backups, block for databases, file for sharing.
+- Bytes never transit app servers — presigned URLs always.
+- Multipart past ~100MB with per-part retries.
+- Lifecycle tiers cut bills; test restores, don't assume backups.
+- RPO and RTO size every storage choice.

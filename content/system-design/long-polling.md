@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** Short 2s, long 20s hold, SSE `text/event-stream`, WS 101 + 2-way.
 
-**See also:** [websocket](/hld/websocket), [whatsapp](/hld/whatsapp), [fb-live-comments](/hld/fb-live-comments).
+**See also:** [websocket](/hld/api-design), [whatsapp](/hld/whatsapp), [fb-live-comments](/hld/fb-live-comments).

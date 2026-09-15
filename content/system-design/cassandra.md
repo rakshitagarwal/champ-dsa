@@ -1,56 +1,41 @@
 # Cassandra
 
-> Wide-column store, boht zyada writes aur jahan key pata ho. Relations pe nahi, queries pe model karo.
+> Wide-column store for huge write volume and known keys. Model around queries, not relations.
 
-> Cassandra ek badi diary hai jahan har page (partition) me rows time pe sorted hain. Write sasta, read tabhi tez jab tumhe pata ho kaunsa page kholna hai (`chatId`). Query pehle socho, table baad me banao.
+> Cassandra is a big diary where every page (partition) holds time-sorted rows. Writes stay cheap, reads stay fast only when you know which page to open (`chatId`). Think queries first, tables second — each access pattern may own its table.
 
-SQL me pehle tables normal karte ho. Cassandra me ulta — **query per table**. Messages ke liye `PRIMARY KEY ((chatId), sentAt)` — matlab `chatId` ka partition, andar time pe sorted. Dusri query chahiye to dusra table.
+## When to pick it
 
-Ring me nodes, har key `hash(key) % ring` pe ek node leader, 2 replicas.
+1. Massive write throughput (chat messages, time-series, activity logs)
+2. Known-key lookups at scale (no ad-hoc joins needed)
+3. Multi-datacenter active-active with tunable consistency
+4. Time-ordered data with TTL expiry built in
 
-## When you pick it
+**Don't use for:** joins, ad-hoc search, transactions — that's [PostgreSQL](/hld/databases-sql).
 
-- Boht zyada writes, time-series (chat messages, metrics, events) — 100k writes/sec
-- Key pe lookup — `chatId`, `userId`
-- TTL chahiye — `WITH default_time_to_live = 86400`
+## How data models work
 
-**Mat lo:** joins, ad-hoc search, transactions — wahan [PostgreSQL](/hld/postgresql).
-
-## How it works
-
-```sql
--- Hinglish: chatId = partition, sent_at = clustering (order)
-CREATE TABLE messages (
-  chat_id  UUID,
-  sent_at  BIGINT,
-  msg_id   UUID,
-  body     TEXT,
-  PRIMARY KEY ((chat_id), sent_at)
-) WITH CLUSTERING ORDER BY (sent_at DESC);
--- Query: WHERE chat_id = ? AND sent_at < ? LIMIT 50  → ek partition se, tez
-```
-
-## Hot partition handling
-
-**Hot partition:** Ek celebrity chatId pe lakhon writes ek node pe. Fix: `chatId:shard` bucket (`chatId#1`, `chatId#2`) ya time bucket (`chatId:2026-08`).
-
-**Quorum:** `R + W > N` to strong-ish. `W=QUORUM` likho, `R=QUORUM` padho → majority ne dekha. `R=1, W=1` tez par stale.
-
-**CQL ≠ SQL:** `ALLOW FILTERING` mat bolo — full scan karega, interview me fail.
+Partition key picks the node (hash ring); clustering columns sort rows within the partition. Denormalize freely — one table per query. Consistency tunes per operation (`ONE`, `QUORUM`, `ALL`); `R + W > N` gives strong reads. Hinted handoff plus read repair converge replicas asynchronously.
 
 ```mermaid
 graph LR
-    A[App] -->|hash chatId| B[Ring Node 1<br/>chatId A]
-    A --> C[Node 2<br/>chatId B]
-    A --> D[Node 3]
-    B <-->|replica| E[Node 4]
+    A[App<br/>WHERE chatId=?] --> B[Ring hash]
+    B --> C[Node: partition<br/>rows time-sorted]
+    C -->|hinted handoff| D[Replica]
 ```
 
-**🔴 Galti:** "Ek hi table se saare queries" — Cassandra me nahi.
-**✅ Sahi:** "Har query ke liye alag table, partition key soch ke."
+## Failure modes to mention
 
-**Phrase:** "Cassandra me query pehle, table baad me. Partition key se distribution, clustering se order, R+W>N se quorum."
+1. **Hot partitions** — celebrity keys overload nodes; split keys or front with cache.
+2. **Unbounded partitions** — partitions grow forever; bucket by time (monthly tables).
+3. **Tombstone storms** — mass deletes slow reads; prefer TTL expiry.
+4. **Lightweight transactions** — CAS exists but costs 4 round trips; avoid hot paths.
 
-**Yaad rakho:** Query-per-table, `((partition), clustering)`, hot partition → bucket, quorum R+W>N.
+**Mistake:** "Model like Postgres with joins in mind."
+**Correct:** "Query-first tables, partition key from access pattern, denormalize freely."
 
-**See also:** [whatsapp](/hld/whatsapp), [metrics-monitoring](/hld/metrics-monitoring), [dynamodb](/hld/dynamodb).
+**Phrase:** "Cassandra is the big diary — think query first, table second; writes cheap, reads fast by known key."
+
+**Remember (Revision):** Partition key picks node, clustering sorts rows, quorum tunes consistency, TTL expires, hot partitions split, lightweight transactions avoided.
+
+**See also:** [whatsapp](/hld/whatsapp), [nosql databases](/hld/nosql-databases), [dynamodb](/hld/dynamodb).

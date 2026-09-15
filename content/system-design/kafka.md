@@ -1,60 +1,48 @@
 # Kafka
 
-> Durable ordered event log. Boht saare consumers ko fan-out, history replay, aur spikes ko buffer karna ho to Kafka.
+> Durable ordered event log. Fan out to many consumers, replay history, buffer spikes.
 
-> Kafka ek durable train ki tarah hai — har dabba (partition) me messages order me, disk pe safe. Ek producer, boht saare consumer groups alag-alag speed se read kar sakte hain, purana data replay bhi. Queue nahi, log hai.
+> Kafka is a train with durable cars: every partition holds messages in order on disk, safe and replayable. One producer serves many consumer groups reading at their own speeds. It is a log, not a queue — nothing deletes on read.
 
-Queue vs log vs pub/sub ka fark samjho. Queue me ek message ek consumer kha jata hai. Log me har consumer group pura log padh sakta hai, offset yaad rakhta hai. Isliye analytics + search + notifications sab ek hi event se chal sakte hain.
+## When to pick it
 
-## When you pick it
+1. Event streaming between services (order created → five reactions)
+2. High-throughput ingest (clicks, logs, metrics at 100k+ msgs/s)
+3. Replay needs (new consumer reads history, bug reprocessing)
+4. Spike buffering in front of slow processors
 
-- Ek event se 3-4 systems trigger hone hain (Bitly click → analytics, Twitter fan-out → timelines)
-- Replay chahiye — naya consumer purana data fir se padh sake
-- Spike buffer — 40k QPS aaye to DB seedha mar jaye, Kafka pehle absorb kare
-- Ordering per key chahiye (chatId ya orderId se partition)
-
-**Mat use karo:** simple request-response ya low-throughput job queue jahan SQS/RabbitMQ kaafi ho — Kafka heavy hai.
+**Don't use for:** simple task queues with routing (RabbitMQ fits better), request-reply RPC, or tiny throughput (SQS suffices).
 
 ## How it works
 
-**Partition = dabba.** `key = chatId` → `hash(key) % partitions` → same chat hamesha same partition, order safe. Partition ek leader + replicas (ISR).
-
-**Consumer group = team.** Ek group me har partition ek hi consumer ko milta hai (parallel). Dusra group pura wapas padh sakta hai. Offset = kitna padh liya.
-
-**Delivery guarantees:**
-- `at-most-once` — auto-commit pehle, process baad me → lose ho sakta hai
-- `at-least-once` — process karke commit → duplicate ho sakta hai, idempotent consumer chahiye
-- `exactly-once` — idempotent producer + transaction (Flink/Kafka Streams), bolna easy, karna mushkil
-
-**Outbox pattern:** DB write + Kafka publish ek sath kaise? App DB me outbox table me event likhe, CDC/Debezium Kafka me daale. 2-phase commit se bacho.
+Topics split into partitions (parallelism unit); producers key messages to partitions (same key, same order); consumer groups each read the full log independently with committed offsets. Retention (days to forever) decides replay window. Replication factor 3 with `acks=all` and min in-sync replicas gives durability without single points of failure.
 
 ```mermaid
 graph LR
-    A[Producer<br/>App] -->|key=chatId| B[Kafka<br/>topic: chat.events<br/>p=12]
-    B --> C[Consumer Group: fanout]
-    B --> D[Consumer Group: search indexer]
-    B --> E[Consumer Group: analytics]
-    C --> F[Workers]
+    A[Producer<br/>key=userId] --> B[Topic: orders<br/>12 partitions]
+    B --> C[Group: payments<br/>offset 881]
+    B --> D[Group: analytics<br/>offset 120]
+    C -->|ack| B
 ```
 
-## Patterns
+## Delivery semantics
 
-- **Fan-out:** ek topic, N groups. Har group apna offset.
-- **Backpressure:** consumer slow to lag badhe, alert.
-- **Compaction:** key ka latest value hi rakho (config).
+- **At-most-once:** commit before processing — may lose, never duplicates.
+- **At-least-once:** commit after processing — redelivers on crash; pair with idempotent consumers (the default).
+- **Exactly-once:** transactions plus idempotent producer — narrow scope, real cost.
 
 ## Failure modes to mention
 
-- **Lag:** consumer slow → monitoring + autoscale, DLQ for poison pill
-- **Ordering:** galat key se order toot jayega — hamesha bolna kaunsa key
-- **Retention:** 7 din default, disk full se pehle delete
-- **Rebalance:** consumer add/remove pe thoda pause — sticky assignor se kam
+1. **Consumer lag** — slow group falls behind; monitor lag, autoscale consumers.
+2. **Rebalance storms** — scaling pauses consumption; size partitions for peak parallelism.
+3. **Unclean leader election** — misconfiguration loses acknowledged writes; set min ISR properly.
+4. **Hot partitions** — bad keys pile on one partition; key design matters.
 
-**🔴 Galti:** "Har request Kafka se" — Latency badh jayegi (~10ms).
-**✅ Sahi:** "Hot path sync DB/Redis, side-effects async Kafka se."
+**Mistake:** "Treat Kafka like a queue with deletes."
+**Correct:** "Durable log with offsets — consumers track position, history replays, retention bounds it."
 
-**Phrase:** "Kafka durable log hai. Partition key se order, har consumer group apna offset, at-least-once + idempotent consumer."
+**Phrase:** "Kafka is the durable train — partitions for order and scale, groups read independently, offsets track progress."
 
-**Yaad rakho:** Log ≠ Queue, partition = order, offset = cursor, outbox for atomic, lag monitor.
+**Remember (Revision):** Topics split into partitions, keys preserve order, groups read independently, offsets committed, retention bounds replay, acks=all plus min ISR for durability.
 
-**See also:** [notification system](/hld/notification-system), [ad click aggregator](/hld/ad-click-aggregator), [Flink](/hld/flink).
+**See also:** [message queues](/hld/message-queues), [ad click aggregator](/hld/ad-click-aggregator), [notification system](/hld/notification-system).

@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** Producer → broker → consumer, decoupling, point-to-point vs pub-sub, Kafka/RabbitMQ, broker SPOF (cluster), message loss (ack), idempotent consumers.
 
-**See also:** [Message Queue](/hld/message-queue), [Publish-Subscribe](/hld/publish-subscribe), [Kafka](/hld/kafka).
+**See also:** [Message Queue](/hld/message-queue), [Publish-Subscribe](/hld/message-queues), [Kafka](/hld/kafka).

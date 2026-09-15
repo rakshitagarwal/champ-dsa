@@ -48,4 +48,4 @@ graph TD
 
 **Yaad rakho (Revision):** 7 layers — Physical (bits), Data Link (frames/MAC), Network (packets/IP), Transport (segments/TCP), Session (connections), Presentation (encryption), Application (HTTP). TCP/IP 4-layer real model.
 
-**See also:** [TCP and UDP](/hld/tcp-and-udp), [IP](/hld/ip), [DNS](/hld/domain-name-system).
+**See also:** [TCP and UDP](/hld/networking), [IP](/hld/networking), [DNS](/hld/networking).

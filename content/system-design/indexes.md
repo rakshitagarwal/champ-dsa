@@ -44,4 +44,4 @@ graph TD
 
 **Yaad rakho (Revision):** B-tree (range queries), hash (exact match, O(1)), LSM (write-heavy, compaction), composite/covering indexes, read faster/write slower trade-off, selective indexing.
 
-**See also:** [Database Indexing](/hld/database-indexing), [SQL Databases](/hld/sql-databases), [NoSQL Databases](/hld/nosql-databases).
+**See also:** [Database Indexing](/hld/databases-sql), [SQL Databases](/hld/sql-databases), [NoSQL Databases](/hld/nosql-databases).

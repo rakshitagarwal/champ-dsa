@@ -1,48 +1,43 @@
 # PostgreSQL
 
-> Default relational database. Transactions, joins, indexes — shuru yahan se karo, scale ne majboor kiya to hi niklo.
+> Full-featured relational database — tables, relations, transactions, all solid. Start 90% of apps here.
 
-> Postgres ek full-featured diary hai — table, relation, transaction sab pakka. 90% apps yahi se start karo. Index sahi to 10k QPS bhi handle, galat to 100 pe marega. Shard tabhi jab single node ka CPU/disk full ho.
+> Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GIN, GiST), and JSON support for flexible corners. Correct indexes serve 10k QPS from one node; wrong ones die at 100. Shard only when a single node's CPU or disk fills — not before.
 
-Jab tak 10k QPS aur 1TB se neeche ho, Postgres hi best. Managed RDS/Aurora le lo, khud ka cluster mat banao.
+## When to pick it
 
-## When you pick it
+1. Structured data with relationships (users, orders, payments)
+2. Transactions that must not break (money movements)
+3. Complex queries with joins and aggregations
+4. Everything, until measured scale pain says otherwise
 
-- Joins, transactions, constraints chahiye
-- Strong consistency — payment, tickets
-- JSONB, full-text, GIS bhi chal jayega (ES/Cassandra tabhi jab scale alag ho)
+**Don't leave for:** massive write firehoses (Cassandra), flexible documents at scale (MongoDB), or full-text search (Elasticsearch) — pair, don't replace.
 
-## Indexes
+## How scaling works
 
-- **B-tree** — default, `=` aur `range` dono. `WHERE userId = ? AND ts > ?` → composite index `(userId, ts)` banao, order important.
-- **Compound:** left se match hota hai — `(a,b)` → `WHERE a=?` use karega, `WHERE b=?` nahi.
-- **Partial:** `WHERE is_active=true` pe hi index — chhota tez.
-- **GIN:** JSONB / `@@` full-text.
-- **Explain:** `EXPLAIN ANALYZE` bina index guess mat karo.
-
-**Replication lag:** Master → replica async, 10-100ms lag — critical read ko master pe bhejo (`read-your-writes`).
-
-**Connection pooling:** 1000 app servers × 10 connections = 10k → DB marega. PgBouncer beech me — 100 pool.
-
-**Sharding:** `hash(userId) % N` ya `userId range`. Shard ke baad cross-shard join nahi — app me jodo. Interview me bolo "shard citus/nahi, pehle vertical split."
-
-**SERIALIZABLE:** Ticketmaster me `SELECT ... FOR UPDATE` ya `SERIALIZABLE` — double-book rokna hai.
+Vertical first (bigger box), then read replicas for read-heavy loads, then partitioning (by time or range), then sharding (Citus, logical shards) for write scale. Connection pooling (PgBouncer) is mandatory — connections are expensive, requests are many.
 
 ```mermaid
 graph LR
-    A[App] --> B[PgBouncer]
-    B --> C[Postgres Primary]
-    C -->|async| D[Replica 1]
-    C -->|async| E[Replica 2]
-    A -->|critical read| C
-    A -->|normal read| D
+    A[App] -->|pool| B[Primary<br/>writes]
+    A -->|reads| C[Replica 1]
+    A -->|reads| D[Replica 2]
+    B -->|streaming| C
+    B -->|streaming| D
 ```
 
-**🔴 Galti:** "Har query pe naya index" — Write slow, vacuum heavy.
-**✅ Sahi:** "Composite index query pattern pe, replica lag ka dhyan, PgBouncer."
+## Failure modes to mention
 
-**Phrase:** "Postgres default choice — B-tree composite query pe, replica lag yaad, PgBouncer, shard tabhi jab majboori."
+1. **Missing indexes** — sequential scans on big tables; EXPLAIN every slow query.
+2. **Connection exhaustion** — pool everything; one connection per request kills.
+3. **Long transactions** — bloat and lock contention; keep transactions short.
+4. **Replica lag** — stale reads after writes; read-your-writes from primary when needed.
 
-**Yaad rakho:** B-tree default, `(a,b)` left match, replica lag → master read, PgBouncer must, `FOR UPDATE` for booking.
+**Mistake:** "Shard from day one."
+**Correct:** "Vertical, then replicas, then partitioning, then sharding — each step on measured pain."
 
-**See also:** [ticketmaster](/hld/ticketmaster), [payment-system](/hld/payment-system), [dynamodb](/hld/dynamodb).
+**Phrase:** "Postgres is the default diary — tables, relations, transactions solid. Index right, pool always, shard only on proof."
+
+**Remember (Revision):** ACID default, B-tree plus GIN indexes, EXPLAIN slow queries, PgBouncer pooling, replicas for reads, shard by query key last.
+
+**See also:** [sql databases](/hld/databases-sql), [ticketmaster](/hld/ticketmaster), [robinhood](/hld/robinhood).

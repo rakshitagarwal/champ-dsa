@@ -3,27 +3,27 @@ import type { LldTopic } from "./types";
 export const CREATIONAL: LldTopic[] = [
   {
     slug: "factory-vs-abstract-factory",
-    title: "Factory Pattern Vs Abstract Factory Pattern (Creational)",
+    title: "Factory vs Abstract Factory Pattern (Creational)",
     tag: "Creational",
-    body: `Factory Method ek seedhi dikkat suljhata hai: jagah-jagah bikhra new. Client khud tay na kare kaunsi subclass banegi — ek factory method key leke sahi cheez de de. Nayi type aaye to ek factory chhedo, das jagah nahi. Banane ka faisla ek jagah simat jaata hai, business logic saaf rehti hai.
+    body: `Factory Method fixes scattered creation logic: instead of the client deciding which subclass to build, a factory method takes a key and returns the right implementation. Add a new type by touching one factory, not ten call sites. Creation decisions gather in one place and business logic stays clean.
 
-Abstract Factory isse ek seedhi upar hai: related cheezon ka poora parivaar banata hai. UI toolkit ki factory Button, Checkbox aur Menu ek saath matching banati hai (Windows parivaar vs Mac parivaar) taaki style mix na ho. Seedha usool: ek product ke roop hon to Factory Method, poora parivaar consistent rakhna ho to Abstract Factory.
+Abstract Factory goes one level higher: it builds whole families of matching objects. A UI toolkit factory creates Button, Checkbox, and Menu together (Windows family vs Mac family) so styles never mix. Simple rule: variants of one product mean Factory Method, a family that must stay consistent means Abstract Factory.
 
 ## How it works
 
-- **Factory Method:** client key deta hai (jaise "car"), factory sahi subclass bana ke deti hai. Client ko subclass ka naam tak nahi pata hota.
-- **Abstract Factory:** client parivaar chunta hai (jaise Windows), phir us parivaar ki har cheez matching milti hai — Button bhi Windows, Checkbox bhi Windows.
-- Dono me client asli class se nahi judta — mocking se testing aasan ho jaati hai.
+1. **Factory Method:** client passes a key ("car"), factory returns the right subclass. The client never knows subclass names.
+2. **Abstract Factory:** client picks a family (Windows), then every product from it matches — Button and Checkbox both Windows.
+3. **Testability:** creation hidden behind names makes mocking easy in tests.
 
 \`\`\`js
-// Factory Method: client maange, factory subclass tay kare
+// Factory Method: ask, factory decides the subclass
 class VehicleFactory {
   static create(type) {
     if (type === 'car') return new Car();
     return new Bike();
   }
 }
-// Abstract Factory: poora parivaar ek saath match kare
+// Abstract Factory: whole family stays consistent
 class WindowsFactory {
   button() { return new WindowsButton(); }
   checkbox() { return new WindowsCheckbox(); }
@@ -32,49 +32,49 @@ class WindowsFactory {
 
 ## When to use
 
-- Input dekh ke subclass chunni ho (parsers, vehicles, payment modes) — Factory Method.
-- Related cheezein match karni hon (UI themes, DB dialects) — Abstract Factory.
-- Banane ki logic test me mock karni ho — dono kaam aate hain.
+- Subclass picked by input (parsers, vehicles, payment modes) — Factory Method.
+- Matching product families (UI themes, DB dialects) — Abstract Factory.
+- Creation logic must be mockable in tests.
 
 ## Common mistakes
 
-- **Do stable types pe factory:** variation aani hi nahi to factory bekaar boilerplate hai.
-- **Parivaar mix karna:** Windows button ke saath Mac checkbox — Abstract Factory ka poora maksad isi ko rokna hai.
-- **Business logic factory me ghusedna:** factory sirf banaye, faisle aur kaam bahar rakho.
+- **Factory for two stable types:** no variation coming means useless boilerplate.
+- **Mixed families:** Windows button with Mac checkbox defeats the whole purpose.
+- **Logic inside factories:** factories build only — decisions and work stay outside.
 
-**🔴 Galti:** "Dono ek hi cheez hain" — Ye sabse aam confusion hai, interviewer isi pe pakadta hai.
-**✅ Sahi:** "Ek product ke roop hon to Factory Method, poora matching parivaar ho to Abstract Factory — UI toolkit wali misaal do."
+**Mistake:** "Both patterns are the same thing."
+**Correct:** "Variants of one product use Factory Method; a matching family uses Abstract Factory — give the UI toolkit example."
 
 ## Keep in mind
 
-- Factory Method key dekh ke ek product banata hai.
-- Abstract Factory related products ka parivaar banata hai jo aapas me match karein.
-- Farq poochhein to parivaar vs single product bolo, UI toolkit wali misaal ke saath.
-- Factory business logic se new bahar rakhta hai, jisse mocking se testing aasan hoti hai.
-- Zyada mat lagao: do stable type jinme badlav aana hi nahi, wahan factory bekaar hai.`,
+- Factory Method creates one product picked by a key.
+- Abstract Factory creates a family that must match.
+- Ask the difference with family vs single product — UI toolkit example.
+- Factories keep new out of business logic, so mocking stays easy.
+- Don't overuse: two stable types with no variation need no factory.`,
   },
   {
     slug: "builder-pattern",
     title: "Builder Design Pattern (Creational)",
     tag: "Creational",
-    body: `Builder telescoping constructor wali musibat khatam karta hai: das optional fields wali class ke paanch confusing constructor ban jaate hain — kaunsa kab chalana hai, yaad rakhna mushkil. Iske bajaye ek Builder chained calls se fields jodta hai aur ek build() sab kuch ek jagah bana deta hai — validation bhi wahin rehti hai.
+    body: `Builder kills the telescoping constructor problem: a class with ten optional fields ends up with five confusing constructors. Instead, a Builder collects fields through chained calls, and one build() constructs everything in a single place — validation lives there too.
 
-Iski pehchan hai kai optional parameters, khaas taur pe aisi objects me jo badalni na hon. Har field call site pe naam ke saath likhi jaati hai, isliye parameter order wale bugs gayab ho jaate hain. JS me Object.freeze se object ko sach me immutable banao — banne ke baad koi badlav nahi.
+The signal is many optional parameters, especially for objects that should not change. Every field is named at the call site, so parameter-order bugs disappear. In JavaScript, freeze the result with Object.freeze for true immutability.
 
 ## How it works
 
-1. **Chain karo:** har setter field set karke this lautata hai, taaki calls jud sakein.
-2. **Validate karo:** build() me zaroori fields check hon — galat object ban hi na sake.
-3. **Freeze karo:** final object immutable banao, taaki baad me koi bigaad na sake.
+1. **Chain:** each setter stores a field and returns this, so calls link up.
+2. **Validate:** build() checks required fields — invalid objects can never exist.
+3. **Freeze:** seal the result so nothing mutates it later.
 
 \`\`\`js
-// Chained, saaf, validation ek jagah
+// Chained, readable, validated in one place
 class UserBuilder {
   setName(name) { this.name = name; return this; }
   setEmail(email) { this.email = email; return this; }
   setPhone(phone) { this.phone = phone; return this; }
   build() {
-    if (!this.name) throw new Error('name zaroori hai');
+    if (!this.name) throw new Error('name is required');
     return Object.freeze({ name: this.name, email: this.email, phone: this.phone });
   }
 }
@@ -83,162 +83,118 @@ class UserBuilder {
 
 ## When to use
 
-- Chaar ya zyada parameters hon, mostly optional (requests, configs, DTOs).
-- Immutable object chahiye ho — banne ke baad badlav band.
-- Call site pe readability chahiye ho — har field naam ke saath dikhe.
+- Four or more parameters, mostly optional (requests, configs, DTOs).
+- Immutable result wanted — frozen after building.
+- Readable call sites matter — every field named.
 
 ## Common mistakes
 
-- **Zaroori field bhoolna:** validation build() me nahi rakhi to aadhi-bani objects ghumengi.
-- **Do fields pe Builder:** chhoti class me seedha object literal kaafi hai, pattern zabardasti mat lagao.
-- **Build ke baad mutation:** freeze karna bhool gaye to immutability ka vaada toota.
+- **Skipped validation:** without checks in build(), half-built objects roam free.
+- **Tiny classes:** two fields need a plain object literal, not a Builder.
+- **Forgetting freeze:** without it the immutability promise breaks.
 
-**🔴 Galti:** "Builder sirf lambe constructors ke liye hai" — Asal faayda validation ek jagah plus readability hai.
-**✅ Sahi:** "Optional fields hon to Builder — chain karo, build me validate karo, freeze karke immutable banao."
-
-## Keep in mind
-
-- Chaar ya zyada parameters hon (mostly optional) to Builder lagao.
-- Validation build() me rakho, taaki galat object ban hi na sake.
-- Immutable objects ke saath best lagta hai — Object.freeze yaad rakho.
-- Naam wale chained calls parameter-order bugs maar dete hain.
-- Keemat boilerplate hai — chhoti class me seedha object literal hi kaafi hai.`,
-  },
-  {
-    slug: "all-creational-patterns",
-    title: "All Creational Design Patterns | Prototype, Singleton, Factory, AbstractFactory, Builder Pattern",
-    tag: "Summary",
-    body: `Creational patterns ek hi sawal ka jawab dete hain: cheezein paida kaise hon? Har pattern banane ki logic ko business logic se alag karta hai, taaki new ek jagah simte aur code test layak bane. Paanchon ko ek saath samajh lo to interview me "kaunsa pattern kyun" ka jawab turant nikalta hai.
-
-Singleton ek hi instance ki guarantee deta hai (config ya pools ke liye) — JS me module hi singleton hota hai. Prototype mehengi template object ko dobara banane ke bajaye clone karta hai. Factory Method key dekh ke ek subclass chunta hai. Abstract Factory poore parivaar ko consistent rakhta hai. Builder complex object step by step jodta hai.
-
-## Quick map
-
-- **Singleton:** exactly ek chahiye — config, pools, loggers. JS me module export hi kaafi.
-- **Prototype:** dobara banana clone se mehenga ho — editors, game spawns. Spread ya structuredClone.
-- **Factory Method:** input dekh ke faisla ho — parsers, vehicles, payment modes.
-- **Abstract Factory:** related products match karne hon — UI themes, DB dialects.
-- **Builder:** kai optional fields hon — requests, immutable DTOs.
-
-\`\`\`js
-// Prototype: template clone karo, dobara mat banao
-const circleTemplate = { r: 10, area() { return 3.14 * this.r * this.r; } };
-const c2 = { ...circleTemplate, r: 20 }; // naya object, same shakl
-// Gehri copy chahiye to structuredClone use karo
-\`\`\`
-
-## Common mistakes
-
-- **Singleton har jagah:** sabse zyada galat jagah lagne wala pattern hai — global state testing maar deta hai, har baar wajah batao.
-- **Prototype me shallow copy:** andar nested objects hon to spread kaafi nahi — structuredClone lo.
-- **Factory bina variation:** do stable types pe factory bekaar boilerplate hai.
-
-**🔴 Galti:** "Paanchon ke naam rata lo" — Naam se zyada "kab kaunsa" aana chahiye, map wali line bolo.
-**✅ Sahi:** "Ek chahiye to Singleton, clone sasta ho to Prototype, key se faisla ho to Factory, parivaar match ho to Abstract Factory, fields zyada hon to Builder."
+**Mistake:** "Builders are only for long constructors."
+**Correct:** "Optional fields call for Builder — chain, validate in build, freeze the result."
 
 ## Keep in mind
 
-- Singleton: ek instance — config, pools, loggers (JS me module hi kaafi).
-- Prototype: mehengi template clone karo — editors, game spawns.
-- Factory Method: key se ek product — parsers, vehicles.
-- Abstract Factory: matching parivaar — UI themes, DB dialects.
-- Builder: kai optional fields — requests, DTOs.
-- Interview trap: Singleton sabse zyada galat jagah lagta hai, har baar wajah batao.`,
+- Four or more mostly-optional parameters means Builder.
+- Validation lives in build() — invalid objects can never exist.
+- Pairs naturally with immutability — Object.freeze it.
+- Named chained calls kill parameter-order bugs.
+- Cost is boilerplate — small classes deserve plain literals.`,
   },
   {
-    slug: "double-checked-locking",
-    title: "BUG in Double-Checked Locking of Singleton Pattern and its Fix",
+    slug: "singleton-pattern",
+    title: "Singleton Design Pattern (Creational)",
     tag: "Creational",
-    body: `Double-checked locking lazy Singleton ko har call pe lock lagaye bina safe banane ki koshish hai: null check karo, lock lagao, phir null check karo, tab banao. Mashhoor bug ye hai ki volatile ke bina doosra thread aadhi-bani object dekh sakta hai. JVM writes ko aage-peeche kar sakta hai, isliye reference constructor khatam hone se pehle dikh sakta hai.
+    body: `Singleton guarantees exactly one instance with global access — config objects, connection pools, and loggers are the classic residents. In JavaScript the simplest singleton is a module: the module system hands out the same object to every importer, no ceremony needed.
 
-Fix instance ko volatile ghoshit karna hai, jo ye reordering rokta hai aur threads ke beech visibility pakki karta hai. Par tum JS me code karte ho, to tumhare liye asli baat ye hai: JS single-threaded hai (event loop), isliye lazy singleton wahan naturally safe hai — do threads wali race hoti hi nahi. Interview me bug samjhao (Java/JVM ka hai), fix batao (volatile), aur JS wala jawab bhi do (module pattern).
+The lazy version builds on first use: check, create if missing, return. In multi-threaded languages that check-then-create races, which is where double-checked locking comes from — JavaScript's single thread avoids the race, but the interview question still appears, so know both the bug and the volatile fix.
 
 ## How it works
 
-1. **Pehla check (bina lock):** instance bana hua hai to turant lautao — fast path.
-2. **Lock lagao:** sirf pehli baar banate time synchronized block me jao.
-3. **Doosra check (lock ke andar):** kahin beech me koi aur bana to na gaya ho — phir banao.
-4. **volatile fix:** reference tabhi dikhe jab construction poora ho — reordering band.
+1. **One instance:** creation happens once, everyone shares the reference.
+2. **Lazy or eager:** build on first use, or at startup for simplicity.
+3. **JS shortcut:** export a frozen object from a module — singleton by construction.
 
 \`\`\`js
-// JS single-threaded hai — lazy singleton naturally safe hai
+// Simplest JS singleton: the module itself
+// config.js
+const config = Object.freeze({ apiUrl: 'https://api.x.com', retries: 3 });
+export default config; // every importer shares this one object
+
+// Lazy version when construction is expensive
 let instance = null;
 function getLogger() {
   if (!instance) instance = new Logger();
   return instance;
 }
-// Ya seedha module: export const config = Object.freeze({...});
-// Asli DCL bug Java ka hai — wahan fix volatile tha.
 \`\`\`
 
 ## When to use
 
-- Lazy initialization chahiye ho (mehengi cheez pehli zaroorat pe bane) multi-threaded language me.
-- JS me seedha module pattern lo — lock ki zaroorat hi nahi padti.
+- Truly single resources: config, pools, loggers.
+- Shared mutable state is deliberate and guarded.
+- Module pattern suffices in JavaScript most of the time.
 
 ## Common mistakes
 
-- **Volatile bhoolna:** bina volatile ke doosra check bekaar hai — aadhi-bani object mil sakti hai.
-- **Har call pe lock:** poora method synchronized kar diya to DCL ka faayda hi khatam.
-- **JS me lock dhoondhna:** event loop me race hoti hi nahi — wahan module pattern jawab hai.
+- **Singleton everywhere:** global state kills testability — justify each one.
+- **Hidden dependencies:** classes reaching for the singleton instead of receiving it — inject instead.
+- **Thread races:** in multi-threaded code, lazy init needs locking (double-checked + volatile in Java).
 
-**🔴 Galti:** "Double check kaafi hai, volatile optional hai" — Volatile hi poora fix hai, uske bina bug zinda hai.
-**✅ Sahi:** "Check, lock, phir check, tab banao — aur instance volatile. JS me module pattern lo, race hoti hi nahi."
+**Mistake:** "Make everything a singleton for convenience."
+**Correct:** "One instance only with a reason — config, pools, loggers — and prefer injection over global reach."
 
 ## Keep in mind
 
-- Pattern yaad rakho: check, lock, phir check, tab banao.
-- Bug reordering hai: reference pehle dikhe, constructor baad me khatam ho.
-- Java me fix volatile hai — visibility + no-reordering ki guarantee.
-- JS me race hoti hi nahi (single thread) — module pattern hi singleton hai.
-- Ye sawal Java memory model test karta hai, sirf pattern nahi.`,
+- One instance, global access — config, pools, loggers.
+- In JS, an exported frozen module object is already a singleton.
+- Lazy build needs care in threaded languages, not in single-threaded JS.
+- Most overused pattern in interviews — justify it every time.`,
   },
   {
-    slug: "object-pool-pattern",
-    title: "Object Pool Design Pattern (Creational)",
+    slug: "prototype-pattern",
+    title: "Prototype Design Pattern (Creational)",
     tag: "Creational",
-    body: `Object Pool mehengi cheezon ko baar-baar bana ke phenkne ke bajaye dobara use karta hai. Database connections, threads aur bade buffers banane me asli time lagta hai, isliye pool taiyaar instances ka set rakhta hai: ek lo, use karo, wapas do. Banane ki keemat ek baar, aur pool tay karta hai ek saath kitni ho sakti hain.
+    body: `Prototype clones an expensive template instead of rebuilding it. When construction costs real work — parsing, network calls, heavy setup — copying a ready-made exemplar is cheaper. Document editors clone styles, games spawn enemies from archetypes.
 
-Pool ko teen kaam aane chahiye: khali hone pe wait ya timeout ke saath dena, wapas lete time reset karna taaki agle ko saaf cheez mile, aur kharab cheez ko recycle ke bajaye phenkna. Wapasi pe reset bhoolna classic bug hai — purana state agle borrower me leak ho jaata hai.
+JavaScript makes this natural: object spread copies own properties, Object.create sets the prototype chain, and structuredClone deep-copies. The trap is shallow copies — nested objects stay shared, so mutations leak across clones. Know which depth you need before choosing the tool.
 
 ## How it works
 
-1. **Borrow:** pool se taiyaar object lo — khali ho to naya banao ya wait karo.
-2. **Use:** apna kaam karo, object ganda ho jayega — normal hai.
-3. **Return:** wapas dete time reset karo taaki agle ko saaf mile.
-4. **Validate:** kharab nikle to pool me wapas mat dalo, phenk do.
+1. **Build once:** construct the expensive template a single time.
+2. **Clone per use:** copy it for each new instance.
+3. **Pick depth:** spread for flat objects, structuredClone for nested ones.
 
 \`\`\`js
-// Lo, use karo, wapas do — wapas dete time reset zaroori
-class ConnectionPool {
-  constructor() { this.free = []; }
-  borrow() { return this.free.pop() || new Connection(); }
-  giveBack(conn) { conn.reset(); this.free.push(conn); }
-}
+// Clone the template instead of rebuilding
+const circleTemplate = { r: 10, area() { return 3.14 * this.r * this.r; } };
+const c2 = { ...circleTemplate, r: 20 }; // new object, same shape
+// Deep copy needed? structuredClone(template)
 \`\`\`
 
 ## When to use
 
-- Banana sach me mehenga ho: DB connections, threads, bade buffers.
-- Ek saath kitni ho sakti hain, ispe seema chahiye ho (load me bachav).
-- Acquire/release cycle baar-baar chalta ho.
+- Construction is expensive and instances vary slightly (editors, game spawns).
+- Many similar objects needed fast.
+- Template configuration shared across instances.
 
 ## Common mistakes
 
-- **Reset bhoolna:** purana state agle borrower me leak — sabse aam bug.
-- **Kharab object recycle:** tooti connection wapas pool me — har borrower fail hoga.
-- **Sasti cheezon pe pool:** short-lived cheap objects pe pool ka kharcha faayde se zyada hai.
-- **Unbounded pool:** seema na rakhi to pool hi memory leak ban jaata hai.
+- **Shallow surprise:** nested objects stay shared after spread — mutations leak.
+- **Cloning cheap objects:** constructor call beats clone machinery for simple cases.
+- **Prototype chain confusion:** Object.create links prototypes; spread copies properties — different tools.
 
-**🔴 Galti:** "Pool hamesha tez karta hai" — Sasti cheezon pe ulta slow karta hai, sirf mehengi creation pe lagao.
-**✅ Sahi:** "Mehengi creation ho to pool — borrow, use, reset-on-return, kharab ko phenko, size seemit rakho."
+**Mistake:** "Clone is always faster."
+**Correct:** "Clone pays when construction is expensive — and match copy depth to nesting."
 
 ## Keep in mind
 
-- Sirf tab lagao jab banana sach me mehenga ho: connections, threads, buffers.
-- Core API borrow aur return hai, reset-on-return state leak rokta hai.
-- Pool size resource usage ko seema me rakhta hai — load me yehi feature hai.
-- Dobara dene se pehle check karo: tooti cheez dobara mat do.
-- Sasti short-lived objects ke liye pool ka kharcha bekaar hai.`,
+- Clone expensive templates — document editors, game spawns.
+- Spread copies flat, structuredClone copies deep — pick by nesting.
+- Shared nested state leaks across clones — the classic bug.
+- Construction cost must justify the machinery.`,
   },
 ];

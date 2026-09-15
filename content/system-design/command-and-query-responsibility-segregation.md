@@ -44,4 +44,4 @@ graph TD
 
 **Yaad rakho (Revision):** CQRS = commands (write) + queries (read) separate, eventual consistency, read optimized denormalized, works best with event sourcing, overkill for simple apps.
 
-**See also:** [Event Sourcing](/hld/event-sourcing), [Event-Driven Architecture](/hld/event-driven-architecture), [Message Queue](/hld/message-queue).
+**See also:** [Event Sourcing](/hld/microservices), [Event-Driven Architecture](/hld/microservices), [Message Queue](/hld/message-queue).

@@ -39,4 +39,4 @@ graph LR
 
 **Yaad rakho (Revision):** IPv4 32-bit, IPv6 128-bit, packet header mein src/dest IP + TTL, routers forward karte hain, spoofing/fragmentation risk.
 
-**See also:** [TCP and UDP](/hld/tcp-and-udp), [DNS](/hld/domain-name-system), [Load Balancing](/hld/load-balancing).
+**See also:** [TCP and UDP](/hld/networking), [DNS](/hld/networking), [Load Balancing](/hld/load-balancing).

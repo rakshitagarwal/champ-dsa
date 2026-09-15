@@ -1,46 +1,42 @@
 # MongoDB
 
-> Document database — JSON jaisa data seedha store karo, schema pehle se fix karne ki zaroorat nahi.
+> Document database — store JSON-like data directly, no upfront schema required.
 
-> Collections me BSON documents rehte hain — har document alag shape ka ho sakta hai. Product catalogs, CMS, MERN apps aur evolving schemas iski jagah hai. Jahan joins aur sakht transactions hon, wahan [PostgreSQL](/system-design/postgresql) jeetta hai.
+> Collections hold BSON documents, each shaped differently if needed. Product catalogs, CMS content, and MERN apps fit naturally; schemas evolve without migrations. Where joins and strict transactions rule, [PostgreSQL](/hld/databases-sql) wins instead.
 
-MongoDB ka model simple hai: database ke andar **collections**, collection ke andar **documents** (BSON — binary JSON). Schema-on-read hai — code evolve hote hi fields jud jaate hain, migration ka dard nahi. Query language me filters, projections, sorts aur aggregation pipeline (group/sort/join-ish `$lookup`) milta hai.
+## When to pick it
 
-## When you pick it
+1. Evolving schemas (startup products, CMS, catalogs) — add fields without migrations
+2. Self-contained documents (profile plus settings in one place) — no joins needed
+3. MERN stacks or JSON-thinking teams — the mental model matches
+4. Read-heavy product data with secondary indexes — queries stay fast
 
-1. Schema evolve hota ho (startup product, CMS, catalogs) — migration ke bina fields jodo
-2. Document akela kaafi ho (user profile + settings ek jagah) — joins ki zaroorat na ho
-3. MERN stack ho ya team JSON me sochti ho — mental model match karta hai
-4. Read-heavy product data ho with secondary indexes — queries tez rehti hain
-
-**Mat lo:** sakht relations + joins (orders↔users↔payments), financial ACID ([PostgreSQL](/system-design/postgresql) lo), ya massive write volume known keys pe ([Cassandra](/system-design/cassandra) dekho).
+**Don't use for:** strict relations plus joins (orders with users and payments), financial ACID ([PostgreSQL](/hld/databases-sql)), or massive known-key write volume ([Cassandra](/hld/nosql-databases)).
 
 ## How scaling works
 
-**Replica sets:** ek primary writes leta hai, secondaries copy karte hain — failover pe election se naya primary. Reads secondary se (stale chalega to) baant do. **Sharding:** data shard key pe bat-ta hai, `mongos` router sahi shard pe bhejta hai. Shard key hi sab kuch hai — galat key matlab hot shard.
+**Replica sets:** one primary takes writes, secondaries copy — elections promote on failure. Secondaries serve stale-acceptable reads. **Sharding:** data splits by shard key, `mongos` routers direct queries. The shard key decides everything — wrong keys hotspot single shards.
 
 ```mermaid
 graph LR
     A[App] --> B[mongos Router]
     B -->|shard key userId| C[Shard 1<br/>primary + replicas]
     B -->|shard key userId| D[Shard 2<br/>primary + replicas]
-    C -->|replicate| E[Secondary]
-    D -->|replicate| F[Secondary]
 ```
 
 ## Failure modes to mention
 
-1. **Bad shard key** — Monotonic ObjectId sab writes ek shard pe bhejta hai (hot shard) — hashed ya compound key lo.
-2. **Unbounded arrays** — Document me 16MB limit hai; growing arrays (saare comments ek doc me) document phula dengi — alag collection me rakho.
-3. **Schema sprawl** — Flexibility ka misuse: har document alag shape to queries/indexes tootenge — light validation (`$jsonSchema`) rakho.
-4. **Primary failover** — Election me seconds ka write pause — retryable writes on rakho.
-5. **Multi-doc transactions** — 4.0+ me hain par Postgres jitni sakht nahi — paisa yahan mat rakho.
+1. **Bad shard key** — monotonic ObjectIds hammer one shard; prefer hashed or compound keys.
+2. **Unbounded arrays** — 16MB document limit; ever-growing arrays (all comments in one doc) explode — separate collections.
+3. **Schema sprawl** — flexibility abused means every document differs and queries rot; keep light `$jsonSchema` validation.
+4. **Primary failover** — elections pause writes for seconds; enable retryable writes.
+5. **Multi-doc transactions** — exist since 4.0 but weaker than Postgres; keep money elsewhere.
 
-**🔴 Galti:** "Schema-less matlab schema-free-for-all" — Bina validation ke data kachra banega, queries slow hongi.
-**✅ Sahi:** "Evolving product data ke liye MongoDB — replica sets for HA, shard key carefully, unbounded arrays alag collection, paisa Postgres me."
+**Mistake:** "Schema-less means schema-free-for-all."
+**Correct:** "Evolving product data in MongoDB — replica sets for HA, careful shard keys, unbounded arrays in separate collections, money in Postgres."
 
-**Phrase:** "Documents flexible schema ke liye hain — replica sets HA dete hain, shard key scaling tay karti hai, joins aur paisa Postgres ka kaam hai."
+**Phrase:** "Documents suit flexible schemas — replica sets give HA, shard keys decide scaling, joins and money stay Postgres work."
 
-**Yaad rakho (Revision):** BSON documents + collections, schema-on-read, replica sets (primary/secondary + election), sharding (mongos + shard key), 16MB document limit, unbounded arrays alag rakho, multi-doc TXN limited.
+**Remember (Revision):** BSON documents plus collections, schema-on-read, replica sets (primary/secondary plus election), sharding (mongos plus shard key), 16MB document limit, unbounded arrays separated, limited multi-doc transactions.
 
-**See also:** [postgresql](/system-design/postgresql), [cassandra](/system-design/cassandra), [dynamodb](/system-design/dynamodb), [sharding](/system-design/sharding).
+**See also:** [postgresql](/hld/databases-sql), [cassandra](/hld/nosql-databases), [dynamodb](/hld/nosql-databases), [sharding](/hld/databases-sql).

@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho (Revision):** SSO = one login multiple apps, IdP manages authentication, protocols (SAML/OIDC/Kerberos), IdP SPOF risk, token theft risk, SLO for logout, better UX + centralized security.
 
-**See also:** [OAuth 2.0 and OIDC](/hld/oauth2-and-openid-connect), [SSL, TLS, mTLS](/hld/ssl-tls-mtls), [Microservices](/hld/microservices).
+**See also:** [OAuth 2.0 and OIDC](/hld/security), [SSL, TLS, mTLS](/hld/networking), [Microservices](/hld/microservices).

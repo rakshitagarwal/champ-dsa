@@ -1,54 +1,49 @@
 # Observability
 
-> Logs, Metrics, Traces — andar kya ho raha hai dekho, warna blind.
+> You cannot fix what you cannot see — instrument first, alert on symptoms, debug with traces.
 
-> Observability ek hospital monitor jaisa — Logs = doctor ki notes (kya hua), Metrics = pulse graph (kitna), Traces = X-ray (kahan atka). Teeno bina scale pe debug impossible.
+> Observability answers three questions: what happened (logs), how much (metrics), and where time went (traces). Add health monitoring on top and systems become operable: detectable incidents, fast diagnosis, honest SLOs.
 
-Har "Metrics Monitoring" question ka base.
+## Logging
 
-## How it works
+Timestamped event records per request and error — structured JSON with request IDs, never free text alone. Log levels (debug, info, warn, error) control volume; sample debug logs in production. Centralize into searchable storage with retention tiers — local files die with containers.
 
-**1. Logs:** line by line — `2026-08-25 10:01:23 user=123 pay failed`. ELK (Elasticsearch+Kibana) me. High volume → sampling.
+## Metrics
 
-**2. Metrics:** numbers over time — `http_requests_total{status=500} 12`, `cpu 80%`. Prometheus scrape + Grafana graph + alert `p99 > 500ms`.
+Numbers over time: counters (requests), gauges (connections), histograms (latencies). Aggregate into rates, percentiles, and SLO burn. Metrics drive dashboards and alerts; keep cardinality bounded (user IDs as label values explode storage).
 
-**3. Traces:** ek request ka safar — `API → Auth (20ms) → DB (80ms) → Cache` — OpenTelemetry traceId `abc` se jodo. Jaeger/Tempo.
+## Tracing and Distributed Tracing
 
-**Fourth:** Events/profiling — par 3 hi yaad rakho.
+Spans follow one request across services; assembled traces reveal which hop is slow. Propagate trace and span IDs in headers (W3C Trace Context). Sample aggressively (1-10%) — full tracing at scale bankrupts storage.
 
-## How it works
+## Correlation IDs
 
-- **Metrics:** app `/metrics` expose → Prometheus har 15 sec pull → Grafana dashboard + Alertmanager `SLO burn`.
-- **Logs:** Fluentd → Elasticsearch/Loki → Kibana `traceId` se filter.
-- **Traces:** OpenTelemetry SDK → `traceId` har service me header `X-Trace-Id` → Jaeger.
+One ID per user action, passed through every service, queue, and log line. Turns "something failed somewhere" into one searchable thread. Generate at the edge (gateway), require downstream.
 
-**Golden signals (Google):** latency, traffic, errors, saturation.
+## Health Monitoring and Alerting
 
-## Alerting
+Monitor symptoms users feel (latency, error rate, availability) plus causes (CPU, disk, queue depth). Alert on SLO burn with runbooks attached — every alert must be actionable, or it becomes ignored noise. Page humans for user impact; ticket the rest for mornings.
 
-- **SLO:** `99.9% requests < 300ms` — 0.1% budget. Burn 2x to page, 1x to ticket.
-- **Runbook:** alert ke saath link `https://runbook/pay-fail` — kya karna.
+## OpenTelemetry, Prometheus, Grafana
+
+OpenTelemetry standardizes instrumentation (one SDK for traces, metrics, logs) with vendor-neutral export. Prometheus scrapes and stores time-series metrics with PromQL alerting. Grafana visualizes it all in shared dashboards. The standard beginner stack: instrument with OpenTelemetry, store in Prometheus, view in Grafana.
 
 ```mermaid
 graph LR
-    A[App<br/>logs+metrics+trace] --> B[Fluentd<br/>logs]
-    A --> C[Prometheus<br/>metrics pull]
-    A --> D[Jaeger<br/>traces]
-    B --> E[Elasticsearch]
-    C --> F[Grafana<br/>alert]
-    D --> G[Trace view]
+    A[Services] -->|OTel SDK| B[Collector]
+    B --> C[Prometheus<br/>metrics]
+    B --> D[Jaeger/Tempo<br/>traces]
+    B --> E[Loki/ELK<br/>logs]
+    C --> F[Grafana dashboards]
+    D --> F
+    E --> F
+    C --> G[Alertmanager<br/>pages]
 ```
 
-## How to answer in interview
+## Keep in mind
 
-- **Rate limiter:** metrics `allowed vs blocked`, trace `check() 2ms`.
-- **Payment:** logs me `orderId` + `traceId`, metrics `success 99.9%`, trace DB 80ms.
-
-**🔴 Galti:** "Logs hi kaafi" — 10k RPS pe logs dhoondhna mushkil, metrics/traces chahiye.
-**✅ Sahi:** "Logs for details, metrics for graphs/alerts, traces for latency — traceId se jodo."
-
-**Phrase:** "Observability monitor jaisa — logs notes, metrics pulse, traces X-ray, traceId se link."
-
-**Yaad rakho:** Logs line, metrics number, traces safar, Prometheus pull, SLO burn.
-
-**See also:** [metrics-monitoring](/hld/metrics-monitoring), [api-gateway](/hld/api-gateway), [kafka](/hld/kafka).
+- Logs say what happened, metrics say how much, traces say where time went.
+- Structure logs with request IDs; correlate across services always.
+- Alert on user-facing symptoms with runbooks — unactionable alerts get ignored.
+- Bound metric cardinality; sample traces aggressively.
+- OpenTelemetry to instrument, Prometheus to store, Grafana to view.

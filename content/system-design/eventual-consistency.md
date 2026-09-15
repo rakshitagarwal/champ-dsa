@@ -43,4 +43,4 @@ graph LR
 
 **Yaad rakho:** Strong=R+W>N, eventual R=1, read repair + hinted handoff, likes vs bank.
 
-**See also:** [quorum](/hld/quorum), [cap-theorem](/hld/cap-theorem), [replication](/hld/replication).
+**See also:** [quorum](/hld/distributed-systems), [cap-theorem](/hld/distributed-systems), [replication](/hld/distributed-systems).

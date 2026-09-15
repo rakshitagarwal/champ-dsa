@@ -1,45 +1,48 @@
 # Elasticsearch
 
-> Full-text search aur aggregations. DB se async index banao; thoda lag chalega.
+> Full-text search and aggregations. Index asynchronously from the database; accept a little lag.
 
-> Elasticsearch ek kitaab ka index jaisa hai — har shabd kahan aaya, turant batata hai. DB source of truth, ES uska photocopy jo search ke liye optimize hai. Thoda stale chalega (1-2 sec).
+> Elasticsearch is a book index for your data — it knows where every word appears instantly. The database stays source of truth; Elasticsearch is its search-optimized copy, typically 1-2 seconds behind. Product search, log analytics, and autocomplete live here.
 
-DB me `LIKE '%shoe%'` slow. ES me **inverted index** — `shoe → [doc1, doc42]`. Analyzers word todte hain, stopwords hatate hain, stemming karte hain.
+## When to pick it
 
-## When you pick it
+1. Text search with relevance ranking (products, posts, docs)
+2. Facets and aggregations (filters, counts, histograms)
+3. Log analytics at volume (paired with Kibana)
+4. Autocomplete and typo tolerance
 
-- Text search — Yelp "coffee near me", FB post search, autocomplete, filters
-- Aggregations — `GROUP BY category` tez, analytics
-- Geo + text combo
+**Don't use for:** primary storage, transactions, or exact analytics over billions of rows (ClickHouse territory).
 
-**Mat bano:** primary store — ES me update mehenga, consistency weak. Hamesha DB + async pipe.
+## How indexing works
 
-## How it works
-
-**Pipe:** `App → DB → Kafka topic db.changes → Indexer workers → ES → hydrate from DB` (ES me sirf id + search fields, pura data DB se).
-
-**Hydrate:** ES se ids nikalo, DB se full rows lo — ES ko fat mat banao.
-
-**Privacy deep dive (FB):** Har doc me `visibleTo = [userIds]` mat rakho (fat + stale). Better: ES se candidate ids nikalo, fir Postgres me `WHERE docId IN (...) AND hasAccess(user, doc)` filter karo — ya ES me per-user filter plugin.
+Documents flow from the database via CDC or queue into index shards; analyzers tokenize text (lowercase, stem, remove stopwords); inverted indexes map terms to documents. Writes refresh segments on a schedule — near-real-time, not instant. Size shards around 20-50GB; route by tenant or time.
 
 ```mermaid
 graph LR
-    A[Postgres] -->|CDC| B[Kafka]
-    B --> C[Indexer]
-    C --> D[Elasticsearch<br/>inverted index]
-    D -->|ids| E[App]
-    E -->|hydrate| A
+    A[Postgres] -->|CDC / queue| B[Indexer]
+    B --> C[Elasticsearch<br/>shards + replicas]
+    D[Client] -->|search query| C
 ```
 
-## Aggregations & near real-time
+## Queries worth naming
 
-Near real-time (~1 sec refresh), strong consistent nahi. Search me `refresh=wait_for` slow.
+- **Match and multi-match** with analyzers for relevance-ranked text search.
+- **Term and terms filters** for exact faceting (cheap, cacheable).
+- **Aggregations** for counts, histograms, and stats over result sets.
+- **Completion suggesters** for as-you-type autocomplete.
 
-**🔴 Galti:** "ES hi DB" — Lose karoge, recovery mushkil, update heavy.
-**✅ Sahi:** "Async index, thoda lag ok, hydrate from DB, privacy DB pe check."
+## Failure modes to mention
 
-**Phrase:** "Elasticsearch search ke liye — DB se async index, inverted index, hydrate from DB, privacy filter DB pe."
+1. **Shard imbalance** — hot tenants overload shards; route deliberately.
+2. **Mapping explosions** — unbounded dynamic fields bloat cluster state; use explicit mappings.
+3. **Refresh lag** — just-written docs may not search for a second; say it upfront.
+4. **Deep pagination cost** — `from + size` across shards is expensive; use search-after.
 
-**Yaad rakho:** DB source, ES photocopy, inverted index, hydrate pattern, privacy ≠ ES dump.
+**Mistake:** "Make Elasticsearch the primary database."
+**Correct:** "Database is truth, Elasticsearch is its async search copy — slight lag accepted."
 
-**See also:** [yelp](/hld/yelp), [fb-post-search](/hld/fb-post-search), [yelp](/hld/yelp).
+**Phrase:** "Elasticsearch is the book index — async from the database, slight lag accepted, relevance plus facets out of the box."
+
+**Remember (Revision):** Inverted index, analyzers tokenize, near-real-time refresh, explicit mappings, search-after pagination, database stays truth.
+
+**See also:** [fb post search](/hld/fb-post-search), [yelp](/hld/yelp), [kafka](/hld/kafka).

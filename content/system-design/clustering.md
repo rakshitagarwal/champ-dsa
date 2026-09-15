@@ -51,4 +51,4 @@ graph LR
 
 **Yaad rakho (Revision):** Active-Active vs Active-Passive, stateless vs stateful, shared-nothing preferred, session store (Redis), split-brain risk, quorum se bachna.
 
-**See also:** [Load Balancing](/hld/load-balancing), [Redis](/hld/redis), [Availability](/hld/availability).
+**See also:** [Load Balancing](/hld/load-balancing), [Redis](/hld/redis), [Availability](/hld/fundamentals).

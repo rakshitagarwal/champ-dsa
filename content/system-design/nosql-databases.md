@@ -1,46 +1,44 @@
 # NoSQL Databases
 
-> Flexible schema, horizontal scaling — documents, key-value, wide-column, graphs.
+> Flexible schema with horizontal scale — pick the shape that matches the access pattern.
 
-> NoSQL databases flexible schema rakhte hain — predefined table structure nahi. Document (MongoDB), key-value (Redis), wide-column (Cassandra), graph (Neo4j) types hain. Horizontal scaling naturally hoti hai — sharding built-in. High throughput, low latency. Best for real-time apps, social media, IoT — unstructured/flexible data.
+> NoSQL trades joins and rigid schemas for flexible models and built-in sharding. The right choice depends entirely on how data gets read: known keys favor key-value and wide-column stores; search and relations favor other tools.
 
-NoSQL databases flexible, scalable data store karte hain:
+## NoSQL vs SQL
 
-**Types:**
-- **Document** — JSON/BSON documents, flexible schema (MongoDB)
-- **Key-Value** — simple lookup, ultra-fast (Redis, DynamoDB)
-- **Wide-Column** — column-family, high write volume (Cassandra, HBase)
-- **Graph** — nodes + edges, relationships (Neo4j)
+SQL gives structured tables, ACID, and joins with vertical scaling. NoSQL gives flexible schemas, horizontal scaling, and eventual consistency (tunable). Financial data and inventory stay SQL; social feeds, catalogs, and real-time streams go NoSQL. Most real systems use both — polyglot persistence, each store for its strength.
 
-**Key advantages:**
-- Schema flexibility — no migrations needed
-- Horizontal scaling — sharding built-in
-- High throughput, low latency
-- Polyglot persistence — use different DBs for different needs
+## Key-Value Stores
+
+Simplest model: key in, blob out, single-digit millisecond latency. Redis for ephemeral speed (cache, sessions, counters), DynamoDB for durable managed scale (partition keys, GSIs, on-demand throughput). No queries beyond key lookup — model access paths as keys.
+
+## Document Databases
+
+JSON-like documents with flexible fields, indexed and queryable — MongoDB is the standard. Product catalogs, CMS content, and user profiles fit naturally; schema evolves without migrations. Keep documents self-contained; cross-document joins are weak, so embed or duplicate deliberately.
+
+## Wide-Column Databases
+
+Column families with massive write throughput and known-key reads — Cassandra and HBase. Time-series data, message logs, and activity feeds at billions of rows. Model tables around queries (query-first design), not relations; each query pattern may own its table.
+
+## Data Modeling, Replication, Sharding
+
+Model for reads: duplicate data to avoid joins, choose partition keys from access patterns. Replicate for availability (leader-follower or quorum-based, like DynamoDB). Shard by key across nodes; hot partitions (celebrity keys) need splitting or caching in front.
+
+## Eventual Consistency
+
+Replicas converge without instant agreement — reads may return stale data for milliseconds to seconds. Acceptable for likes, feeds, and counters; unacceptable for money. Tune with quorum reads and writes (`R + W > N` for strong reads) where it matters.
 
 ```mermaid
 graph TD
-    A[NoSQL Types] --> B[Document MongoDB]
-    A --> C[Key-Value Redis/DynamoDB]
-    A --> D[Wide-Column Cassandra/HBase]
-    A --> E[Graph Neo4j]
-    B -->|Flexible JSON| F[Social feeds, catalogs]
-    C -->|Fast lookup| G[Cache, sessions]
-    D -->|High write volume| H[Time-series, logs]
-    E -->|Relationships| I[Social networks, recommendations]
+    A[Access pattern?] -->|known key, huge scale| B[Key-Value / Wide-Column]
+    A -->|flexible docs| C[Document DB]
+    A -->|relations + ACID| D[Stay SQL]
 ```
 
-## Failure modes to mention
+## Keep in mind
 
-1. **Eventual consistency** — Data may be stale temporarily — read repairs, quorum
-2. **Limited queries** — No joins, complex queries hard — denormalize data
-3. **Data duplication** — Schema flexibility leads to duplication — consistency harder
-
-**🔴 Galti:** "NoSQL no consistency" — NoSQL can be strongly consistent (Cassandra quorum), but eventual is default.
-**✅ Sahi:** "NoSQL = flexible schema, horizontal scale. Types: document, key-value, wide-column, graph. Eventual consistency default, but tunable."
-
-**Phrase:** NoSQL flexible schema, horizontal scaling — document (MongoDB), key-value (Redis/DynamoDB), wide-column (Cassandra), graph (Neo4j). Polyglot persistence, high throughput.
-
-**Yaad rakho (Revision):** Document/key-value/wide-column/graph types, flexible schema, horizontal scaling built-in, eventual consistency (tunable), polyglot persistence, MongoDB/Redis/Cassandra/DynamoDB.
-
-**See also:** [Cassandra](/hld/cassandra), [DynamoDB](/hld/dynamodb), [Redis](/hld/redis), [Databases and DBMS](/hld/databases-and-dbms).
+- Model around queries, not relations — duplicate to avoid joins.
+- Partition key choice decides scaling success or hot-partition failure.
+- Eventual consistency is the default; tune quorum where freshness matters.
+- MongoDB for evolving documents, DynamoDB for managed key-value, Cassandra for write firehoses.
+- Polyglot persistence: SQL for money, NoSQL for scale — use both deliberately.

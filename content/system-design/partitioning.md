@@ -43,4 +43,4 @@ Celebrity `userId=123` pe 100k QPS → uska partition garam. Fix: `key#shard` (`
 
 **Yaad rakho:** Hash barabar, range me skew, geo locality, hot → split, rebalance ring.
 
-**See also:** [sharding](/hld/sharding), [consistent-hashing](/hld/consistent-hashing), [replication](/hld/replication).
+**See also:** [sharding](/hld/databases-sql), [consistent-hashing](/hld/load-balancing), [replication](/hld/distributed-systems).

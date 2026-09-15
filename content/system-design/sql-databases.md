@@ -1,41 +1,56 @@
 # SQL Databases
 
-> Relational databases — structured tables with relationships, ACID transactions.
+> Structured tables with relationships — the default until scale forces you out.
 
-> SQL databases structured tables mein data rakhte hain — rows and columns, foreign keys se relate hote hain. ACID properties (Atomicity, Consistency, Isolation, Durability) transactions reliable banate hain. SQL query language se data retrieve karte hain — SELECT, JOIN, WHERE, GROUP BY. Postgres, MySQL, Oracle popular hain. Best for financial apps, inventory, anything structured.
+> Relational databases store rows in tables with fixed schemas, linked by foreign keys. Their superpower is ACID transactions plus expressive queries: joins, aggregations, constraints. PostgreSQL and MySQL cover 90% of applications — start here unless a concrete scale number pushes you out.
 
-SQL databases structured relational data store karte hain:
+## Tables, Keys, and Normalization
 
-**Key features:**
-- Tables with rows (records) and columns (fields), predefined schema
-- Primary keys (unique identifier), Foreign keys (relationships)
-- ACID properties for reliable transactions
-- SQL language — SELECT, INSERT, UPDATE, DELETE, JOIN
-- Indexes for fast queries (B-tree, hash)
+Primary keys uniquely identify rows; foreign keys link tables. Normalization (1NF atomic values, 2NF no partial dependency, 3NF no transitive dependency) removes redundancy and keeps writes clean. Denormalize deliberately for read-heavy analytics (OLAP), where joins cost more than duplication.
 
-**Popular SQL databases:**
-- **PostgreSQL** — feature-rich, JSON support, open source
-- **MySQL** — fast, popular for web apps
-- **Oracle** — enterprise, expensive, feature-complete
+## Indexes
+
+B-tree indexes (the default) accelerate equality and range lookups; hash indexes serve exact matches; composite indexes cover multi-column queries in column order. Every index speeds reads and taxes writes plus storage — index by query pattern, not by column count. A covering index answers the query without touching the table.
+
+## Query Optimization
+
+Read query plans (`EXPLAIN`): sequential scans on big tables, missing index usage, and nested loops over large joins are the usual suspects. Optimize selectively — the slowest query first, measured before and after.
+
+## Transactions and ACID
+
+Atomicity (all or nothing), Consistency (valid states), Isolation (concurrent safety), Durability (survives crashes). Money movements live here: debit plus credit commit together or roll back together.
+
+## Isolation Levels and Locks
+
+Read Uncommitted (dirty reads), Read Committed (committed only), Repeatable Read (stable within transaction), Serializable (full isolation, slowest). Higher isolation means less concurrency. Locks enforce isolation: row locks for writers, with `SELECT FOR UPDATE` for read-then-write patterns.
+
+## Deadlocks
+
+Two transactions waiting on each other's locks — detect via timeouts or wait-graphs, then abort one. Prevent with consistent lock ordering and short transactions holding minimal locks.
+
+## Read Replicas and Replication
+
+Leader handles writes; followers replicate and serve reads — horizontal read scaling. Synchronous replication loses nothing but waits; asynchronous is fast but lags (stale reads, possible loss on leader crash). Read-your-writes consistency may require reading from the leader afterWrites.
+
+## Partitioning, Sharding, Connection Pooling
+
+Partitioning splits one table (by range, hash, or time) for manageability; sharding splits across servers by shard key for scale — choose the key from the query pattern (`WHERE userId=?` means shard by userId). Cross-shard joins and transactions hurt — co-locate related data. Connection pools cap database connections; every app server shares a bounded pool, never one connection per request.
 
 ```mermaid
 graph LR
-    A[Users table] -->|user_id FK| B[Orders table]
-    A -->|user_id FK| C[Payments table]
-    B -->|order_id FK| D[Order_items table]
+    A[App] -->|pool| B[Leader<br/>writes]
+    A -->|reads| C[Replica 1]
+    A -->|reads| D[Replica 2]
+    B -->|async replicate| C
+    B -->|async replicate| D
 ```
 
-## Failure modes to mention
+## Keep in mind
 
-1. **Deadlock** — Two transactions wait for each other — timeout/deadlock detection
-2. **Schema migration** — ALTER TABLE locks table — use online migrations
-3. **Write contention** — Same row update by multiple users — optimistic/pessimistic locking
-
-**🔴 Galti:** "SQL databases always scale horizontally" — SQL primarily vertical, read replicas for horizontal (not native sharding).
-**✅ Sahi:** "SQL = structured tables, ACID, joins, foreign keys. Postgres/MySQL popular. Horizontal scaling limited — read replicas + connection pooling."
-
-**Phrase:** SQL databases structured tables with relationships, ACID transactions, SQL query language, Postgres/MySQL/Oracle — best for structured, transactional data.
-
-**Yaad rakho (Revision):** Tables + rows + columns, primary/foreign keys, ACID (Atomicity, Consistency, Isolation, Durability), SQL queries, Postgres/MySQL, vertical scaling, read replicas.
-
-**See also:** [PostgreSQL](/hld/postgresql), [Database Replication](/hld/database-replication), [Databases and DBMS](/hld/databases-and-dbms).
+- Start with Postgres/MySQL; leave only on measured scale pain.
+- Normalize for transactions, denormalize for analytics — deliberate choice.
+- Index by query pattern; every index taxes writes.
+- Money flows use ACID transactions with appropriate isolation.
+- Deadlocks come from lock order — keep transactions short and ordered.
+- Replicas scale reads; sharding scales writes — shard key equals the WHERE clause.
+- Pool connections always; never one per request.

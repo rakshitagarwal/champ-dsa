@@ -207,7 +207,7 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - **Flink subtask fails:** Checkpoint every 30s to S3; on restore replays from last offset. Exactly-once via checkpoint + idempotent Redis `SET` + Cassandra `upsert` (last-write-wins on count). No double counting after dedupe window.
 - **Redis hot shard:** Replicate `trending:IN:24h` to 3 replicas via read replicas; Trending Service reads from replica, writes to primary. Hot key replication + L1 Caffeine 5s in service mitigates.
 - **Cassandra compaction lag:** Counts table TTL auto-expires old windows; add time-bucketed partitions to avoid tombstone storm.
-- **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/hld/load-balancer). Stale snapshot served with `Age` header if writer stalls — never 500.
+- **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/hld/load-balancing). Stale snapshot served with `Age` header if writer stalls — never 500.
 - **Scale knobs:** Add Kafka partitions + Flink parallelism linearly; sharding by region for heaps (each region heap independent). CDN caches `GET /trending` 15-30s, absorbing 90%+ reads.
 
 ## Extra probes / follow-ups

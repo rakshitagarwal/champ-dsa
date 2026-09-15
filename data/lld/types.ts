@@ -1,4 +1,4 @@
-export type LldGroupId = "intro" | "patterns" | "questions";
+export type LldGroupId = "intro" | "fundamentals" | "principles" | "patterns" | "design" | "questions";
 
 export type LldGroup = {
   id: LldGroupId;

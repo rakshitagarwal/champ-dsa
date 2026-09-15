@@ -122,332 +122,136 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "tech",
   },
   {
-    slug: "ip",
-    title: "IP",
+    slug: "fundamentals",
+    title: "System Design Fundamentals",
     description:
-      "Internet Protocol — addressing for packet routing, IPv4 vs IPv6, TTL and fragmentation.",
+      "Functional vs non-functional requirements, scalability, availability, consistency and the core trade-offs.",
     group: "concepts",
   },
   {
-    slug: "osi-model",
-    title: "OSI Model",
+    slug: "capacity-estimation",
+    title: "Capacity Estimation",
     description:
-      "7 layers framework for networking — Physical to Application, encapsulation and TCP/IP comparison.",
+      "QPS, DAU, storage and bandwidth math — back-of-the-envelope calculations with a worked example.",
     group: "concepts",
   },
   {
-    slug: "tcp-and-udp",
-    title: "TCP and UDP",
+    slug: "networking",
+    title: "Networking",
     description:
-      "Transport protocols — TCP reliable handshake vs UDP fast connectionless. Video vs chat.",
+      "HTTP versions, TCP vs UDP, DNS, TLS, WebSockets, SSE, REST, gRPC and connection reuse.",
     group: "concepts",
   },
   {
-    slug: "domain-name-system",
-    title: "Domain Name System",
+    slug: "api-design",
+    title: "API Design",
     description:
-      "DNS — domain name to IP resolution, hierarchical root/TLD/authoritative, caching and record types.",
+      "REST design, versioning, pagination, validation, errors, idempotency and webhooks.",
     group: "concepts",
   },
   {
     slug: "load-balancing",
     title: "Load Balancing",
     description:
-      "Traffic distribution across servers — round-robin, least-connections, L4 vs L7, health checks.",
-    group: "concepts",
-  },
-  {
-    slug: "clustering",
-    title: "Clustering",
-    description:
-      "Multiple servers as one system — active-active, active-passive, stateless, shared-nothing.",
-    group: "concepts",
-  },
-  {
-    slug: "caching-strategies",
-    title: "Caching Strategies",
-    description:
-      "Cache-aside, write-through, write-behind, and TTL + invalidation.",
-    group: "concepts",
-  },
-  {
-    slug: "cdn",
-    title: "CDN",
-    description:
-      "Content Delivery Network — edge PoPs globally, cache hit vs miss, TTL, static content acceleration.",
-    group: "concepts",
-  },
-  {
-    slug: "proxy",
-    title: "Proxy",
-    description:
-      "Forward proxy (client privacy) vs reverse proxy (server LB, SSL, cache). Nginx/HAProxy.",
-    group: "concepts",
-  },
-  {
-    slug: "availability",
-    title: "Availability",
-    description:
-      "System uptime and fault tolerance — SLA levels, redundancy, RTO/RPO, SPOF avoidance.",
-    group: "concepts",
-  },
-  {
-    slug: "scalability",
-    title: "Scalability",
-    description:
-      "Handle growing load — scale up vs scale out, stateless architecture, auto-scaling.",
-    group: "concepts",
-  },
-  {
-    slug: "storage",
-    title: "Storage",
-    description:
-      "Block, file, object storage — EBS, NFS, S3. Right storage for right use case.",
-    group: "concepts",
-  },
-  {
-    slug: "databases-and-dbms",
-    title: "Databases and DBMS",
-    description:
-      "Structured data stores and the systems that manage them — relational vs non-relational, CRUD and ACID.",
+      "L4 vs L7, algorithms, consistent hashing, health checks, failover and sticky sessions.",
     group: "concepts",
   },
   {
     slug: "sql-databases",
     title: "SQL Databases",
     description:
-      "Relational databases — tables, ACID, SQL language, Postgres/MySQL/Oracle, structured data.",
+      "Tables, keys, indexes, transactions, ACID, isolation, replication and sharding.",
     group: "concepts",
   },
   {
     slug: "nosql-databases",
     title: "NoSQL Databases",
     description:
-      "Document, key-value, wide-column, graph — MongoDB, Redis, Cassandra, Neo4j.",
+      "Key-value, document and wide-column stores, modeling, replication and eventual consistency.",
     group: "concepts",
   },
   {
-    slug: "sql-vs-nosql-databases",
-    title: "SQL vs NoSQL",
+    slug: "caching-strategies",
+    title: "Caching",
     description:
-      "Structured+ACID vs flexible+scale — polyglot persistence, when to choose which.",
-    group: "concepts",
-  },
-  {
-    slug: "database-replication",
-    title: "Database Replication",
-    description:
-      "Data copy across servers — leader-follower, sync vs async, read replicas, replication lag.",
-    group: "concepts",
-  },
-  {
-    slug: "indexes",
-    title: "Indexes",
-    description:
-      "B-tree, hash, LSM — index types, read faster/write slower trade-off, covering indexes.",
-    group: "concepts",
-  },
-  {
-    slug: "normalization-and-denormalization",
-    title: "Normalization and Denormalization",
-    description:
-      "Reduce redundancy vs speed up reads — 3NF vs denormalized, OLTP vs OLAP.",
-    group: "concepts",
-  },
-  {
-    slug: "acid-vs-base",
-    title: "ACID vs BASE",
-    description:
-      "Strong vs eventual — transactions, availability, and soft-state trade-offs.",
-    group: "concepts",
-  },
-  {
-    slug: "cap-theorem",
-    title: "CAP Theorem",
-    description:
-      "Consistency vs availability during partitions, and PACELC for normal latency.",
-    group: "concepts",
-  },
-  {
-    slug: "pacelc",
-    title: "PACELC",
-    description:
-      "Extension of CAP — partition picks Availability vs Consistency, otherwise Latency vs Consistency.",
-    group: "concepts",
-  },
-  {
-    slug: "transactions",
-    title: "Transactions",
-    description:
-      "ACID properties and isolation levels — atomicity, consistency, durability, concurrent transactions.",
-    group: "concepts",
-  },
-  {
-    slug: "distributed-transactions",
-    title: "Distributed Transactions",
-    description:
-      "2PC vs Saga pattern — blocking vs compensation, eventual consistency in microservices.",
-    group: "concepts",
-  },
-  {
-    slug: "sharding",
-    title: "Sharding",
-    description:
-      "Split one DB into N — hash, range, geo, and the cross-shard pain.",
-    group: "concepts",
-  },
-  {
-    slug: "consistent-hashing",
-    title: "Consistent Hashing",
-    description:
-      "Ring, virtual nodes, and minimal moves on scale — the core of caches and shards.",
-    group: "concepts",
-  },
-  {
-    slug: "database-federation",
-    title: "Database Federation",
-    description:
-      "Multiple databases as one — query federation, sharding, polyglot persistence.",
-    group: "concepts",
-  },
-  {
-    slug: "n-tier-architecture",
-    title: "N-tier Architecture",
-    description:
-      "Presentation, business logic, data layers — 2-tier vs 3-tier vs N-tier, scalability.",
-    group: "concepts",
-  },
-  {
-    slug: "message-brokers",
-    title: "Message Brokers",
-    description:
-      "Middleware for async communication — Kafka, RabbitMQ, decoupling producers/consumers.",
+      "Cache patterns, TTL, eviction, stampede, penetration, distributed cache and Redis.",
     group: "concepts",
   },
   {
     slug: "message-queue",
-    title: "Message Queue",
+    title: "Message Queues",
     description:
-      "Decouple with queues — SQS, RabbitMQ, Kafka, and backpressure handling.",
+      "Producers, consumers, pub/sub, delivery guarantees, ordering, retries, DLQ and Kafka/RabbitMQ/NATS.",
     group: "concepts",
   },
   {
-    slug: "publish-subscribe",
-    title: "Publish-Subscribe",
+    slug: "distributed-systems",
+    title: "Distributed Systems",
     description:
-      "Event-driven one-to-many communication — fan-out, topic, subscriber, asynchronous.",
-    group: "concepts",
-  },
-  {
-    slug: "enterprise-service-bus",
-    title: "Enterprise Service Bus",
-    description:
-      "Central SOA hub — message routing, protocol conversion, vs API Gateway for microservices.",
+      "CAP, consistency models, replication, quorum, locks, transactions, retries and backoff.",
     group: "concepts",
   },
   {
     slug: "microservices",
-    title: "Microservices vs Monolith",
+    title: "Microservices",
     description:
-      "One deploy vs many services — trade-offs, boundaries, and comms.",
+      "Monolith to microservices, boundaries, discovery, sync vs async, saga, outbox, CQRS and tracing.",
     group: "concepts",
   },
   {
-    slug: "event-driven-architecture",
-    title: "Event-Driven Architecture",
+    slug: "cdn",
+    title: "CDN",
     description:
-      "Events drive the system — async, decoupled, scalable. Producer emits, consumers react.",
+      "Edge locations, origin, static caching, cache-control, invalidation and providers.",
     group: "concepts",
   },
   {
-    slug: "event-sourcing",
-    title: "Event Sourcing",
+    slug: "storage",
+    title: "Storage",
     description:
-      "State = replay of events — append-only log, audit trail, snapshots, CQRS synergy.",
+      "Object, block and file storage, S3, presigned URLs, multipart upload and lifecycle.",
     group: "concepts",
   },
   {
-    slug: "command-and-query-responsibility-segregation",
-    title: "CQRS",
+    slug: "rate-limiting",
+    title: "Rate Limiting",
     description:
-      "Commands and queries separate — write model vs read model, eventual consistency.",
+      "Fixed and sliding windows, token and leaky buckets, distributed limits with Redis.",
     group: "concepts",
   },
   {
-    slug: "api-paradigms",
-    title: "REST vs GraphQL vs gRPC",
+    slug: "reliability-fault-tolerance",
+    title: "Reliability & Fault Tolerance",
     description:
-      "API styles — resource vs query vs streaming, and when to pick which.",
+      "Health checks, retries, timeouts, circuit breaker, bulkhead, failover and RPO/RTO.",
     group: "concepts",
   },
   {
-    slug: "long-polling",
-    title: "Long Polling vs SSE vs WebSocket",
+    slug: "security",
+    title: "Security",
     description:
-      "Push models — polling waste, SSE one-way, WebSocket two-way.",
+      "AuthN vs AuthZ, JWT, OAuth 2.0, RBAC, encryption, CORS/CSRF/XSS/SQL injection and secrets.",
     group: "concepts",
   },
   {
-    slug: "geohashing-and-quadtrees",
-    title: "Geohashing and Quadtrees",
+    slug: "observability",
+    title: "Observability",
     description:
-      "Geographic coordinates to encoded strings — prefix match nearby search, quadtree spatial queries.",
+      "Logs, metrics, traces, correlation IDs, alerting, Prometheus and Grafana.",
     group: "concepts",
   },
   {
-    slug: "circuit-breaker",
-    title: "Circuit Breaker",
+    slug: "cloud-architecture",
+    title: "Cloud Architecture",
     description:
-      "Fail fast when downstream is down — open, half-open, close states.",
+      "EC2, ECS/EKS, Lambda, RDS, DynamoDB, ElastiCache, SQS/SNS, CloudFront, Route 53, ALB and CloudWatch.",
     group: "concepts",
   },
   {
-    slug: "service-discovery",
-    title: "Service Discovery",
+    slug: "architecture-concepts",
+    title: "Important Architecture Concepts",
     description:
-      "Find healthy instances — DNS, registry, and health checks.",
-    group: "concepts",
-  },
-  {
-    slug: "sla-slo-sli",
-    title: "SLA, SLO, SLI",
-    description:
-      "Service quality — SLI measure, SLO target, SLA contract. Error budgets for risk.",
-    group: "concepts",
-  },
-  {
-    slug: "disaster-recovery",
-    title: "Disaster Recovery",
-    description:
-      "Fail recovery plans — RTO/RPO, backup/pilot/warm/multi-site strategies, DR testing.",
-    group: "concepts",
-  },
-  {
-    slug: "virtual-machines-and-containers",
-    title: "Virtual Machines and Containers",
-    description:
-      "VM full OS (heavy) vs container app-level (lightweight) — Docker, Kubernetes.",
-    group: "concepts",
-  },
-  {
-    slug: "oauth2-and-openid-connect",
-    title: "OAuth 2.0 and OpenID Connect",
-    description:
-      "Authorization (OAuth) + authentication (OIDC) — tokens, flows, access/refresh tokens.",
-    group: "concepts",
-  },
-  {
-    slug: "single-sign-on",
-    title: "Single Sign-On",
-    description:
-      "One login for multiple apps — IdP, SAML/OIDC/Kerberos, centralized authentication.",
-    group: "concepts",
-  },
-  {
-    slug: "ssl-tls-mtls",
-    title: "SSL, TLS, mTLS",
-    description:
-      "Encryption protocols — TLS handshake, HTTPS, mutual TLS for service-to-service.",
+      "Reverse proxy, service mesh, webhooks, polling vs push, batch vs stream, queues, workers and schedulers.",
     group: "concepts",
   },
 

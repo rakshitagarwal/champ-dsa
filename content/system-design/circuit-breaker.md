@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** Closed normal, Open fast fail, Half-open probe, retry storm rokho, fallback.
 
-**See also:** [load-balancer](/hld/load-balancer), [api-gateway](/hld/api-gateway), [replication](/hld/replication).
+**See also:** [load-balancer](/hld/load-balancing), [api-gateway](/hld/api-gateway), [replication](/hld/distributed-systems).

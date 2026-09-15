@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho (Revision):** SLI (measure), SLO (target), SLA (contract), error budget = allowed failures, budget exhausted = deploy freeze, p99/p95 latency, availability targets.
 
-**See also:** [Availability](/hld/availability), [Metrics Monitoring](/hld/metrics-monitoring), [Observability](/hld/observability).
+**See also:** [Availability](/hld/fundamentals), [Metrics Monitoring](/hld/metrics-monitoring), [Observability](/hld/observability).

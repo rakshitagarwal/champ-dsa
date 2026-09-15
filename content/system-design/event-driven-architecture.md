@@ -45,4 +45,4 @@ graph LR
 
 **Yaad rakho (Revision):** Events se system operates, async + decoupled, producer emits + consumers react, event sourcing + CQRS, event ordering + duplication challenges, eventual consistency.
 
-**See also:** [Event Sourcing](/hld/event-sourcing), [CQRS](/hld/command-and-query-responsibility-segregation), [Publish-Subscribe](/hld/publish-subscribe).
+**See also:** [Event Sourcing](/hld/microservices), [CQRS](/hld/microservices), [Publish-Subscribe](/hld/message-queues).

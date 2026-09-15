@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lightbulb, MapPin } from "lucide-react";
+import { BookOpen, Lightbulb, MapPin, PenTool, ScrollText } from "lucide-react";
 import { LLD_GROUPS } from "@/data/lld/topics";
 import type { LldTopicWithNum } from "@/data/lld/topics";
 import { cn } from "@/lib/utils";
@@ -38,7 +38,17 @@ export function LldSidebar({ docs, className }: Props) {
           const items = docs.filter((d) => d.group === group.id);
           if (items.length === 0) return null;
           const Icon =
-            group.id === "patterns" ? Lightbulb : group.id === "questions" ? MapPin : null;
+            group.id === "fundamentals"
+              ? BookOpen
+              : group.id === "principles"
+                ? ScrollText
+                : group.id === "patterns"
+                  ? Lightbulb
+                  : group.id === "design"
+                    ? PenTool
+                    : group.id === "questions"
+                      ? MapPin
+                      : null;
           return (
             <section key={group.id} className="mb-5">
               <p className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">

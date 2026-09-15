@@ -54,4 +54,4 @@ graph LR
 
 **Yaad rakho (Revision):** Hash vs Range vs Geo, shard key = high cardinality + query, cross-shard → app join / outbox, hot shard → split/cache.
 
-**See also:** [postgresql](/hld/postgresql), [consistent-hashing](/hld/consistent-hashing), [cassandra](/hld/cassandra).
+**See also:** [postgresql](/hld/postgresql), [consistent-hashing](/hld/load-balancing), [cassandra](/hld/cassandra).

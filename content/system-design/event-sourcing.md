@@ -45,4 +45,4 @@ graph TD
 
 **Yaad rakho (Revision):** Event sourcing append-only log, state = replay events, snapshots for speed, audit trail + time travel, schema evolution challenge, CQRS + event sourcing = powerful combo.
 
-**See also:** [CQRS](/hld/command-and-query-responsibility-segregation), [Event-Driven Architecture](/hld/event-driven-architecture), [Message Queue](/hld/message-queue).
+**See also:** [CQRS](/hld/microservices), [Event-Driven Architecture](/hld/microservices), [Message Queue](/hld/message-queue).

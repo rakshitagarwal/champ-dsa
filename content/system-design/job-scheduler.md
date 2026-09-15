@@ -192,12 +192,12 @@ class RetryPolicy:
 ```
 
 **Concurrency & algorithms:**
-- **SKIP LOCKED:** The core primitive. Two dispatchers run the same `SELECT FOR UPDATE SKIP LOCKED` — the first locks rows, the second skips them. No [ZooKeeper](/hld/zookeeper) needed for correctness, though leader election can reduce duplicate wakeups.
+- **SKIP LOCKED:** The core primitive. Two dispatchers run the same `SELECT FOR UPDATE SKIP LOCKED` — the first locks rows, the second skips them. No [ZooKeeper](/hld/distributed-systems) needed for correctness, though leader election can reduce duplicate wakeups.
 - **Lease + fencing token:** Alternative with [Redis](/hld/redis): `SET job:lock:{id} <token> NX EX 30` — only holder with current token may enqueue. Fencing token (monotonic `runId`) ensures stale holder can't commit.
 - **Jitter for thundering herd:** Instead of `0 * * * *` for 10k jobs, spread `next_run_at` by adding `random(0, 300s)` on creation or using `0-5 * * * *` equivalent. Prevents midnight spike.
 - **Missed ticks:** Policy per job: `SKIP` (email digest — don't send 10 old digests) vs `CATCH_UP_ONCE` (billing — run once with latest payload, not N times). Dispatcher checks `now() - next_run_at > threshold` and applies policy.
 
-**Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/hld/zookeeper)/etcd).
+**Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/hld/distributed-systems)/etcd).
 
 ## Deep dive — exactly-once is a lie (and what to do)
 

@@ -214,7 +214,7 @@ class AnalyticsPublisher:
 
 **Why not `md5(url)[:6]`?** Same URL should arguably give same code (dedup), but different URLs collide in 6 hex chars (≈16M space). Birthday paradox guarantees collisions fast. Don't rely on hash truncation without collision handling.
 
-**Preferred — Counter + Base62 with range allocation:** Single logical counter, physically sharded. Each API host fetches a range `[1M, 2M)` from [ZooKeeper](/hld/zookeeper) / etcd lease. Encodes locally with no network call. Pros: guaranteed unique, short, ordered. Cons: guessable/enumerable — mitigate by shuffling or starting at random offset, or using 7 chars + non-sequential precomputed pool.
+**Preferred — Counter + Base62 with range allocation:** Single logical counter, physically sharded. Each API host fetches a range `[1M, 2M)` from [ZooKeeper](/hld/distributed-systems) / etcd lease. Encodes locally with no network call. Pros: guaranteed unique, short, ordered. Cons: guessable/enumerable — mitigate by shuffling or starting at random offset, or using 7 chars + non-sequential precomputed pool.
 
 **Alternative — Key Generation Service (KGS):** Dedicated service pre-generates codes into a DB table `unused_codes(code PK, used BOOLEAN)`. Creation does `SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1` or `POP` from Redis list. Survives bursts because pool is pre-filled. Need to monitor refill lag and handle KGS single-point-of-failure via replicas + standby.
 

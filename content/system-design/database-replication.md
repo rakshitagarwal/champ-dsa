@@ -39,4 +39,4 @@ graph LR
 
 **Yaad rakho (Revision):** Leader-follower, multi-leader, leaderless types, sync vs async replication, read replicas, replication lag, leader failover, split-brain risk.
 
-**See also:** [Replication](/hld/replication), [CAP Theorem](/hld/cap-theorem), [Quorum](/hld/quorum).
+**See also:** [Replication](/hld/distributed-systems), [CAP Theorem](/hld/distributed-systems), [Quorum](/hld/distributed-systems).

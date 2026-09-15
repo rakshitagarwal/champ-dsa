@@ -1,52 +1,66 @@
-# Message Queue
+# Message Queues
 
-> Kaam ko queue me daalo — producer bhage, consumer aaram se peeche aaye.
+> Decouple in time — producers move on while consumers catch up, with spikes absorbed in between.
 
-> Message queue ek dhaba ka token system — order lo token do, kitchen peeche banaye, bheed badhe to token line badhe, kitchen tez nahi to nahi. Producer aur consumer alag, spike buffer.
+> Queues sit between producers and consumers so neither waits for the other. Order placed → payment, inventory, and email each proceed independently. Spikes queue up instead of crashing services. Core trio: Kafka (durable log), RabbitMQ (smart routing), NATS JetStream (lightweight plus persistence).
 
-Har async design me aayega — notification, analytics, transcode.
+## Message Queue Basics
 
-## Queue vs Log vs Pub/Sub
+Producers publish, the broker stores, consumers process at their pace. Point-to-point queues deliver each message to one consumer; competing consumers scale throughput. Persistence plus acknowledgments decide durability: acked messages leave, unacked ones redeliver.
 
-- **Queue (SQS, RabbitMQ):** ek message ek consumer — `push` → `pop` + ack → delete. Order per queue nahi pakka.
-- **Log (Kafka):** har message disk pe, har group pura padhe — `offset` yaad, replay. Order per partition pakka.
-- **Pub/Sub:** topic pe publish, N subscribers — log ka hi roop.
+## Producer and Consumer Roles
 
-## When to pick which
+Producers fire and forget (with optional confirmations); consumers pull or receive pushes, process idempotently, then ack. Slow consumers exert backpressure — brokers buffer, shed, or throttle. Consumers must tolerate redelivery because at-least-once is the norm.
 
-- **SQS (managed queue):** 10k TPS, at-least-once, 14 days, dead-letter queue. Simple jobs.
-- **RabbitMQ:** routing `direct/topic/fanout`, priority, 20k TPS, in-memory.
-- **Kafka:** 100k+ TPS, durable log, replay, 7 days, exactly-once via transaction. Heavy par powerful.
+## Pub/Sub Model
 
-**Pick:** simple delayed job → SQS, complex routing → RabbitMQ, high throughput + replay → Kafka.
+One message fans to many subscribers via topics — each subscriber group gets its own copy. Perfect for event-driven systems (order created → five reactions). Ordering holds per partition or subject, not globally.
 
-## How to answer in interview
+## Asynchronous Processing
 
-- **Decouple:** `Order Service → queue order.created → Payment + Inventory` async.
-- **DLQ:** fail 3 baar to `order.DLQ` me, manual retry.
-- **Backpressure:** consumer slow to queue bade + alert + autoscale.
-- **Idempotency:** same message 2 baar → `msgId SETNX` → dedup.
+Move slow work off the request path: uploads return 202 while transcoding queues; emails send after signup responds. Async raises availability (survives downstream outages) at the cost of eventual results and harder debugging.
+
+## Delivery Guarantees
+
+At-most-once (may lose, never duplicate — metrics), at-least-once (redelivers, may duplicate — the default; pair with idempotent consumers), exactly-once (effectively once via transactions plus idempotency — Kafka + idempotent sinks). State the guarantee per flow, never assume.
+
+## Message Ordering
+
+Order holds within a partition or key (same chat, same order ID), never across the whole topic. Need global order? Single partition — and accept the throughput ceiling. Design keys so related events share partitions.
+
+## Retries
+
+Retry transient failures with exponential backoff plus jitter (prevents retry storms). Cap attempts — infinite retries poison queues. Separate retryable (timeouts) from fatal (bad payload) errors early.
+
+## Dead Letter Queue
+
+Messages failing all retries park in a DLQ with error context for inspection and replay. Every queue needs one; without it, poison messages loop forever or vanish silently. Alert on DLQ depth.
+
+## Backpressure
+
+When producers outrun consumers: bounded queues plus 429s, load shedding (drop low-priority), autoscaling consumers, or pull-based consumption (consumers set the pace). Pick one deliberately — unbounded buffering just moves the crash to memory.
+
+## Consumer Groups
+
+Groups split partitions across consumers for parallel processing; each group gets the full stream independently. Rebalances on scaling pause consumption briefly. Size partitions for peak parallelism — you cannot scale consumers past partition count.
+
+## Kafka, RabbitMQ, NATS, SQS/SNS
+
+Kafka: durable partitioned log, replay, 100k+ msgs/s — heavy streaming backbone. RabbitMQ: exchanges with smart routing, per-message acks — flexible task queues. NATS JetStream: lightweight pub-sub plus persistence — simplest ops. SQS/SNS: managed AWS queue plus notifications — zero ops, moderate throughput.
 
 ```mermaid
 graph LR
-    A[Producer<br/>Order] -->|send| B[Queue<br/>SQS/Rabbit/Kafka]
-    B --> C[Consumer<br/>Payment]
-    B --> D[Consumer<br/>Inventory]
-    C -->|ack| B
-    D -->|fail| E[DLQ]
+    A[Producer] --> B[Broker<br/>Kafka / RabbitMQ]
+    B --> C[Consumer Group 1<br/>payments]
+    B --> D[Consumer Group 2<br/>analytics]
+    C -->|fail ×N| E[DLQ]
 ```
 
-## Failure handling
+## Keep in mind
 
-- **Order:** Rabbit/Kafka partition pe order, SQS nahi.
-- **Poison pill:** ek message har baar fail → DLQ, warna loop.
-- **Visibility timeout (SQS):** 30 sec me ack nahi to wapas queue.
-
-**🔴 Galti:** "Har cheez sync" — Spike pe DB marega.
-**✅ Sahi:** "Write DB + queue async, consumer idempotent, DLQ."
-
-**Phrase:** "Queue token jaisa — SQS simple, Rabbit routing, Kafka log replay, DLQ + idempotent."
-
-**Yaad rakho:** Queue 1 consumer, log replay, SQS simple, Rabbit routing, Kafka high + replay, DLQ must.
-
-**See also:** [kafka](/hld/kafka), [backpressure](/hld/backpressure), [idempotency](/hld/idempotency).
+- Decouple in time: producers never wait for consumers.
+- At-least-once plus idempotent consumers is the default contract.
+- Order per partition only — design keys accordingly.
+- Retry with backoff and caps; park failures in a DLQ.
+- Backpressure needs an explicit strategy, not hope.
+- Kafka for logs, RabbitMQ for routing, NATS for light ops, SQS for managed.
