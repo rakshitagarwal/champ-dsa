@@ -6,7 +6,11 @@
 
 ## Tables, Keys, and Normalization
 
-Primary keys uniquely identify rows; foreign keys link tables. Normalization (1NF atomic values, 2NF no partial dependency, 3NF no transitive dependency) removes redundancy and keeps writes clean. Denormalize deliberately for read-heavy analytics (OLAP), where joins cost more than duplication.
+Primary keys uniquely identify rows; foreign keys link tables. Normalization (1NF atomic values, 2NF no partial dependency, 3NF no transitive dependency) removes redundancy and keeps writes clean.
+
+## Denormalization
+
+Denormalization deliberately duplicates data to speed up reads — precomputed counts, embedded details, flattened reporting tables. Use it for read-heavy analytics (OLAP) where joins cost more than duplication. The price is update anomalies: every copy must change together, so reserve it for data that rarely changes or tolerates brief staleness.
 
 ## Indexes
 
