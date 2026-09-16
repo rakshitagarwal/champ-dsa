@@ -18,9 +18,9 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/notes") ||
     pathname.startsWith("/practice") ||
     pathname.startsWith("/compiler") ||
-    pathname.startsWith("/visualizer") ||
     pathname.startsWith("/companies") ||
     pathname.startsWith("/hld") ||
+    pathname.startsWith("/lld") ||
     pathname.startsWith("/solutions");
 
   useEffect(() => {

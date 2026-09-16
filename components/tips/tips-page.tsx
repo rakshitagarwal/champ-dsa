@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { TipsTabs } from "@/components/tips/tips-tabs";
 import { TipsDocument } from "@/components/tips/tips-document";
@@ -9,7 +9,6 @@ import {
   isTipsTabSlug,
 } from "@/data/tips/manifest";
 import type { TipsDocument as TipsDoc } from "@/lib/tips/loader";
-import { markTipsVisited } from "@/lib/onboarding/checklist";
 import { Sparkles } from "lucide-react";
 
 type TipsPageProps = {
@@ -21,10 +20,6 @@ function TipsPageContent({ tips }: TipsPageProps) {
   const tabParam = searchParams.get("tab");
   const activeSlug = isTipsTabSlug(tabParam) ? tabParam : DEFAULT_TIPS_TAB;
   const activeDoc = tips.find((t) => t.slug === activeSlug) ?? tips[0];
-
-  useEffect(() => {
-    markTipsVisited();
-  }, []);
 
   if (!activeDoc) {
     return (

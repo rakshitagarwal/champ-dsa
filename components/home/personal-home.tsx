@@ -34,7 +34,7 @@ const SECTIONS = [
   {
     href: "/lld",
     title: "LLD",
-    description: "Low-Level Design notes coming soon.",
+    description: "Low-level design patterns, OOP, and interview problems.",
   },
   {
     href: "/tips",

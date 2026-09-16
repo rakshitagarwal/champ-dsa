@@ -16,7 +16,6 @@ import {
   savePracticeExpandedSub,
   scrollPracticeSubsectionIntoView,
 } from "@/lib/storage/practice-list-state";
-import { markPracticeVisited } from "@/lib/onboarding/checklist";
 import {
   Accordion,
   AccordionContent,
@@ -65,7 +64,6 @@ export function SheetAccordion() {
   );
 
   useEffect(() => {
-    markPracticeVisited();
     if (pathname !== "/practice") return;
     const saved = loadPracticeExpandedSub();
     if (!saved) return;
