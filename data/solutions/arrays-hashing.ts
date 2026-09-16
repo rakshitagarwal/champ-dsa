@@ -17,15 +17,13 @@ export const ARRAYS_HASHING_SOLUTIONS: SolutionGroup = {
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — complement
-// LC: https://leetcode.com/problems/two-sum/
+// Hash map — complement lookup in one pass
 function twoSum(nums, target) {
-  const seen = new Map();
+  const seen = new Map(); // value -> index
   for (let i = 0; i < nums.length; i++) {
-    const need = target - nums[i];
-    if (seen.has(need)) return [seen.get(need), i]; // Hinglish: saathi mila kya?
-    seen.set(nums[i], i); // Hinglish: yaad rakho
+    const need = target - nums[i]; // partner we still need
+    if (seen.has(need)) return [seen.get(need), i]; // found pair
+    seen.set(nums[i], i); // remember index for later
   }
 }
 \`\`\``,
@@ -35,19 +33,17 @@ function twoSum(nums, target) {
       lcSlug: "contains-duplicate",
       title: "Contains Duplicate",
       diff: "Easy",
-      body: `Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing check.
+      body: `Track seen values in a set — if a number appears twice, return true. Classic O(n) duplicate check.
 
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/contains-duplicate/
+// Set — O(n) duplicate detection
 function containsDuplicate(nums) {
-  // Hinglish: set me pehle se hai kya?
   const seen = new Set();
   for (const x of nums) {
-    if (seen.has(x)) return true; // Hinglish: duplicate mil gaya
-    seen.add(x); // Hinglish: yaad rakho
+    if (seen.has(x)) return true; // second time seeing x
+    seen.add(x);
   }
   return false;
 }
@@ -58,22 +54,20 @@ function containsDuplicate(nums) {
       lcSlug: "valid-anagram",
       title: "Valid Anagram",
       diff: "Easy",
-      body: `Dono ke letter counts barabar hon to anagram. Ek ka +1, doosre ka -1 — sab zero to true.
+      body: `Anagrams have equal letter counts — increment for \`s\`, decrement for \`t\`, all frequencies zero means match.
 
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/valid-anagram/
+// Frequency delta — +s, -t, all zero if anagram
 function isAnagram(s, t) {
-  // Hinglish: step 1 — lambai check karo
   if (s.length !== t.length) return false;
   const f = Array(26).fill(0);
   for (let i = 0; i < s.length; i++) {
-    f[s.charCodeAt(i) - 97]++; // Hinglish: pehle ka +1
-    f[t.charCodeAt(i) - 97]--; // Hinglish: doosre ka -1
+    f[s.charCodeAt(i) - 97]++; // count s letters
+    f[t.charCodeAt(i) - 97]--; // cancel with t
   }
-  return f.every((x) => x === 0); // Hinglish: sab zero to anagram
+  return f.every((x) => x === 0);
 }
 \`\`\``,
     },
@@ -82,20 +76,18 @@ function isAnagram(s, t) {
       lcSlug: "group-anagrams",
       title: "Group Anagrams",
       diff: "Medium",
-      body: `Sorted word hi group ki key hai — anagram sort karke same bante hain. Map me key se list jodo.
+      body: `Use sorted letters as the map key — anagrams share the same key; append each word to its bucket.
 
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/group-anagrams/
+// Map key = sorted letters (canonical anagram form)
 function groupAnagrams(strs) {
-  // Hinglish: step 1 — map banao
   const map = new Map();
   for (const w of strs) {
-    const key = [...w].sort().join(""); // Hinglish: sort = group key
+    const key = [...w].sort().join("");
     if (!map.has(key)) map.set(key, []);
-    map.get(key).push(w); // Hinglish: group me daalo
+    map.get(key).push(w);
   }
   return [...map.values()];
 }
@@ -111,30 +103,27 @@ function groupAnagrams(strs) {
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// Heap — by frequency
-// LC: https://leetcode.com/problems/top-k-frequent-elements/
+// Min-heap of size k on [freq, num]
 function topKFrequent(nums, k) {
   const freq = new Map();
   for (const x of nums) freq.set(x, (freq.get(x) || 0) + 1);
   const h = [];
-  const less = (a, b) => a[0] < b[0];
+  const less = (a, b) => a[0] < b[0]; // min-heap by frequency
   for (const [num, f] of freq) {
-    heapPush(h, [f, num], less); // Hinglish: heap me daalo
-    if (h.length > k) heapPop(h, less); // Hinglish: sabse chhota nikala
+    heapPush(h, [f, num], less);
+    if (h.length > k) heapPop(h, less); // drop smallest freq
   }
   return h.map(([, num]) => num);
 }
 
-// Heap helpers — har solution ke saath (min-heap default)
-// Hinglish: push karke upar bubble, pop karke neeche bubble
+// Min-heap helpers (shared pattern)
 function heapPush(h, val, less = (a, b) => a < b) {
   h.push(val);
   let i = h.length - 1;
   while (i > 0) {
     const p = (i - 1) >> 1;
     if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
+    [h[i], h[p]] = [h[p], h[i]]; // bubble up
     i = p;
   }
 }
@@ -148,7 +137,7 @@ function heapPop(h, less = (a, b) => a < b) {
     if (l < h.length && less(h[l], h[m])) m = l;
     if (r < h.length && less(h[r], h[m])) m = r;
     if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
+    [h[i], h[m]] = [h[m], h[i]]; // bubble down
     i = m;
   }
   return top;
@@ -160,37 +149,35 @@ function heapPop(h, less = (a, b) => a < b) {
       lcSlug: "insert-delete-getrandom-o1",
       title: "Insert Delete GetRandom O(1)",
       diff: "Medium",
-      body: `Array plus map jodo — array random deta hai, map index batata hai. Delete me aakhri se swap karo.
+      body: `Array stores values, map stores index — O(1) insert/remove; delete swaps with last element then pops.
 
 [Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/)
 
 \`\`\`js
-// Hinglish: array + map combo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/insert-delete-getrandom-o1/
+// Array + map: O(1) insert/delete/random
 function RandomizedSet() {
-  // Hinglish: step 1 — dono banao
-  this.a = [];
-  this.pos = new Map();
+  this.a = []; // values for random pick
+  this.pos = new Map(); // val -> index in a
 }
 RandomizedSet.prototype.insert = function (val) {
   if (this.pos.has(val)) return false;
-  this.pos.set(val, this.a.length); // Hinglish: index yaad rakho
+  this.pos.set(val, this.a.length);
   this.a.push(val);
   return true;
 };
 RandomizedSet.prototype.remove = function (val) {
   if (!this.pos.has(val)) return false;
   const i = this.pos.get(val);
-  const last = this.a.pop(); // Hinglish: aakhri nikalo
+  const last = this.a.pop(); // swap-delete with tail
   if (i < this.a.length) {
-    this.a[i] = last; // Hinglish: khaali jagah bharo
+    this.a[i] = last;
     this.pos.set(last, i);
   }
   this.pos.delete(val);
   return true;
 };
 RandomizedSet.prototype.getRandom = function () {
-  return this.a[Math.floor(Math.random() * this.a.length)]; // Hinglish: random index
+  return this.a[Math.floor(Math.random() * this.a.length)];
 };
 \`\`\``,
     },
@@ -204,17 +191,14 @@ RandomizedSet.prototype.getRandom = function () {
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — only start a streak at the left edge
-// LC: https://leetcode.com/problems/longest-consecutive-sequence/
+// Only start counting at streak left edge (no n-1 in set)
 function longestConsecutive(nums) {
-  // Hinglish: step 1 — base case check karo
   const set = new Set(nums);
   let best = 0;
   for (const n of set) {
-    if (set.has(n - 1)) continue;
+    if (set.has(n - 1)) continue; // not a start
     let len = 1;
-    while (set.has(n + len)) len++;
+    while (set.has(n + len)) len++; // walk consecutive
     best = Math.max(best, len);
   }
   return best;
@@ -226,21 +210,19 @@ function longestConsecutive(nums) {
       lcSlug: "majority-element",
       title: "Majority Element",
       diff: "Easy",
-      body: `Boyer-Moore voting — candidate rakho, count badhao/ghatao. End me candidate hi majority.
+      body: `Boyer–Moore majority vote — track a candidate and count; cancel mismatches; final candidate is the majority if one exists.
 
 [Majority Element](https://leetcode.com/problems/majority-element/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/majority-element/
+// Boyer-Moore majority vote — O(n), O(1) space
 function majorityElement(nums) {
-  // Hinglish: vote karo
   let cand = 0, count = 0;
   for (const x of nums) {
-    if (count===0) cand = x; // Hinglish: naya candidate
-    count += (x===cand ? 1 : -1); // Hinglish: same to +1 warna -1
+    if (count === 0) cand = x; // new candidate
+    count += (x === cand ? 1 : -1); // match +1 else cancel
   }
-  return cand;
+  return cand; // guaranteed majority exists
 }
 \`\`\``,
     },
@@ -249,28 +231,26 @@ function majorityElement(nums) {
       lcSlug: "majority-element-ii",
       title: "Majority Element II",
       diff: "Medium",
-      body: `n/3 se zyada matlab max 2 answer — Boyer-Moore do candidate ke saath chalao.
+      body: `At most two elements appear more than n/3 times — run Boyer–Moore twice, then verify counts.
 
 [Majority Element II](https://leetcode.com/problems/majority-element-ii/)
 
 \`\`\`js
-// Hinglish: do candidate vote — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/majority-element-ii/
+// Boyer-Moore for > n/3 — at most two candidates, then verify
 function majorityElement(nums) {
-  // Hinglish: step 1 — do candidate lo
   let c1 = 0, c2 = 0, v1 = 0, v2 = 0;
   for (const x of nums) {
     if (x === c1) v1++;
     else if (x === c2) v2++;
-    else if (v1 === 0) { c1 = x; v1 = 1; } // Hinglish: naya candidate 1
-    else if (v2 === 0) { c2 = x; v2 = 1; } // Hinglish: naya candidate 2
-    else { v1--; v2--; } // Hinglish: dono ke vote ghatao
+    else if (v1 === 0) { c1 = x; v1 = 1; }
+    else if (v2 === 0) { c2 = x; v2 = 1; }
+    else { v1--; v2--; } // cancel three distinct
   }
   const out = [];
   for (const c of [c1, c2]) {
     let cnt = 0;
     for (const x of nums) if (x === c) cnt++;
-    if (cnt > nums.length / 3 && !out.includes(c)) out.push(c); // Hinglish: verify karo
+    if (cnt > nums.length / 3 && !out.includes(c)) out.push(c);
   }
   return out;
 }
@@ -281,25 +261,25 @@ function majorityElement(nums) {
       lcSlug: "valid-sudoku",
       title: "Valid Sudoku",
       diff: "Medium",
-      body: `Har row, column, aur 3x3 box me 1-9 ek baar hi aana chahiye. Hash set se check karo.
+      body: `Each row, column, and 3×3 box must contain 1–9 once — use hash sets (or bitmasks) while filling or validating.
 
 [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/valid-sudoku/
+// Track seen digits per row, col, 3x3 box
 function isValidSudoku(board) {
-  // Hinglish: 3 tarah ke set — row, col, box
-  const rows = Array.from({length:9}, ()=> new Set());
-  const cols = Array.from({length:9}, ()=> new Set());
-  const boxes = Array.from({length:9}, ()=> new Set());
-  for (let r=0; r<9; r++) {
-    for (let c=0; c<9; c++) {
+  const rows = Array.from({ length: 9 }, () => new Set());
+  const cols = Array.from({ length: 9 }, () => new Set());
+  const boxes = Array.from({ length: 9 }, () => new Set());
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
       const v = board[r][c];
       if (v === ".") continue;
-      const b = Math.floor(r/3)*3 + Math.floor(c/3); // Hinglish: box index
-      if (rows[r].has(v) || cols[c].has(v) || boxes[b].has(v)) return false; // Hinglish: pehle se hai to invalid
-      rows[r].add(v); cols[c].add(v); boxes[b].add(v); // Hinglish: yaad rakho
+      const b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+      if (rows[r].has(v) || cols[c].has(v) || boxes[b].has(v)) return false;
+      rows[r].add(v);
+      cols[c].add(v);
+      boxes[b].add(v);
     }
   }
   return true;
@@ -311,21 +291,20 @@ function isValidSudoku(board) {
       lcSlug: "isomorphic-strings",
       title: "Isomorphic Strings",
       diff: "Easy",
-      body: `Dono taraf mapping pakki honi chahiye — s se t aur t se s, ek bhi tooti to false.
+      body: `Bijection required — map \`s→t\` and \`t→s\`; any conflicting mapping breaks isomorphism.
 
 [Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
 
 \`\`\`js
-// Hinglish: dono taraf map — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/isomorphic-strings/
+// Bijection: s->t and t->s must stay consistent
 function isIsomorphic(s, t) {
-  // Hinglish: step 1 — do map lo
   const m1 = new Map(), m2 = new Map();
   for (let i = 0; i < s.length; i++) {
     const a = s[i], b = t[i];
-    if (m1.has(a) && m1.get(a) !== b) return false; // Hinglish: a pehle kuch aur tha
-    if (m2.has(b) && m2.get(b) !== a) return false; // Hinglish: b pehle kuch aur tha
-    m1.set(a, b); m2.set(b, a);
+    if (m1.has(a) && m1.get(a) !== b) return false;
+    if (m2.has(b) && m2.get(b) !== a) return false;
+    m1.set(a, b);
+    m2.set(b, a);
   }
   return true;
 }
@@ -336,15 +315,13 @@ function isIsomorphic(s, t) {
       lcSlug: "word-pattern",
       title: "Word Pattern",
       diff: "Easy",
-      body: `Isomorphic wala khel words pe — pattern char aur word dono taraf map karo.
+      body: `Same as isomorphic strings but map pattern characters to whole words — enforce both directions.
 
 [Word Pattern](https://leetcode.com/problems/word-pattern/)
 
 \`\`\`js
-// Hinglish: char-word map — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/word-pattern/
+// Same as isomorphic — char maps to word bijectively
 function wordPattern(pattern, s) {
-  // Hinglish: step 1 — words todo
   const words = s.split(" ");
   if (words.length !== pattern.length) return false;
   const m1 = new Map(), m2 = new Map();
@@ -352,7 +329,8 @@ function wordPattern(pattern, s) {
     const a = pattern[i], b = words[i];
     if (m1.has(a) && m1.get(a) !== b) return false;
     if (m2.has(b) && m2.get(b) !== a) return false;
-    m1.set(a, b); m2.set(b, a);
+    m1.set(a, b);
+    m2.set(b, a);
   }
   return true;
 }
@@ -363,19 +341,21 @@ function wordPattern(pattern, s) {
       lcSlug: "happy-number",
       title: "Happy Number",
       diff: "Easy",
-      body: `Sum of squares loop me 1 pe ruke to happy, cycle me phase to unhappy. Cycle pakadne ke liye set rakho.
+      body: `Replace n with sum of square digits until 1 (happy) or a cycle (unhappy). Use a set to detect revisits.
 
 [Happy Number](https://leetcode.com/problems/happy-number/)
 
 \`\`\`js
-// Hinglish: cycle pakdo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/happy-number/
+// Repeat digit-square sum — cycle detection with set
 function isHappy(n) {
-  // Hinglish: step 1 — dekhe hue yaad rakho
   const seen = new Set();
   const sq = (x) => {
     let s = 0;
-    while (x > 0) { const d = x % 10; s += d * d; x = Math.floor(x / 10); } // Hinglish: digits square jodo
+    while (x > 0) {
+      const d = x % 10;
+      s += d * d;
+      x = Math.floor(x / 10);
+    }
     return s;
   };
   while (n !== 1 && !seen.has(n)) {
@@ -391,20 +371,18 @@ function isHappy(n) {
       lcSlug: "ransom-note",
       title: "Ransom Note",
       diff: "Easy",
-      body: `Magazine ke letters gin lo, note ka har letter maango — kam pada to false.
+      body: `Count magazine letters, subtract for each ransom note character — any deficit means impossible.
 
 [Ransom Note](https://leetcode.com/problems/ransom-note/)
 
 \`\`\`js
-// Hinglish: gin ke kharch karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/ransom-note/
+// Frequency budget from magazine, spend on ransom
 function canConstruct(ransomNote, magazine) {
-  // Hinglish: step 1 — magazine gino
   const cnt = new Map();
   for (const ch of magazine) cnt.set(ch, (cnt.get(ch) || 0) + 1);
   for (const ch of ransomNote) {
-    if (!cnt.get(ch)) return false; // Hinglish: khatm to mana
-    cnt.set(ch, cnt.get(ch) - 1); // Hinglish: ek kharch
+    if (!cnt.get(ch)) return false; // out of letters
+    cnt.set(ch, cnt.get(ch) - 1);
   }
   return true;
 }
@@ -415,19 +393,17 @@ function canConstruct(ransomNote, magazine) {
       lcSlug: "first-unique-character-in-a-string",
       title: "First Unique Character in a String",
       diff: "Easy",
-      body: `Do pass — pehle gino, phir pehla count-1 wala dhoondo.
+      body: `Two passes — count frequencies, then return the first value with count exactly one.
 
 [First Unique Character in a String](https://leetcode.com/problems/first-unique-character-in-a-string/)
 
 \`\`\`js
-// Hinglish: gino phir dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/first-unique-character-in-a-string/
+// Count then scan for first count === 1
 function firstUniqChar(s) {
-  // Hinglish: step 1 — frequency banao
   const cnt = new Map();
   for (const ch of s) cnt.set(ch, (cnt.get(ch) || 0) + 1);
   for (let i = 0; i < s.length; i++) {
-    if (cnt.get(s[i]) === 1) return i; // Hinglish: pehla akela
+    if (cnt.get(s[i]) === 1) return i;
   }
   return -1;
 }
@@ -443,20 +419,18 @@ function firstUniqChar(s) {
       lcSlug: "range-sum-query-immutable",
       title: "Range Sum Query - Immutable",
       diff: "Easy",
-      body: `Baar-baar range sum pucha jayega. Prefix banao, fir \`sum(l,r)=pref[r+1]-pref[l]\` O(1) me.
+      body: `Many range-sum queries — build prefix sums, answer \`sum(l,r) = pref[r+1] - pref[l]\` in O(1).
 
 [Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/range-sum-query-immutable/
+// Prefix sums — sumRange in O(1)
 function NumArray(nums) {
-  // Hinglish: prefix banao
   this.pref = [0];
-  for (const x of nums) this.pref.push(this.pref.at(-1)+x);
+  for (const x of nums) this.pref.push(this.pref.at(-1) + x);
 }
-NumArray.prototype.sumRange = function(l, r) {
-  return this.pref[r+1] - this.pref[l]; // Hinglish: O(1) range
+NumArray.prototype.sumRange = function (l, r) {
+  return this.pref[r + 1] - this.pref[l]; // exclusive pref[r+1] minus pref[l]
 };
 \`\`\``,
     },
@@ -465,20 +439,19 @@ NumArray.prototype.sumRange = function(l, r) {
       lcSlug: "find-pivot-index",
       title: "Find Pivot Index",
       diff: "Easy",
-      body: `Pivot jahan left sum == right sum. Total sum se left nikalte jao.
+      body: `Find pivot where left sum equals right sum: track prefix sums against total minus prefix.
 
 [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-pivot-index/
+// left sum == right sum at pivot
 function pivotIndex(nums) {
-  // Hinglish: total sum
-  const total = nums.reduce((a,b)=>a+b, 0);
+  const total = nums.reduce((a, b) => a + b, 0);
   let left = 0;
-  for (let i=0;i<nums.length;i++) {
-    if (left === total - left - nums[i]) return i; // Hinglish: left == right?
-    left += nums[i]; // Hinglish: left badhao
+  for (let i = 0; i < nums.length; i++) {
+    const right = total - left - nums[i];
+    if (left === right) return i;
+    left += nums[i];
   }
   return -1;
 }
@@ -494,20 +467,17 @@ function pivotIndex(nums) {
 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
-// Prefix / suffix products
-// LC: https://leetcode.com/problems/product-of-array-except-self/
+// Prefix products left, suffix products right — no division
 function productExceptSelf(nums) {
-  // Hinglish: step 1 — base case check karo
   const n = nums.length, out = Array(n).fill(1);
   let left = 1;
   for (let i = 0; i < n; i++) {
-    out[i] *= left;
+    out[i] *= left; // product of nums[0..i-1]
     left *= nums[i];
   }
   let right = 1;
   for (let i = n - 1; i >= 0; i--) {
-    out[i] *= right;
+    out[i] *= right; // product of nums[i+1..n-1]
     right *= nums[i];
   }
   return out;
@@ -524,16 +494,13 @@ function productExceptSelf(nums) {
 [Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
-// Prefix + map
-// LC: https://leetcode.com/problems/subarray-sum-equals-k/
+// Prefix sum + map: subarray ending here with sum k
 function subarraySum(nums, k) {
-  // Hinglish: step 1 — base case check karo
-  const seen = new Map([[0, 1]]);
+  const seen = new Map([[0, 1]]); // empty prefix
   let sum = 0, count = 0;
   for (const x of nums) {
     sum += x;
-    count += seen.get(sum - k) || 0;
+    count += seen.get(sum - k) || 0; // prior prefix sum - k
     seen.set(sum, (seen.get(sum) || 0) + 1);
   }
   return count;
@@ -545,21 +512,19 @@ function subarraySum(nums, k) {
       lcSlug: "contiguous-array",
       title: "Contiguous Array",
       diff: "Medium",
-      body: `0 ko -1 banao, fir prefix sum zero wala longest. Hash map me pehli occurrence yaad rakho.
+      body: `Treat 0 as -1 — longest subarray with equal 0s and 1s is longest prefix sum zero; store first index per sum.
 
 [Contiguous Array](https://leetcode.com/problems/contiguous-array/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/contiguous-array/
+// Treat 0 as -1 — balanced when prefix sum repeats
 function findMaxLength(nums) {
-  // Hinglish: 0 -> -1, sum 0 matlab equal 0/1
-  const first = new Map([[0,-1]]); // Hinglish: sum 0 pehle -1 pe dekha
-  let sum=0, best=0;
-  for (let i=0;i<nums.length;i++) {
-    sum += nums[i]===0 ? -1 : 1;
-    if (first.has(sum)) best = Math.max(best, i - first.get(sum)); // Hinglish: pehle dekha to length nikalo
-    else first.set(sum, i); // Hinglish: pehli baar dekha yaad rakho
+  const first = new Map([[0, -1]]); // sum 0 before start
+  let sum = 0, best = 0;
+  for (let i = 0; i < nums.length; i++) {
+    sum += nums[i] === 0 ? -1 : 1;
+    if (first.has(sum)) best = Math.max(best, i - first.get(sum));
+    else first.set(sum, i); // first time at this sum
   }
   return best;
 }
@@ -570,21 +535,19 @@ function findMaxLength(nums) {
       lcSlug: "subarray-sums-divisible-by-k",
       title: "Subarray Sums Divisible by K",
       diff: "Medium",
-      body: `Prefix mod gino — same remainder matlab beech wala hissa K se divisible. Negative mod sambhal ke rakho.
+      body: `Prefix sums mod K — equal remainders mean a subarray sum divisible by K; normalize negative mods.
 
 [Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)
 
 \`\`\`js
-// Hinglish: remainder gino — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/subarray-sums-divisible-by-k/
+// Same prefix mod k => subarray divisible by k
 function subarraysDivByK(nums, k) {
-  // Hinglish: step 1 — remainder map lo
   const seen = new Map([[0, 1]]);
   let sum = 0, ans = 0;
   for (const x of nums) {
     sum += x;
-    const r = ((sum % k) + k) % k; // Hinglish: negative sambhalo
-    ans += seen.get(r) || 0; // Hinglish: same remainder mila
+    const r = ((sum % k) + k) % k; // nonnegative mod
+    ans += seen.get(r) || 0;
     seen.set(r, (seen.get(r) || 0) + 1);
   }
   return ans;
@@ -596,20 +559,18 @@ function subarraysDivByK(nums, k) {
       lcSlug: "binary-subarrays-with-sum",
       title: "Binary Subarrays With Sum",
       diff: "Medium",
-      body: `Binary array me sum==goal wale subarrays — prefix sum gino, need = cur-goal dekho.
+      body: `Binary subarrays summing to \`goal\` — prefix counts; at each index look for \`cur - goal\` seen before.
 
 [Binary Subarrays With Sum](https://leetcode.com/problems/binary-subarrays-with-sum/)
 
 \`\`\`js
-// Hinglish: prefix need dekho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-subarrays-with-sum/
+// Same as subarray sum equals k with sum = goal
 function numSubarraysWithSum(nums, goal) {
-  // Hinglish: step 1 — prefix map lo
   const seen = new Map([[0, 1]]);
   let cur = 0, ans = 0;
   for (const x of nums) {
     cur += x;
-    ans += seen.get(cur - goal) || 0; // Hinglish: need pehle dekha?
+    ans += seen.get(cur - goal) || 0;
     seen.set(cur, (seen.get(cur) || 0) + 1);
   }
   return ans;
@@ -621,22 +582,20 @@ function numSubarraysWithSum(nums, goal) {
       lcSlug: "continuous-subarray-sum",
       title: "Continuous Subarray Sum",
       diff: "Medium",
-      body: `Size kam se kam 2 ho aur sum k ka multiple ho — remainder map me index yaad rakho, gap 2+ chahiye.
+      body: `Subarray length ≥ 2 and sum divisible by k — track prefix mod k and first index; matching remainders give valid length ≥ 2.
 
 [Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)
 
 \`\`\`js
-// Hinglish: remainder + index — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/continuous-subarray-sum/
+// Prefix mod k with length >= 2 (store first index per remainder)
 function checkSubarraySum(nums, k) {
-  // Hinglish: step 1 — pehli occurrence yaad rakho
   const first = new Map([[0, -1]]);
   let sum = 0;
   for (let i = 0; i < nums.length; i++) {
     sum += nums[i];
     const r = k === 0 ? sum : sum % k;
     if (first.has(r)) {
-      if (i - first.get(r) >= 2) return true; // Hinglish: size 2+ mila
+      if (i - first.get(r) >= 2) return true;
     } else first.set(r, i);
   }
   return false;
@@ -648,24 +607,23 @@ function checkSubarraySum(nums, k) {
       lcSlug: "path-sum-iii",
       title: "Path Sum III",
       diff: "Medium",
-      body: `Tree me neeche jaate prefix sum gino — cur-k pehle dikha to utne paths mile. Wapas aate count ghatao.
+      body: `Root-to-node prefix sums — if \`cur - k\` was seen on the path, add those paths; backtrack counts on return.
 
 [Path Sum III](https://leetcode.com/problems/path-sum-iii/)
 
 \`\`\`js
-// Hinglish: prefix tree me — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/path-sum-iii/
+// Prefix sum on root-to-node paths (downward only)
 function pathSum(root, targetSum) {
-  // Hinglish: step 1 — prefix map lo
   const seen = new Map([[0, 1]]);
   let ans = 0;
   const dfs = (node, cur) => {
     if (!node) return;
     cur += node.val;
-    ans += seen.get(cur - targetSum) || 0; // Hinglish: need mila?
+    ans += seen.get(cur - targetSum) || 0;
     seen.set(cur, (seen.get(cur) || 0) + 1);
-    dfs(node.left, cur); dfs(node.right, cur);
-    seen.set(cur, seen.get(cur) - 1); // Hinglish: wapas aate ghatao
+    dfs(node.left, cur);
+    dfs(node.right, cur);
+    seen.set(cur, seen.get(cur) - 1); // backtrack prefix count
   };
   dfs(root, 0);
   return ans;
@@ -682,19 +640,17 @@ function pathSum(root, targetSum) {
       lcSlug: "best-time-to-buy-and-sell-stock",
       title: "Best Time to Buy and Sell Stock",
       diff: "Easy",
-      body: `Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek scan me min price track karo.
+      body: `One buy and one sell — track the minimum price so far; update max profit when selling today.
 
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+// One pass — min buy price so far, max profit if sell today
 function maxProfit(prices) {
-  // Hinglish: sabse kam price yaad rakho
   let best = 0, minPrice = Infinity;
   for (const p of prices) {
-    minPrice = Math.min(minPrice, p); // Hinglish: sasta mila to update
-    best = Math.max(best, p - minPrice); // Hinglish: bech ke dekho profit
+    minPrice = Math.min(minPrice, p);
+    best = Math.max(best, p - minPrice);
   }
   return best;
 }
@@ -710,14 +666,11 @@ function maxProfit(prices) {
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — Kadane
-// LC: https://leetcode.com/problems/maximum-subarray/
+// Kadane — drop running sum when it hurts
 function maxSubArray(nums) {
-  // Hinglish: step 1 — base case check karo
   let run = 0, best = -Infinity;
   for (const x of nums) {
-    run = Math.max(x, run + x); // restart or continue
+    run = Math.max(x, run + x); // start fresh at x or extend
     best = Math.max(best, run);
   }
   return best;
@@ -729,21 +682,19 @@ function maxSubArray(nums) {
       lcSlug: "maximum-product-subarray",
       title: "Maximum Product Subarray",
       diff: "Medium",
-      body: `Kadane jaisa, par negative palat deta hai — isliye max aur min dono track karo.
+      body: `Like Kadane but negatives flip min/max product — track both running max and min product ending here.
 
 [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
 
 \`\`\`js
-// Hinglish: max-min dono track — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximum-product-subarray/
+// Track max and min product — negative flips min/max
 function maxProduct(nums) {
-  // Hinglish: step 1 — pehle se start karo
   let best = nums[0], curMax = nums[0], curMin = nums[0];
   for (let i = 1; i < nums.length; i++) {
     const x = nums[i];
-    const cand = [x, curMax * x, curMin * x]; // Hinglish: teen options
-    curMax = Math.max(...cand); // Hinglish: sabse bada
-    curMin = Math.min(...cand); // Hinglish: sabse chhota (negative kaam ayega)
+    const cand = [x, curMax * x, curMin * x];
+    curMax = Math.max(...cand);
+    curMin = Math.min(...cand);
     best = Math.max(best, curMax);
   }
   return best;
@@ -760,11 +711,8 @@ function maxProduct(nums) {
 [Rotate Array](https://leetcode.com/problems/rotate-array/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — reverse trick
-// LC: https://leetcode.com/problems/rotate-array/
+// Reverse whole, reverse first k, reverse rest — rotate right
 function rotate(nums, k) {
-  // Hinglish: step 1 — base case check karo
   k %= nums.length;
   const rev = (l, r) => {
     while (l < r) {
@@ -789,11 +737,8 @@ function rotate(nums, k) {
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — compact then fill
-// LC: https://leetcode.com/problems/move-zeroes/
+// Compact non-zeros left, pad zeros at end
 function moveZeroes(nums) {
-  // Hinglish: step 1 — base case check karo
   let write = 0;
   for (let read = 0; read < nums.length; read++) {
     if (nums[read] !== 0) nums[write++] = nums[read];
@@ -807,18 +752,19 @@ function moveZeroes(nums) {
       lcSlug: "remove-element",
       title: "Remove Element",
       diff: "Easy",
-      body: `Val hatana hai order ki parwah nahi — aage se overwrite karo, slow pointer length batayega.
+      body: `Remove all copies of \`val\` in place — slow pointer writes survivors, return new length.
 
 [Remove Element](https://leetcode.com/problems/remove-element/)
 
 \`\`\`js
-// Hinglish: overwrite karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/remove-element/
+// Slow pointer writes kept elements
 function removeElement(nums, val) {
-  // Hinglish: step 1 — slow pointer lo
   let k = 0;
   for (let i = 0; i < nums.length; i++) {
-    if (nums[i] !== val) { nums[k] = nums[i]; k++; } // Hinglish: kaam ka aage rakho
+    if (nums[i] !== val) {
+      nums[k] = nums[i];
+      k++;
+    }
   }
   return k;
 }
@@ -829,21 +775,19 @@ function removeElement(nums, val) {
       lcSlug: "remove-duplicates-from-sorted-array",
       title: "Remove Duplicates from Sorted Array",
       diff: "Easy",
-      body: `Sorted hai to duplicates bagal me honge. Write pointer se unique hi rakho, length return karo.
+      body: `Sorted array — duplicates are adjacent; compact unique values with a write pointer and return new length.
 
 [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/remove-duplicates-from-sorted-array/
+// Sorted — skip equal neighbors
 function removeDuplicates(nums) {
-  // Hinglish: write = unique ka end
   if (!nums.length) return 0;
   let write = 1;
-  for (let read=1; read<nums.length; read++) {
-    if (nums[read] !== nums[read-1]) nums[write++] = nums[read]; // Hinglish: naya unique mila to copy
+  for (let read = 1; read < nums.length; read++) {
+    if (nums[read] !== nums[read - 1]) nums[write++] = nums[read];
   }
-  return write; // Hinglish: naya length
+  return write;
 }
 \`\`\``,
     },
@@ -852,18 +796,16 @@ function removeDuplicates(nums) {
       lcSlug: "merge-sorted-array",
       title: "Merge Sorted Array",
       diff: "Easy",
-      body: `Do sorted arrays, piche se bharo taaki overwrite na ho. \`m+n\` jagah pehle se hai.
+      body: `Merge from the back of the buffer — write largest elements at \`m+n-1\` downward to avoid overwriting unmerged nums.
 
 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/merge-sorted-array/
+// Merge from end — no overwrite of unread nums1
 function merge(nums1, m, nums2, n) {
-  // Hinglish: piche se bharo
-  let i=m-1, j=n-1, k=m+n-1;
-  while (j>=0) {
-    if (i>=0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--]; // Hinglish: bada wala piche
+  let i = m - 1, j = n - 1, k = m + n - 1;
+  while (j >= 0) {
+    if (i >= 0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--];
     else nums1[k--] = nums2[j--];
   }
 }
@@ -874,23 +816,23 @@ function merge(nums1, m, nums2, n) {
       lcSlug: "first-missing-positive",
       title: "First Missing Positive",
       diff: "Hard",
-      body: `1..n ko sahi jagah bithao (cyclic sort) — jo index khaali mile wahi jawab.
+      body: `Cyclic sort — place value \`v\` at index \`v-1\`; the index where \`nums[i] !== i+1\` is the missing number.
 
 [First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
 
 \`\`\`js
-// Hinglish: sahi jagah bithao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/first-missing-positive/
+// Cyclic sort — value v belongs at index v-1
 function firstMissingPositive(nums) {
-  // Hinglish: step 1 — har number apni jagah
   const n = nums.length;
   for (let i = 0; i < n; i++) {
     while (nums[i] >= 1 && nums[i] <= n && nums[nums[i] - 1] !== nums[i]) {
       const j = nums[i] - 1;
-      const tmp = nums[i]; nums[i] = nums[j]; nums[j] = tmp; // Hinglish: swap
+      const tmp = nums[i];
+      nums[i] = nums[j];
+      nums[j] = tmp;
     }
   }
-  for (let i = 0; i < n; i++) if (nums[i] !== i + 1) return i + 1; // Hinglish: pehli khaali jagah
+  for (let i = 0; i < n; i++) if (nums[i] !== i + 1) return i + 1;
   return n + 1;
 }
 \`\`\``,
@@ -905,11 +847,8 @@ function firstMissingPositive(nums) {
 [Missing Number](https://leetcode.com/problems/missing-number/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — XOR index with value
-// LC: https://leetcode.com/problems/missing-number/
+// XOR all indices 0..n with all values — lone bit is missing
 function missingNumber(nums) {
-  // Hinglish: step 1 — base case check karo
   let x = nums.length;
   for (let i = 0; i < nums.length; i++) x ^= i ^ nums[i];
   return x;
@@ -921,22 +860,20 @@ function missingNumber(nums) {
       lcSlug: "find-all-numbers-disappeared-in-an-array",
       title: "Find All Numbers Disappeared in an Array",
       diff: "Easy",
-      body: `Dikhe number ki jagah negative karo — jo positive bacha wo missing hai. O(1) space trick.
+      body: `Mark seen indices by negating \`nums[abs(x)-1]\` — the index still positive points to the missing value.
 
 [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)
 
 \`\`\`js
-// Hinglish: nishan lagao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/
+// Mark seen indices negative — positive index+1 missing
 function findDisappearedNumbers(nums) {
-  // Hinglish: step 1 — dikhe to negative karo
   for (const x of nums) {
     const i = Math.abs(x) - 1;
-    if (nums[i] > 0) nums[i] = -nums[i]; // Hinglish: yahan aaye the
+    if (nums[i] > 0) nums[i] = -nums[i];
   }
   const out = [];
   for (let i = 0; i < nums.length; i++) {
-    if (nums[i] > 0) out.push(i + 1); // Hinglish: positive matlab missing
+    if (nums[i] > 0) out.push(i + 1);
   }
   return out;
 }
@@ -947,19 +884,17 @@ function findDisappearedNumbers(nums) {
       lcSlug: "find-all-duplicates-in-an-array",
       title: "Find All Duplicates in an Array",
       diff: "Medium",
-      body: `Upar wala hi pattern — jo jagah dobara negative karni pade wahi duplicate hai.
+      body: `Same marking trick — if \`nums[abs(x)-1]\` is already negative, \`x\` is the duplicate.
 
 [Find All Duplicates in an Array](https://leetcode.com/problems/find-all-duplicates-in-an-array/)
 
 \`\`\`js
-// Hinglish: dobara nishan = duplicate — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-all-duplicates-in-an-array/
+// Second visit to index marks duplicate value i+1
 function findDuplicates(nums) {
-  // Hinglish: step 1 — nishan lagao
   const out = [];
   for (const x of nums) {
     const i = Math.abs(x) - 1;
-    if (nums[i] < 0) out.push(i + 1); // Hinglish: pehle se negative = duplicate
+    if (nums[i] < 0) out.push(i + 1);
     else nums[i] = -nums[i];
   }
   return out;
@@ -971,15 +906,13 @@ function findDuplicates(nums) {
       lcSlug: "set-mismatch",
       title: "Set Mismatch",
       diff: "Easy",
-      body: `Duplicate dhoondo (upar wala trick), missing nikalo sum se — total minus actual sum.
+      body: `Find duplicate via marking or math — missing = expected sum minus actual sum (or XOR variant).
 
 [Set Mismatch](https://leetcode.com/problems/set-mismatch/)
 
 \`\`\`js
-// Hinglish: duplicate + missing — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/set-mismatch/
+// Negative marking for dup; missing from sum arithmetic
 function findErrorNums(nums) {
-  // Hinglish: step 1 — duplicate dhoondo
   let dup = -1;
   for (const x of nums) {
     const i = Math.abs(x) - 1;
@@ -990,7 +923,7 @@ function findErrorNums(nums) {
   const expected = (n * (n + 1)) / 2;
   let actual = 0;
   for (const x of nums) actual += Math.abs(x);
-  return [dup, expected - (actual - dup)]; // Hinglish: missing nikalo
+  return [dup, expected - (actual - dup)];
 }
 \`\`\``,
     },
@@ -999,20 +932,18 @@ function findErrorNums(nums) {
       lcSlug: "sort-colors",
       title: "Sort Colors",
       diff: "Medium",
-      body: `0,1,2 ko ek pass me sort karo. Low, mid, high pointer.
+      body: `Dutch national flag — one pass with low/mid/high pointers to partition 0s, 1s, and 2s.
 
 [Sort Colors](https://leetcode.com/problems/sort-colors/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sort-colors/
+// Dutch national flag — 0 | 1 | 2 partitions
 function sortColors(nums) {
-  // Hinglish: 0 left, 2 right
-  let lo=0, mid=0, hi=nums.length-1;
+  let lo = 0, mid = 0, hi = nums.length - 1;
   while (mid <= hi) {
-    if (nums[mid]===0) [nums[lo++], nums[mid++]] = [nums[mid], nums[lo]]; // Hinglish: 0 ko aage bhejo
-    else if (nums[mid]===1) mid++; // Hinglish: 1 to sahi jagah
-    else [nums[mid], nums[hi--]] = [nums[hi], nums[mid]]; // Hinglish: 2 ko piche bhejo
+    if (nums[mid] === 0) [nums[lo++], nums[mid++]] = [nums[mid], nums[lo]];
+    else if (nums[mid] === 1) mid++;
+    else [nums[mid], nums[hi--]] = [nums[hi], nums[mid]];
   }
 }
 \`\`\``,
@@ -1022,29 +953,27 @@ function sortColors(nums) {
       lcSlug: "spiral-matrix",
       title: "Spiral Matrix",
       diff: "Medium",
-      body: `Boundaries rakho (top/bottom/left/right), ek-ek layer nikalo, har side ke baad shrink karo.
+      body: `Four boundaries — peel each side of the matrix in order, shrink bounds after each edge.
 
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/spiral-matrix/
+// Layer peel: top row, right col, bottom row, left col — shrink bounds
 function spiralOrder(matrix) {
-  // Hinglish: step 1 — boundaries lo
   const out = [];
   let top = 0, bottom = matrix.length - 1;
   let left = 0, right = matrix[0].length - 1;
   while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) out.push(matrix[top][c]); // Hinglish: upar row
+    for (let c = left; c <= right; c++) out.push(matrix[top][c]);
     top++;
-    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]); // Hinglish: right col
+    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]);
     right--;
     if (top <= bottom) {
-      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]); // Hinglish: neeche row
+      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]);
       bottom--;
     }
     if (left <= right) {
-      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]); // Hinglish: left col
+      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]);
       left++;
     }
   }
@@ -1057,22 +986,20 @@ function spiralOrder(matrix) {
       lcSlug: "rotate-image",
       title: "Rotate Image",
       diff: "Medium",
-      body: `Transpose karo (r,c) ↔ (c,r), phir har row reverse. In-place, extra space nahi.
+      body: `Rotate 90° clockwise in place — transpose then reverse each row.
 
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/rotate-image/
+// 90° clockwise = transpose then reverse each row
 function rotate(matrix) {
-  // Hinglish: step 1 — transpose karo
   const n = matrix.length;
   for (let r = 0; r < n; r++) {
     for (let c = r + 1; c < n; c++) {
-      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]]; // Hinglish: adla-badli
+      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]];
     }
   }
-  for (const row of matrix) row.reverse(); // Hinglish: har row ulta
+  for (const row of matrix) row.reverse();
 }
 \`\`\``,
     },
@@ -1081,27 +1008,28 @@ function rotate(matrix) {
       lcSlug: "set-matrix-zeroes",
       title: "Set Matrix Zeroes",
       diff: "Medium",
-      body: `Jis cell me 0 ho, uski poori row+col zero karo. O(1) space ke liye pehli row/col me nishan lagao.
+      body: `Zero a cell’s entire row and column — use first row/column as markers for O(1) extra space.
 
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/set-matrix-zeroes/
+// Use first row/col as markers — O(1) extra space
 function setZeroes(matrix) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = matrix.length, cols = matrix[0].length;
   let firstRowZero = false, firstColZero = false;
   for (let c = 0; c < cols; c++) if (matrix[0][c] === 0) firstRowZero = true;
   for (let r = 0; r < rows; r++) if (matrix[r][0] === 0) firstColZero = true;
   for (let r = 1; r < rows; r++) {
     for (let c = 1; c < cols; c++) {
-      if (matrix[r][c] === 0) { matrix[r][0] = 0; matrix[0][c] = 0; } // Hinglish: nishan lagao
+      if (matrix[r][c] === 0) {
+        matrix[r][0] = 0;
+        matrix[0][c] = 0;
+      }
     }
   }
   for (let r = 1; r < rows; r++) {
     for (let c = 1; c < cols; c++) {
-      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0; // Hinglish: nishan to zero
+      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0;
     }
   }
   if (firstRowZero) for (let c = 0; c < cols; c++) matrix[0][c] = 0;
@@ -1114,15 +1042,13 @@ function setZeroes(matrix) {
       lcSlug: "game-of-life",
       title: "Game of Life",
       diff: "Medium",
-      body: `In-place states encode karo — 2 matlab zinda tha marega, -1 matlab mara tha jeeyega. Padosi ginte time abs lo.
+      body: `Encode next state in-place (e.g. 2 = live→dead, -1 = dead→live); use absolute value when counting live neighbors.
 
 [Game of Life](https://leetcode.com/problems/game-of-life/)
 
 \`\`\`js
-// Hinglish: state encode karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/game-of-life/
+// In-place: 2 = was live dies, -1 = was dead lives; use abs for neighbor count
 function gameOfLife(board) {
-  // Hinglish: step 1 — padosi gino
   const rows = board.length, cols = board[0].length;
   const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
   const live = (r, c) => {
@@ -1130,15 +1056,15 @@ function gameOfLife(board) {
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
-      if (Math.abs(board[nr][nc]) === 1) n++; // Hinglish: purani haalat dekho
+      if (Math.abs(board[nr][nc]) === 1) n++;
     }
     return n;
   };
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const n = live(r, c);
-      if (board[r][c] === 1 && (n < 2 || n > 3)) board[r][c] = 2; // Hinglish: marega
-      if (board[r][c] === 0 && n === 3) board[r][c] = -1; // Hinglish: jeeyega
+      if (board[r][c] === 1 && (n < 2 || n > 3)) board[r][c] = 2;
+      if (board[r][c] === 0 && n === 3) board[r][c] = -1;
     }
   }
   for (let r = 0; r < rows; r++) {

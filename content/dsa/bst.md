@@ -8,21 +8,20 @@
 
 ```js
 // BST skeleton — search
-// Hinglish: chhota to left, bada to right
 function searchBST(root, val) {
   let node = root;
   while (node) {
-    if (val === node.val) return node; // Hinglish: mil gaya
-    node = val < node.val ? node.left : node.right; // Hinglish: disha chuno
+    if (val === node.val) return node; // target value found at this node
+    node = val < node.val ? node.left : node.right; // move left or right child by comparison
   }
   return null;
 }
 
 // Validate skeleton — min/max bounds saath le jao
-// Hinglish: har node apni seema me hona chahiye
+// each node must lie strictly inside (lo, hi)
 function check(node, lo, hi) {
   if (!node) return true;
-  if (node.val <= lo || node.val >= hi) return false; // Hinglish: seema tooti
+  if (node.val <= lo || node.val >= hi) return false; // value violates open interval bounds — invalid BST
   return check(node.left, lo, node.val) && check(node.right, node.val, hi);
 }
 ```
@@ -33,14 +32,12 @@ Har node `(lo, hi)` seema me hona chahiye. Left me jaao to `hi = node.val`, righ
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 ```js
-// Hinglish: bounds check — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/validate-binary-search-tree/
 function isValidBST(root) {
-  // Hinglish: step 1 — bounds helper lo
   const check = (node, lo, hi) => {
-    if (!node) return true;
-    if (node.val <= lo || node.val >= hi) return false; // Hinglish: seema tooti
-    return check(node.left, lo, node.val) && check(node.right, node.val, hi);
+    if (!node) return true; // Empty subtree is valid
+    if (node.val <= lo || node.val >= hi) return false; // Violates range bounds
+    return check(node.left, lo, node.val) && check(node.right, node.val, hi); // Tighten bounds per side
   };
   return check(root, -Infinity, Infinity);
 }
@@ -53,17 +50,16 @@ Inorder traversal sorted order deta hai — kth visit hi jawab hai. Iterative st
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// Hinglish: inorder walk — ek-ek step comment dekho
+// Inorder on BST yields sorted order — stop at kth pop
 // LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
 function kthSmallest(root, k) {
-  // Hinglish: step 1 — stack lo
   const st = [];
   let node = root;
   while (node || st.length) {
-    while (node) { st.push(node); node = node.left; } // Hinglish: left dabao
-    node = st.pop();
-    if (--k === 0) return node.val; // Hinglish: kth mila
-    node = node.right;
+    while (node) { st.push(node); node = node.left; } // Go to smallest unvisited in this branch
+    node = st.pop(); // Next inorder node
+    if (--k === 0) return node.val; // k exhausted — this is answer
+    node = node.right; // Explore larger values
   }
 }
 ```
@@ -75,15 +71,14 @@ BST property use karo — dono chhote to left, dono bade to right, warna yehi no
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ```js
-// Hinglish: compare karke disha — ek-ek step comment dekho
+// Walk down: first node where p and q split across subtrees is LCA
 // LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
 function lowestCommonAncestor(root, p, q) {
-  // Hinglish: step 1 — node lo
   let node = root;
   while (node) {
-    if (p.val < node.val && q.val < node.val) node = node.left; // Hinglish: dono chhote
-    else if (p.val > node.val && q.val > node.val) node = node.right; // Hinglish: dono bade
-    else return node; // Hinglish: beech me phas gaya = LCA
+    if (p.val < node.val && q.val < node.val) node = node.left; // Both strictly left
+    else if (p.val > node.val && q.val > node.val) node = node.right; // Both strictly right
+    else return node; // One on each side or equal to node — split here
   }
 }
 ```
@@ -95,20 +90,19 @@ Node dhoondho, phir 3 cases: leaf (hatao), ek child (child jodo), do children (s
 [Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
 
 ```js
-// Hinglish: dhoondho phir 3 cases — ek-ek step comment dekho
+// Recurse to target; three delete cases at match
 // LC: https://leetcode.com/problems/delete-node-in-a-bst/
 function deleteNode(root, key) {
-  // Hinglish: step 1 — dhoondho
-  if (!root) return null;
-  if (key < root.val) root.left = deleteNode(root.left, key);
-  else if (key > root.val) root.right = deleteNode(root.right, key);
+  if (!root) return null; // Key not in tree
+  if (key < root.val) root.left = deleteNode(root.left, key); // Search left subtree
+  else if (key > root.val) root.right = deleteNode(root.right, key); // Search right subtree
   else {
-    if (!root.left) return root.right; // Hinglish: ek child
-    if (!root.right) return root.left;
+    if (!root.left) return root.right; // 0 or 1 child: promote right child
+    if (!root.right) return root.left; // Only left child
     let succ = root.right;
-    while (succ.left) succ = succ.left; // Hinglish: sabse chhota bada
-    root.val = succ.val; // Hinglish: value copy
-    root.right = deleteNode(root.right, succ.val); // Hinglish: successor hatao
+    while (succ.left) succ = succ.left; // Inorder successor = min in right subtree
+    root.val = succ.val; // Copy successor value into this node
+    root.right = deleteNode(root.right, succ.val); // Remove duplicate successor node
   }
   return root;
 }

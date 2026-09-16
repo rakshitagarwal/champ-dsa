@@ -17,13 +17,14 @@ export const BIT_MANIPULATION_SOLUTIONS: SolutionGroup = {
 [Single Number](https://leetcode.com/problems/single-number/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
 // Bits — XOR cancels pairs
 // LC: https://leetcode.com/problems/single-number/
 function singleNumber(nums) {
-  // Hinglish: step 1 — base case check karo
+  // Start at 0 — XOR identity element
   let x = 0;
+  // XOR every value; duplicates cancel (a ^ a = 0)
   for (const n of nums) x ^= n;
+  // Whatever survives is the lone element
   return x;
 }
 \`\`\``,
@@ -38,13 +39,13 @@ function singleNumber(nums) {
 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
 // Bits — count set bits
 // LC: https://leetcode.com/problems/number-of-1-bits/
 function hammingWeight(n) {
-  // Hinglish: step 1 — base case check karo
   let c = 0;
+  // Each iteration removes exactly one set bit
   while (n) {
+    // n & (n-1) clears the lowest 1-bit
     n &= n - 1;
     c++;
   }
@@ -62,13 +63,14 @@ function hammingWeight(n) {
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
 // Bits — dp from half
 // LC: https://leetcode.com/problems/counting-bits/
 function countBits(n) {
-  // Hinglish: step 1 — base case check karo
   const dp = Array(n + 1).fill(0);
-  for (let i = 1; i <= n; i++) dp[i] = dp[i >> 1] + (i & 1);
+  for (let i = 1; i <= n; i++) {
+    // Popcount(i) = popcount(i/2) plus last bit
+    dp[i] = dp[i >> 1] + (i & 1);
+  }
   return dp;
 }
 \`\`\``,
@@ -78,20 +80,21 @@ function countBits(n) {
       lcSlug: "reverse-bits",
       title: "Reverse Bits",
       diff: "Easy",
-      body: `32-bit unsigned integer ke bits ulta karo.
+      body: `Reverse all 32 bits of the unsigned input — shift result left and pull bits off the right of n each step.
 
 [Reverse Bits](https://leetcode.com/problems/reverse-bits/)
 
 \`\`\`js
-// Hinglish: bit hatana — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reverse-bits/
 function reverseBits(n) {
-  // Hinglish: har bit utha ke result me aage daalo
   let res=0;
   for(let i=0;i<32;i++){
-    res = (res<<1) | (n & 1); // Hinglish: last bit lo, left shift
-    n >>>= 1; // Hinglish: unsigned shift
+    // Shift result left and append n's LSB
+    res = (res<<1) | (n & 1);
+    // Drop processed bit from n
+    n >>>= 1;
   }
+  // Force unsigned 32-bit result
   return res >>> 0;
 }
 \`\`\``,
@@ -101,18 +104,18 @@ function reverseBits(n) {
       lcSlug: "sum-of-two-integers",
       title: "Sum of Two Integers",
       diff: "Medium",
-      body: `Bina + ke jodo — XOR jodta hai, AND carry nikalta hai, shift karke aage badhao.
+      body: `Add without \`+\`: XOR gives sum without carry; AND shifted left is carry — repeat until carry is zero.
 
 [Sum of Two Integers](https://leetcode.com/problems/sum-of-two-integers/)
 
 \`\`\`js
-// Hinglish: bits se jod — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/sum-of-two-integers/
 function getSum(a, b) {
-  // Hinglish: step 1 — carry jab tak hai chalao
   while (b !== 0) {
-    const carry = (a & b) << 1; // Hinglish: dono 1 to carry
-    a = a ^ b; // Hinglish: bina carry jod
+    // Positions where both have 1 become carry
+    const carry = (a & b) << 1;
+    // XOR gives sum without carry
+    a = a ^ b;
     b = carry;
   }
   return a;
@@ -124,18 +127,22 @@ function getSum(a, b) {
       lcSlug: "bitwise-and-of-numbers-range",
       title: "Bitwise AND of Numbers Range",
       diff: "Medium",
-      body: `Common prefix nikalo — dono ko right shift karte jao jab tak barabar na hon, phir wapas shift karo.
+      body: `AND of a range equals the shared binary prefix of left and right — shift both right until equal, then shift back.
 
 [Bitwise AND of Numbers Range](https://leetcode.com/problems/bitwise-and-of-numbers-range/)
 
 \`\`\`js
-// Hinglish: common prefix nikalo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/bitwise-and-of-numbers-range/
 function rangeBitwiseAnd(left, right) {
-  // Hinglish: step 1 — shift gino
   let shift = 0;
-  while (left < right) { left >>= 1; right >>= 1; shift++; } // Hinglish: farak mitate jao
-  return left << shift; // Hinglish: wapas lagao
+  // AND of range equals common prefix of left and right in binary
+  while (left < right) {
+    left >>= 1;
+    right >>= 1;
+    shift++;
+  }
+  // Restore prefix bits we shifted away
+  return left << shift;
 }
 \`\`\``,
     },
@@ -149,11 +156,11 @@ function rangeBitwiseAnd(left, right) {
 [Power of Two](https://leetcode.com/problems/power-of-two/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
 // Bits — single bit
 // LC: https://leetcode.com/problems/power-of-two/
 function isPowerOfTwo(n) {
-  // Hinglish: step 1 — base case check karo
+  // Zero and negatives are not powers of two
+  // Single-bit numbers have no other 1s after clearing lowest bit
   return n > 0 && (n & (n - 1)) === 0;
 }
 \`\`\``,
@@ -163,17 +170,17 @@ function isPowerOfTwo(n) {
       lcSlug: "power-of-four",
       title: "Power of Four",
       diff: "Easy",
-      body: `Power of two ho aur 1 odd position pe ho (mask 0x55555555) — dono shartein lagao.
+      body: `Must be a power of two, and the set bit must sit on an even index — check \`(n & 0x55555555)\` after the usual power-of-two test.
 
 [Power of Four](https://leetcode.com/problems/power-of-four/)
 
 \`\`\`js
-// Hinglish: do shart lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/power-of-four/
 function isPowerOfFour(n) {
-  // Hinglish: step 1 — power of two check karo
-  if (n <= 0 || (n & (n - 1)) !== 0) return false; // Hinglish: single bit hona chahiye
-  return (n & 1431655765) !== 0; // Hinglish: 1 odd position pe hona chahiye
+  // Must be a single set bit (power of two)
+  if (n <= 0 || (n & (n - 1)) !== 0) return false;
+  // 0x55555555 = bits at even positions; power of 4 hits those
+  return (n & 1431655765) !== 0;
 }
 \`\`\``,
     },
@@ -182,20 +189,20 @@ function isPowerOfFour(n) {
       lcSlug: "single-number-ii",
       title: "Single Number II",
       diff: "Medium",
-      body: `Har number 3 baar, ek single. Bits count mod 3 se nikalo.
+      body: `Every value appears three times except one — rebuild the answer bit by bit using counts mod 3 per bit position.
 
 [Single Number II](https://leetcode.com/problems/single-number-ii/)
 
 \`\`\`js
-// Hinglish: bit hatana — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/single-number-ii/
 function singleNumberII(nums) {
-  // Hinglish: har bit 0..31 gin ke mod 3
   let ans=0;
+  // Reconstruct answer bit-by-bit
   for(let b=0;b<32;b++){
     let cnt=0;
-    for(const x of nums) if((x>>b)&1) cnt++; // Hinglish: b-th bit kitni baar 1
-    if(cnt%3) ans |= (1<<b); // Hinglish: single ka bit
+    for(const x of nums) if((x>>b)&1) cnt++;
+    // Triplets contribute 0 mod 3; singleton contributes 1 mod 3
+    if(cnt%3) ans |= (1<<b);
   }
   return ans;
 }
@@ -206,22 +213,23 @@ function singleNumberII(nums) {
       lcSlug: "single-number-iii",
       title: "Single Number III",
       diff: "Medium",
-      body: `XOR se alag bit nikalo — jahan farak hai wahan do groups banao, har group ka XOR jawab hai.
+      body: `XOR all numbers to get \`a ^ b\`. Isolate any set bit in that XOR to split into two groups; XOR each group for the two uniques.
 
 [Single Number III](https://leetcode.com/problems/single-number-iii/)
 
 \`\`\`js
-// Hinglish: farak se baanto — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/single-number-iii/
 function singleNumber(nums) {
-  // Hinglish: step 1 — sabka XOR lo
   let x = 0;
+  // XOR all — pairs vanish, x = u ^ v for the two uniques
   for (const v of nums) x ^= v;
-  const diff = x & -x; // Hinglish: pehla alag bit pakdo
+  // Isolate one differing bit between u and v
+  const diff = x & -x;
   let a = 0, b = 0;
   for (const v of nums) {
-    if (v & diff) a ^= v; // Hinglish: group 1
-    else b ^= v; // Hinglish: group 2
+    // Partition by that bit; XOR within each group
+    if (v & diff) a ^= v;
+    else b ^= v;
   }
   return [a, b];
 }

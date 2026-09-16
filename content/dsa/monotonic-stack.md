@@ -8,7 +8,7 @@
 
 ```js
 // Monotonic stack skeleton — next greater to the right
-// Hinglish: bada mila to chhoto ka jawab mil gaya
+// when a larger value arrives, popped indices get their answer
 const stack = []; // indices, values decreasing
 const ans = Array(n).fill(-1);
 for (let i = 0; i < n; i++) {
@@ -27,18 +27,16 @@ When today is warmer than the day on the stack, that old day waited `i - j` days
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 ```js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// Monotonic stack — next warmer
+// Monotonic stack — next warmer day to the right
 // LC: https://leetcode.com/problems/daily-temperatures/
 function dailyTemperatures(temps) {
-  // Hinglish: step 1 — base case check karo
-  const n = temps.length, ans = Array(n).fill(0), stack = [];
+  const n = temps.length, ans = Array(n).fill(0), stack = []; // stack holds indices waiting for warmer day
   for (let i = 0; i < n; i++) {
-    while (stack.length && temps[i] > temps[stack.at(-1)]) {
+    while (stack.length && temps[i] > temps[stack.at(-1)]) { // today is warmer — resolve older days
       const j = stack.pop();
-      ans[j] = i - j;
+      ans[j] = i - j; // days j waited until today
     }
-    stack.push(i);
+    stack.push(i); // i still waiting for a warmer future day
   }
   return ans;
 }
@@ -51,18 +49,16 @@ For each bar, I need the first shorter bar on the left and on the right — that
 [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
 
 ```js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// Monotonic stack — nearest smaller, then width * height
+// Increasing stack — width between previous smaller bars
 // LC: https://leetcode.com/problems/largest-rectangle-in-histogram/
 function largestRectangleArea(heights) {
-  // Hinglish: step 1 — base case check karo
-  const stack = [-1];
+  const stack = [-1]; // sentinel — width extends to left edge
   let best = 0;
   for (let i = 0; i <= heights.length; i++) {
-    const h = i === heights.length ? 0 : heights[i];
-    while (stack.at(-1) !== -1 && h < heights[stack.at(-1)]) {
+    const h = i === heights.length ? 0 : heights[i]; // sentinel 0 flushes remaining bars
+    while (stack.at(-1) !== -1 && h < heights[stack.at(-1)]) { // current bar is shorter — close popped bar
       const height = heights[stack.pop()];
-      const width = i - stack.at(-1) - 1;
+      const width = i - stack.at(-1) - 1; // stretch between new top and i
       best = Math.max(best, height * width);
     }
     stack.push(i);
@@ -78,16 +74,15 @@ Map se next greater nikalo. Stack decreasing rakho, pop hote hi answer pata chal
 [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
 
 ```js
-// Hinglish: stack se next greater — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/next-greater-element-i/
 function nextGreaterElement(nums1, nums2) {
-  // Hinglish: nums2 ka next greater map
+  // build next-greater map for every value in nums2
   const mp=new Map(), st=[];
   for (const x of nums2) {
-    while(st.length && x > st.at(-1)) { const y=st.pop(); mp.set(y, x); } // Hinglish: bada mila to pop ka answer
-    st.push(x);
+    while(st.length && x > st.at(-1)) { const y=st.pop(); mp.set(y, x); } // x is next greater for popped y
+    st.push(x); // keep decreasing stack of unresolved indices/values
   }
-  for (const y of st) mp.set(y, -1); // Hinglish: bacha to -1
+  for (const y of st) mp.set(y, -1); // no greater element to the right
   return nums1.map(x=> mp.get(x));
 }
 ```
@@ -99,13 +94,12 @@ Har din ka span = kitne consecutive peeche wale days price <= aaj. Stack me [pri
 [Online Stock Span](https://leetcode.com/problems/online-stock-span/)
 
 ```js
-// Hinglish: stack se next greater — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/online-stock-span/
 function StockSpanner() { this.st=[]; } // [price, span]
 StockSpanner.prototype.next = function(price) {
-  // Hinglish: chhote prices ko kha jao
+  // pop stack while current price is lower — discount days
   let span=1;
-  while(this.st.length && this.st.at(-1)[0] <= price) { span += this.st.pop()[1]; } // Hinglish: combine span
+  while(this.st.length && this.st.at(-1)[0] <= price) { span += this.st.pop()[1]; } // combine span
   this.st.push([price, span]);
   return span;
 };
@@ -118,17 +112,16 @@ Stack se pits dhoondo. Har pop ke baad bounded height nikal ke water jodo.
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/trapping-rain-water/ (stack variant, two-pointer bhi dekho)
+// LC: https://leetcode.com/problems/trapping-rain-water/ (stack variant, two-pointer solution also works)
 function trap(height) {
-  // Hinglish: decreasing stack
+  // monotonic stack — keep decreasing values
   let ans=0; const st=[];
   for (let i=0;i<height.length;i++) {
     while(st.length && height[i] > height[st.at(-1)]) {
       const mid=st.pop();
       if (!st.length) break;
       const left=st.at(-1);
-      const h = Math.min(height[left], height[i]) - height[mid]; // Hinglish: bounded height
+      const h = Math.min(height[left], height[i]) - height[mid]; // bounded height
       const w = i - left - 1;
       ans += h * w;
     }

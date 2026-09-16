@@ -12,19 +12,18 @@ export const SLIDING_WINDOW_SOLUTIONS: SolutionGroup = {
       lcSlug: "maximum-average-subarray-i",
       title: "Maximum Average Subarray I",
       diff: "Easy",
-      body: `Size \`k\` ki window me max sum / k. Fixed sliding window.
+      body: `Fixed window of size \`k\` — track the maximum sum (or average) over every consecutive k-element slice.
 
 [Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximum-average-subarray-i/
+// Fixed window size k — slide by add right, subtract left
 function findMaxAverage(nums, k) {
-  // Hinglish: pehle k ka sum
-  let sum=0; for(let i=0;i<k;i++) sum+=nums[i];
-  let best=sum;
-  for(let i=k;i<nums.length;i++) {
-    sum += nums[i] - nums[i-k]; // Hinglish: slide — add naya, hatao purana
+  let sum = 0;
+  for (let i = 0; i < k; i++) sum += nums[i]; // seed first window
+  let best = sum;
+  for (let i = k; i < nums.length; i++) {
+    sum += nums[i] - nums[i - k]; // slide one step
     best = Math.max(best, sum);
   }
   return best / k;
@@ -36,22 +35,20 @@ function findMaxAverage(nums, k) {
       lcSlug: "maximum-number-of-vowels-in-a-substring-of-given-length",
       title: "Maximum Number of Vowels in a Substring of Given Length",
       diff: "Medium",
-      body: `Fixed window me vowels gino — aage jodo, peeche hatao, max yaad rakho.
+      body: `Count vowels in a fixed window: add the right char, drop the left, track the maximum.
 
 [Maximum Number of Vowels in a Substring of Given Length](https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/)
 
 \`\`\`js
-// Hinglish: fixed window gino — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/
+// Count vowels in window of length k
 function maxVowels(s, k) {
-  // Hinglish: step 1 — vowel set lo
   const vowels = new Set(["a","e","i","o","u"]);
   let cnt = 0;
-  for (let i = 0; i < k; i++) if (vowels.has(s[i])) cnt++; // Hinglish: pehli window
+  for (let i = 0; i < k; i++) if (vowels.has(s[i])) cnt++;
   let best = cnt;
   for (let i = k; i < s.length; i++) {
-    if (vowels.has(s[i])) cnt++; // Hinglish: naya jodo
-    if (vowels.has(s[i - k])) cnt--; // Hinglish: purana hatao
+    if (vowels.has(s[i])) cnt++; // enter window
+    if (vowels.has(s[i - k])) cnt--; // leave window
     if (cnt > best) best = cnt;
   }
   return best;
@@ -63,25 +60,23 @@ function maxVowels(s, k) {
       lcSlug: "find-all-anagrams-in-a-string",
       title: "Find All Anagrams in a String",
       diff: "Medium",
-      body: `Window size p fix karo, freq compare karo — match mile to index jodo.
+      body: `Fix window size to \`|p|\`, compare letter frequencies, and record start indices when they match.
 
 [Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/)
 
 \`\`\`js
-// Hinglish: window freq match — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-all-anagrams-in-a-string/
+// Window freq matches p when all 26 counts equal
 function findAnagrams(s, p) {
-  // Hinglish: step 1 — need gino
   if (p.length > s.length) return [];
   const need = Array(26).fill(0), win = Array(26).fill(0);
   for (const ch of p) need[ch.charCodeAt(0) - 97]++;
   const out = [];
   for (let i = 0; i < s.length; i++) {
-    win[s.charCodeAt(i) - 97]++; // Hinglish: jodo
-    if (i >= p.length) win[s.charCodeAt(i - p.length) - 97]--; // Hinglish: hatao
+    win[s.charCodeAt(i) - 97]++; // expand
+    if (i >= p.length) win[s.charCodeAt(i - p.length) - 97]--; // shrink
     let ok = true;
     for (let j = 0; j < 26; j++) if (win[j] !== need[j]) { ok = false; break; }
-    if (ok) out.push(i - p.length + 1); // Hinglish: anagram mila
+    if (ok) out.push(i - p.length + 1); // window start
   }
   return out;
 }
@@ -92,23 +87,24 @@ function findAnagrams(s, p) {
       lcSlug: "permutation-in-string",
       title: "Permutation in String",
       diff: "Medium",
-      body: `\`s1\` ka permutation \`s2\` me hai kya? Sliding window + frequency compare.
+      body: `Check whether any length-\`|s1|\` window of \`s2\` is an anagram of \`s1\` via sliding window and frequency counts.
 
 [Permutation in String](https://leetcode.com/problems/permutation-in-string/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/permutation-in-string/
+// Same as anagram check on sliding window |s1|
 function checkInclusion(s1, s2) {
-  // Hinglish: s1 ka freq
   if (s1.length > s2.length) return false;
-  const need=Array(26).fill(0), win=Array(26).fill(0);
-  for (let i=0;i<s1.length;i++) { need[s1.charCodeAt(i)-97]++; win[s2.charCodeAt(i)-97]++; }
-  const same=()=> need.every((v,i)=>v===win[i]);
+  const need = Array(26).fill(0), win = Array(26).fill(0);
+  for (let i = 0; i < s1.length; i++) {
+    need[s1.charCodeAt(i) - 97]++;
+    win[s2.charCodeAt(i) - 97]++;
+  }
+  const same = () => need.every((v, i) => v === win[i]);
   if (same()) return true;
-  for (let i=s1.length;i<s2.length;i++) {
-    win[s2.charCodeAt(i)-97]++; // Hinglish: naya add
-    win[s2.charCodeAt(i-s1.length)-97]--; // Hinglish: purana hatao
+  for (let i = s1.length; i < s2.length; i++) {
+    win[s2.charCodeAt(i) - 97]++;
+    win[s2.charCodeAt(i - s1.length) - 97]--;
     if (same()) return true;
   }
   return false;
@@ -120,22 +116,20 @@ function checkInclusion(s1, s2) {
       lcSlug: "grumpy-bookstore-owner",
       title: "Grumpy Bookstore Owner",
       diff: "Medium",
-      body: `Grumpy minutes ka best window dhoondo (fixed size), usko base satisfied me jod do.
+      body: `Sum satisfied customers when not grumpy, then find the best fixed-size window of extra grumpy-minute customers.
 
 [Grumpy Bookstore Owner](https://leetcode.com/problems/grumpy-bookstore-owner/)
 
 \`\`\`js
-// Hinglish: best window dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/grumpy-bookstore-owner/
+// Base = happy minutes; window = extra from grumpy minutes
 function maxSatisfied(customers, grumpy, minutes) {
-  // Hinglish: step 1 — bina technique wale jodo
   let base = 0;
   for (let i = 0; i < customers.length; i++) {
     if (grumpy[i] === 0) base += customers[i];
   }
   let extra = 0;
   for (let i = 0; i < minutes; i++) {
-    if (grumpy[i] === 1) extra += customers[i]; // Hinglish: pehli window
+    if (grumpy[i] === 1) extra += customers[i];
   }
   let best = extra;
   for (let i = minutes; i < customers.length; i++) {
@@ -152,21 +146,19 @@ function maxSatisfied(customers, grumpy, minutes) {
       lcSlug: "number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold",
       title: "Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold",
       diff: "Medium",
-      body: `Sum compare karne ke liye average mat nikalo — threshold*k se seedha compare karo.
+      body: `Avoid floating averages: a window qualifies iff its sum is at least \`threshold * k\`.
 
 [Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold](https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/)
 
 \`\`\`js
-// Hinglish: sum se kaam chalao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/
+// Compare sum to threshold*k (avoid floats)
 function numOfSubarrays(arr, k, threshold) {
-  // Hinglish: step 1 — pehli window ka sum
   const need = threshold * k;
   let sum = 0;
   for (let i = 0; i < k; i++) sum += arr[i];
   let ans = sum >= need ? 1 : 0;
   for (let i = k; i < arr.length; i++) {
-    sum += arr[i] - arr[i - k]; // Hinglish: slide karo
+    sum += arr[i] - arr[i - k];
     if (sum >= need) ans++;
   }
   return ans;
@@ -183,23 +175,21 @@ function numOfSubarrays(arr, k, threshold) {
       lcSlug: "longest-substring-without-repeating-characters",
       title: "Longest Substring Without Repeating Characters",
       diff: "Medium",
-      body: `Window badhao, repeat aaye to left se hatao. Map me last index rakho taaki left seedha jump kare.
+      body: `Expand the window; on a repeat, move the left bound past the previous occurrence using a last-index map.
 
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+// last index map — jump left past duplicate
 function lengthOfLongestSubstring(s) {
-  // Hinglish: step 1 — window + map lo
   const last = new Map();
   let l = 0, best = 0;
   for (let r = 0; r < s.length; r++) {
     if (last.has(s[r]) && last.get(s[r]) >= l) {
-      l = last.get(s[r]) + 1; // Hinglish: repeat hatao, jump karo
+      l = last.get(s[r]) + 1; // shrink past old occurrence
     }
     last.set(s[r], r);
-    best = Math.max(best, r - l + 1); // Hinglish: best update
+    best = Math.max(best, r - l + 1);
   }
   return best;
 }
@@ -210,24 +200,24 @@ function lengthOfLongestSubstring(s) {
       lcSlug: "longest-repeating-character-replacement",
       title: "Longest Repeating Character Replacement",
       diff: "Medium",
-      body: `Window me sabse zyada frequent char \`maxF\`, window size - maxF <= k to valid. Nahi to left shrink karo.
+      body: `Let \`maxF\` be the top frequency in the window. It is valid when \`windowLen - maxF <= k\`; otherwise shrink from the left.
 
 [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/longest-repeating-character-replacement/
+// Valid when (len - maxFreq) <= k replacements needed
 function characterReplacement(s, k) {
-  // Hinglish: freq map + max count
-  const freq={}; let left=0, maxF=0, best=0;
-  for (let right=0; right<s.length; right++) {
-    const ch=s[right];
-    freq[ch]=(freq[ch]||0)+1;
-    maxF = Math.max(maxF, freq[ch]); // Hinglish: ab tak ka max freq
-    while ((right-left+1) - maxF > k) { // Hinglish: zyada replacement lage to shrink
-      freq[s[left]]--; left++;
+  const freq = {};
+  let left = 0, maxF = 0, best = 0;
+  for (let right = 0; right < s.length; right++) {
+    const ch = s[right];
+    freq[ch] = (freq[ch] || 0) + 1;
+    maxF = Math.max(maxF, freq[ch]);
+    while ((right - left + 1) - maxF > k) {
+      freq[s[left]]--;
+      left++; // too many replacements
     }
-    best = Math.max(best, right-left+1);
+    best = Math.max(best, right - left + 1);
   }
   return best;
 }
@@ -243,11 +233,8 @@ function characterReplacement(s, k) {
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
-// Sliding window — smallest that still covers t
-// LC: https://leetcode.com/problems/minimum-window-substring/
+// Expand until cover t, shrink while still covered
 function minWindow(s, t) {
-  // Hinglish: step 1 — base case check karo
   const need = new Map();
   for (const ch of t) need.set(ch, (need.get(ch) || 0) + 1);
   let missing = need.size, left = 0, best = "";
@@ -255,14 +242,14 @@ function minWindow(s, t) {
     const r = s[right];
     if (need.has(r)) {
       need.set(r, need.get(r) - 1);
-      if (need.get(r) === 0) missing--;
+      if (need.get(r) === 0) missing--; // this char satisfied
     }
     while (missing === 0) {
       if (!best || right - left + 1 < best.length) best = s.slice(left, right + 1);
       const l = s[left];
       if (need.has(l)) {
         need.set(l, need.get(l) + 1);
-        if (need.get(l) > 0) missing++;
+        if (need.get(l) > 0) missing++; // lost coverage
       }
       left++;
     }
@@ -276,21 +263,20 @@ function minWindow(s, t) {
       lcSlug: "minimum-size-subarray-sum",
       title: "Minimum Size Subarray Sum",
       diff: "Medium",
-      body: `Window badhao jab tak sum kam hai, target pe pahuche to shrink karke min rakho.
+      body: `Expand until the sum reaches the target, then shrink from the left while keeping the sum valid and track the minimum length.
 
 [Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)
 
 \`\`\`js
-// Hinglish: badhao-shrink karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-size-subarray-sum/
+// Expand r until sum >= target, then shrink l
 function minSubArrayLen(target, nums) {
-  // Hinglish: step 1 — window lo
   let l = 0, sum = 0, best = Infinity;
   for (let r = 0; r < nums.length; r++) {
-    sum += nums[r]; // Hinglish: badhao
+    sum += nums[r];
     while (sum >= target) {
-      if (r - l + 1 < best) best = r - l + 1; // Hinglish: min yaad rakho
-      sum -= nums[l]; l++; // Hinglish: shrink karo
+      if (r - l + 1 < best) best = r - l + 1;
+      sum -= nums[l];
+      l++;
     }
   }
   return best === Infinity ? 0 : best;
@@ -302,20 +288,18 @@ function minSubArrayLen(target, nums) {
       lcSlug: "max-consecutive-ones-iii",
       title: "Max Consecutive Ones III",
       diff: "Medium",
-      body: `K zeroes flip kar sakte ho — window me zeroes gino, k se zyada hon to left badhao.
+      body: `You may flip at most \`k\` zeros. Count zeros in the window and shrink when the budget is exceeded.
 
 [Max Consecutive Ones III](https://leetcode.com/problems/max-consecutive-ones-iii/)
 
 \`\`\`js
-// Hinglish: zero budget — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/max-consecutive-ones-iii/
+// k = budget of zeros in window
 function longestOnes(nums, k) {
-  // Hinglish: step 1 — window lo
   let l = 0, best = 0;
   for (let r = 0; r < nums.length; r++) {
-    if (nums[r] === 0) k--; // Hinglish: ek flip kharch
+    if (nums[r] === 0) k--;
     while (k < 0) {
-      if (nums[l] === 0) k++; // Hinglish: wapas jama
+      if (nums[l] === 0) k++; // refund flip
       l++;
     }
     if (r - l + 1 > best) best = r - l + 1;
@@ -329,21 +313,19 @@ function longestOnes(nums, k) {
       lcSlug: "fruit-into-baskets",
       title: "Fruit Into Baskets",
       diff: "Medium",
-      body: `Sirf 2 types allowed — teesri aaye to left se hatao jab tak 2 na bachein. Map me last index rakho.
+      body: `At most two distinct values: when a third appears, advance the left bound until only two types remain; track last index per type.
 
 [Fruit Into Baskets](https://leetcode.com/problems/fruit-into-baskets/)
 
 \`\`\`js
-// Hinglish: 2 type ki limit — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/fruit-into-baskets/
+// At most 2 distinct types — track last index per type
 function totalFruit(fruits) {
-  // Hinglish: step 1 — type map lo
   const last = new Map();
   let l = 0, best = 0;
   for (let r = 0; r < fruits.length; r++) {
-    last.set(fruits[r], r); // Hinglish: aakhri jagah yaad rakho
+    last.set(fruits[r], r);
     while (last.size > 2) {
-      if (last.get(fruits[l]) === l) last.delete(fruits[l]); // Hinglish: purani type nikalo
+      if (last.get(fruits[l]) === l) last.delete(fruits[l]); // type leaves window
       l++;
     }
     if (r - l + 1 > best) best = r - l + 1;
@@ -357,20 +339,23 @@ function totalFruit(fruits) {
       lcSlug: "maximum-erasure-value",
       title: "Maximum Erasure Value",
       diff: "Medium",
-      body: `Unique subarray ka max sum — repeat aaye to left ko repeat tak le jao, sum saath update rakho.
+      body: `Maximum sum of a subarray with all distinct elements: shrink from the left when a duplicate appears.
 
 [Maximum Erasure Value](https://leetcode.com/problems/maximum-erasure-value/)
 
 \`\`\`js
-// Hinglish: unique sum window — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximum-erasure-value/
+// Longest unique subarray sum
 function maximumUniqueSubarray(nums) {
-  // Hinglish: step 1 — set + sum lo
   const seen = new Set();
   let l = 0, sum = 0, best = 0;
   for (let r = 0; r < nums.length; r++) {
-    while (seen.has(nums[r])) { seen.delete(nums[l]); sum -= nums[l]; l++; } // Hinglish: repeat hatao
-    seen.add(nums[r]); sum += nums[r];
+    while (seen.has(nums[r])) {
+      seen.delete(nums[l]);
+      sum -= nums[l];
+      l++;
+    }
+    seen.add(nums[r]);
+    sum += nums[r];
     if (sum > best) best = sum;
   }
   return best;
@@ -382,15 +367,13 @@ function maximumUniqueSubarray(nums) {
       lcSlug: "longest-subarray-of-1s-after-deleting-one-element",
       title: "Longest Subarray of 1's After Deleting One Element",
       diff: "Medium",
-      body: `Ek delete ki chhoot — zeroes gino, 2 hue to left badhao. Answer window-1 hai.
+      body: `Allow deleting one element: count zeros, shrink when more than one zero, answer is window length minus one deletion.
 
 [Longest Subarray of 1's After Deleting One Element](https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/)
 
 \`\`\`js
-// Hinglish: ek delete window — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/
+// At most one zero removed — answer is window length minus that zero
 function longestSubarray(nums) {
-  // Hinglish: step 1 — window lo
   let l = 0, zeroes = 0, best = 0;
   for (let r = 0; r < nums.length; r++) {
     if (nums[r] === 0) zeroes++;
@@ -398,7 +381,7 @@ function longestSubarray(nums) {
       if (nums[l] === 0) zeroes--;
       l++;
     }
-    if (r - l > best) best = r - l; // Hinglish: ek delete hoga
+    if (r - l > best) best = r - l; // one delete implied
   }
   return best;
 }
@@ -409,21 +392,22 @@ function longestSubarray(nums) {
       lcSlug: "subarray-product-less-than-k",
       title: "Subarray Product Less Than K",
       diff: "Medium",
-      body: `Product window — bada ho to left se divide karo. Har r pe r-l+1 naye subarrays bante hain.
+      body: `Sliding product window: divide out the left when the product is too large. Each valid \`r\` adds \`r - l + 1\` subarrays.
 
 [Subarray Product Less Than K](https://leetcode.com/problems/subarray-product-less-than-k/)
 
 \`\`\`js
-// Hinglish: product window — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/subarray-product-less-than-k/
+// Each valid window ending at r adds (r-l+1) subarrays
 function numSubarrayProductLessThanK(nums, k) {
-  // Hinglish: step 1 — k<=1 to zero
   if (k <= 1) return 0;
   let l = 0, prod = 1, ans = 0;
   for (let r = 0; r < nums.length; r++) {
-    prod *= nums[r]; // Hinglish: jodo
-    while (prod >= k) { prod /= nums[l]; l++; } // Hinglish: chhota karo
-    ans += r - l + 1; // Hinglish: r pe khatm hone wale sab valid
+    prod *= nums[r];
+    while (prod >= k) {
+      prod /= nums[l];
+      l++;
+    }
+    ans += r - l + 1;
   }
   return ans;
 }
@@ -434,20 +418,21 @@ function numSubarrayProductLessThanK(nums, k) {
       lcSlug: "get-equal-substrings-within-budget",
       title: "Get Equal Substrings Within Budget",
       diff: "Medium",
-      body: `Cost array banao (|s-t|), phir maxCost budget wali longest window nikalo.
+      body: `Build per-index costs \`|s[i] - t[i]|\`, then find the longest window whose total cost is at most \`maxCost\`.
 
 [Get Equal Substrings Within Budget](https://leetcode.com/problems/get-equal-substrings-within-budget/)
 
 \`\`\`js
-// Hinglish: cost window — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/get-equal-substrings-within-budget/
+// Window on per-index change cost
 function equalSubstring(s, t, maxCost) {
-  // Hinglish: step 1 — window lo
-  const cost = (i) => Math.abs(s.charCodeAt(i) - t.charCodeAt(i)); // Hinglish: badlav ki keemat
+  const cost = (i) => Math.abs(s.charCodeAt(i) - t.charCodeAt(i));
   let l = 0, spent = 0, best = 0;
   for (let r = 0; r < s.length; r++) {
     spent += cost(r);
-    while (spent > maxCost) { spent -= cost(l); l++; } // Hinglish: budget se bahar to shrink
+    while (spent > maxCost) {
+      spent -= cost(l);
+      l++;
+    }
     if (r - l + 1 > best) best = r - l + 1;
   }
   return best;
@@ -459,20 +444,21 @@ function equalSubstring(s, t, maxCost) {
       lcSlug: "frequency-of-the-most-frequent-element",
       title: "Frequency of the Most Frequent Element",
       diff: "Medium",
-      body: `Sort karke window badhao — sabko max banane ki cost nikalo, k se zyada ho to left badhao.
+      body: `Sort the array, slide a window, and track the cost to raise every element to the window maximum; shrink when cost exceeds \`k\`.
 
 [Frequency of the Most Frequent Element](https://leetcode.com/problems/frequency-of-the-most-frequent-element/)
 
 \`\`\`js
-// Hinglish: sort + cost window — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/frequency-of-the-most-frequent-element/
+// Sorted window — cost to raise all to nums[r]
 function maxFrequency(nums, k) {
-  // Hinglish: step 1 — sort karo
   nums.sort((a, b) => a - b);
   let l = 0, spent = 0, best = 1;
   for (let r = 1; r < nums.length; r++) {
-    spent += (nums[r] - nums[r - 1]) * (r - l); // Hinglish: sabko r jitna banao
-    while (spent > k) { spent -= nums[r] - nums[l]; l++; } // Hinglish: budget khatm to shrink
+    spent += (nums[r] - nums[r - 1]) * (r - l); // incremental cost
+    while (spent > k) {
+      spent -= nums[r] - nums[l];
+      l++;
+    }
     if (r - l + 1 > best) best = r - l + 1;
   }
   return best;

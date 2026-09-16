@@ -17,18 +17,17 @@ export const INTERVALS_SOLUTIONS: SolutionGroup = {
 [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — merge overlaps
+// Intervals — sort by start, merge overlaps in one pass
 // LC: https://leetcode.com/problems/merge-intervals/
 function merge(intervals) {
-  // Hinglish: step 1 — base case check karo
-  intervals.sort((a, b) => a[0] - b[0]);
-  const out = [intervals[0]];
+  // Empty input is handled by caller; we need at least one interval to seed output
+  intervals.sort((a, b) => a[0] - b[0]); // Overlaps only matter after sorting by start
+  const out = [intervals[0]]; // First interval starts the merged list
   for (let i = 1; i < intervals.length; i++) {
-    const last = out[out.length - 1];
-    const [s, e] = intervals[i];
-    if (s <= last[1]) last[1] = Math.max(last[1], e);
-    else out.push([s, e]);
+    const last = out[out.length - 1]; // Current merged interval at the tail
+    const [s, e] = intervals[i]; // Candidate interval to place or merge
+    if (s <= last[1]) last[1] = Math.max(last[1], e); // Overlap: extend end only
+    else out.push([s, e]); // Disjoint: append as a new interval
   }
   return out;
 }
@@ -44,22 +43,20 @@ function merge(intervals) {
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — insert then merge
+// Three phases: before, merge overlap, after — no full resort needed
 // LC: https://leetcode.com/problems/insert-interval/
 function insert(intervals, newInterval) {
-  // Hinglish: step 1 — base case check karo
   const out = [];
   let i = 0, n = intervals.length;
-  let [ns, ne] = newInterval;
-  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // before
+  let [ns, ne] = newInterval; // Mutable bounds while merging overlaps
+  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // Wholly before new interval
   while (i < n && intervals[i][0] <= ne) {
-    ns = Math.min(ns, intervals[i][0]);
-    ne = Math.max(ne, intervals[i][1]);
-    i++;
+    ns = Math.min(ns, intervals[i][0]); // Expand merged start left if needed
+    ne = Math.max(ne, intervals[i][1]); // Expand merged end right if needed
+    i++; // Consume overlapping interval
   }
-  out.push([ns, ne]);
-  while (i < n) out.push(intervals[i++]); // after
+  out.push([ns, ne]); // Single merged block for new + overlaps
+  while (i < n) out.push(intervals[i++]); // Remaining intervals after merged block
   return out;
 }
 \`\`\``,
@@ -70,22 +67,21 @@ function insert(intervals, newInterval) {
       title: "Meeting Rooms",
       diff: "Easy",
     premium: true,
-      body: `Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
+      body: `Sort by start time. If any meeting starts before the previous one ends, double-booking makes attending all impossible.
 
 [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
-*Premium question — kholne ke liye LeetCode premium chahiye.*
+*Premium — requires LeetCode Premium.*
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
+// Sort by start; any start before previous end means double-booking
 // LC: https://leetcode.com/problems/meeting-rooms/ (premium, lintcode 920)
 function canAttendMeetings(intervals) {
-  // Hinglish: start se sort
-  intervals.sort((a,b)=>a[0]-b[0]);
+  intervals.sort((a,b)=>a[0]-b[0]); // Earliest meetings first
   for (let i=1;i<intervals.length;i++) {
-    if (intervals[i][0] < intervals[i-1][1]) return false; // Hinglish: overlap to nahi kar sakte
+    if (intervals[i][0] < intervals[i-1][1]) return false; // Overlap: cannot attend all
   }
-  return true;
+  return true; // No overlap found
 }
 \`\`\``,
     },
@@ -94,22 +90,21 @@ function canAttendMeetings(intervals) {
       lcSlug: "non-overlapping-intervals",
       title: "Non-overlapping Intervals",
       diff: "Medium",
-      body: `Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy rakho.
+      body: `Sort by end time and greedily keep non-overlapping intervals — removals equal total minus kept.
 
 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
+// Greedy: keep intervals that finish earliest — frees the timeline sooner
 // LC: https://leetcode.com/problems/non-overlapping-intervals/
 function eraseOverlapIntervals(intervals) {
-  // Hinglish: end se sort, jaldi khatam wala pehle
-  intervals.sort((a,b)=>a[1]-b[1]);
-  let kept = 0, lastEnd = -Infinity;
+  intervals.sort((a,b)=>a[1]-b[1]); // Sort by end time ascending
+  let kept = 0, lastEnd = -Infinity; // lastEnd = end of last kept interval
   for (const [s,e] of intervals) {
-    if (s >= lastEnd) { kept++; lastEnd = e; } // Hinglish: overlap nahi to rakho
-    // warna hatao
+    if (s >= lastEnd) { kept++; lastEnd = e; } // No overlap with kept set — keep it
+    // else skip: this interval overlaps something we already kept
   }
-  return intervals.length - kept; // Hinglish: hatane wale
+  return intervals.length - kept; // Removals = total minus kept
 }
 \`\`\``,
     },
@@ -118,23 +113,22 @@ function eraseOverlapIntervals(intervals) {
       lcSlug: "interval-list-intersections",
       title: "Interval List Intersections",
       diff: "Medium",
-      body: `Dono lists sorted hain — do pointer se overlap nikalo, chhota khatm wala aage badhao.
+      body: `Two sorted lists, two pointers: intersect current pair, then advance the interval that ends first.
 
 [Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/)
 
 \`\`\`js
-// Hinglish: overlap nikalo — ek-ek step comment dekho
+// Two sorted lists — merge-style walk without building a merged list
 // LC: https://leetcode.com/problems/interval-list-intersections/
 function intervalIntersection(firstList, secondList) {
-  // Hinglish: step 1 — do pointer lo
   const out = [];
-  let i = 0, j = 0;
+  let i = 0, j = 0; // Pointers into each list
   while (i < firstList.length && j < secondList.length) {
-    const s = Math.max(firstList[i][0], secondList[j][0]); // Hinglish: overlap start
-    const e = Math.min(firstList[i][1], secondList[j][1]); // Hinglish: overlap end
-    if (s <= e) out.push([s, e]); // Hinglish: overlap mila
-    if (firstList[i][1] < secondList[j][1]) i++; // Hinglish: pehle khatm wala aage
-    else j++;
+    const s = Math.max(firstList[i][0], secondList[j][0]); // Overlap start is later of two starts
+    const e = Math.min(firstList[i][1], secondList[j][1]); // Overlap end is earlier of two ends
+    if (s <= e) out.push([s, e]); // Non-empty intersection
+    if (firstList[i][1] < secondList[j][1]) i++; // First interval ends first — advance i
+    else j++; // Second ends first or tie — advance j
   }
   return out;
 }
@@ -145,20 +139,19 @@ function intervalIntersection(firstList, secondList) {
       lcSlug: "remove-covered-intervals",
       title: "Remove Covered Intervals",
       diff: "Medium",
-      body: `Start se sort, end descending rakho (same start pe bada pehle) — max end track karo, chhota mile to covered hai.
+      body: `Sort by start, then by descending end (longer first at same start). Track the farthest end seen; intervals ending inside it are covered.
 
 [Remove Covered Intervals](https://leetcode.com/problems/remove-covered-intervals/)
 
 \`\`\`js
-// Hinglish: bada pehle rakho — ek-ek step comment dekho
+// Covered = some earlier interval already spans at least this end
 // LC: https://leetcode.com/problems/remove-covered-intervals/
 function removeCoveredIntervals(intervals) {
-  // Hinglish: step 1 — sort karo (start up, end down)
-  intervals.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
-  let kept = 0, maxEnd = -1;
+  intervals.sort((a, b) => a[0] - b[0] || b[1] - a[1]); // Same start: longer interval first
+  let kept = 0, maxEnd = -1; // maxEnd = farthest right seen among kept starts
   for (const [s, e] of intervals) {
-    if (e > maxEnd) { kept++; maxEnd = e; } // Hinglish: naya bada mila
-    // warna covered hai — ginna chhodo
+    if (e > maxEnd) { kept++; maxEnd = e; } // Extends coverage — count as uncovered
+    // else e <= maxEnd: fully inside a prior interval — drop
   }
   return kept;
 }
@@ -169,19 +162,19 @@ function removeCoveredIntervals(intervals) {
       lcSlug: "minimum-number-of-arrows-to-burst-balloons",
       title: "Minimum Number of Arrows to Burst Balloons",
       diff: "Medium",
-      body: `Balloon = interval. End se sort karo, ek arrow jahan tak cover kare rakho.
+      body: `Each balloon is an interval. Sort by end and place arrows greedily at interval ends — same pattern as non-overlapping intervals.
 
 [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
+// Same greedy as non-overlapping intervals — arrow position = last end in a cluster
 // LC: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/
 function findMinArrowShots(points) {
-  // Hinglish: end se sort
-  points.sort((a,b)=>a[1]-b[1]);
-  let arrows=0, last=-Infinity;
+  points.sort((a,b)=>a[1]-b[1]); // Earliest finishing balloons first
+  let arrows=0, last=-Infinity; // last = x-coordinate of last arrow placed
   for(const [s,e] of points){
-    if(s>last){ arrows++; last=e; } // Hinglish: naya arrow chahiye
+    if(s>last){ arrows++; last=e; } // Balloon starts after last arrow — need new arrow at e
+    // else balloon covered by arrow at last
   }
   return arrows;
 }
@@ -193,25 +186,24 @@ function findMinArrowShots(points) {
       title: "Employee Free Time",
       diff: "Hard",
     premium: true,
-      body: `Sab busy mila ke merge karo — gaps hi free time hain. K-way merge heap se bhi hota hai.
+      body: `Flatten all busy intervals, sort by start, and merge overlaps. Gaps between merged busy blocks are employee free time.
 
 [Employee Free Time](https://leetcode.com/problems/employee-free-time/)
 
-*Premium question — kholne ke liye LeetCode premium chahiye.*
+*Premium — requires LeetCode Premium.*
 
 \`\`\`js
-// Hinglish: busy jodo, gap nikalo — ek-ek step comment dekho
+// Flatten all busy blocks, sort, merge mentally — gaps between merged busy are free
 // LC: https://leetcode.com/problems/employee-free-time/ (Premium)
 function employeeFreeTime(schedule) {
-  // Hinglish: step 1 — sab intervals jama karo
   const all = [];
-  for (const emp of schedule) for (const iv of emp) all.push(iv);
-  all.sort((a, b) => a.start - b.start || a.start - b.start);
+  for (const emp of schedule) for (const iv of emp) all.push(iv); // Collect every busy interval
+  all.sort((a, b) => a.start - b.start || a.start - b.start); // Order by start time
   const out = [];
-  let end = all[0].end;
+  let end = all[0].end; // Running end of merged busy timeline
   for (let i = 1; i < all.length; i++) {
-    if (all[i].start > end) out.push([end, all[i].start]); // Hinglish: gap mila = free
-    if (all[i].end > end) end = all[i].end; // Hinglish: busy badhao
+    if (all[i].start > end) out.push([end, all[i].start]); // Gap between busy blocks = free
+    if (all[i].end > end) end = all[i].end; // Extend merged busy if this interval goes further
   }
   return out;
 }

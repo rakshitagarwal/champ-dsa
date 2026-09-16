@@ -8,7 +8,7 @@
 
 ```js
 // Tree skeleton — DFS (post-order combine)
-// Hinglish: null base, fir left-right combine
+// null base, fir left-right combine
 function dfs(node) {
   if (!node) return base;
   const left = dfs(node.left);
@@ -17,7 +17,7 @@ function dfs(node) {
 }
 
 // Tree skeleton — BFS level order
-// Hinglish: har level ka size snapshot lo
+// snapshot queue size each level for level-order traversal
 const queue = [root];
 let depth = 0;
 while (queue.length) {
@@ -37,13 +37,11 @@ Depth is 1 plus the deeper child. Empty tree is 0.
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS
+// Post-order DFS — depth = 1 + max depth of subtrees
 // LC: https://leetcode.com/problems/maximum-depth-of-binary-tree/
 function maxDepth(root) {
-  // Hinglish: step 1 — base case check karo
-  if (!root) return 0;
-  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+  if (!root) return 0; // Empty tree has depth 0
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right)); // Count edges path through root
 }
 ```
 
@@ -54,15 +52,13 @@ Queue. Snapshot length. Those nodes are one level.
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree BFS — by level
+// BFS with level size snapshot — each batch is one level
 // LC: https://leetcode.com/problems/binary-tree-level-order-traversal/
 function levelOrder(root) {
-  // Hinglish: step 1 — base case check karo
   if (!root) return [];
   const out = [], queue = [root];
   while (queue.length) {
-    const level = [], n = queue.length;
+    const level = [], n = queue.length; // Fix level width before processing
     for (let i = 0; i < n; i++) {
       const node = queue.shift();
       level.push(node.val);
@@ -82,18 +78,16 @@ Longest path (edges) between any two nodes. At each node I take left height + ri
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — height down, diameter across
+// Diameter at node = left height + right height (edges); track global max
 // LC: https://leetcode.com/problems/diameter-of-binary-tree/
 function diameterOfBinaryTree(root) {
-  // Hinglish: step 1 — base case check karo
-  let best = 0;
+  let best = 0; // Best diameter seen (in edges)
   const height = (node) => {
     if (!node) return 0;
     const L = height(node.left);
     const R = height(node.right);
-    best = Math.max(best, L + R);
-    return 1 + Math.max(L, R);
+    best = Math.max(best, L + R); // Path through this node as bend point
+    return 1 + Math.max(L, R); // Height upward to parent
   };
   height(root);
   return best;
@@ -107,16 +101,14 @@ If the node is p or q, return it. Recurse. If both sides return something, I am 
 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — first node that sees both
+// Post-order LCA — first ancestor where p and q split to different subtrees
 // LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
 function lowestCommonAncestor(root, p, q) {
-  // Hinglish: step 1 — base case check karo
-  if (!root || root === p || root === q) return root;
+  if (!root || root === p || root === q) return root; // Hit target or empty
   const L = lowestCommonAncestor(root.left, p, q);
   const R = lowestCommonAncestor(root.right, p, q);
-  if (L && R) return root;
-  return L || R;
+  if (L && R) return root; // p and q found in different subtrees — LCA is root
+  return L || R; // Propagate the non-null side upward
 }
 ```
 
@@ -127,18 +119,16 @@ A path can bend at a node (left + node + right). I return to my parent only a on
 [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — gain I can offer my parent vs path that bends here
+// At each node: best bending path vs one-sided gain returned to parent
 // LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
 function maxPathSum(root) {
-  // Hinglish: step 1 — base case check karo
   let best = -Infinity;
   const gain = (node) => {
     if (!node) return 0;
-    const L = Math.max(0, gain(node.left));
+    const L = Math.max(0, gain(node.left)); // Ignore negative contributions
     const R = Math.max(0, gain(node.right));
-    best = Math.max(best, node.val + L + R);
-    return node.val + Math.max(L, R);
+    best = Math.max(best, node.val + L + R); // Path that turns at this node
+    return node.val + Math.max(L, R); // Extend only one side upward
   };
   gain(root);
   return best;
@@ -152,15 +142,13 @@ Preorder with `"#"` for null. Split on commas. Recurse with a queue of tokens �
 [Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — preorder + null marks
+// Preorder with "#" null tokens — deserialize reads same token order
 // LC: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
 function serialize(root) {
-  // Hinglish: step 1 — base case check karo
   const out = [];
   const walk = (node) => {
     if (!node) {
-      out.push("#");
+      out.push("#"); // Explicit null marker
       return;
     }
     out.push(String(node.val));
@@ -171,12 +159,12 @@ function serialize(root) {
   return out.join(",");
 }
 function deserialize(data) {
-  const q = data.split(",");
+  const q = data.split(","); // Queue of preorder tokens
   const walk = () => {
     const tok = q.shift();
     if (tok === "#") return null;
     const node = { val: Number(tok), left: null, right: null };
-    node.left = walk();
+    node.left = walk(); // Rebuild left before right — preorder order
     node.right = walk();
     return node;
   };
@@ -191,14 +179,14 @@ Not “left < me < right” only on kids — the whole left subtree must stay in
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — bounds
 // LC: https://leetcode.com/problems/validate-binary-search-tree/
-function isValidBST(root, min = -Infinity, max = Infinity) {
-  // Hinglish: step 1 — base case check karo
-  if (!root) return true;
-  if (root.val <= min || root.val >= max) return false;
-  return isValidBST(root.left, min, root.val) && isValidBST(root.right, root.val, max);
+function isValidBST(root) {
+  const check = (node, lo, hi) => {
+    if (!node) return true; // Empty subtree is valid
+    if (node.val <= lo || node.val >= hi) return false; // Violates range bounds
+    return check(node.left, lo, node.val) && check(node.right, node.val, hi); // Tighten bounds per side
+  };
+  return check(root, -Infinity, Infinity);
 }
 ```
 
@@ -209,21 +197,17 @@ Inorder of a BST is sorted. Walk left, then me (count++), then right. Stop at k.
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree inorder — kth
+// Inorder on BST yields sorted order — stop at kth pop
 // LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
 function kthSmallest(root, k) {
-  // Hinglish: step 1 — base case check karo
-  let count = 0, ans = 0;
-  const walk = (node) => {
-    if (!node || count >= k) return;
-    walk(node.left);
-    count++;
-    if (count === k) ans = node.val;
-    walk(node.right);
-  };
-  walk(root);
-  return ans;
+  const st = [];
+  let node = root;
+  while (node || st.length) {
+    while (node) { st.push(node); node = node.left; } // Go to smallest unvisited in this branch
+    node = st.pop(); // Next inorder node
+    if (--k === 0) return node.val; // k exhausted — this is answer
+    node = node.right; // Explore larger values
+  }
 }
 ```
 
@@ -234,12 +218,11 @@ Har node ke left/right swap karo. Recursion se dono subtree invert.
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Swap children at every node after recursively inverting subtrees
 // LC: https://leetcode.com/problems/invert-binary-tree/
 function invertTree(root) {
-  // Hinglish: null to wapas
   if (!root) return null;
-  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Hinglish: swap
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Mirror left/right
   return root;
 }
 ```
@@ -251,14 +234,13 @@ Dono trees ka structure aur value same hai kya? Dono null to true, ek null to fa
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Structural DFS compare — values and shape must match
 // LC: https://leetcode.com/problems/same-tree/
 function isSameTree(p, q) {
-  // Hinglish: dono null to same
-  if (!p && !q) return true;
-  if (!p || !q) return false;
-  if (p.val!==q.val) return false; // Hinglish: value alag to false
-  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Hinglish: dono side check
+  if (!p && !q) return true; // Both absent — match
+  if (!p || !q) return false; // One missing — mismatch
+  if (p.val!==q.val) return false; // Value mismatch at this node
+  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Recurse both subtrees
 }
 ```
 
@@ -269,17 +251,16 @@ function isSameTree(p, q) {
 [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
 
 ```js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Try subRoot match at every node — sameTree check at each candidate root
 // LC: https://leetcode.com/problems/subtree-of-another-tree/
 function isSubtree(root, subRoot) {
-  // Hinglish: same tree helper
   const same=(a,b)=>{
     if(!a&&!b) return true;
     if(!a||!b||a.val!==b.val) return false;
     return same(a.left,b.left) && same(a.right,b.right);
   };
   if (!root) return false;
-  if (same(root, subRoot)) return true; // Hinglish: yahan se match?
-  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Hinglish: left/right me dhoondo
+  if (same(root, subRoot)) return true; // subRoot equals tree rooted here
+  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Search other positions
 }
 ```

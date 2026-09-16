@@ -8,13 +8,13 @@
 
 ```js
 // DSU skeleton — find with path compression + union
-// Hinglish: same root matlab connected
+// DSU: same root ⇒ same component
 const parent = Array.from({ length: n }, (_, i) => i);
 const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
 function union(a, b) { parent[find(a)] = find(b); }
 
-// Kruskal skeleton — sort edges, loop check karke jodo
-// Hinglish: chhota pehle, loop wala chhodo, n-1 pe ruko
+// Kruskal skeleton — sort edges; union if endpoints in different sets
+// Kruskal: sort edges; skip cycle; stop at n−1 edges
 edges.sort((a, b) => a[0] - b[0]);
 let cost = 0, used = 0;
 for (const [w, u, v] of edges) {
@@ -28,11 +28,9 @@ Har pair ka Manhattan edge banao, sort karo, DSU se loop check karke jodo. `n-1`
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
-// Hinglish: DSU + Kruskal — ek-ek step comment dekho
-// Graph — Kruskal + DSU
+// Kruskal MST on complete graph (Manhattan edges)
 // LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
-  // Hinglish: step 1 — saare edges banao (Manhattan)
   const n = points.length;
   const edges = [];
   for (let i = 0; i < n; i++) {
@@ -41,17 +39,16 @@ function minCostConnectPoints(points) {
       edges.push([w, i, j]);
     }
   }
-  edges.sort((a, b) => a[0] - b[0]); // Hinglish: chhota pehle
-  // Hinglish: DSU — parent + path compression
+  edges.sort((a, b) => a[0] - b[0]); // cheapest edge first
   const parent = Array.from({ length: n }, (_, i) => i);
   const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   let cost = 0, used = 0;
   for (const [w, u, v] of edges) {
     const ru = find(u), rv = find(v);
-    if (ru !== rv) { // Hinglish: loop nahi banega
+    if (ru !== rv) { // connects two components, no cycle
       parent[ru] = rv;
       cost += w;
-      if (++used === n - 1) break; // Hinglish: n-1 edges kaafi
+      if (++used === n - 1) break; // MST has n-1 edges
     }
   }
   return cost;

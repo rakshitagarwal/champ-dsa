@@ -17,28 +17,33 @@ export const SHORTEST_PATH_MST_SOLUTIONS: SolutionGroup = {
 [Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph — Dijkstra (scan min, n is small)
+// Single-source shortest paths from node k
 // LC: https://leetcode.com/problems/network-delay-time/
 function networkDelayTime(times, n, k) {
-  // Hinglish: step 1 — base case check karo
+  // Build adjacency list: u -> [v, weight]
   const g = Array.from({ length: n + 1 }, () => []);
   for (const [u, v, w] of times) g[u].push([v, w]);
+  // dist[i] = best known time to reach i from k
   const dist = Array(n + 1).fill(Infinity);
   dist[k] = 0;
+  // used[i] = finalized in Dijkstra (O(n^2) scan for min)
   const used = Array(n + 1).fill(false);
   for (let step = 0; step < n; step++) {
+    // Pick smallest dist among unvisited nodes
     let u = -1;
     for (let i = 1; i <= n; i++) {
       if (!used[i] && (u < 0 || dist[i] < dist[u])) u = i;
     }
+    // No reachable node left
     if (u < 0 || dist[u] === Infinity) break;
     used[u] = true;
+    // Relax all edges out of u
     for (const [v, w] of g[u]) dist[v] = Math.min(dist[v], dist[u] + w);
   }
+  // Signal time = max arrival time over all nodes
   let ans = 0;
   for (let i = 1; i <= n; i++) {
-    if (dist[i] === Infinity) return -1;
+    if (dist[i] === Infinity) return -1; // unreachable node
     ans = Math.max(ans, dist[i]);
   }
   return ans;
@@ -55,17 +60,18 @@ function networkDelayTime(times, n, k) {
 [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph — Bellman-Ford K+1 rounds
+// Bellman-Ford with exactly K+1 edge hops max
 // LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
 function findCheapestPrice(n, flights, src, dst, k) {
-  // Hinglish: step 1 — base case check karo
+  // dist[v] = cheapest cost to v with current hop budget
   let dist = Array(n).fill(Infinity);
   dist[src] = 0;
+  // One round = one more edge allowed on any path
   for (let hop = 0; hop <= k; hop++) {
+    // Copy so we do not chain multiple edges in one round
     const next = dist.slice();
     for (const [u, v, w] of flights) {
-      if (dist[u] === Infinity) continue;
+      if (dist[u] === Infinity) continue; // u not reachable yet
       next[v] = Math.min(next[v], dist[u] + w);
     }
     dist = next;
@@ -79,24 +85,25 @@ function findCheapestPrice(n, flights, src, dst, k) {
       lcSlug: "path-with-maximum-probability",
       title: "Path with Maximum Probability",
       diff: "Medium",
-      body: `Dijkstra ulta — max probability wala nikalo (max-heap), relax karo guna karke.
+      body: `Max-probability path: Dijkstra on a max-heap, relax edges by multiplying probabilities.
 
 [Path with Maximum Probability](https://leetcode.com/problems/path-with-maximum-probability/)
 
 \`\`\`js
-// Hinglish: max nikalo guna karo — ek-ek step comment dekho
+// Dijkstra on max probability (multiply edge weights)
 // LC: https://leetcode.com/problems/path-with-maximum-probability/
 function maxProbability(n, edges, succProb, start, end) {
-  // Hinglish: step 1 — graph banao
+  // Undirected weighted graph by success probability
   const g = Array.from({ length: n }, () => []);
   for (let i = 0; i < edges.length; i++) {
     const [u, v] = edges[i];
     g[u].push([v, succProb[i]]);
     g[v].push([u, succProb[i]]);
   }
+  // best[u] = max probability to reach u from start
   const best = Array(n).fill(0);
   best[start] = 1;
-  const h = [[1, start]]; // Hinglish: max-heap jaisa
+  const h = [[1, start]]; // max-heap by probability
   const push = (x) => {
     h.push(x);
     let i = h.length - 1;
@@ -122,10 +129,10 @@ function maxProbability(n, edges, succProb, start, end) {
   };
   while (h.length) {
     const [p, u] = pop();
-    if (u === end) return p; // Hinglish: mil gaya
-    if (p < best[u]) continue;
+    if (u === end) return p; // first pop at end is optimal
+    if (p < best[u]) continue; // stale heap entry
     for (const [v, w] of g[u]) {
-      if (best[v] < p * w) { best[v] = p * w; push([best[v], v]); } // Hinglish: behtar mila
+      if (best[v] < p * w) { best[v] = p * w; push([best[v], v]); }
     }
   }
   return 0;
@@ -137,19 +144,19 @@ function maxProbability(n, edges, succProb, start, end) {
       lcSlug: "path-with-minimum-effort",
       title: "Path With Minimum Effort",
       diff: "Medium",
-      body: `Dijkstra min-max pe — rasta ka effort uska sabse bada jump hai, use minimize karo.
+      body: `Minimize path effort where edge cost is the max jump so far (min-max Dijkstra).
 
 [Path With Minimum Effort](https://leetcode.com/problems/path-with-minimum-effort/)
 
 \`\`\`js
-// Hinglish: max jump minimize karo — ek-ek step comment dekho
+// Minimize max absolute height step on any path
 // LC: https://leetcode.com/problems/path-with-minimum-effort/
 function minimumEffortPath(heights) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = heights.length, cols = heights[0].length;
+  // best[r][c] = min effort to reach (r,c)
   const best = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
   best[0][0] = 0;
-  const h = [[0, 0, 0]];
+  const h = [[0, 0, 0]]; // min-heap by effort
   const push = (x) => {
     h.push(x);
     let i = h.length - 1;
@@ -176,12 +183,13 @@ function minimumEffortPath(heights) {
   const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
   while (h.length) {
     const [e, r, c] = pop();
-    if (r === rows - 1 && c === cols - 1) return e; // Hinglish: pahuch gaye
+    if (r === rows - 1 && c === cols - 1) return e;
     if (e > best[r][c]) continue;
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
-      const ne = Math.max(e, Math.abs(heights[nr][nc] - heights[r][c])); // Hinglish: sabse bada jump
+      // Path effort = max of all steps on the path
+      const ne = Math.max(e, Math.abs(heights[nr][nc] - heights[r][c]));
       if (ne < best[nr][nc]) { best[nr][nc] = ne; push([ne, nr, nc]); }
     }
   }
@@ -194,16 +202,14 @@ function minimumEffortPath(heights) {
       lcSlug: "min-cost-to-connect-all-points",
       title: "Min Cost to Connect All Points",
       diff: "Medium",
-      body: `Har pair ka Manhattan edge banao, sort karo, DSU se loop check karke jodo. \`n-1\` edges milte hi answer.
+      body: `All pairwise Manhattan edges, sort ascending, Kruskal with DSU until \`n-1\` edges.
 
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 \`\`\`js
-// Hinglish: DSU + Kruskal — ek-ek step comment dekho
-// Graph — Kruskal + DSU
+// Kruskal MST on complete graph (Manhattan edges)
 // LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
-  // Hinglish: step 1 — saare edges banao (Manhattan)
   const n = points.length;
   const edges = [];
   for (let i = 0; i < n; i++) {
@@ -212,17 +218,16 @@ function minCostConnectPoints(points) {
       edges.push([w, i, j]);
     }
   }
-  edges.sort((a, b) => a[0] - b[0]); // Hinglish: chhota pehle
-  // Hinglish: DSU — parent + path compression
+  edges.sort((a, b) => a[0] - b[0]); // cheapest edge first
   const parent = Array.from({ length: n }, (_, i) => i);
   const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   let cost = 0, used = 0;
   for (const [w, u, v] of edges) {
     const ru = find(u), rv = find(v);
-    if (ru !== rv) { // Hinglish: loop nahi banega
+    if (ru !== rv) { // connects two components, no cycle
       parent[ru] = rv;
       cost += w;
-      if (++used === n - 1) break; // Hinglish: n-1 edges kaafi
+      if (++used === n - 1) break; // MST has n-1 edges
     }
   }
   return cost;
@@ -234,15 +239,14 @@ function minCostConnectPoints(points) {
       lcSlug: "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree",
       title: "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
       diff: "Hard",
-      body: `MST weight nikalo, phir har edge hata ke aur force karke dekho — badle to critical, same rahe to pseudo.
+      body: `Build MST weight; test each edge by forcing/not forcing it — critical if MST changes, else pseudo.
 
 [Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree](https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/)
 
 \`\`\`js
-// Hinglish: hata ke dekho force karke dekho — ek-ek step comment dekho
+// Classify MST edges: critical vs pseudo-critical
 // LC: https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/
 function findCriticalAndPseudoCriticalEdges(n, edges) {
-  // Hinglish: step 1 — index jod ke sort karo
   const es = edges.map((e, i) => [e[2], e[0], e[1], i]).sort((a, b) => a[0] - b[0]);
   const mst = (skip, force) => {
     const parent = Array.from({ length: n }, (_, i) => i);
@@ -259,13 +263,13 @@ function findCriticalAndPseudoCriticalEdges(n, edges) {
       const a = find(u), b = find(v);
       if (a !== b) { parent[a] = b; cost += w; used++; }
     }
-    return used === n - 1 ? cost : Infinity; // Hinglish: juda nahi to fail
+    return used === n - 1 ? cost : Infinity; // disconnected if not full tree
   };
   const base = mst(-1, -1);
   const critical = [], pseudo = [];
   for (let i = 0; i < es.length; i++) {
-    if (mst(i, -1) > base) critical.push(es[i][3]); // Hinglish: hatane se badha
-    else if (mst(-1, i) === base) pseudo.push(es[i][3]); // Hinglish: force pe same
+    if (mst(i, -1) > base) critical.push(es[i][3]); // must be in every MST
+    else if (mst(-1, i) === base) pseudo.push(es[i][3]); // can swap with equal weight
   }
   return [critical, pseudo];
 }
@@ -276,18 +280,17 @@ function findCriticalAndPseudoCriticalEdges(n, edges) {
       lcSlug: "swim-in-rising-water",
       title: "Swim in Rising Water",
       diff: "Hard",
-      body: `Time badhao, utni height tak tairna seekho — min-heap se sabse neecha nikalo (Dijkstra jaisa).
+      body: `Increase time and learn to swim to height \`t\`; min-heap picks the lowest cell to flood next.
 
 [Swim in Rising Water](https://leetcode.com/problems/swim-in-rising-water/)
 
 \`\`\`js
-// Hinglish: neecha pehle tairo — ek-ek step comment dekho
+// Min time t so you can walk only on cells with height <= t
 // LC: https://leetcode.com/problems/swim-in-rising-water/
 function swimInWater(grid) {
-  // Hinglish: step 1 — rows lo
   const n = grid.length;
   const seen = Array.from({ length: n }, () => Array(n).fill(false));
-  const h = [[grid[0][0], 0, 0]];
+  const h = [[grid[0][0], 0, 0]]; // min-heap: [max height on path, r, c]
   const push = (x) => {
     h.push(x);
     let i = h.length - 1;
@@ -316,8 +319,8 @@ function swimInWater(grid) {
   let ans = 0;
   while (h.length) {
     const [t, r, c] = pop();
-    if (t > ans) ans = t; // Hinglish: time badhao
-    if (r === n - 1 && c === n - 1) return ans; // Hinglish: pahuch gaye
+    if (t > ans) ans = t; // water level must reach t to enter this cell
+    if (r === n - 1 && c === n - 1) return ans;
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= n || nc >= n || seen[nr][nc]) continue;
@@ -334,32 +337,30 @@ function swimInWater(grid) {
       lcSlug: "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
       title: "Find the City With the Smallest Number of Neighbors at a Threshold Distance",
       diff: "Medium",
-      body: `Har \`k\` ko intermediate banao: \`dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])\`. \`O(V^3)\`, \`V <= 400\` tak theek. Transitively closure bhi same.
+      body: `Floyd–Warshall: for each intermediate \`k\`, relax \`dist[i][j]\`. O(V³), fine for V ≤ 400. Same loop computes transitive closure.
 
 [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Floyd-Warshall all-pairs shortest paths
 // LC: https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/
-// Floyd — k beech me daalo
 function findTheCity(n, edges, distanceThreshold){
-  // Hinglish: dist matrix banao
   const dist = Array.from({length:n}, ()=>Array(n).fill(Infinity));
   for(let i=0;i<n;i++) dist[i][i]=0;
-  for(const [u,v,w] of edges){ dist[u][v]=w; dist[v][u]=w; } // Hinglish: undirected
+  for(const [u,v,w] of edges){ dist[u][v]=w; dist[v][u]=w; }
   for(let k=0;k<n;k++){
     for(let i=0;i<n;i++){
       for(let j=0;j<n;j++){
         if(dist[i][k]===Infinity || dist[k][j]===Infinity) continue;
-        if(dist[i][j] > dist[i][k]+dist[k][j]) dist[i][j]=dist[i][k]+dist[k][j]; // Hinglish: k se hoke behtar?
+        if(dist[i][j] > dist[i][k]+dist[k][j]) dist[i][j]=dist[i][k]+dist[k][j];
       }
     }
   }
   let bestCity=-1, bestCnt=n;
   for(let i=0;i<n;i++){
     let cnt=0;
-    for(let j=0;j<n;j++) if(dist[i][j]<=distanceThreshold) cnt++; // Hinglish: kitne reachable
-    if(cnt<=bestCnt){ bestCnt=cnt; bestCity=i; } // Hinglish: chhota cnt, tie me bada index
+    for(let j=0;j<n;j++) if(dist[i][j]<=distanceThreshold) cnt++;
+    if(cnt<=bestCnt){ bestCnt=cnt; bestCity=i; } // tie: larger city index wins
   }
   return bestCity;
 }

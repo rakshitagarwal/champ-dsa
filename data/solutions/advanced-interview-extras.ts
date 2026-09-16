@@ -17,21 +17,22 @@ export const ADVANCED_INTERVIEW_EXTRAS_SOLUTIONS: SolutionGroup = {
 [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — partition the shorter array
 // LC: https://leetcode.com/problems/median-of-two-sorted-arrays/
 function findMedianSortedArrays(a, b) {
-  // Hinglish: step 1 — base case check karo
+  // Always binary search on the shorter array
   if (a.length > b.length) return findMedianSortedArrays(b, a);
   const m = a.length, n = b.length;
   let lo = 0, hi = m;
   while (lo <= hi) {
     const i = (lo + hi) >> 1;
+    // Left partition must hold (m+n+1)/2 elements total
     const j = ((m + n + 1) >> 1) - i;
     const aL = i ? a[i - 1] : -Infinity;
     const aR = i < m ? a[i] : Infinity;
     const bL = j ? b[j - 1] : -Infinity;
     const bR = j < n ? b[j] : Infinity;
+    // Valid partition: every left elem <= every right elem
     if (aL <= bR && bL <= aR) {
       const left = Math.max(aL, bL);
       if ((m + n) % 2) return left;
@@ -53,17 +54,18 @@ function findMedianSortedArrays(a, b) {
 [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
 // Sliding window — deque of useful max candidates
 // LC: https://leetcode.com/problems/sliding-window-maximum/
 function maxSlidingWindow(nums, k) {
-  // Hinglish: step 1 — base case check karo
   const q = []; // indexes, nums decreasing
   const out = [];
   for (let i = 0; i < nums.length; i++) {
+    // Drop back indices that can never be max again
     while (q.length && nums[q.at(-1)] <= nums[i]) q.pop();
     q.push(i);
-    if (q[0] <= i - k) q.shift(); // left the window
+    // Front index fell out of the window
+    if (q[0] <= i - k) q.shift();
+    // First full window starts at i === k - 1
     if (i >= k - 1) out.push(nums[q[0]]);
   }
   return out;
@@ -75,23 +77,26 @@ function maxSlidingWindow(nums, k) {
       lcSlug: "reverse-pairs",
       title: "Reverse Pairs",
       diff: "Hard",
-      body: `\`i<j\` aur \`nums[i] > 2*nums[j]\` kitne pairs? Merge sort count.
+      body: `Count pairs with \`i < j\` and \`nums[i] > 2 * nums[j]\` using merge sort inversion-style counting.
 
 [Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)
 
 \`\`\`js
-// Hinglish: BIT / merge count — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reverse-pairs/
 function reversePairs(nums){
-  // Hinglish: merge sort count
   let ans=0;
   const mergeSort=(l,r)=>{
     if(r-l<=1) return;
-    const m=(l+r)>>1; mergeSort(l,m); mergeSort(m,r);
-    // Hinglish: count pairs l..m-1 se m..r-1
+    const m=(l+r)>>1;
+    mergeSort(l,m);
+    mergeSort(m,r);
+    // Count pairs with left index in [l,m) and right in [m,r)
     let j=m;
-    for(let i=l;i<m;i++){ while(j<r && nums[i] > 2*nums[j]) j++; ans += j-m; } // Hinglish: kitne satisfy
-    // Hinglish: normal merge
+    for(let i=l;i<m;i++){
+      while(j<r && nums[i] > 2*nums[j]) j++;
+      ans += j-m;
+    }
+    // Standard merge keeps order for next levels
     const tmp=[]; let i=l, k=m;
     while(i<m && k<r) tmp.push(nums[i]<=nums[k]? nums[i++]: nums[k++]);
     while(i<m) tmp.push(nums[i++]); while(k<r) tmp.push(nums[k++]);
@@ -107,24 +112,22 @@ function reversePairs(nums){
       lcSlug: "kth-smallest-number-in-multiplication-table",
       title: "Kth Smallest Number in Multiplication Table",
       diff: "Hard",
-      body: `Answer pe binary search — mid se chhote kitne hain gino (har row me min(mid/i, n)).
+      body: `Binary search \`mid\`: count values \`< mid\` in each row with \`min(mid/i, n)\` and sum.
 
 [Kth Smallest Number in Multiplication Table](https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/)
 
 \`\`\`js
-// Hinglish: answer pe search — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/
 function findKthNumber(m, n, k) {
-  // Hinglish: step 1 — range lo
   let lo = 1, hi = m * n;
   const count = (mid) => {
     let c = 0;
-    for (let i = 1; i <= m; i++) c += Math.min(Math.floor(mid / i), n); // Hinglish: har row me gino
+    for (let i = 1; i <= m; i++) c += Math.min(Math.floor(mid / i), n);
     return c;
   };
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (count(mid) >= k) hi = mid; // Hinglish: kaafi hain, chhota karo
+    if (count(mid) >= k) hi = mid;
     else lo = mid + 1;
   }
   return lo;
@@ -136,15 +139,13 @@ function findKthNumber(m, n, k) {
       lcSlug: "minimum-number-of-refueling-stops",
       title: "Minimum Number of Refueling Stops",
       diff: "Hard",
-      body: `Jahan tak pahuche wahan ka fuel max-heap me daalo — phasne pe sabse bada nikalo. Greedy kaam karta hai.
+      body: `Max-heap of fuel at stations passed; when stuck, use the largest tankful (minimum refuels).
 
 [Minimum Number of Refueling Stops](https://leetcode.com/problems/minimum-number-of-refueling-stops/)
 
 \`\`\`js
-// Hinglish: bada fuel bachao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-number-of-refueling-stops/
 function minRefuelStops(target, startFuel, stations) {
-  // Hinglish: step 1 — max-heap lo
   const h = [];
   const push = (x) => {
     h.push(x);
@@ -172,9 +173,9 @@ function minRefuelStops(target, startFuel, stations) {
   let fuel = startFuel, stops = 0, i = 0;
   stations.sort((a, b) => a[0] - b[0]);
   while (fuel < target) {
-    while (i < stations.length && stations[i][0] <= fuel) { push(stations[i][1]); i++; } // Hinglish: pahuche wale daalo
-    if (!h.length) return -1; // Hinglish: phas gaye
-    fuel += pop(); // Hinglish: sabse bada lo
+    while (i < stations.length && stations[i][0] <= fuel) { push(stations[i][1]); i++; }
+    if (!h.length) return -1;
+    fuel += pop();
     stops++;
   }
   return stops;
@@ -186,15 +187,13 @@ function minRefuelStops(target, startFuel, stations) {
       lcSlug: "maximum-frequency-stack",
       title: "Maximum Frequency Stack",
       diff: "Hard",
-      body: `Freq groups me stack rakho — sabse zyada freq wala nikalo, maxFreq ghatana mat bhoolo.
+      body: `Bucket by frequency stacks; pop highest freq, decrement \`maxFreq\` when that bucket empties.
 
 [Maximum Frequency Stack](https://leetcode.com/problems/maximum-frequency-stack/)
 
 \`\`\`js
-// Hinglish: freq stacks — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/maximum-frequency-stack/
 function FreqStack() {
-  // Hinglish: step 1 — maps lo
   this.cnt = new Map();
   this.groups = new Map();
   this.maxF = 0;
@@ -203,14 +202,14 @@ FreqStack.prototype.push = function (val) {
   const f = (this.cnt.get(val) || 0) + 1;
   this.cnt.set(val, f);
   if (!this.groups.has(f)) this.groups.set(f, []);
-  this.groups.get(f).push(val); // Hinglish: freq wali stack me daalo
+  this.groups.get(f).push(val);
   if (f > this.maxF) this.maxF = f;
 };
 FreqStack.prototype.pop = function () {
   const st = this.groups.get(this.maxF);
-  const val = st.pop(); // Hinglish: top nikalo
+  const val = st.pop();
   this.cnt.set(val, this.cnt.get(val) - 1);
-  if (!st.length) this.maxF--; // Hinglish: khaali to neeche jao
+  if (!st.length) this.maxF--;
   return val;
 };
 \`\`\``,
@@ -220,24 +219,23 @@ FreqStack.prototype.pop = function () {
       lcSlug: "binary-tree-cameras",
       title: "Binary Tree Cameras",
       diff: "Hard",
-      body: `Neeche se greedy — bachche uncovered hon to camera lagao. States: covered, camera, need.
+      body: `Postorder greedy: place cameras on parents when children need coverage; track covered / camera / need.
 
 [Binary Tree Cameras](https://leetcode.com/problems/binary-tree-cameras/)
 
 \`\`\`js
-// Hinglish: neeche se lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/binary-tree-cameras/
 function minCameraCover(root) {
-  // Hinglish: step 1 — count lo (0=need, 1=covered, 2=camera)
   let ans = 0;
+  // 0 = uncovered, 1 = covered by child, 2 = has camera
   const dfs = (node) => {
-    if (!node) return 1; // Hinglish: khaali covered hai
+    if (!node) return 1;
     const l = dfs(node.left), r = dfs(node.right);
-    if (l === 0 || r === 0) { ans++; return 2; } // Hinglish: bachcha needy to camera lagao
-    if (l === 2 || r === 2) return 1; // Hinglish: camera paas hai to covered
-    return 0; // Hinglish: parent se ummeed rakho
+    if (l === 0 || r === 0) { ans++; return 2; }
+    if (l === 2 || r === 2) return 1;
+    return 0;
   };
-  if (dfs(root) === 0) ans++; // Hinglish: root needy to lagao
+  if (dfs(root) === 0) ans++;
   return ans;
 }
 \`\`\``,
@@ -247,29 +245,27 @@ function minCameraCover(root) {
       lcSlug: "minimum-cost-to-merge-stones",
       title: "Minimum Cost to Merge Stones",
       diff: "Hard",
-      body: `Interval DP — k-1 ke multiples pe jodo, baaki Infinity rakho. K piles na bane to -1.
+      body: `Interval DP on multiples of \`k-1\`; unreachable states stay Infinity; return -1 if \`k\` piles impossible.
 
 [Minimum Cost to Merge Stones](https://leetcode.com/problems/minimum-cost-to-merge-stones/)
 
 \`\`\`js
-// Hinglish: interval jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-cost-to-merge-stones/
 function mergeStones(stones, k) {
-  // Hinglish: step 1 — ban sakta hai ya nahi
   const n = stones.length;
   if ((n - 1) % (k - 1) !== 0) return -1;
   const pre = [0];
-  for (const x of stones) pre.push(pre[pre.length - 1] + x); // Hinglish: prefix jod
+  for (const x of stones) pre.push(pre[pre.length - 1] + x);
   const sum = (l, r) => pre[r + 1] - pre[l];
   const memo = new Map();
   const dfs = (l, r, piles) => {
     const key = l + "," + r + "," + piles;
-    if (memo.has(key)) return memo.get(key); // Hinglish: yaad hai
+    if (memo.has(key)) return memo.get(key);
     if (l === r) return piles === 1 ? 0 : Infinity;
     if (piles === 1) {
       let best = Infinity;
       for (let m = l; m < r; m += k - 1) {
-        const cand = dfs(l, m, 1) + dfs(m + 1, r, k - 1); // Hinglish: todo phir jodo
+        const cand = dfs(l, m, 1) + dfs(m + 1, r, k - 1);
         if (cand < best) best = cand;
       }
       const res = best + sum(l, r);
@@ -278,7 +274,7 @@ function mergeStones(stones, k) {
     }
     let best = Infinity;
     for (let m = l; m < r; m += k - 1) {
-      const cand = dfs(l, m, 1) + dfs(m + 1, r, piles - 1); // Hinglish: piles banao
+      const cand = dfs(l, m, 1) + dfs(m + 1, r, piles - 1);
       if (cand < best) best = cand;
     }
     memo.set(key, best);
@@ -293,15 +289,13 @@ function mergeStones(stones, k) {
       lcSlug: "maximum-profit-in-job-scheduling",
       title: "Maximum Profit in Job Scheduling",
       diff: "Hard",
-      body: `End time se sort karo — har job ya lo (binary search se pichhla compatible dhoondo) ya chhodo.
+      body: `Sort jobs by end time; for each job, binary search last compatible job and take max DP.
 
 [Maximum Profit in Job Scheduling](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)
 
 \`\`\`js
-// Hinglish: sort + binary search — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/maximum-profit-in-job-scheduling/
 function jobScheduling(startTime, endTime, profit) {
-  // Hinglish: step 1 — end se sort karo
   const jobs = startTime.map((s, i) => [endTime[i], s, profit[i]]).sort((a, b) => a[0] - b[0]);
   const n = jobs.length;
   const dp = Array(n + 1).fill(0);
@@ -310,10 +304,10 @@ function jobScheduling(startTime, endTime, profit) {
     let lo = 0, hi = i - 1;
     while (lo < hi) {
       const mid = ((lo + hi + 1) >> 1);
-      if (jobs[mid - 1][0] <= s) lo = mid; // Hinglish: clash nahi karta
+      if (jobs[mid - 1][0] <= s) lo = mid;
       else hi = mid - 1;
     }
-    const take = p + (lo > 0 ? dp[lo] : 0); // Hinglish: lo ya chhodo
+    const take = p + (lo > 0 ? dp[lo] : 0);
     dp[i] = Math.max(dp[i - 1], take);
   }
   return dp[n];
@@ -325,27 +319,25 @@ function jobScheduling(startTime, endTime, profit) {
       lcSlug: "palindrome-removal",
       title: "Palindrome Removal",
       diff: "Hard",
-      body: `Interval DP — same ends mile to beech hata ke jodo, nahi to todo. Gap order me bharo.
+      body: `Interval DP: merge when endpoints match by removing middle; fill by increasing gap length.
 
 [Palindrome Removal](https://leetcode.com/problems/palindrome-removal/)
 
 \`\`\`js
-// Hinglish: gap order bharo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindrome-removal/
 function palindromeRemoval(arr) {
-  // Hinglish: step 1 — table banao
   const n = arr.length;
   const dp = Array.from({ length: n }, () => Array(n).fill(0));
   for (let i = 0; i < n; i++) dp[i][i] = 1;
   for (let len = 2; len <= n; len++) {
     for (let l = 0; l + len - 1 < n; l++) {
       const r = l + len - 1;
-      dp[l][r] = 1 + dp[l + 1][r]; // Hinglish: pehla alag hatao
+      dp[l][r] = 1 + dp[l + 1][r];
       for (let k = l + 1; k <= r; k++) {
         if (arr[l] === arr[k]) {
-          const mid = k === l + 1 ? 0 : dp[l + 1][k - 1]; // Hinglish: beech wala
+          const mid = k === l + 1 ? 0 : dp[l + 1][k - 1];
           const cand = mid + dp[k][r];
-          if (cand < dp[l][r]) dp[l][r] = cand; // Hinglish: saath hatao
+          if (cand < dp[l][r]) dp[l][r] = cand;
         }
       }
     }
@@ -359,22 +351,20 @@ function palindromeRemoval(arr) {
       lcSlug: "jump-game-v",
       title: "Jump Game V",
       diff: "Hard",
-      body: `Har index se dono taraf d tak koodo — chhota mile to aage badho, memo rakho.
+      body: `From each index jump up to \`d\` both ways; memoize best score on strictly smaller neighbors.
 
 [Jump Game V](https://leetcode.com/problems/jump-game-v/)
 
 \`\`\`js
-// Hinglish: dono taraf koodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/jump-game-v/
 function maxJumps(arr, d) {
-  // Hinglish: step 1 — memo lo
   const n = arr.length, memo = Array(n).fill(0);
   const dfs = (i) => {
-    if (memo[i]) return memo[i]; // Hinglish: yaad hai
+    if (memo[i]) return memo[i];
     let best = 1;
     for (let step = 1; step <= d; step++) {
       const j = i + step;
-      if (j >= n || arr[j] >= arr[i]) break; // Hinglish: rukavat aayi
+      if (j >= n || arr[j] >= arr[i]) break;
       const cand = 1 + dfs(j);
       if (cand > best) best = cand;
     }
@@ -401,17 +391,15 @@ function maxJumps(arr, d) {
       lcSlug: "maximum-performance-of-a-team",
       title: "Maximum Performance of a Team",
       diff: "Hard",
-      body: `Efficiency se sort karo — har engineer captain bane, speed ka min-heap k size rakho.
+      body: `Sort by efficiency ratio; each engineer as captain keeps a min-heap of size \`k\` for speeds.
 
 [Maximum Performance of a Team](https://leetcode.com/problems/maximum-performance-of-a-team/)
 
 \`\`\`js
-// Hinglish: captain chuno — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/maximum-performance-of-a-team/
 function maxPerformance(n, speed, efficiency, k) {
-  // Hinglish: step 1 — efficiency se sort karo
   const order = speed.map((s, i) => [efficiency[i], s]).sort((a, b) => b[0] - a[0]);
-  const h = []; // Hinglish: min-heap speed ka
+  const h = [];
   const push = (x) => {
     h.push(x);
     let i = h.length - 1;
@@ -438,9 +426,9 @@ function maxPerformance(n, speed, efficiency, k) {
   const MOD = 1000000007;
   let sum = 0, best = 0;
   for (const [e, s] of order) {
-    push(s); sum += s; // Hinglish: team me lo
-    if (h.length > k) sum -= pop(); // Hinglish: zyada ho to chhota nikalo
-    const perf = sum * e; // Hinglish: captain ki efficiency
+    push(s); sum += s;
+    if (h.length > k) sum -= pop();
+    const perf = sum * e;
     if (perf > best) best = perf;
   }
   return best % MOD;
@@ -452,15 +440,13 @@ function maxPerformance(n, speed, efficiency, k) {
       lcSlug: "minimum-cost-to-cut-a-stick",
       title: "Minimum Cost to Cut a Stick",
       diff: "Hard",
-      body: `Cuts sort karke interval DP chalao — har interval me cut lagao, cost jodo.
+      body: `Sort cut positions; interval DP adds cut cost plus best split inside each interval.
 
 [Minimum Cost to Cut a Stick](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/)
 
 \`\`\`js
-// Hinglish: cut lagate jao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-cost-to-cut-a-stick/
 function minCost(n, cuts) {
-  // Hinglish: step 1 — sort karke kinare jodo
   cuts.sort((a, b) => a - b);
   const a = [0, ...cuts, n];
   const m = a.length;
@@ -470,10 +456,10 @@ function minCost(n, cuts) {
       const r = l + len;
       let best = Infinity;
       for (let k = l + 1; k < r; k++) {
-        const cand = dp[l][k] + dp[k][r]; // Hinglish: pehle todo phir jodo
+        const cand = dp[l][k] + dp[k][r];
         if (cand < best) best = cand;
       }
-      dp[l][r] = best + a[r] - a[l]; // Hinglish: is cut ki keemat jodo
+      dp[l][r] = best + a[r] - a[l];
     }
   }
   return dp[0][m - 1];
@@ -485,18 +471,16 @@ function minCost(n, cuts) {
       lcSlug: "minimum-interval-to-include-each-query",
       title: "Minimum Interval to Include Each Query",
       diff: "Hard",
-      body: `Queries sort karo, intervals left se min-heap (right end) me daalo — sabse chhota valid uthao.
+      body: `Sort queries; sweep intervals into a min-heap by right end and assign smallest valid interval per query.
 
 [Minimum Interval to Include Each Query](https://leetcode.com/problems/minimum-interval-to-include-each-query/)
 
 \`\`\`js
-// Hinglish: sweep line chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-interval-to-include-each-query/
 function minInterval(intervals, queries) {
-  // Hinglish: step 1 — dono sort karo
   intervals.sort((a, b) => a[0] - b[0]);
   const qs = queries.map((q, i) => [q, i]).sort((a, b) => a[0] - b[0]);
-  const h = []; // Hinglish: min-heap [right, size] ka
+  const h = [];
   const less = (a, b) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
   const push = (x) => {
     h.push(x);
@@ -525,11 +509,11 @@ function minInterval(intervals, queries) {
   let j = 0;
   for (const [q, qi] of qs) {
     while (j < intervals.length && intervals[j][0] <= q) {
-      push([intervals[j][1], intervals[j][1] - intervals[j][0] + 1]); // Hinglish: shuru hue daalo
+      push([intervals[j][1], intervals[j][1] - intervals[j][0] + 1]);
       j++;
     }
-    while (h.length && h[0][0] < q) pop(); // Hinglish: khatm hue nikalo
-    ans[qi] = h.length ? h[0][1] : -1; // Hinglish: sabse chhota uthao
+    while (h.length && h[0][0] < q) pop();
+    ans[qi] = h.length ? h[0][1] : -1;
   }
   return ans;
 }

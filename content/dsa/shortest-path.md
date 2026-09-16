@@ -8,11 +8,11 @@
 
 ```js
 // Shortest path skeleton — Dijkstra (min-heap, non-negative)
-// Hinglish: sabse chhota dist wala nikalo, relax karo
+// Dijkstra: pop min dist; relax edges
 // dist[v] = min(dist[v], dist[u] + w)
 
 // Shortest path skeleton — Bellman-Ford (K rounds)
-// Hinglish: har round copy pe relax, same round ka reuse nahi
+// Bellman–Ford: n−1 rounds; no same-round chaining
 // for hop in 0..k: next = dist.slice(); relax all edges into next
 ```
 ## Network Delay Time (Dijkstra)
@@ -22,28 +22,33 @@ Dijkstra: always pick the unvisited node with smallest time. Relax its edges. An
 [Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph — Dijkstra (scan min, n is small)
+// Single-source shortest paths from node k
 // LC: https://leetcode.com/problems/network-delay-time/
 function networkDelayTime(times, n, k) {
-  // Hinglish: step 1 — base case check karo
+  // Build adjacency list: u -> [v, weight]
   const g = Array.from({ length: n + 1 }, () => []);
   for (const [u, v, w] of times) g[u].push([v, w]);
+  // dist[i] = best known time to reach i from k
   const dist = Array(n + 1).fill(Infinity);
   dist[k] = 0;
+  // used[i] = finalized in Dijkstra (O(n^2) scan for min)
   const used = Array(n + 1).fill(false);
   for (let step = 0; step < n; step++) {
+    // Pick smallest dist among unvisited nodes
     let u = -1;
     for (let i = 1; i <= n; i++) {
       if (!used[i] && (u < 0 || dist[i] < dist[u])) u = i;
     }
+    // No reachable node left
     if (u < 0 || dist[u] === Infinity) break;
     used[u] = true;
+    // Relax all edges out of u
     for (const [v, w] of g[u]) dist[v] = Math.min(dist[v], dist[u] + w);
   }
+  // Signal time = max arrival time over all nodes
   let ans = 0;
   for (let i = 1; i <= n; i++) {
-    if (dist[i] === Infinity) return -1;
+    if (dist[i] === Infinity) return -1; // unreachable node
     ans = Math.max(ans, dist[i]);
   }
   return ans;
@@ -55,28 +60,27 @@ function networkDelayTime(times, n, k) {
 Same Dijkstra, min-heap se `O((V+E) log V)`. Purani heap entry dikhe to skip karo (`d !== dist[u]`).
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/network-delay-time/ (heap wala fast)
+// LC: https://leetcode.com/problems/network-delay-time/ (heap fast)
 // Dijkstra with heap — O((V+E) log V)
 function networkDelayTimeHeap(times, n, k){
-  // Hinglish: graph banao
+  // build adjacency list from edges
   const g = Array.from({length:n+1}, ()=>[]);
   for(const [u,v,w] of times) g[u].push([v,w]);
   const dist = Array(n+1).fill(Infinity);
   dist[k]=0;
-  // Hinglish: min-heap [dist, node]
+  // min-heap ordered by distance
   const heap = [[0,k]];
   const heapPush = (h, x)=>{ h.push(x); let i=h.length-1; while(i>0){ const p=(i-1)>>1; if(h[p][0]<=h[i][0]) break; [h[p],h[i]]=[h[i],h[p]]; i=p; } };
   const heapPop = (h)=>{ const top=h[0], last=h.pop(); if(h.length){ h[0]=last; let i=0; while(true){ let s=i,l=2*i+1,r=l+1; if(l<h.length && h[l][0]<h[s][0]) s=l; if(r<h.length && h[r][0]<h[s][0]) s=r; if(s===i) break; [h[i],h[s]]=[h[s],h[i]]; i=s; } } return top; };
   while(heap.length){
     const [d,u] = heapPop(heap);
-    if(d!==dist[u]) continue; // Hinglish: purana entry skip
+    if(d!==dist[u]) continue; // stale heap entry — dist already improved
     for(const [v,w] of g[u]){
-      if(dist[v] > d+w){ dist[v]=d+w; heapPush(heap, [dist[v], v]); } // Hinglish: relax
+      if(dist[v] > d+w){ dist[v]=d+w; heapPush(heap, [dist[v], v]); } // try shorter path: dist[v] = dist[u] + w
     }
   }
   let ans = 0;
-  for(let i=1;i<=n;i++){ if(dist[i]===Infinity) return -1; ans=Math.max(ans, dist[i]); } // Hinglish: unreachable to -1
+  for(let i=1;i<=n;i++){ if(dist[i]===Infinity) return -1; ans=Math.max(ans, dist[i]); } // if any node unreachable return −1 else max dist
   return ans;
 }
 ```
@@ -88,17 +92,18 @@ At most K stops = at most K+1 edges. Bellman-Ford: copy dist, relax every flight
 [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph — Bellman-Ford K+1 rounds
+// Bellman-Ford with exactly K+1 edge hops max
 // LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
 function findCheapestPrice(n, flights, src, dst, k) {
-  // Hinglish: step 1 — base case check karo
+  // dist[v] = cheapest cost to v with current hop budget
   let dist = Array(n).fill(Infinity);
   dist[src] = 0;
+  // One round = one more edge allowed on any path
   for (let hop = 0; hop <= k; hop++) {
+    // Copy so we do not chain multiple edges in one round
     const next = dist.slice();
     for (const [u, v, w] of flights) {
-      if (dist[u] === Infinity) continue;
+      if (dist[u] === Infinity) continue; // u not reachable yet
       next[v] = Math.min(next[v], dist[u] + w);
     }
     dist = next;
@@ -112,14 +117,13 @@ function findCheapestPrice(n, flights, src, dst, k) {
 N-1 rounds normal chalao, Nth round me bhi update hua to negative cycle hai. Super source trick: sab `dist` 0 se start karo taaki disconnected components bhi check hon.
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Negative cycle check (agar puche)
 function hasNegativeCycle(n, edges){
-  // Hinglish: n-1 rounds normal, nth me update = cycle
-  const dist=Array(n).fill(0); // Hinglish: sab 0 se start (super source)
+  // nth relaxation with update ⇒ negative cycle
+  const dist=Array(n).fill(0); // dist[] zero — super-source trick for reachable-from-0
   for(let i=0;i<n;i++){
     let updated=false;
-    for(const [u,v,w] of edges) if(dist[v] > dist[u]+w){ dist[v]=dist[u]+w; updated=true; if(i===n-1) return true; } // Hinglish: nth round update = cycle
+    for(const [u,v,w] of edges) if(dist[v] > dist[u]+w){ dist[v]=dist[u]+w; updated=true; if(i===n-1) return true; } // update on round n means negative cycle
     if(!updated) break;
   }
   return false;
@@ -133,27 +137,25 @@ Har `k` ko intermediate banao: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][
 [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Floyd-Warshall all-pairs shortest paths
 // LC: https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/
-// Floyd — k beech me daalo
 function findTheCity(n, edges, distanceThreshold){
-  // Hinglish: dist matrix banao
   const dist = Array.from({length:n}, ()=>Array(n).fill(Infinity));
   for(let i=0;i<n;i++) dist[i][i]=0;
-  for(const [u,v,w] of edges){ dist[u][v]=w; dist[v][u]=w; } // Hinglish: undirected
+  for(const [u,v,w] of edges){ dist[u][v]=w; dist[v][u]=w; }
   for(let k=0;k<n;k++){
     for(let i=0;i<n;i++){
       for(let j=0;j<n;j++){
         if(dist[i][k]===Infinity || dist[k][j]===Infinity) continue;
-        if(dist[i][j] > dist[i][k]+dist[k][j]) dist[i][j]=dist[i][k]+dist[k][j]; // Hinglish: k se hoke behtar?
+        if(dist[i][j] > dist[i][k]+dist[k][j]) dist[i][j]=dist[i][k]+dist[k][j];
       }
     }
   }
   let bestCity=-1, bestCnt=n;
   for(let i=0;i<n;i++){
     let cnt=0;
-    for(let j=0;j<n;j++) if(dist[i][j]<=distanceThreshold) cnt++; // Hinglish: kitne reachable
-    if(cnt<=bestCnt){ bestCnt=cnt; bestCity=i; } // Hinglish: chhota cnt, tie me bada index
+    for(let j=0;j<n;j++) if(dist[i][j]<=distanceThreshold) cnt++;
+    if(cnt<=bestCnt){ bestCnt=cnt; bestCity=i; } // tie: larger city index wins
   }
   return bestCity;
 }

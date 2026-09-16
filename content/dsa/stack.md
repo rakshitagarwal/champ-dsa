@@ -8,7 +8,7 @@
 
 ```js
 // Stack skeleton — brackets / nesting
-// Hinglish: open push, close par pop-match
+// stack: push openers; pop and match closers
 const stack = [];
 for (const ch of s) {
   if (isOpen(ch)) stack.push(ch);
@@ -16,7 +16,7 @@ for (const ch of s) {
     if (!stack.length || !matches(stack.pop(), ch)) return false; // mismatch
   }
 }
-if (stack.length) return false; // kuch bacha to invalid
+if (stack.length) return false; // unmatched open brackets remain — invalid
 ```
 ## Valid Parentheses
 
@@ -25,11 +25,8 @@ Push every opener. On a closer, the top must be its match. Stack empty at the en
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// Stack — match open/close
 // LC: https://leetcode.com/problems/valid-parentheses/
 function isValid(s) {
-  // Hinglish: step 1 — base case check karo
   const stack = [];
   const pair = { ")": "(", "]": "[", "}": "{" };
   for (const ch of s) {
@@ -50,11 +47,8 @@ I keep a second stack of the min after each push. Pop both together. `getMin` is
 [Min Stack](https://leetcode.com/problems/min-stack/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// Stack — parallel min stack
 // LC: https://leetcode.com/problems/min-stack/
 function MinStack() {
-  // Hinglish: step 1 — base case check karo
   this.vals = [];
   this.mins = [];
 }
@@ -82,18 +76,17 @@ Stack me number push, operator aaye to top 2 pop karke compute karke wapas push 
 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/evaluate-reverse-polish-notation/
 function evalRPN(tokens) {
-  // Hinglish: stack me numbers
+  // evaluate RPN with operand stack
   const st=[];
   for (const t of tokens) {
     if (["+","-","*","/"].includes(t)) {
-      const b=st.pop(), a=st.pop(); // Hinglish: do nikal ke compute
+      const b=st.pop(), a=st.pop(); // pop two operands for binary operator
       let v=0;
-      if (t==='+') v=a+b; else if (t==='-') v=a-b; else if (t==='*') v=a*b; else v=Math.trunc(a/b); // Hinglish: divide truncate
+      if (t==='+') v=a+b; else if (t==='-') v=a-b; else if (t==='*') v=a*b; else v=Math.trunc(a/b); // integer division truncates toward zero
       st.push(v);
-    } else st.push(Number(t)); // Hinglish: number push
+    } else st.push(Number(t)); // push numeric token onto stack
   }
   return st[0];
 }
@@ -106,14 +99,13 @@ Monotonic decreasing stack se next warmer day ka wait nikalo. (Monotonic page se
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/daily-temperatures/
 function dailyTemperatures(temps) {
-  // Hinglish: decreasing stack
+  // monotonic stack — keep decreasing values
   const n=temps.length, ans=Array(n).fill(0), st=[];
   for (let i=0;i<n;i++) {
     while(st.length && temps[i] > temps[st.at(-1)]) {
-      const j=st.pop(); ans[j]=i-j; // Hinglish: garam mila to wait pata chala
+      const j=st.pop(); ans[j]=i-j; // warmer day found — record wait since index j
     }
     st.push(i);
   }
@@ -128,18 +120,17 @@ Asteroid left/right move karte hain. Stack me rakho, opposite direction aaye to 
 [Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/asteroid-collision/
 function asteroidCollision(asteroids) {
-  // Hinglish: stack me survivors
+  // stack holds asteroids that survive so far
   const st=[];
   for (const a of asteroids) {
     let cur=a;
     while (st.length && cur<0 && st.at(-1)>0) {
       const top=st.at(-1);
-      if (Math.abs(top) < Math.abs(cur)) { st.pop(); continue; } // Hinglish: top chhota to gaya
-      else if (Math.abs(top) === Math.abs(cur)) { st.pop(); cur=0; break; } // Hinglish: dono gaye
-      else { cur=0; break; } // Hinglish: cur chhota to cur gaya
+      if (Math.abs(top) < Math.abs(cur)) { st.pop(); continue; } // smaller top destroyed by current
+      else if (Math.abs(top) === Math.abs(cur)) { st.pop(); cur=0; break; } // equal magnitude — both annihilate
+      else { cur=0; break; } // current smaller — it is destroyed
     }
     if (cur!==0) st.push(cur);
   }
@@ -154,21 +145,21 @@ Do stack lo — ek me push, doosre se pop. Pop/peek pe doosra khaali ho to pehle
 [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
 
 ```js
-// Hinglish: stack push-pop — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/implement-queue-using-stacks/
 function MyQueue() {
-  // Hinglish: in me push, out se pop
+  // inSt: enqueue side; outSt: dequeue side (FIFO at pop end)
   this.inSt = [];
   this.outSt = [];
 }
 MyQueue.prototype.push = function (x) {
-  this.inSt.push(x); // Hinglish: andar daalo
+  this.inSt.push(x);
 };
 MyQueue.prototype.pop = function () {
+  // Lazy transfer: oldest elements land on outSt top
   if (!this.outSt.length) {
-    while (this.inSt.length) this.outSt.push(this.inSt.pop()); // Hinglish: ulta daalo
+    while (this.inSt.length) this.outSt.push(this.inSt.pop());
   }
-  return this.outSt.pop(); // Hinglish: aage wala nikala
+  return this.outSt.pop();
 };
 MyQueue.prototype.peek = function () {
   if (!this.outSt.length) {

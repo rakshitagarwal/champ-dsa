@@ -12,21 +12,19 @@ export const TWO_POINTERS_SOLUTIONS: SolutionGroup = {
       lcSlug: "valid-palindrome",
       title: "Valid Palindrome",
       diff: "Easy",
-      body: `Dono siron se aao, alphanumeric nahi to skip, case ignore karke compare.
+      body: `Two pointers from both ends — skip non-alphanumeric chars, compare case-insensitively.
 
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/valid-palindrome/
+// Two pointers from both ends — skip non-alphanumeric
 function isPalindrome(s) {
-  // Hinglish: step 1 — dono pointer lo
   const isAlphaNum = (c) => /[a-z0-9]/i.test(c);
   let l = 0, r = s.length - 1;
   while (l < r) {
-    while (l < r && !isAlphaNum(s[l])) l++; // Hinglish: kachra skip
-    while (l < r && !isAlphaNum(s[r])) r--;
-    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false; // Hinglish: mismatch
+    while (l < r && !isAlphaNum(s[l])) l++; // skip left junk
+    while (l < r && !isAlphaNum(s[r])) r--; // skip right junk
+    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false;
     l++; r--;
   }
   return true;
@@ -43,16 +41,14 @@ function isPalindrome(s) {
 [Two Sum II - Input Array Is Sorted](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// Two pointers — opposite ends
-// LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+// Opposite ends on sorted array
 function twoSum(numbers, target) {
   let left = 0, right = numbers.length - 1;
-  while (left < right) { // Hinglish: do pointer chalao
+  while (left < right) {
     const sum = numbers[left] + numbers[right];
-    if (sum === target) return [left + 1, right + 1];
-    if (sum < target) left++; // Hinglish: left badhao
-    else right--; // Hinglish: right ghatao
+    if (sum === target) return [left + 1, right + 1]; // 1-indexed
+    if (sum < target) left++; // need larger sum
+    else right--; // need smaller sum
   }
 }
 \`\`\``,
@@ -62,24 +58,26 @@ function twoSum(numbers, target) {
       lcSlug: "3sum",
       title: "3Sum",
       diff: "Medium",
-      body: `Sort karke har \`i\` ko fix karo, fir \`l,r\` se 2-sum dhoondo. Duplicate skip karo.
+      body: `Sort, fix index \`i\`, then two-pointer 2-sum on the rest. Skip duplicate \`i\` and duplicate pairs.
 
 [3Sum](https://leetcode.com/problems/3sum/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/3sum/
+// Fix i, two-sum with l/r on sorted nums
 function threeSum(nums) {
-  // Hinglish: pehle sort
-  nums.sort((a,b)=>a-b);
-  const ans=[];
-  for (let i=0;i<nums.length-2;i++) {
-    if (i>0 && nums[i]===nums[i-1]) continue; // Hinglish: duplicate i skip
-    let l=i+1, r=nums.length-1;
-    while (l<r) {
-      const sum = nums[i]+nums[l]+nums[r];
-      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // Hinglish: mila to dono move + duplicate skip
-      else if (sum<0) l++; // Hinglish: chhota to left badhao
+  nums.sort((a, b) => a - b);
+  const ans = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue; // skip dup i
+    let l = i + 1, r = nums.length - 1;
+    while (l < r) {
+      const sum = nums[i] + nums[l] + nums[r];
+      if (sum === 0) {
+        ans.push([nums[i], nums[l], nums[r]]);
+        l++; r--;
+        while (l < r && nums[l] === nums[l - 1]) l++; // skip dup l
+        while (l < r && nums[r] === nums[r + 1]) r--; // skip dup r
+      } else if (sum < 0) l++;
       else r--;
     }
   }
@@ -92,19 +90,17 @@ function threeSum(nums) {
       lcSlug: "4sum",
       title: "4Sum",
       diff: "Medium",
-      body: `3Sum jaisa, ek loop aur — i fix, phir j fix, phir l,r se 2-sum. Duplicate har level pe skip karo.
+      body: `Same as 3Sum with one more outer index — fix \`i\`, then \`j\`, then two-pointer sum with \`l,r\`. Skip duplicates at each level.
 
 [4Sum](https://leetcode.com/problems/4sum/)
 
 \`\`\`js
-// Hinglish: do fix + two pointers — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/4sum/
+// Fix i and j, then two-pointer pair sum
 function fourSum(nums, target) {
-  // Hinglish: step 1 — sort karo
   nums.sort((a, b) => a - b);
   const out = [], n = nums.length;
   for (let i = 0; i < n - 3; i++) {
-    if (i > 0 && nums[i] === nums[i - 1]) continue; // Hinglish: duplicate skip
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
     for (let j = i + 1; j < n - 2; j++) {
       if (j > i + 1 && nums[j] === nums[j - 1]) continue;
       let l = j + 1, r = n - 1;
@@ -113,7 +109,7 @@ function fourSum(nums, target) {
         if (s === target) {
           out.push([nums[i], nums[j], nums[l], nums[r]]);
           l++; r--;
-          while (l < r && nums[l] === nums[l - 1]) l++; // Hinglish: duplicate skip
+          while (l < r && nums[l] === nums[l - 1]) l++;
           while (l < r && nums[r] === nums[r + 1]) r--;
         } else if (s < target) l++;
         else r--;
@@ -129,20 +125,18 @@ function fourSum(nums, target) {
       lcSlug: "container-with-most-water",
       title: "Container With Most Water",
       diff: "Medium",
-      body: `Do pointer, jo height chhoti usko move karo. Area = min(h[l],h[r]) * width, best rakho.
+      body: `Opposite ends — always move the shorter height inward. Area is min heights times width; track the max.
 
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/container-with-most-water/
+// Move the shorter wall — only way to maybe increase area
 function maxArea(height) {
-  // Hinglish: dono end se start
-  let l=0, r=height.length-1, best=0;
+  let l = 0, r = height.length - 1, best = 0;
   while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l); // Hinglish: current area
+    const area = Math.min(height[l], height[r]) * (r - l);
     best = Math.max(best, area);
-    if (height[l] < height[r]) l++; // Hinglish: chhoti height hatayi, badi ka chance
+    if (height[l] < height[r]) l++;
     else r--;
   }
   return best;
@@ -159,21 +153,19 @@ function maxArea(height) {
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// Two pointers — water limited by the shorter wall
-// LC: https://leetcode.com/problems/trapping-rain-water/
+// Two pointers — process the shorter side (its max caps water)
 function trap(height) {
   let left = 0, right = height.length - 1;
   let leftMax = 0, rightMax = 0, water = 0;
-  while (left < right) { // Hinglish: do pointer chalao
+  while (left < right) {
     if (height[left] < height[right]) {
       leftMax = Math.max(leftMax, height[left]);
-      water += leftMax - height[left];
-      left++; // Hinglish: left badhao
+      water += leftMax - height[left]; // trapped at left
+      left++;
     } else {
       rightMax = Math.max(rightMax, height[right]);
       water += rightMax - height[right];
-      right--; // Hinglish: right ghatao
+      right--;
     }
   }
   return water;
@@ -185,20 +177,23 @@ function trap(height) {
       lcSlug: "squares-of-a-sorted-array",
       title: "Squares of a Sorted Array",
       diff: "Easy",
-      body: `Negative ke square bade hote hain — dono siron se bada uthao, aakhir se bharo.
+      body: `Squares of negatives are largest at the ends — two pointers pick the bigger square and fill from the back.
 
 [Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/)
 
 \`\`\`js
-// Hinglish: bada pehle uthao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/squares-of-a-sorted-array/
+// Merge largest squares from both ends into output
 function sortedSquares(nums) {
-  // Hinglish: step 1 — dono pointer lo
   const n = nums.length, out = Array(n);
   let l = 0, r = n - 1;
   for (let i = n - 1; i >= 0; i--) {
-    if (Math.abs(nums[l]) > Math.abs(nums[r])) { out[i] = nums[l] * nums[l]; l++; } // Hinglish: left bada
-    else { out[i] = nums[r] * nums[r]; r--; } // Hinglish: right bada
+    if (Math.abs(nums[l]) > Math.abs(nums[r])) {
+      out[i] = nums[l] * nums[l];
+      l++;
+    } else {
+      out[i] = nums[r] * nums[r];
+      r--;
+    }
   }
   return out;
 }
@@ -209,22 +204,20 @@ function sortedSquares(nums) {
       lcSlug: "reverse-vowels-of-a-string",
       title: "Reverse Vowels of a String",
       diff: "Easy",
-      body: `Vowels dhoondo dono taraf se, mile to swap karo. Set me vowels rakho.
+      body: `Two pointers find vowels from both ends and swap. Keep vowels in a set for O(1) checks.
 
 [Reverse Vowels of a String](https://leetcode.com/problems/reverse-vowels-of-a-string/)
 
 \`\`\`js
-// Hinglish: vowel swap — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/reverse-vowels-of-a-string/
+// Swap vowels at l and r
 function reverseVowels(s) {
-  // Hinglish: step 1 — array banao (string immutable)
-  const a = [...s];
+  const a = [...s]; // mutable chars
   const vowels = new Set(["a","e","i","o","u","A","E","I","O","U"]);
   let l = 0, r = a.length - 1;
   while (l < r) {
     while (l < r && !vowels.has(a[l])) l++;
     while (l < r && !vowels.has(a[r])) r--;
-    const tmp = a[l]; a[l] = a[r]; a[r] = tmp; // Hinglish: swap
+    const tmp = a[l]; a[l] = a[r]; a[r] = tmp;
     l++; r--;
   }
   return a.join("");
@@ -236,22 +229,23 @@ function reverseVowels(s) {
       lcSlug: "valid-palindrome-ii",
       title: "Valid Palindrome II",
       diff: "Easy",
-      body: `Ek delete ki chhoot hai — mismatch pe dono option try karo (left skip ya right skip), helper se check karo.
+      body: `Allow one deletion — on mismatch try skipping left or right with a helper that forbids further deletes.
 
 [Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)
 
 \`\`\`js
-// Hinglish: ek delete allowed — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/valid-palindrome-ii/
+// One skip allowed — branch on first mismatch
 function validPalindrome(s) {
-  // Hinglish: step 1 — range check helper
   const isPal = (l, r) => {
-    while (l < r) { if (s[l] !== s[r]) return false; l++; r--; }
+    while (l < r) {
+      if (s[l] !== s[r]) return false;
+      l++; r--;
+    }
     return true;
   };
   let l = 0, r = s.length - 1;
   while (l < r) {
-    if (s[l] !== s[r]) return isPal(l + 1, r) || isPal(l, r - 1); // Hinglish: ek hatao
+    if (s[l] !== s[r]) return isPal(l + 1, r) || isPal(l, r - 1);
     l++; r--;
   }
   return true;
@@ -263,20 +257,18 @@ function validPalindrome(s) {
       lcSlug: "boats-to-save-people",
       title: "Boats to Save People",
       diff: "Medium",
-      body: `Sort karke sabse halka + sabse bhari jodo — sama gaye to ek boat, nahi to bhari akela jayega.
+      body: `Sort by weight. Greedily pair lightest with heaviest — equal sum shares a boat, else the heavy one goes alone.
 
 [Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)
 
 \`\`\`js
-// Hinglish: halka + bhari jodo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/boats-to-save-people/
+// Greedy pairing: lightest + heaviest if fits
 function numRescueBoats(people, limit) {
-  // Hinglish: step 1 — sort karo
   people.sort((a, b) => a - b);
   let l = 0, r = people.length - 1, boats = 0;
   while (l <= r) {
-    if (people[l] + people[r] <= limit) l++; // Hinglish: dono sama gaye
-    r--; // Hinglish: bhari to jayega hi
+    if (people[l] + people[r] <= limit) l++; // pair light with heavy
+    r--; // heavy always leaves in this boat
     boats++;
   }
   return boats;
@@ -288,25 +280,23 @@ function numRescueBoats(people, limit) {
       lcSlug: "number-of-subsequences-that-satisfy-the-given-sum-condition",
       title: "Number of Subsequences That Satisfy the Given Sum Condition",
       diff: "Medium",
-      body: `Sort karo, har left ke liye right dhoondo — beech wale 2^(count) subsequences banate hain. Mod lagana mat bhoolo.
+      body: `Sort nums. For each left index, count valid right indices; each gap contributes 2^count subsequences. Apply mod.
 
 [Number of Subsequences That Satisfy the Given Sum Condition](https://leetcode.com/problems/number-of-subsequences-that-satisfy-the-given-sum-condition/)
 
 \`\`\`js
-// Hinglish: sort + powers — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/number-of-subsequences-that-satisfy-the-given-sum-condition/
+// Sorted + two pointers; middle elements free to pick (2^k)
 function numSubseq(nums, target) {
-  // Hinglish: step 1 — sort karo
   nums.sort((a, b) => a - b);
   const MOD = 1000000007;
   const pow2 = [1];
-  for (let i = 1; i < nums.length; i++) pow2[i] = (pow2[i - 1] * 2) % MOD; // Hinglish: powers pehle
+  for (let i = 1; i < nums.length; i++) pow2[i] = (pow2[i - 1] * 2) % MOD;
   let l = 0, r = nums.length - 1, ans = 0;
   while (l <= r) {
     if (nums[l] + nums[r] <= target) {
-      ans = (ans + pow2[r - l]) % MOD; // Hinglish: beech wale free hain
+      ans = (ans + pow2[r - l]) % MOD; // pick any subset between l..r
       l++;
-    } else r--;
+    } else r--; // sum too big, drop max
   }
   return ans;
 }
@@ -322,22 +312,20 @@ function numSubseq(nums, target) {
       lcSlug: "linked-list-cycle",
       title: "Linked List Cycle",
       diff: "Easy",
-      body: `Slow 1 kadam, fast 2 kadam — mile to cycle hai. Fast null pe ruke to acyclic hai.
+      body: `Floyd: slow moves 1 step, fast 2 — meeting implies a cycle; fast reaching null means no cycle.
 
 [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
 
 \`\`\`js
-// Hinglish: race lagao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/linked-list-cycle/
+// Floyd cycle detection
 function hasCycle(head) {
-  // Hinglish: step 1 — dono head se
   let slow = head, fast = head;
   while (fast && fast.next) {
-    slow = slow.next; // Hinglish: ek kadam
-    fast = fast.next.next; // Hinglish: do kadam
-    if (slow === fast) return true; // Hinglish: mile to cycle
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return true; // cycle
   }
-  return false;
+  return false; // fast hit null
 }
 \`\`\``,
     },
@@ -351,11 +339,8 @@ function hasCycle(head) {
 [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
-// Linked list — Floyd, then find entrance
-// LC: https://leetcode.com/problems/linked-list-cycle-ii/
+// Floyd then reset one ptr to head — meet at entrance
 function detectCycle(head) {
-  // Hinglish: step 1 — base case check karo
   let slow = head, fast = head;
   while (fast && fast.next) {
     slow = slow.next;
@@ -364,7 +349,7 @@ function detectCycle(head) {
       let p = head;
       while (p !== slow) {
         p = p.next;
-        slow = slow.next;
+        slow = slow.next; // same speed from head and meet
       }
       return p;
     }
@@ -378,19 +363,23 @@ function detectCycle(head) {
       lcSlug: "find-the-duplicate-number",
       title: "Find the Duplicate Number",
       diff: "Medium",
-      body: `Value ko index samjho — cycle banegi. Floyd se cycle ka start pakdo, wahi duplicate hai.
+      body: `Treat values as next pointers — Floyd finds cycle entry, which is the duplicate number.
 
 [Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/)
 
 \`\`\`js
-// Hinglish: cycle dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-the-duplicate-number/
+// Treat nums[i] as next index — Floyd on implicit graph
 function findDuplicate(nums) {
-  // Hinglish: step 1 — race lagao
   let slow = nums[0], fast = nums[0];
-  do { slow = nums[slow]; fast = nums[nums[fast]]; } while (slow !== fast);
-  slow = nums[0]; // Hinglish: ek ko start pe lao
-  while (slow !== fast) { slow = nums[slow]; fast = nums[fast]; } // Hinglish: milan = duplicate
+  do {
+    slow = nums[slow];
+    fast = nums[nums[fast]]; // phase 1: find meeting
+  } while (slow !== fast);
+  slow = nums[0];
+  while (slow !== fast) {
+    slow = nums[slow];
+    fast = nums[fast]; // phase 2: entrance = duplicate
+  }
   return slow;
 }
 \`\`\``,
@@ -400,31 +389,33 @@ function findDuplicate(nums) {
       lcSlug: "circular-array-loop",
       title: "Circular Array Loop",
       diff: "Medium",
-      body: `Har index se slow/fast chalao — same direction cycle mile to true. Visited mark karke dobara mat chalao.
+      body: `From each start, run slow/fast in the same direction; a cycle means loop exists. Mark visited nodes to avoid repeats.
 
 [Circular Array Loop](https://leetcode.com/problems/circular-array-loop/)
 
 \`\`\`js
-// Hinglish: har se race — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/circular-array-loop/
+// Floyd per start index; mark nums[i]=0 when done
 function circularArrayLoop(nums) {
-  // Hinglish: step 1 — har index se try karo
   const n = nums.length;
-  const nxt = (i) => ((i + nums[i]) % n + n) % n; // Hinglish: gol ghoomo
+  const nxt = (i) => ((i + nums[i]) % n + n) % n; // positive mod
   for (let i = 0; i < n; i++) {
-    if (nums[i] === 0) continue;
+    if (nums[i] === 0) continue; // already cleared
     let slow = i, fast = i;
     while (true) {
       slow = nxt(slow);
       fast = nxt(nxt(fast));
-      if (nums[slow] * nums[i] <= 0 || nums[fast] * nums[i] <= 0) break; // Hinglish: direction badli
+      if (nums[slow] * nums[i] <= 0 || nums[fast] * nums[i] <= 0) break; // direction flip
       if (slow === fast) {
-        if (slow === nxt(slow)) break; // Hinglish: single wala cycle nahi
+        if (slow === nxt(slow)) break; // length-1 loop invalid
         return true;
       }
     }
     let j = i;
-    while (nums[j] * nums[i] > 0) { const k = nxt(j); nums[j] = 0; j = k; } // Hinglish: dekha mark karo
+    while (nums[j] * nums[i] > 0) {
+      const k = nxt(j);
+      nums[j] = 0; // mark visited from this start
+      j = k;
+    }
   }
   return false;
 }

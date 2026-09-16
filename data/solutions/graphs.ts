@@ -17,22 +17,20 @@ export const GRAPHS_SOLUTIONS: SolutionGroup = {
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph DFS — flood fill
+// Each DFS from land sinks the whole connected component
 // LC: https://leetcode.com/problems/number-of-islands/
 function numIslands(grid) {
-  // Hinglish: step 1 — base case check karo
   const rows = grid.length, cols = grid[0].length;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== "1") return;
-    grid[r][c] = "0";
+    grid[r][c] = "0"; // mark visited by turning land to water
     dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
   };
   let n = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (grid[r][c] === "1") {
-        n++;
+        n++; // new island component
         dfs(r, c);
       }
     }
@@ -46,19 +44,18 @@ function numIslands(grid) {
       lcSlug: "max-area-of-island",
       title: "Max Area of Island",
       diff: "Medium",
-      body: `Islands wali DFS — area gin ke lao, sabse bada yaad rakho.
+      body: `DFS each island and count area — track the maximum area seen.
 
 [Max Area of Island](https://leetcode.com/problems/max-area-of-island/)
 
 \`\`\`js
-// Hinglish: area gin ke lao — ek-ek step comment dekho
+// DFS returns size of current island; track global max
 // LC: https://leetcode.com/problems/max-area-of-island/
 function maxAreaOfIsland(grid) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = grid.length, cols = grid[0].length;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== 1) return 0;
-    grid[r][c] = 0; // Hinglish: dekha mark karo
+    grid[r][c] = 0; // sink cell so it is not counted twice
     return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1);
   };
   let best = 0;
@@ -66,7 +63,7 @@ function maxAreaOfIsland(grid) {
     for (let c = 0; c < cols; c++) {
       if (grid[r][c] === 1) {
         const a = dfs(r, c);
-        if (a > best) best = a; // Hinglish: bada mila
+        if (a > best) best = a;
       }
     }
   }
@@ -79,21 +76,20 @@ function maxAreaOfIsland(grid) {
       lcSlug: "flood-fill",
       title: "Flood Fill",
       diff: "Easy",
-      body: `Start cell ka rang badlo — same rang wale padosi pakad ke bharo. Purana-naya same ho to wapas lao.
+      body: `Pick new color, DFS flood-fill matching neighbors — restore original color when done if needed.
 
 [Flood Fill](https://leetcode.com/problems/flood-fill/)
 
 \`\`\`js
-// Hinglish: rang bharo — ek-ek step comment dekho
+// Recolor connected component matching old color at (sr, sc)
 // LC: https://leetcode.com/problems/flood-fill/
 function floodFill(image, sr, sc, color) {
-  // Hinglish: step 1 — purana rang lo
   const old = image[sr][sc];
-  if (old === color) return image; // Hinglish: same hai to kuch nahi
+  if (old === color) return image; // nothing to change
   const rows = image.length, cols = image[0].length;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || image[r][c] !== old) return;
-    image[r][c] = color; // Hinglish: rang badlo
+    image[r][c] = color;
     dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
   };
   dfs(sr, sc);
@@ -106,26 +102,25 @@ function floodFill(image, sr, sc, color) {
       lcSlug: "surrounded-regions",
       title: "Surrounded Regions",
       diff: "Medium",
-      body: `Border se connected \`O\` safe hai. Baaki \`O\` ko \`X\` banao. DFS border se.
+      body: `Os connected to the border stay — DFS mark those, then flip all other Os to X.
 
 [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// O cells touching border cannot be captured; mark them safe first
 // LC: https://leetcode.com/problems/surrounded-regions/
 function solve(board) {
-  // Hinglish: border O ko mark karo
   const R=board.length, C=board[0].length;
   const dfs=(r,c)=>{
     if(r<0||c<0||r>=R||c>=C||board[r][c]!=='O') return;
-    board[r][c]='S'; // Hinglish: safe mark
+    board[r][c]='S'; // temporary safe tag
     dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1);
   };
-  for(let r=0;r<R;r++){ dfs(r,0); dfs(r,C-1); }
-  for(let c=0;c<C;c++){ dfs(0,c); dfs(R-1,c); }
+  for(let r=0;r<R;r++){ dfs(r,0); dfs(r,C-1); } // flood from left/right border
+  for(let c=0;c<C;c++){ dfs(0,c); dfs(R-1,c); } // flood from top/bottom border
   for(let r=0;r<R;r++) for(let c=0;c<C;c++){
-    if(board[r][c]==='O') board[r][c]='X'; // Hinglish: surrounded to X
-    else if(board[r][c]==='S') board[r][c]='O'; // Hinglish: safe wapas O
+    if(board[r][c]==='O') board[r][c]='X'; // interior O becomes X
+    else if(board[r][c]==='S') board[r][c]='O'; // restore border-connected O
   }
 }
 \`\`\``,
@@ -140,37 +135,35 @@ function solve(board) {
 [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — multi-source
+// Multi-source BFS: all rotten oranges spread one layer per minute
 // LC: https://leetcode.com/problems/rotting-oranges/
 function orangesRotting(grid) {
-  // Hinglish: step 1 — base case check karo
   const rows = grid.length, cols = grid[0].length;
   const q = [];
   let fresh = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === 2) q.push([r, c]);
+      if (grid[r][c] === 2) q.push([r, c]); // initial rotten cells
       if (grid[r][c] === 1) fresh++;
     }
   }
   let minutes = 0;
   const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   while (q.length && fresh) {
-    const n = q.length;
+    const n = q.length; // process one BFS level
     for (let i = 0; i < n; i++) {
       const [r, c] = q.shift();
       for (const [dr, dc] of dirs) {
         const nr = r + dr, nc = c + dc;
         if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || grid[nr][nc] !== 1) continue;
-        grid[nr][nc] = 2;
+        grid[nr][nc] = 2; // fresh becomes rotten
         fresh--;
         q.push([nr, nc]);
       }
     }
     minutes++;
   }
-  return fresh ? -1 : minutes;
+  return fresh ? -1 : minutes; // unreachable fresh means impossible
 }
 \`\`\``,
     },
@@ -184,17 +177,15 @@ function orangesRotting(grid) {
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph DFS — from oceans inland
+// DFS uphill from each ocean; cell must reach both Pacific and Atlantic
 // LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
 function pacificAtlantic(heights) {
-  // Hinglish: step 1 — base case check karo
   const rows = heights.length, cols = heights[0].length;
   const pac = Array.from({ length: rows }, () => Array(cols).fill(false));
   const atl = Array.from({ length: rows }, () => Array(cols).fill(false));
   const dfs = (r, c, seen, prev) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || seen[r][c]) return;
-    if (heights[r][c] < prev) return;
+    if (heights[r][c] < prev) return; // water flows from higher to lower
     seen[r][c] = true;
     dfs(r + 1, c, seen, heights[r][c]);
     dfs(r - 1, c, seen, heights[r][c]);
@@ -202,12 +193,12 @@ function pacificAtlantic(heights) {
     dfs(r, c - 1, seen, heights[r][c]);
   };
   for (let r = 0; r < rows; r++) {
-    dfs(r, 0, pac, 0);
-    dfs(r, cols - 1, atl, 0);
+    dfs(r, 0, pac, 0); // Pacific left edge
+    dfs(r, cols - 1, atl, 0); // Atlantic right edge
   }
   for (let c = 0; c < cols; c++) {
-    dfs(0, c, pac, 0);
-    dfs(rows - 1, c, atl, 0);
+    dfs(0, c, pac, 0); // Pacific top edge
+    dfs(rows - 1, c, atl, 0); // Atlantic bottom edge
   }
   const out = [];
   for (let r = 0; r < rows; r++) {
@@ -224,21 +215,20 @@ function pacificAtlantic(heights) {
       lcSlug: "01-matrix",
       title: "01 Matrix",
       diff: "Medium",
-      body: `Saare zero queue me daalo, BFS chalao — pehli baar pahuche wahi nearest distance hai.
+      body: `Multi-source BFS from all 0s — first visit to each 1 gives its nearest 0 distance.
 
 [01 Matrix](https://leetcode.com/problems/01-matrix/)
 
 \`\`\`js
-// Hinglish: zero se failao — ek-ek step comment dekho
+// Multi-source BFS from all zeros; -1 marks unvisited 1-cells
 // LC: https://leetcode.com/problems/01-matrix/
 function updateMatrix(mat) {
-  // Hinglish: step 1 — zero queue me daalo
   const rows = mat.length, cols = mat[0].length;
   const q = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (mat[r][c] === 0) q.push([r, c]);
-      else mat[r][c] = -1; // Hinglish: abhi pata nahi
+      else mat[r][c] = -1; // distance unknown until BFS reaches
     }
   }
   const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
@@ -247,7 +237,7 @@ function updateMatrix(mat) {
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || mat[nr][nc] !== -1) continue;
-      mat[nr][nc] = mat[r][c] + 1; // Hinglish: ek kadam aage
+      mat[nr][nc] = mat[r][c] + 1; // one step farther from nearest zero
       q.push([nr, nc]);
     }
   }
@@ -260,23 +250,22 @@ function updateMatrix(mat) {
       lcSlug: "shortest-path-in-binary-matrix",
       title: "Shortest Path in Binary Matrix",
       diff: "Medium",
-      body: `8 directions BFS — steps ke saath queue me chalao, end mile to wapas lao.
+      body: `BFS in 8 directions with step count — return steps when the destination cell is first dequeued.
 
 [Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
 
 \`\`\`js
-// Hinglish: 8 disha BFS — ek-ek step comment dekho
+// 8-direction BFS; path length includes both endpoints
 // LC: https://leetcode.com/problems/shortest-path-in-binary-matrix/
 function shortestPathBinaryMatrix(grid) {
-  // Hinglish: step 1 — start/end check karo
   const n = grid.length;
   if (grid[0][0] === 1 || grid[n - 1][n - 1] === 1) return -1;
   const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
   const q = [[0, 0, 1]];
-  grid[0][0] = 1; // Hinglish: dekha mark karo
+  grid[0][0] = 1; // block revisiting start
   while (q.length) {
     const [r, c, d] = q.shift();
-    if (r === n - 1 && c === n - 1) return d; // Hinglish: pahuch gaye
+    if (r === n - 1 && c === n - 1) return d;
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= n || nc >= n || grid[nr][nc] !== 0) continue;
@@ -293,22 +282,21 @@ function shortestPathBinaryMatrix(grid) {
       lcSlug: "shortest-bridge",
       title: "Shortest Bridge",
       diff: "Medium",
-      body: `Pehla island DFS se paint karo, phir usse BFS failao — doosra island mile to steps wapas lao.
+      body: `DFS mark first island, BFS from it — return distance when the second island is reached.
 
 [Shortest Bridge](https://leetcode.com/problems/shortest-bridge/)
 
 \`\`\`js
-// Hinglish: paint karke failao — ek-ek step comment dekho
+// DFS labels island 1 as 2; BFS from its border finds second island
 // LC: https://leetcode.com/problems/shortest-bridge/
 function shortestBridge(grid) {
-  // Hinglish: step 1 — pehla island paint karo
   const n = grid.length;
   const q = [];
   let found = false;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= n || c >= n || grid[r][c] !== 1) return;
-    grid[r][c] = 2; // Hinglish: apna nishan
-    q.push([r, c, 0]);
+    grid[r][c] = 2; // mark first island
+    q.push([r, c, 0]); // multi-source BFS frontier
     dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
   };
   for (let r = 0; r < n && !found; r++) {
@@ -322,7 +310,7 @@ function shortestBridge(grid) {
     for (const [dr, dc] of dirs) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= n || nc >= n || grid[nr][nc] === 2) continue;
-      if (grid[nr][nc] === 1) return d; // Hinglish: doosra island mila
+      if (grid[nr][nc] === 1) return d; // reached other island across water
       grid[nr][nc] = 2;
       q.push([nr, nc, d + 1]);
     }
@@ -336,26 +324,25 @@ function shortestBridge(grid) {
       lcSlug: "number-of-enclaves",
       title: "Number of Enclaves",
       diff: "Medium",
-      body: `Border se judi zameen safe hai — border DFS se mitao, bachi gino.
+      body: `Land connected to border cannot be closed — DFS remove border-connected land, count remaining cells.
 
 [Number of Enclaves](https://leetcode.com/problems/number-of-enclaves/)
 
 \`\`\`js
-// Hinglish: border mitao bachi gino — ek-ek step comment dekho
+// Remove land connected to border; count remaining 1s (enclaves)
 // LC: https://leetcode.com/problems/number-of-enclaves/
 function numEnclaves(grid) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = grid.length, cols = grid[0].length;
   const dfs = (r, c) => {
     if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== 1) return;
-    grid[r][c] = 0; // Hinglish: border wali mitao
+    grid[r][c] = 0; // flood border-attached land
     dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
   };
   for (let r = 0; r < rows; r++) { dfs(r, 0); dfs(r, cols - 1); }
   for (let c = 0; c < cols; c++) { dfs(0, c); dfs(rows - 1, c); }
   let ans = 0;
   for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) if (grid[r][c] === 1) ans++; // Hinglish: bachi gino
+    for (let c = 0; c < cols; c++) if (grid[r][c] === 1) ans++;
   }
   return ans;
 }
@@ -376,15 +363,13 @@ function numEnclaves(grid) {
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph DFS — clone with a map
+// Map original node -> clone before recursing into neighbors
 // LC: https://leetcode.com/problems/clone-graph/
 function cloneGraph(node) {
-  // Hinglish: step 1 — base case check karo
   if (!node) return null;
   const map = new Map();
   const walk = (n) => {
-    if (map.has(n)) return map.get(n);
+    if (map.has(n)) return map.get(n); // already cloned subgraph
     const copy = { val: n.val, neighbors: [] };
     map.set(n, copy);
     for (const nei of n.neighbors) copy.neighbors.push(walk(nei));
@@ -404,22 +389,21 @@ function cloneGraph(node) {
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — one letter at a time
+// BFS on implicit graph: edges = one-letter mutations in wordList
 // LC: https://leetcode.com/problems/word-ladder/
 function ladderLength(beginWord, endWord, wordList) {
   const set = new Set(wordList);
-  if (!set.has(endWord)) return 0;
+  if (!set.has(endWord)) return 0; // target not reachable in dictionary
   const q = [[beginWord, 1]];
   const seen = new Set([beginWord]);
   while (q.length) {
     const [word, d] = q.shift();
-    if (word === endWord) return d;
+    if (word === endWord) return d; // shortest path in unweighted graph
     for (let i = 0; i < word.length; i++) {
       for (let c = 97; c <= 122; c++) {
         const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
         if (!set.has(next) || seen.has(next)) continue;
-        seen.add(next); // Hinglish: visit mark
+        seen.add(next);
         q.push([next, d + 1]);
       }
     }
@@ -433,26 +417,25 @@ function ladderLength(beginWord, endWord, wordList) {
       lcSlug: "open-the-lock",
       title: "Open the Lock",
       diff: "Medium",
-      body: `0000 se BFS chalao — har wheel aage-peeche ghumao, deadends skip karo, target mile to steps lao.
+      body: `BFS from 0000 — rotate each wheel up/down, skip deadends, return depth when target is reached.
 
 [Open the Lock](https://leetcode.com/problems/open-the-lock/)
 
 \`\`\`js
-// Hinglish: wheel ghumao — ek-ek step comment dekho
+// BFS from 0000; each edge rotates one wheel +1 or -1 mod 10
 // LC: https://leetcode.com/problems/open-the-lock/
 function openLock(deadends, target) {
-  // Hinglish: step 1 — dead set lo
   const dead = new Set(deadends);
   if (dead.has("0000")) return -1;
   const q = [["0000", 0]];
   const seen = new Set(["0000"]);
   while (q.length) {
     const [cur, d] = q.shift();
-    if (cur === target) return d; // Hinglish: khul gaya
+    if (cur === target) return d;
     for (let i = 0; i < 4; i++) {
       for (const move of [1, -1]) {
         const arr = [...cur];
-        arr[i] = String((Number(arr[i]) + move + 10) % 10); // Hinglish: wheel ghumao
+        arr[i] = String((Number(arr[i]) + move + 10) % 10);
         const next = arr.join("");
         if (!dead.has(next) && !seen.has(next)) { seen.add(next); q.push([next, d + 1]); }
       }
@@ -467,15 +450,14 @@ function openLock(deadends, target) {
       lcSlug: "bus-routes",
       title: "Bus Routes",
       diff: "Hard",
-      body: `Stop se bus, bus se stop — BFS me dono badlo. Bus dobara mat pakdo (visited bus rakho).
+      body: `BFS alternates walking to a bus stop and riding a route — mark visited buses so you never reuse the same route.
 
 [Bus Routes](https://leetcode.com/problems/bus-routes/)
 
 \`\`\`js
-// Hinglish: stop-bus-stop — ek-ek step comment dekho
+// BFS on stops; taking a bus costs 1, visit each bus route at most once
 // LC: https://leetcode.com/problems/bus-routes/
 function numBusesToDestination(routes, source, target) {
-  // Hinglish: step 1 — stop se bus map banao
   if (source === target) return 0;
   const stopToBus = new Map();
   for (let b = 0; b < routes.length; b++) {
@@ -484,15 +466,15 @@ function numBusesToDestination(routes, source, target) {
       stopToBus.get(s).push(b);
     }
   }
-  const q = [[source, 0]];
+  const q = [[source, 0]]; // [stop, buses taken so far]
   const seenStop = new Set([source]), seenBus = new Set();
   while (q.length) {
     const [stop, buses] = q.shift();
     for (const b of stopToBus.get(stop) || []) {
       if (seenBus.has(b)) continue;
-      seenBus.add(b); // Hinglish: bus dobara mat pakdo
+      seenBus.add(b);
       for (const s of routes[b]) {
-        if (s === target) return buses + 1; // Hinglish: pahuch gaye
+        if (s === target) return buses + 1;
         if (!seenStop.has(s)) { seenStop.add(s); q.push([s, buses + 1]); }
       }
     }
@@ -506,21 +488,20 @@ function numBusesToDestination(routes, source, target) {
       lcSlug: "keys-and-rooms",
       title: "Keys and Rooms",
       diff: "Medium",
-      body: `0 se DFS chalao — mili key se naya kamra kholo. Sab khule to true.
+      body: `DFS from room 0: each key opens new rooms; succeed if every room is visited.
 
 [Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)
 
 \`\`\`js
-// Hinglish: chaabi se kamra — ek-ek step comment dekho
+// DFS/stack from room 0; keys unlock more rooms
 // LC: https://leetcode.com/problems/keys-and-rooms/
 function canVisitAllRooms(rooms) {
-  // Hinglish: step 1 — dekhe hue yaad rakho
   const seen = new Set([0]);
   const stack = [0];
   while (stack.length) {
     const r = stack.pop();
     for (const k of rooms[r]) {
-      if (!seen.has(k)) { seen.add(k); stack.push(k); } // Hinglish: nayi chaabi naya kamra
+      if (!seen.has(k)) { seen.add(k); stack.push(k); }
     }
   }
   return seen.size === rooms.length;
@@ -533,24 +514,23 @@ function canVisitAllRooms(rooms) {
       title: "All Paths From Source Lead to Destination",
       diff: "Medium",
     premium: true,
-      body: `Har rasta destination pe khatm hona chahiye — DFS me cycle ya dead-end mile to false. Memo se tez karo.
+      body: `Every path must end at destination — DFS detect cycles/dead ends; memoize states for speed.
 
 [All Paths From Source Lead to Destination](https://leetcode.com/problems/all-paths-from-source-lead-to-destination/)
 
-*Premium question — kholne ke liye LeetCode premium chahiye.*
+*Premium — requires LeetCode Premium.*
 
 \`\`\`js
-// Hinglish: sab raste check karo — ek-ek step comment dekho
+// 3-color DFS: every path from source must end at destination, no cycles
 // LC: https://leetcode.com/problems/all-paths-from-source-lead-to-destination/ (Premium)
 function leadsToDestination(n, edges, source, destination) {
-  // Hinglish: step 1 — graph banao
   const g = Array.from({ length: n }, () => []);
   for (const [u, v] of edges) g[u].push(v);
-  const state = Array(n).fill(0); // Hinglish: 0=unseen, 1=visiting, 2=safe
+  const state = Array(n).fill(0); // 0=unseen, 1=on stack, 2=memo safe
   const dfs = (u) => {
-    if (state[u] === 1) return false; // Hinglish: cycle mili
+    if (state[u] === 1) return false; // cycle: not all paths lead to destination
     if (state[u] === 2) return true;
-    if (g[u].length === 0) return u === destination; // Hinglish: dead-end to destination hona chahiye
+    if (g[u].length === 0) return u === destination; // leaf must be destination
     state[u] = 1;
     for (const v of g[u]) if (!dfs(v)) return false;
     state[u] = 2;
@@ -565,27 +545,26 @@ function leadsToDestination(n, edges, source, destination) {
       lcSlug: "reconstruct-itinerary",
       title: "Reconstruct Itinerary",
       diff: "Hard",
-      body: `Lexical order me DFS karo (Hierholzer) — aage rasta na ho to ticket jodo. Aakhir me ulta karo.
+      body: `Hierholzer DFS in lexical order — append edge when stuck, reverse postorder stack for itinerary.
 
 [Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/)
 
 \`\`\`js
-// Hinglish: lexical DFS — ek-ek step comment dekho
+// Hierholzer: postorder stack gives Eulerian path in lex order
 // LC: https://leetcode.com/problems/reconstruct-itinerary/
 function findItinerary(tickets) {
-  // Hinglish: step 1 — sort karke map banao
   const g = new Map();
   tickets.sort();
   for (const [u, v] of tickets) {
     if (!g.has(u)) g.set(u, []);
     g.get(u).push(v);
   }
-  for (const v of g.values()) v.reverse(); // Hinglish: pop se chhota mile
+  for (const v of g.values()) v.reverse(); // pop() then picks smallest neighbor
   const out = [];
   const dfs = (u) => {
     const dests = g.get(u) || [];
-    while (dests.length) dfs(dests.pop()); // Hinglish: aage jao
-    out.push(u); // Hinglish: rasta khatm to jodo
+    while (dests.length) dfs(dests.pop());
+    out.push(u); // append airport when no outgoing tickets left
   };
   dfs("JFK");
   return out.reverse();
@@ -597,34 +576,33 @@ function findItinerary(tickets) {
       lcSlug: "evaluate-division",
       title: "Evaluate Division",
       diff: "Medium",
-      body: `Equation ko weighted graph banao — query BFS/DFS se nikalo, weight guna karte jao.
+      body: `Build weighted graph from equations — for each query multiply edge weights along a found path.
 
 [Evaluate Division](https://leetcode.com/problems/evaluate-division/)
 
 \`\`\`js
-// Hinglish: graph bana ke chalao — ek-ek step comment dekho
+// Build bidirectional weighted graph; BFS each query multiplying ratios
 // LC: https://leetcode.com/problems/evaluate-division/
 function calcEquation(equations, values, queries) {
-  // Hinglish: step 1 — weighted graph banao
   const g = new Map();
   const add = (u, v, w) => {
     if (!g.has(u)) g.set(u, []);
     if (!g.has(v)) g.set(v, []);
     g.get(u).push([v, w]);
-    g.get(v).push([u, 1 / w]);
+    g.get(v).push([u, 1 / w]); // reverse edge is reciprocal
   };
   for (let i = 0; i < equations.length; i++) add(equations[i][0], equations[i][1], values[i]);
   const out = [];
   for (const [s, t] of queries) {
-    if (!g.has(s) || !g.has(t)) { out.push(-1); continue; } // Hinglish: naam hi nahi
+    if (!g.has(s) || !g.has(t)) { out.push(-1); continue; }
     const seen = new Set([s]);
-    const q = [[s, 1]];
+    const q = [[s, 1]]; // [node, product of weights from s]
     let ans = -1;
     while (q.length) {
       const [u, w] = q.shift();
-      if (u === t) { ans = w; break; } // Hinglish: mil gaya
+      if (u === t) { ans = w; break; }
       for (const [v, x] of g.get(u)) {
-        if (!seen.has(v)) { seen.add(v); q.push([v, w * x]); } // Hinglish: weight guna karo
+        if (!seen.has(v)) { seen.add(v); q.push([v, w * x]); }
       }
     }
     out.push(ans);
@@ -648,15 +626,13 @@ function calcEquation(equations, values, queries) {
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — Kahn topo
+// Kahn topo: cycle exists iff not all courses get indegree 0
 // LC: https://leetcode.com/problems/course-schedule/
 function canFinish(numCourses, prerequisites) {
-  // Hinglish: step 1 — base case check karo
   const graph = Array.from({ length: numCourses }, () => []);
   const indeg = Array(numCourses).fill(0);
   for (const [a, b] of prerequisites) {
-    graph[b].push(a);
+    graph[b].push(a); // b must be taken before a
     indeg[a]++;
   }
   const q = [];
@@ -679,27 +655,25 @@ function canFinish(numCourses, prerequisites) {
       lcSlug: "course-schedule-ii",
       title: "Course Schedule II",
       diff: "Medium",
-      body: `Topo order wapas bhi karna hai, sirf possible/impossible nahi. Kahn me nikalte time order array me push karo.
+      body: `Return actual topological order — Kahn’s algorithm appends each dequeued node to the result list.
 
 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Kahn topological sort returns one valid order
 // LC: https://leetcode.com/problems/course-schedule-ii/
-// Kahn — indegree queue se order
 function findOrder(numCourses, prerequisites) {
-  // Hinglish: graph + indegree banao
   const g = Array.from({length:numCourses}, ()=>[]);
   const indeg = Array(numCourses).fill(0);
-  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; } // Hinglish: b -> a
-  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i); // Hinglish: zero wale start
+  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; }
+  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i);
   const order = [];
   while(q.length){
     const u = q.shift();
-    order.push(u); // Hinglish: order me daalo
-    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); } // Hinglish: neighbor unlock
+    order.push(u);
+    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); }
   }
-  return order.length===numCourses ? order : []; // Hinglish: cycle to []
+  return order.length===numCourses ? order : []; // empty if cycle
 }
 \`\`\``,
     },
@@ -708,23 +682,22 @@ function findOrder(numCourses, prerequisites) {
       lcSlug: "find-eventual-safe-states",
       title: "Find Eventual Safe States",
       diff: "Medium",
-      body: `Terminal tak sab raste safe hon to node safe hai — 3-color DFS se cycle wale kaato.
+      body: `Node is safe if all paths reach a terminal: three-color DFS to detect cycles and mark unsafe.
 
 [Find Eventual Safe States](https://leetcode.com/problems/find-eventual-safe-states/)
 
 \`\`\`js
-// Hinglish: safe nodes dhoondo — ek-ek step comment dekho
+// Node safe if all DFS paths reach terminal; cycle nodes are unsafe
 // LC: https://leetcode.com/problems/find-eventual-safe-states/
 function eventualSafeNodes(graph) {
-  // Hinglish: step 1 — 3 colors lo
   const n = graph.length, color = Array(n).fill(0);
   const safe = (u) => {
     if (color[u] !== 0) return color[u] === 2;
-    color[u] = 1; // Hinglish: visiting
+    color[u] = 1; // gray: on recursion stack
     for (const v of graph[u]) {
-      if (!safe(v)) return false; // Hinglish: ek bhi unsafe to unsafe
+      if (!safe(v)) return false;
     }
-    color[u] = 2;
+    color[u] = 2; // black: confirmed safe
     return true;
   };
   const out = [];
@@ -738,28 +711,27 @@ function eventualSafeNodes(graph) {
       lcSlug: "minimum-height-trees",
       title: "Minimum Height Trees",
       diff: "Medium",
-      body: `Patte kaat-te jao (topological jaisa) — aakhir me bache 1-2 node hi roots hain.
+      body: `Repeatedly remove leaves (in-degree 1) like topo peeling — remaining 1–2 nodes are tree roots.
 
 [Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)
 
 \`\`\`js
-// Hinglish: patte kaato — ek-ek step comment dekho
+// Peel leaves layer by layer; 1-2 centers remain (tree diameter midpoints)
 // LC: https://leetcode.com/problems/minimum-height-trees/
 function findMinHeightTrees(n, edges) {
-  // Hinglish: step 1 — degree nikalo
   if (n === 1) return [0];
   const g = Array.from({ length: n }, () => new Set());
   for (const [u, v] of edges) { g[u].add(v); g[v].add(u); }
   let leaves = [];
-  for (let i = 0; i < n; i++) if (g[i].size === 1) leaves.push(i); // Hinglish: patte pakdo
+  for (let i = 0; i < n; i++) if (g[i].size === 1) leaves.push(i);
   let left = n;
   while (left > 2) {
     left -= leaves.length;
     const next = [];
     for (const u of leaves) {
       for (const v of g[u]) {
-        g[v].delete(u); // Hinglish: patta kaato
-        if (g[v].size === 1) next.push(v);
+        g[v].delete(u);
+        if (g[v].size === 1) next.push(v); // new leaf after removing u
       }
     }
     leaves = next;
@@ -774,17 +746,16 @@ function findMinHeightTrees(n, edges) {
       title: "Alien Dictionary",
       diff: "Hard",
     premium: true,
-      body: `Padosi words se order nikalo (pehla alag char), phir Kahn topo sort. Galat prefix order mile to invalid.
+      body: `Derive character order from adjacent word pairs, then Kahn topo sort — cycle or bad prefix means invalid.
 
 [Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
 
-*Premium question — kholne ke liye LeetCode premium chahiye.*
+*Premium — requires LeetCode Premium.*
 
 \`\`\`js
-// Hinglish: order graph + topo — ek-ek step comment dekho
+// Derive char edges from adjacent words; Kahn topo or invalid prefix
 // LC: https://leetcode.com/problems/alien-dictionary/ (Premium)
 function alienOrder(words) {
-  // Hinglish: step 1 — har char ka node banao
   const graph = new Map(), indeg = new Map();
   for (const w of words) for (const ch of w) {
     if (!graph.has(ch)) { graph.set(ch, new Set()); indeg.set(ch, 0); }
@@ -793,8 +764,8 @@ function alienOrder(words) {
     const a = words[i], b = words[i + 1];
     let j = 0;
     const m = Math.min(a.length, b.length);
-    while (j < m && a[j] === b[j]) j++; // Hinglish: pehla alag char
-    if (j === m && a.length > b.length) return ""; // Hinglish: galat prefix order
+    while (j < m && a[j] === b[j]) j++;
+    if (j === m && a.length > b.length) return ""; // prefix violates sorted order
     if (j < m && !graph.get(a[j]).has(b[j])) {
       graph.get(a[j]).add(b[j]);
       indeg.set(b[j], indeg.get(b[j]) + 1);
@@ -810,7 +781,7 @@ function alienOrder(words) {
       if (indeg.get(v) === 0) q.push(v);
     }
   }
-  return order.length === indeg.size ? order : ""; // Hinglish: cycle to khaali
+  return order.length === indeg.size ? order : ""; // cycle in char graph
 }
 \`\`\``,
     },
@@ -819,15 +790,14 @@ function alienOrder(words) {
       lcSlug: "find-all-possible-recipes-from-given-supplies",
       title: "Find All Possible Recipes from Given Supplies",
       diff: "Medium",
-      body: `Recipe ingredients pe nirbhar hai — topo sort jaisa: supplies se shuru karo, jiske saare mile use banao.
+      body: `Dependency graph on recipes — start from supplies, topo/Kahn style unlock recipes when ingredients are available.
 
 [Find All Possible Recipes from Given Supplies](https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies/)
 
 \`\`\`js
-// Hinglish: supplies se banao — ek-ek step comment dekho
+// Topo-like: when an ingredient is available, decrement recipe dependency count
 // LC: https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies/
 function findAllRecipes(recipes, ingredients, supplies) {
-  // Hinglish: step 1 — supply set lo
   const have = new Set(supplies);
   const need = new Map();
   for (let i = 0; i < recipes.length; i++) need.set(recipes[i], ingredients[i].length);
@@ -835,7 +805,7 @@ function findAllRecipes(recipes, ingredients, supplies) {
   for (let i = 0; i < recipes.length; i++) {
     for (const ing of ingredients[i]) {
       if (!byIng.has(ing)) byIng.set(ing, []);
-      byIng.get(ing).push(recipes[i]); // Hinglish: ye ingredient kahan lagta hai
+      byIng.get(ing).push(recipes[i]);
     }
   }
   const q = [...have];
@@ -846,7 +816,7 @@ function findAllRecipes(recipes, ingredients, supplies) {
     for (const r of byIng.get(item) || []) {
       if (made.has(r)) continue;
       need.set(r, need.get(r) - 1);
-      if (need.get(r) === 0) { made.add(r); out.push(r); q.push(r); } // Hinglish: ban gayi
+      if (need.get(r) === 0) { made.add(r); out.push(r); q.push(r); } // crafted item becomes supply
     }
   }
   return out;
@@ -863,15 +833,14 @@ function findAllRecipes(recipes, ingredients, supplies) {
       lcSlug: "number-of-provinces",
       title: "Number of Provinces",
       diff: "Medium",
-      body: `Union-Find se bhi provinces gin sakte hain. Connected cities ko union karo.
+      body: `Count connected components — union adjacent cities in DSU; number of roots is province count.
 
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 \`\`\`js
-// Hinglish: find-union — ek-ek step comment dekho
+// Union-Find: each connected component is one province
 // LC: https://leetcode.com/problems/number-of-provinces/
 function findCircleNumUF(isConnected) {
-  // Hinglish: DSU
   const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
   const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
   const union=(a,b)=>{
@@ -879,7 +848,7 @@ function findCircleNumUF(isConnected) {
     if(rank[a]<rank[b]) [a,b]=[b,a];
     p[b]=a; if(rank[a]===rank[b]) rank[a]++;
   };
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j); // Hinglish: juda to union
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j);
   const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
   return roots.size;
 }
@@ -895,11 +864,9 @@ function findCircleNumUF(isConnected) {
 [Redundant Connection](https://leetcode.com/problems/redundant-connection/)
 
 \`\`\`js
-// Hinglish: find-union — ek-ek step comment dekho
-// Union-find — extra edge
+// First edge connecting already-connected nodes is redundant
 // LC: https://leetcode.com/problems/redundant-connection/
 function findRedundantConnection(edges) {
-  // Hinglish: step 1 — base case check karo
   const n = edges.length;
   const p = Array.from({ length: n + 1 }, (_, i) => i);
   const rank = Array(n + 1).fill(0);
@@ -914,26 +881,24 @@ function findRedundantConnection(edges) {
       lcSlug: "accounts-merge",
       title: "Accounts Merge",
       diff: "Medium",
-      body: `Same email wale accounts merge karo. Email ko node, account ke emails ko union karo.
+      body: `Union emails within each account, then group accounts sharing any email via DSU.
 
 [Accounts Merge](https://leetcode.com/problems/accounts-merge/)
 
 \`\`\`js
-// Hinglish: find-union — ek-ek step comment dekho
+// Union emails within same account; merge DSU components
 // LC: https://leetcode.com/problems/accounts-merge/
 function accountsMerge(accounts) {
-  // Hinglish: email -> id
   const id=new Map(); let eid=0;
   for(const acc of accounts) for(let i=1;i<acc.length;i++) if(!id.has(acc[i])) id.set(acc[i], eid++);
   const p=Array.from({length:eid},(_,i)=>i), rank=Array(eid).fill(0);
   const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
   const union=(a,b)=>{ a=find(a); b=find(b); if(a===b) return; if(rank[a]<rank[b]) [a,b]=[b,a]; p[b]=a; if(rank[a]===rank[b]) rank[a]++; };
-  for(const acc of accounts) for(let i=2;i<acc.length;i++) union(id.get(acc[1]), id.get(acc[i])); // Hinglish: ek account ke emails union
+  for(const acc of accounts) for(let i=2;i<acc.length;i++) union(id.get(acc[1]), id.get(acc[i]));
   const groups=new Map();
   for(const [email,i] of id) { const r=find(i); if(!groups.has(r)) groups.set(r, []); groups.get(r).push(email); }
   const ans=[];
-  for(const emails of groups.values()){ emails.sort(); // Hinglish: sort
-    // naam dhoondo
+  for(const emails of groups.values()){ emails.sort();
     let name="";
     for(const acc of accounts) if(acc.includes(emails[0])){ name=acc[0]; break; }
     ans.push([name, ...emails]);
@@ -947,24 +912,23 @@ function accountsMerge(accounts) {
       lcSlug: "number-of-operations-to-make-network-connected",
       title: "Number of Operations to Make Network Connected",
       diff: "Medium",
-      body: `Components gino (DSU), extra edges gino — extra kam se kam components-1 hone chahiye.
+      body: `If edges ≥ n−1, check one component via DSU — answer is max(0, edges − (n − components)).
 
 [Number of Operations to Make Network Connected](https://leetcode.com/problems/number-of-operations-to-make-network-connected/)
 
 \`\`\`js
-// Hinglish: jodo aur gino — ek-ek step comment dekho
+// Need at least n-1 edges; answer = extra edges after merging components
 // LC: https://leetcode.com/problems/number-of-operations-to-make-network-connected/
 function makeConnected(n, connections) {
-  // Hinglish: step 1 — cable gino
-  if (connections.length < n - 1) return -1; // Hinglish: cable hi kam hai
+  if (connections.length < n - 1) return -1;
   const parent = Array.from({ length: n }, (_, i) => i);
   const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   let comps = n;
   for (const [u, v] of connections) {
     const ru = find(u), rv = find(v);
-    if (ru !== rv) { parent[ru] = rv; comps--; } // Hinglish: jude
+    if (ru !== rv) { parent[ru] = rv; comps--; }
   }
-  return comps - 1; // Hinglish: itne cable lagenge
+  return comps - 1; // cables needed to connect comps-1 gaps
 }
 \`\`\``,
     },
@@ -973,27 +937,26 @@ function makeConnected(n, connections) {
       lcSlug: "satisfiability-of-equality-equations",
       title: "Satisfiability of Equality Equations",
       diff: "Medium",
-      body: `Pehle == wale jodo (DSU), phir != wale check karo — same group me mile to false.
+      body: `Union all equal pairs first, then verify unequal pairs are not in the same set.
 
 [Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)
 
 \`\`\`js
-// Hinglish: pehle jodo phir todo — ek-ek step comment dekho
+// Union all == first; then != must join different DSU sets
 // LC: https://leetcode.com/problems/satisfiability-of-equality-equations/
 function equationsPossible(equations) {
-  // Hinglish: step 1 — DSU lo
   const parent = Array.from({ length: 26 }, (_, i) => i);
   const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   const idx = (ch) => ch.charCodeAt(0) - 97;
   for (const e of equations) {
     if (e[1] === "=") {
       const a = find(idx(e[0])), b = find(idx(e[3]));
-      parent[a] = b; // Hinglish: barabar wale jodo
+      parent[a] = b;
     }
   }
   for (const e of equations) {
     if (e[1] === "!") {
-      if (find(idx(e[0])) === find(idx(e[3]))) return false; // Hinglish: judne ke baad alag kaise
+      if (find(idx(e[0])) === find(idx(e[3]))) return false;
     }
   }
   return true;
@@ -1005,28 +968,27 @@ function equationsPossible(equations) {
       lcSlug: "similar-string-groups",
       title: "Similar String Groups",
       diff: "Hard",
-      body: `Do swap me barabar hon to same group — O(n²) compare karke DSU se jodo.
+      body: `Strings equal after at most two swaps belong together — compare pairs O(n²) and union in DSU.
 
 [Similar String Groups](https://leetcode.com/problems/similar-string-groups/)
 
 \`\`\`js
-// Hinglish: similar jodo — ek-ek step comment dekho
+// Similar = same length and at most 2 mismatches (swap-able)
 // LC: https://leetcode.com/problems/similar-string-groups/
 function numSimilarGroups(strs) {
-  // Hinglish: step 1 — DSU lo
   const n = strs.length;
   const parent = Array.from({ length: n }, (_, i) => i);
   const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   const similar = (a, b) => {
     let diff = 0;
     for (let i = 0; i < a.length; i++) if (a[i] !== b[i] && ++diff > 2) return false;
-    return true; // Hinglish: 0 ya 2 farak to similar
+    return true;
   };
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       if (similar(strs[i], strs[j])) {
         const a = find(i), b = find(j);
-        if (a !== b) parent[a] = b; // Hinglish: jodo
+        if (a !== b) parent[a] = b;
       }
     }
   }
@@ -1041,15 +1003,14 @@ function numSimilarGroups(strs) {
       lcSlug: "making-a-large-island",
       title: "Making A Large Island",
       diff: "Hard",
-      body: `Har island ko id do aur size yaad rakho — 0 ko 1 banao, padosi ids jodo, max rakho.
+      body: `DSU with size — flip 0→1 and union 4-neighbors; track largest component size.
 
 [Making A Large Island](https://leetcode.com/problems/making-a-large-island/)
 
 \`\`\`js
-// Hinglish: id do jodo — ek-ek step comment dekho
+// Label each island with id and size; try flipping one 0 to merge neighbors
 // LC: https://leetcode.com/problems/making-a-large-island/
 function largestIsland(grid) {
-  // Hinglish: step 1 — island id lagao
   const n = grid.length;
   const size = new Map();
   let id = 2;
@@ -1071,13 +1032,13 @@ function largestIsland(grid) {
     for (let c = 0; c < n; c++) {
       if (grid[r][c] !== 0) continue;
       const seen = new Set();
-      let total = 1; // Hinglish: khud 1 banega
+      let total = 1; // cell we flip to land
       for (const [dr, dc] of dirs) {
         const nr = r + dr, nc = c + dc;
         if (nr < 0 || nc < 0 || nr >= n || nc >= n || grid[nr][nc] < 2) continue;
-        seen.add(grid[nr][nc]);
+        seen.add(grid[nr][nc]); // distinct neighboring island ids
       }
-      for (const k of seen) total += size.get(k); // Hinglish: padosi jodo
+      for (const k of seen) total += size.get(k);
       if (total > best) best = total;
     }
   }
@@ -1090,20 +1051,19 @@ function largestIsland(grid) {
       lcSlug: "remove-max-number-of-edges-to-keep-graph-fully-traversable",
       title: "Remove Max Number of Edges to Keep Graph Fully Traversable",
       diff: "Hard",
-      body: `Type 3 pehle jodo (dono ke kaam), phir type 1 aur 2 alag — teeno judne chahiye warna -1.
+      body: `Union type-3 nodes with both endpoints first, then check type-1 and type-2 constraints share a component — else -1.
 
 [Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/)
 
 \`\`\`js
-// Hinglish: type 3 pehle — ek-ek step comment dekho
+// Two DSU: Alice type1, Bob type2; type3 helps both — greedily use type3 first
 // LC: https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/
 function maxNumEdgesToRemove(n, edges) {
-  // Hinglish: step 1 — do DSU lo
   const A = Array.from({ length: n + 1 }, (_, i) => i);
   const B = [...A];
   const find = (p, x) => (p[x] === x ? x : (p[x] = find(p, x)));
   let ca = n, cb = n, used = 0;
-  const sorted = [...edges].sort((a, b) => b[0] - a[0]); // Hinglish: type 3 pehle
+  const sorted = [...edges].sort((a, b) => b[0] - a[0]);
   for (const [t, u, v] of sorted) {
     if (t === 3) {
       const a = find(A, u), b = find(A, v);
@@ -1121,8 +1081,8 @@ function maxNumEdgesToRemove(n, edges) {
       if (c !== d) { B[c] = d; cb--; used++; }
     }
   }
-  if (ca !== 1 || cb !== 1) return -1; // Hinglish: dono jude hone chahiye
-  return edges.length - used; // Hinglish: bekaar hatao
+  if (ca !== 1 || cb !== 1) return -1;
+  return edges.length - used;
 }
 \`\`\``,
     },

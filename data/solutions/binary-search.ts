@@ -17,19 +17,16 @@ export const BINARY_SEARCH_SOLUTIONS: SolutionGroup = {
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary search — find target
-// LC: https://leetcode.com/problems/binary-search/
+// Binary search — find exact target in sorted array
 function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
-  let lo = 0, hi = nums.length - 1;
+  let lo = 0, hi = nums.length - 1; // inclusive search range
   while (lo <= hi) {
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] === target) return mid;
-    if (nums[mid] < target) lo = mid + 1;
-    else hi = mid - 1;
+    const mid = lo + ((hi - lo) >> 1); // avoid overflow vs (lo+hi)/2
+    if (nums[mid] === target) return mid; // found
+    if (nums[mid] < target) lo = mid + 1; // target is in right half
+    else hi = mid - 1; // target is in left half
   }
-  return -1;
+  return -1; // never matched
 }
 \`\`\``,
     },
@@ -38,22 +35,20 @@ function search(nums, target) {
       lcSlug: "search-insert-position",
       title: "Search Insert Position",
       diff: "Easy",
-      body: `Target kahan insert hoga wahi lower_bound hai. Binary search se \`lo\` hi answer.
+      body: `The insert position is lower bound: binary search until \`lo\` is the first index with \`nums[i] >= target\`.
 
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/search-insert-position/
+// Lower bound — first index where nums[i] >= target
 function searchInsert(nums, target) {
-  // Hinglish: lower bound
-  let lo=0, hi=nums.length;
-  while (lo<hi) {
-    const mid = lo + ((hi-lo)>>1);
-    if (nums[mid] < target) lo=mid+1; // Hinglish: chhota to right
-    else hi=mid; // Hinglish: bada/equal to left me rakho
+  let lo = 0, hi = nums.length; // half-open [lo, hi)
+  while (lo < hi) {
+    const mid = lo + ((hi - lo) >> 1);
+    if (nums[mid] < target) lo = mid + 1; // still too small, go right
+    else hi = mid; // mid might be answer, shrink right
   }
-  return lo;
+  return lo; // insertion index
 }
 \`\`\``,
     },
@@ -62,26 +57,32 @@ function searchInsert(nums, target) {
       lcSlug: "find-first-and-last-position-of-element-in-sorted-array",
       title: "Find First and Last Position of Element in Sorted Array",
       diff: "Medium",
-      body: `Lower bound aur upper bound ka khel. Do binary search.
+      body: `Run lower bound for the first \`>= target\` and upper bound for the first \`> target\`; the range is between them.
 
 [Find First and Last Position of Element in Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
+// Two bounds: first >= target, first > target
 function searchRange(nums, target) {
-  // Hinglish: first >= target
-  const lower = ()=>{
-    let lo=0, hi=nums.length;
-    while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<target) lo=mid+1; else hi=mid; }
+  const lower = () => {
+    let lo = 0, hi = nums.length;
+    while (lo < hi) {
+      const mid = lo + ((hi - lo) >> 1);
+      if (nums[mid] < target) lo = mid + 1;
+      else hi = mid; // keep first position with nums[mid] >= target
+    }
     return lo;
   };
   const l = lower();
-  if (l===nums.length || nums[l]!==target) return [-1,-1]; // Hinglish: mila hi nahi
-  // Hinglish: first > target -1 = last
-  let lo=0, hi=nums.length;
-  while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<=target) lo=mid+1; else hi=mid; }
-  return [l, lo-1];
+  if (l === nums.length || nums[l] !== target) return [-1, -1]; // absent
+  // upper bound: first index with nums[mid] > target
+  let lo = 0, hi = nums.length;
+  while (lo < hi) {
+    const mid = lo + ((hi - lo) >> 1);
+    if (nums[mid] <= target) lo = mid + 1; // still <=, move right
+    else hi = mid;
+  }
+  return [l, lo - 1]; // last index is one before upper bound
 }
 \`\`\``,
     },
@@ -90,20 +91,20 @@ function searchRange(nums, target) {
       lcSlug: "sqrtx",
       title: "Sqrt(x)",
       diff: "Easy",
-      body: `Answer monotonic hai — mid ka square bada ho to left jao, nahi to right. Integer part chahiye.
+      body: `Binary search the largest \`mid\` with \`mid * mid <= x\`; shrink left when the square is too big.
 
 [Sqrt(x)](https://leetcode.com/problems/sqrtx/)
 
 \`\`\`js
-// Hinglish: answer pe binary search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sqrtx/
+// BS on answer k where k*k <= x
 function mySqrt(x) {
-  // Hinglish: step 1 — range lo
   let lo = 0, hi = x, ans = 0;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    if (mid * mid <= x) { ans = mid; lo = mid + 1; } // Hinglish: aur bada try karo
-    else hi = mid - 1; // Hinglish: chhota karo
+    if (mid * mid <= x) {
+      ans = mid; // mid works, try larger
+      lo = mid + 1;
+    } else hi = mid - 1; // too big, go left
   }
   return ans;
 }
@@ -119,16 +120,13 @@ function mySqrt(x) {
 [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary search — min of rotated
-// LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
+// Rotated sorted — min is where order breaks vs nums[hi]
 function findMin(nums) {
-  // Hinglish: step 1 — base case check karo
   let lo = 0, hi = nums.length - 1;
   while (lo < hi) {
     const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] > nums[hi]) lo = mid + 1;
-    else hi = mid;
+    if (nums[mid] > nums[hi]) lo = mid + 1; // min in right part
+    else hi = mid; // min at mid or left
   }
   return nums[lo];
 }
@@ -144,19 +142,18 @@ function findMin(nums) {
 [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary search — rotated, pick the sorted side
-// LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
+// Pick the sorted half, then check if target lies there
 function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
   let lo = 0, hi = nums.length - 1;
   while (lo <= hi) {
     const mid = lo + ((hi - lo) >> 1);
     if (nums[mid] === target) return mid;
     if (nums[lo] <= nums[mid]) {
+      // left half [lo..mid] is sorted
       if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
       else lo = mid + 1;
     } else {
+      // right half [mid..hi] is sorted
       if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
       else hi = mid - 1;
     }
@@ -170,25 +167,24 @@ function search(nums, target) {
       lcSlug: "search-in-rotated-sorted-array-ii",
       title: "Search in Rotated Sorted Array II",
       diff: "Medium",
-      body: `Duplicate wala rotation — lo, mid, hi barabar hon to dono shrink karo, baaki same logic.
+      body: `With duplicates, shrink both ends when \`lo\`, \`mid\`, and \`hi\` match; otherwise use the standard rotated search.
 
 [Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)
 
 \`\`\`js
-// Hinglish: duplicate sambhalo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/search-in-rotated-sorted-array-ii/
+// Rotated + duplicates — trim equal ends when stuck
 function search(nums, target) {
-  // Hinglish: step 1 — range lo
   let lo = 0, hi = nums.length - 1;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
     if (nums[mid] === target) return true;
-    if (nums[lo] === nums[mid] && nums[mid] === nums[hi]) { lo++; hi--; } // Hinglish: teeno same to shrink
-    else if (nums[lo] <= nums[mid]) {
-      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1; // Hinglish: left sorted
+    if (nums[lo] === nums[mid] && nums[mid] === nums[hi]) {
+      lo++; hi--; // cannot tell which side, shrink
+    } else if (nums[lo] <= nums[mid]) {
+      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
       else lo = mid + 1;
     } else {
-      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1; // Hinglish: right sorted
+      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
       else hi = mid - 1;
     }
   }
@@ -201,20 +197,18 @@ function search(nums, target) {
       lcSlug: "find-peak-element",
       title: "Find Peak Element",
       diff: "Medium",
-      body: `Padosi se bada hai to peak ki taraf jao — mid chhota aur right bada ho to right jao, warna left.
+      body: `Move toward the larger neighbor: if \`nums[mid] < nums[mid+1]\`, search right; otherwise the peak is at \`mid\` or left.
 
 [Find Peak Element](https://leetcode.com/problems/find-peak-element/)
 
 \`\`\`js
-// Hinglish: chadhai ki taraf jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-peak-element/
+// Walk uphill — peak exists somewhere in [lo, hi]
 function findPeakElement(nums) {
-  // Hinglish: step 1 — range lo
   let lo = 0, hi = nums.length - 1;
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (nums[mid] < nums[mid + 1]) lo = mid + 1; // Hinglish: chadhai right me
-    else hi = mid; // Hinglish: peak yahin ya left me
+    if (nums[mid] < nums[mid + 1]) lo = mid + 1; // climb right
+    else hi = mid; // mid is peak or peak on left
   }
   return lo;
 }
@@ -225,21 +219,19 @@ function findPeakElement(nums) {
       lcSlug: "single-element-in-a-sorted-array",
       title: "Single Element in a Sorted Array",
       diff: "Medium",
-      body: `Pairs me akela dhoondo — mid even banao, partner check karo. Jodi tooti jahan, akela wahan.
+      body: `Align \`mid\` to an even pair start; if the pair matches, the single element is on the right, else on the left.
 
 [Single Element in a Sorted Array](https://leetcode.com/problems/single-element-in-a-sorted-array/)
 
 \`\`\`js
-// Hinglish: jodi todo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/single-element-in-a-sorted-array/
+// Pairs aligned before single; misalignment tells which side
 function singleNonDuplicate(nums) {
-  // Hinglish: step 1 — range lo
   let lo = 0, hi = nums.length - 1;
   while (lo < hi) {
     let mid = (lo + hi) >> 1;
-    if (mid % 2 === 1) mid--; // Hinglish: even banao
-    if (nums[mid] === nums[mid + 1]) lo = mid + 2; // Hinglish: jodi sahi, aage dekho
-    else hi = mid; // Hinglish: yahin tooti hai
+    if (mid % 2 === 1) mid--; // pair starts at even index
+    if (nums[mid] === nums[mid + 1]) lo = mid + 2; // single is right
+    else hi = mid; // single is mid or left
   }
   return nums[lo];
 }
@@ -260,17 +252,14 @@ function singleNonDuplicate(nums) {
 [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary search — on the answer
-// LC: https://leetcode.com/problems/koko-eating-bananas/
+// BS on speed k — monotonic: faster => fewer hours
 function minEatingSpeed(piles, h) {
-  // Hinglish: step 1 — base case check karo
   let lo = 1, hi = Math.max(...piles);
   const hours = (k) => piles.reduce((s, p) => s + Math.ceil(p / k), 0);
   while (lo < hi) {
     const mid = lo + ((hi - lo) >> 1);
-    if (hours(mid) <= h) hi = mid;
-    else lo = mid + 1;
+    if (hours(mid) <= h) hi = mid; // fast enough, try slower
+    else lo = mid + 1; // too slow
   }
   return lo;
 }
@@ -286,17 +275,14 @@ function minEatingSpeed(piles, h) {
 [Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary search — on capacity
-// LC: https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/
+// BS on ship capacity — greedy count days for a cap
 function shipWithinDays(weights, days) {
-  // Hinglish: step 1 — base case check karo
   let lo = Math.max(...weights), hi = weights.reduce((a, b) => a + b, 0);
   const need = (cap) => {
     let d = 1, load = 0;
     for (const w of weights) {
       if (load + w > cap) {
-        d++;
+        d++; // new day
         load = 0;
       }
       load += w;
@@ -317,28 +303,28 @@ function shipWithinDays(weights, days) {
       lcSlug: "split-array-largest-sum",
       title: "Split Array Largest Sum",
       diff: "Hard",
-      body: `Answer pe binary search — mid = max subarray sum ki limit. Kitne tukde lage gino, zyada lage to limit badhao.
+      body: `Binary search the maximum allowed segment sum; greedily count segments and raise the limit if more than \`k\` pieces are needed.
 
 [Split Array Largest Sum](https://leetcode.com/problems/split-array-largest-sum/)
 
 \`\`\`js
-// Hinglish: answer pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/split-array-largest-sum/
+// BS on max segment sum limit
 function splitArray(nums, k) {
-  // Hinglish: step 1 — range lo (max se total tak)
   let lo = Math.max(...nums), hi = nums.reduce((a, b) => a + b, 0);
   const pieces = (limit) => {
     let cnt = 1, sum = 0;
     for (const x of nums) {
-      if (sum + x > limit) { cnt++; sum = x; } // Hinglish: naya tukda
-      else sum += x;
+      if (sum + x > limit) {
+        cnt++; // start new segment
+        sum = x;
+      } else sum += x;
     }
     return cnt;
   };
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (pieces(mid) <= k) hi = mid; // Hinglish: ho gaya, aur chhota try karo
-    else lo = mid + 1; // Hinglish: tukde zyada, limit badhao
+    if (pieces(mid) <= k) hi = mid; // feasible, tighten limit
+    else lo = mid + 1; // need bigger limit
   }
   return lo;
 }
@@ -349,23 +335,21 @@ function splitArray(nums, k) {
       lcSlug: "minimize-max-distance-to-gas-station",
       title: "Minimize Max Distance to Gas Station",
       diff: "Hard",
-      body: `Answer (max gap) pe binary search — itne gap me kitne station lagenge gino.
+      body: `Binary search the maximum gap between gas stations and count how many insertions each segment needs.
 
 [Minimize Max Distance to Gas Station](https://leetcode.com/problems/minimize-max-distance-to-gas-station/)
 
 \`\`\`js
-// Hinglish: gap pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimize-max-distance-to-gas-station/
+// BS on max gap — stations needed per segment
 function minmaxGasDist(stations, k) {
-  // Hinglish: step 1 — range lo
   let lo = 0, hi = 100000000;
   for (let round = 0; round < 50; round++) {
     const mid = (lo + hi) / 2;
     let need = 0;
     for (let i = 1; i < stations.length; i++) {
-      need += Math.floor((stations[i] - stations[i - 1]) / mid); // Hinglish: kitne station lagenge
+      need += Math.floor((stations[i] - stations[i - 1]) / mid);
     }
-    if (need <= k) hi = mid; // Hinglish: ho gaya, gap ghatao
+    if (need <= k) hi = mid; // gap ok, try smaller
     else lo = mid;
   }
   return hi;
@@ -377,28 +361,28 @@ function minmaxGasDist(stations, k) {
       lcSlug: "minimum-number-of-days-to-make-m-bouquets",
       title: "Minimum Number of Days to Make m Bouquets",
       diff: "Medium",
-      body: `Din fix karo, gin lo kitne bouquets banenge — kaafi bane to din ghatao.
+      body: `Binary search the bloom day and count \`k\`-flower bouquets; shrink the day when enough bouquets are possible.
 
 [Minimum Number of Days to Make m Bouquets](https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/)
 
 \`\`\`js
-// Hinglish: din pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/
+// BS on day — count bouquets of k adjacent bloomed
 function minDays(bloomDay, m, k) {
-  // Hinglish: step 1 — ho sakta hai ya nahi
-  if (m * k > bloomDay.length) return -1;
+  if (m * k > bloomDay.length) return -1; // impossible
   let lo = 1, hi = Math.max(...bloomDay);
   const bouquets = (day) => {
     let cnt = 0, row = 0;
     for (const d of bloomDay) {
-      if (d <= day) { row++; if (row === k) { cnt++; row = 0; } } // Hinglish: bouquet bana
-      else row = 0;
+      if (d <= day) {
+        row++;
+        if (row === k) { cnt++; row = 0; } // one bouquet done
+      } else row = 0; // streak broken
     }
     return cnt;
   };
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (bouquets(mid) >= m) hi = mid; // Hinglish: ho gaya, din ghatao
+    if (bouquets(mid) >= m) hi = mid;
     else lo = mid + 1;
   }
   return lo;
@@ -410,27 +394,28 @@ function minDays(bloomDay, m, k) {
       lcSlug: "magnetic-force-between-two-balls",
       title: "Magnetic Force Between Two Balls",
       diff: "Medium",
-      body: `Force fix karo, balls rakho — jitni chahiye utni lagi to force badhao. Aggressive cows wala pattern.
+      body: `Binary search minimum separation (magnetic force / aggressive cows): check how many balls fit, then maximize force.
 
 [Magnetic Force Between Two Balls](https://leetcode.com/problems/magnetic-force-between-two-balls/)
 
 \`\`\`js
-// Hinglish: force pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/magnetic-force-between-two-balls/
+// BS on minimum distance — maximize force (aggressive cows)
 function maxDistance(position, m) {
-  // Hinglish: step 1 — sort karo
   position.sort((a, b) => a - b);
   let lo = 1, hi = position[position.length - 1] - position[0], ans = 1;
   const place = (force) => {
     let cnt = 1, last = position[0];
     for (let i = 1; i < position.length; i++) {
-      if (position[i] - last >= force) { cnt++; last = position[i]; } // Hinglish: ball rakho
+      if (position[i] - last >= force) {
+        cnt++;
+        last = position[i];
+      }
     }
     return cnt;
   };
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    if (place(mid) >= m) { ans = mid; lo = mid + 1; } // Hinglish: ho gaya, force badhao
+    if (place(mid) >= m) { ans = mid; lo = mid + 1; } // works, push farther
     else hi = mid - 1;
   }
   return ans;
@@ -442,24 +427,22 @@ function maxDistance(position, m) {
       lcSlug: "minimum-limit-of-balls-in-a-bag",
       title: "Minimum Limit of Balls in a Bag",
       diff: "Medium",
-      body: `Max size fix karo, operations gino (x-1)/mid — budget me ho to size ghatao.
+      body: `Binary search the maximum bag size; splitting cost is \`sum floor((x-1)/size)\`; minimize size within the operation budget.
 
 [Minimum Limit of Balls in a Bag](https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/)
 
 \`\`\`js
-// Hinglish: size pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/
+// BS on max bag size — ops to split down to size
 function minimumSize(nums, maxOperations) {
-  // Hinglish: step 1 — range lo
   let lo = 1, hi = Math.max(...nums);
   const ops = (size) => {
     let c = 0;
-    for (const x of nums) c += Math.floor((x - 1) / size); // Hinglish: kitne cut lagenge
+    for (const x of nums) c += Math.floor((x - 1) / size); // splits per bag
     return c;
   };
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (ops(mid) <= maxOperations) hi = mid; // Hinglish: ho gaya, size ghatao
+    if (ops(mid) <= maxOperations) hi = mid;
     else lo = mid + 1;
   }
   return lo;
@@ -471,28 +454,26 @@ function minimumSize(nums, maxOperations) {
       lcSlug: "divide-chocolate",
       title: "Divide Chocolate",
       diff: "Hard",
-      body: `Sweetness fix karo, tukde gino — k+1 tukde bane to sweetness badhao.
+      body: `Binary search the minimum chunk sweetness and count whether at least \`k+1\` pieces can be formed.
 
 [Divide Chocolate](https://leetcode.com/problems/divide-chocolate/)
 
 \`\`\`js
-// Hinglish: sweetness pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/divide-chocolate/
+// BS on min chunk sweetness — maximize (search high with +1 bias)
 function maximizeSweetness(sweetness, k) {
-  // Hinglish: step 1 — range lo
   let lo = 1, hi = sweetness.reduce((a, b) => a + b, 0);
   const pieces = (val) => {
     let cnt = 0, sum = 0;
     for (const x of sweetness) {
       sum += x;
-      if (sum >= val) { cnt++; sum = 0; } // Hinglish: tukda bana
+      if (sum >= val) { cnt++; sum = 0; } // cut here
     }
     return cnt;
   };
   const need = k + 1;
   while (lo < hi) {
-    const mid = ((lo + hi) >> 1) + 1;
-    if (pieces(mid) >= need) lo = mid; // Hinglish: ho gaya, aur badhao
+    const mid = ((lo + hi) >> 1) + 1; // bias up for max minimum
+    if (pieces(mid) >= need) lo = mid;
     else hi = mid - 1;
   }
   return lo;
@@ -504,24 +485,22 @@ function maximizeSweetness(sweetness, k) {
       lcSlug: "minimum-time-to-complete-trips",
       title: "Minimum Time to Complete Trips",
       diff: "Medium",
-      body: `Time fix karo, trips gino (time/bus) — kaafi hon to time ghatao.
+      body: `Binary search total time and sum \`floor(time / time[i])\` trips; minimize time when the quota is met.
 
 [Minimum Time to Complete Trips](https://leetcode.com/problems/minimum-time-to-complete-trips/)
 
 \`\`\`js
-// Hinglish: time pe search — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-time-to-complete-trips/
+// BS on time — sum floor(t / time[i]) trips
 function minimumTime(time, totalTrips) {
-  // Hinglish: step 1 — range lo
   let lo = 1, hi = Math.min(...time) * totalTrips;
   const trips = (t) => {
     let c = 0;
-    for (const x of time) c += Math.floor(t / x); // Hinglish: har bus kitne chakkar
+    for (const x of time) c += Math.floor(t / x);
     return c;
   };
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (trips(mid) >= totalTrips) hi = mid; // Hinglish: ho gaya, time ghatao
+    if (trips(mid) >= totalTrips) hi = mid;
     else lo = mid + 1;
   }
   return lo;

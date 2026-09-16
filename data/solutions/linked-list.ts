@@ -17,19 +17,17 @@ export const LINKED_LIST_SOLUTIONS: SolutionGroup = {
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
-// Linked list — reverse
+// Iterative reverse — three pointers rewire next links in one pass
 // LC: https://leetcode.com/problems/reverse-linked-list/
 function reverseList(head) {
-  // Hinglish: step 1 — base case check karo
-  let prev = null, curr = head;
+  let prev = null, curr = head; // prev = reversed prefix tail
   while (curr) {
-    const next = curr.next;
-    curr.next = prev;
-    prev = curr;
-    curr = next;
+    const next = curr.next; // Save rest of original list before breaking link
+    curr.next = prev; // Point current node backward
+    prev = curr; // Reversed prefix grows by one
+    curr = next; // Walk forward in original list
   }
-  return prev;
+  return prev; // New head is old tail
 }
 \`\`\``,
     },
@@ -43,24 +41,22 @@ function reverseList(head) {
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
-// Linked list — merge with dummy
+// Dummy head avoids special-casing the merged list's first node
 // LC: https://leetcode.com/problems/merge-two-sorted-lists/
 function mergeTwoLists(l1, l2) {
-  // Hinglish: step 1 — base case check karo
   const dummy = { val: 0, next: null };
-  let tail = dummy;
+  let tail = dummy; // tail builds the output list
   while (l1 && l2) {
     if (l1.val < l2.val) {
-      tail.next = l1;
-      l1 = l1.next;
+      tail.next = l1; // Attach smaller head
+      l1 = l1.next; // Advance that list
     } else {
       tail.next = l2;
       l2 = l2.next;
     }
-    tail = tail.next;
+    tail = tail.next; // Move output tail forward
   }
-  tail.next = l1 || l2;
+  tail.next = l1 || l2; // Append remaining sorted suffix
   return dummy.next;
 }
 \`\`\``,
@@ -75,19 +71,17 @@ function mergeTwoLists(l1, l2) {
 [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
-// Linked list — gap of n
+// Two pointers n+1 apart — back stops before node to delete
 // LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
 function removeNthFromEnd(head, n) {
-  // Hinglish: step 1 — base case check karo
-  const dummy = { val: 0, next: head };
+  const dummy = { val: 0, next: head }; // Dummy handles deleting the head
   let front = dummy, back = dummy;
-  for (let i = 0; i < n + 1; i++) front = front.next;
+  for (let i = 0; i < n + 1; i++) front = front.next; // Create gap of n nodes between pointers
   while (front) {
-    front = front.next;
-    back = back.next;
+    front = front.next; // Move both until front hits null
+    back = back.next; // back ends at predecessor of target
   }
-  back.next = back.next.next;
+  back.next = back.next.next; // Skip nth-from-end node
   return dummy.next;
 }
 \`\`\``,
@@ -97,18 +91,20 @@ function removeNthFromEnd(head, n) {
       lcSlug: "middle-of-the-linked-list",
       title: "Middle of the Linked List",
       diff: "Easy",
-      body: `Fast 2x, slow 1x. Fast khatam to slow middle par.
+      body: `Fast moves two steps, slow one — when fast reaches the end, slow sits at the middle node.
 
 [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
+// Fast/slow — when fast reaches end, slow is at middle (or second middle)
 // LC: https://leetcode.com/problems/middle-of-the-linked-list/
 function middleNode(head) {
-  // Hinglish: fast double
   let slow=head, fast=head;
-  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; } // Hinglish: slow 1, fast 2
-  return slow;
+  while (fast && fast.next) {
+    slow=slow.next; // One step per iteration
+    fast=fast.next.next; // Two steps — fast hits end twice as fast
+  }
+  return slow; // Middle node for even length is second of the two middles
 }
 \`\`\``,
     },
@@ -117,23 +113,22 @@ function middleNode(head) {
       lcSlug: "swap-nodes-in-pairs",
       title: "Swap Nodes in Pairs",
       diff: "Medium",
-      body: `Do-do ka joda ulta karo — dummy se start karo taaki head sambhalna na pade.
+      body: `Swap adjacent pairs by rewiring links — use a dummy node so the head swap needs no special case.
 
 [Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/)
 
 \`\`\`js
-// Hinglish: joda palto — ek-ek step comment dekho
+// Swap adjacent pairs by rewiring three links per pair
 // LC: https://leetcode.com/problems/swap-nodes-in-pairs/
 function swapPairs(head) {
-  // Hinglish: step 1 — dummy lagao
-  const dummy = { val: 0, next: head };
+  const dummy = { val: 0, next: head }; // prev can always be dummy's chain
   let prev = dummy;
   while (prev.next && prev.next.next) {
-    const a = prev.next, b = a.next; // Hinglish: joda pakdo
-    a.next = b.next;
-    b.next = a;
-    prev.next = b; // Hinglish: jod do
-    prev = a;
+    const a = prev.next, b = a.next; // Pair to swap: a then b
+    a.next = b.next; // a skips past b
+    b.next = a; // b points back to a
+    prev.next = b; // Link previous chunk to new pair head b
+    prev = a; // Next pair starts after swapped a
   }
   return dummy.next;
 }
@@ -144,24 +139,23 @@ function swapPairs(head) {
       lcSlug: "reverse-linked-list-ii",
       title: "Reverse Linked List II",
       diff: "Medium",
-      body: `Left tak jao, right tak reverse karo, dono siron se jod do. Dummy se head safe rakho.
+      body: `Walk to the node before \`left\`, reverse the sublist through \`right\`, then reconnect. Dummy protects head edits.
 
 [Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/)
 
 \`\`\`js
-// Hinglish: hissa palto — ek-ek step comment dekho
+// Reverse sublist in place — repeated head insertion after prev
 // LC: https://leetcode.com/problems/reverse-linked-list-ii/
 function reverseBetween(head, left, right) {
-  // Hinglish: step 1 — dummy lagao
   const dummy = { val: 0, next: head };
   let prev = dummy;
-  for (let i = 1; i < left; i++) prev = prev.next; // Hinglish: left tak jao
-  let cur = prev.next;
+  for (let i = 1; i < left; i++) prev = prev.next; // Node before sublist start
+  let cur = prev.next; // First node inside sublist (will move right each step)
   for (let i = 0; i < right - left; i++) {
-    const nxt = cur.next; // Hinglish: ek aage wala uthao
-    cur.next = nxt.next;
-    nxt.next = prev.next; // Hinglish: aage lagao
-    prev.next = nxt;
+    const nxt = cur.next; // Node to pull to front of sublist
+    cur.next = nxt.next; // Bypass nxt — cur stays as sublist tail candidate
+    nxt.next = prev.next; // nxt becomes new sublist head
+    prev.next = nxt; // Attach new head after prev
   }
   return dummy.next;
 }
@@ -172,25 +166,24 @@ function reverseBetween(head, left, right) {
       lcSlug: "rotate-list",
       title: "Rotate List",
       diff: "Medium",
-      body: `List gol banao, n-k steps chalo, todo — k ko length se mod karna mat bhoolo.
+      body: `Find length, link tail to head, walk \`n - k % n\` steps, break the circle — mod \`k\` by length first.
 
 [Rotate List](https://leetcode.com/problems/rotate-list/)
 
 \`\`\`js
-// Hinglish: gol bana ke todo — ek-ek step comment dekho
+// Make circle, then break after (n-k) steps — new head is tail.next
 // LC: https://leetcode.com/problems/rotate-list/
 function rotateRight(head, k) {
-  // Hinglish: step 1 — lambai nikalo
   if (!head) return head;
   let n = 1, tail = head;
-  while (tail.next) { tail = tail.next; n++; }
-  k = k % n; // Hinglish: extra ghoomna hatao
+  while (tail.next) { tail = tail.next; n++; } // Find length and last node
+  k = k % n; // Rotating n steps is identity
   if (k === 0) return head;
-  tail.next = head; // Hinglish: gol banao
-  let steps = n - k;
-  while (steps-- > 0) tail = tail.next; // Hinglish: nayi tail tak chalo
-  const out = tail.next;
-  tail.next = null; // Hinglish: todo
+  tail.next = head; // Circular list
+  let steps = n - k; // New head is k nodes from old tail
+  while (steps-- > 0) tail = tail.next; // Walk to new tail position
+  const out = tail.next; // New head
+  tail.next = null; // Break cycle
   return out;
 }
 \`\`\``,
@@ -200,28 +193,25 @@ function rotateRight(head, k) {
       lcSlug: "reorder-list",
       title: "Reorder List",
       diff: "Medium",
-      body: `Middle nikalo, second half reverse karo, dono ko alternate merge karo — teen steps.
+      body: `Three steps: find middle, reverse second half, zip-merge the two halves alternately.
 
 [Reorder List](https://leetcode.com/problems/reorder-list/)
 
 \`\`\`js
-// Hinglish: todo-palto-jodo — ek-ek step comment dekho
+// Find mid, reverse second half, zip-merge two halves
 // LC: https://leetcode.com/problems/reorder-list/
 function reorderList(head) {
-  // Hinglish: step 1 — middle nikalo
   if (!head) return;
   let slow = head, fast = head;
-  while (fast.next && fast.next.next) { slow = slow.next; fast = fast.next.next; }
-  // Hinglish: second half reverse karo
+  while (fast.next && fast.next.next) { slow = slow.next; fast = fast.next.next; } // Mid of first half
   let prev = null, cur = slow.next;
-  slow.next = null;
-  while (cur) { const nxt = cur.next; cur.next = prev; prev = cur; cur = nxt; }
-  // Hinglish: alternate merge karo
-  let a = head, b = prev;
+  slow.next = null; // Split list into two halves
+  while (cur) { const nxt = cur.next; cur.next = prev; prev = cur; cur = nxt; } // Reverse second half
+  let a = head, b = prev; // a = first half, b = reversed second half
   while (b) {
-    const ta = a.next, tb = b.next;
-    a.next = b; b.next = ta;
-    a = ta; b = tb;
+    const ta = a.next, tb = b.next; // Save next pointers before overwrite
+    a.next = b; b.next = ta; // Interleave one node from b
+    a = ta; b = tb; // Advance both chains
   }
 }
 \`\`\``,
@@ -231,24 +221,23 @@ function reorderList(head) {
       lcSlug: "odd-even-linked-list",
       title: "Odd Even Linked List",
       diff: "Medium",
-      body: `Odd aur even alag chains banao, aakhir me jod do. Order dono me same rehta hai.
+      body: `Split into odd-index and even-index chains, then attach even list after odd — relative order preserved in each.
 
 [Odd Even Linked List](https://leetcode.com/problems/odd-even-linked-list/)
 
 \`\`\`js
-// Hinglish: do chain banao — ek-ek step comment dekho
+// Split odd-index and even-index nodes into two lists, then concatenate
 // LC: https://leetcode.com/problems/odd-even-linked-list/
 function oddEvenList(head) {
-  // Hinglish: step 1 — dono head lo
   if (!head) return head;
-  let odd = head, even = head.next, evenHead = even;
+  let odd = head, even = head.next, evenHead = even; // evenHead saves start of even chain
   while (even && even.next) {
-    odd.next = even.next; // Hinglish: odd aage badhao
+    odd.next = even.next; // Link odd to next odd (skip even)
     odd = odd.next;
-    even.next = odd.next; // Hinglish: even aage badhao
+    even.next = odd.next; // Link even to next even
     even = even.next;
   }
-  odd.next = evenHead; // Hinglish: jod do
+  odd.next = evenHead; // Append even list after odd list
   return head;
 }
 \`\`\``,
@@ -258,19 +247,18 @@ function oddEvenList(head) {
       lcSlug: "remove-duplicates-from-sorted-list",
       title: "Remove Duplicates from Sorted List",
       diff: "Easy",
-      body: `Sorted hai to duplicate paas me milega — same dikhe to skip karo.
+      body: `On a sorted list duplicates are adjacent — skip nodes while \`next.val === cur.val\`.
 
 [Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/)
 
 \`\`\`js
-// Hinglish: same skip karo — ek-ek step comment dekho
+// Sorted list — duplicates are adjacent; skip duplicate nodes
 // LC: https://leetcode.com/problems/remove-duplicates-from-sorted-list/
 function deleteDuplicates(head) {
-  // Hinglish: step 1 — traverse karo
   let cur = head;
   while (cur && cur.next) {
-    if (cur.val === cur.next.val) cur.next = cur.next.next; // Hinglish: duplicate udao
-    else cur = cur.next;
+    if (cur.val === cur.next.val) cur.next = cur.next.next; // Drop duplicate head
+    else cur = cur.next; // Move on when values differ
   }
   return head;
 }
@@ -281,23 +269,22 @@ function deleteDuplicates(head) {
       lcSlug: "remove-duplicates-from-sorted-list-ii",
       title: "Remove Duplicates from Sorted List II",
       diff: "Medium",
-      body: `Duplicate wala poora group udana hai — dummy lo, same values skip karo, alag mile to jodo.
+      body: `Drop entire duplicate runs — dummy head, skip all nodes in a equal-value group, keep unique nodes only.
 
 [Remove Duplicates from Sorted List II](https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/)
 
 \`\`\`js
-// Hinglish: poora group udao — ek-ek step comment dekho
+// Remove every node that appears in a duplicate run — keep unique values only
 // LC: https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
 function deleteDuplicates(head) {
-  // Hinglish: step 1 — dummy lagao
   const dummy = { val: 0, next: head };
-  let prev = dummy;
+  let prev = dummy; // Last node known to be kept
   while (head) {
     if (head.next && head.val === head.next.val) {
       const v = head.val;
-      while (head && head.val === v) head = head.next; // Hinglish: poora group skip
-      prev.next = head;
-    } else { prev = head; head = head.next; } // Hinglish: alag hai to rakho
+      while (head && head.val === v) head = head.next; // Skip entire duplicate group
+      prev.next = head; // Bypass group from prev
+    } else { prev = head; head = head.next; } // Unique value — advance prev
   }
   return dummy.next;
 }
@@ -308,20 +295,19 @@ function deleteDuplicates(head) {
       lcSlug: "remove-linked-list-elements",
       title: "Remove Linked List Elements",
       diff: "Easy",
-      body: `Val wale nodes hatao — dummy se head edge case khatam.
+      body: `Remove every node with the target value — dummy node handles deleting the head cleanly.
 
 [Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/)
 
 \`\`\`js
-// Hinglish: val wale hatao — ek-ek step comment dekho
+// Delete all nodes with target val — dummy handles head removal
 // LC: https://leetcode.com/problems/remove-linked-list-elements/
 function removeElements(head, val) {
-  // Hinglish: step 1 — dummy lagao
   const dummy = { val: 0, next: head };
-  let cur = dummy;
+  let cur = dummy; // cur is always predecessor of node under test
   while (cur.next) {
-    if (cur.next.val === val) cur.next = cur.next.next; // Hinglish: hatao
-    else cur = cur.next;
+    if (cur.next.val === val) cur.next = cur.next.next; // Remove matching successor
+    else cur = cur.next; // Keep node and move forward
   }
   return dummy.next;
 }
@@ -342,23 +328,21 @@ function removeElements(head, val) {
 [Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
-// Linked list — copy with a map
+// Two-pass clone: allocate all nodes, then wire next and random via map
 // LC: https://leetcode.com/problems/copy-list-with-random-pointer/
 function copyRandomList(head) {
-  // Hinglish: step 1 — base case check karo
   if (!head) return null;
-  const map = new Map();
+  const map = new Map(); // Original node -> deep copy node
   let curr = head;
   while (curr) {
-    map.set(curr, { val: curr.val, next: null, random: null });
+    map.set(curr, { val: curr.val, next: null, random: null }); // Pass 1: create copies
     curr = curr.next;
   }
   curr = head;
   while (curr) {
     const copy = map.get(curr);
-    copy.next = curr.next ? map.get(curr.next) : null;
-    copy.random = curr.random ? map.get(curr.random) : null;
+    copy.next = curr.next ? map.get(curr.next) : null; // Pass 2: link next pointers
+    copy.random = curr.random ? map.get(curr.random) : null; // Wire random pointers
     curr = curr.next;
   }
   return map.get(head);
@@ -370,32 +354,31 @@ function copyRandomList(head) {
       lcSlug: "lru-cache",
       title: "LRU Cache",
       diff: "Medium",
-      body: `Map plus doubly linked list — Map se O(1) pahunch, list se order. Head fresh, tail purana.
+      body: `Hash map for O(1) lookup plus doubly linked list for usage order — move touched nodes to the head (MRU), evict from tail (LRU).
 
 [LRU Cache](https://leetcode.com/problems/lru-cache/)
 
 \`\`\`js
-// Hinglish: map + list combo — ek-ek step comment dekho
+// Hash map for O(1) lookup + doubly linked list for usage order (MRU near head)
 // LC: https://leetcode.com/problems/lru-cache/
 function LRUCache(capacity) {
-  // Hinglish: step 1 — map + khaali list
   this.cap = capacity;
-  this.map = new Map();
-  this.head = { key: 0, val: 0, prev: null, next: null };
-  this.tail = { key: 0, val: 0, prev: null, next: null };
-  this.head.next = this.tail; this.tail.prev = this.head;
+  this.map = new Map(); // key -> list node
+  this.head = { key: 0, val: 0, prev: null, next: null }; // Sentinel before MRU side
+  this.tail = { key: 0, val: 0, prev: null, next: null }; // Sentinel before LRU side
+  this.head.next = this.tail; this.tail.prev = this.head; // Empty list between sentinels
 }
 LRUCache.prototype._add = function (node) {
-  node.next = this.head.next; node.prev = this.head; // Hinglish: head pe lagao
+  node.next = this.head.next; node.prev = this.head; // Insert right after head (most recent)
   this.head.next.prev = node; this.head.next = node;
 };
 LRUCache.prototype._drop = function (node) {
-  node.prev.next = node.next; node.next.prev = node.prev; // Hinglish: nikaalo
+  node.prev.next = node.next; node.next.prev = node.prev; // Unlink from list
 };
 LRUCache.prototype.get = function (key) {
   if (!this.map.has(key)) return -1;
   const node = this.map.get(key);
-  this._drop(node); this._add(node); // Hinglish: fresh banao
+  this._drop(node); this._add(node); // Touch moves entry to MRU
   return node.val;
 };
 LRUCache.prototype.put = function (key, value) {
@@ -403,8 +386,8 @@ LRUCache.prototype.put = function (key, value) {
   const node = { key, val: value, prev: null, next: null };
   this.map.set(key, node); this._add(node);
   if (this.map.size > this.cap) {
-    const old = this.tail.prev;
-    this._drop(old); this.map.delete(old.key); // Hinglish: purana udao
+    const old = this.tail.prev; // LRU node sits before tail sentinel
+    this._drop(old); this.map.delete(old.key); // Evict least recently used
   }
 };
 \`\`\``,
@@ -414,46 +397,45 @@ LRUCache.prototype.put = function (key, value) {
       lcSlug: "lfu-cache",
       title: "LFU Cache",
       diff: "Hard",
-      body: `LRU jaisa, par frequency se nikalo — min freq track karo, tie me LRU todo.
+      body: `Like LRU but evict by lowest frequency — track \`minF\`, and on ties remove least recently used among that bucket.
 
 [LFU Cache](https://leetcode.com/problems/lfu-cache/)
 
 \`\`\`js
-// Hinglish: freq buckets — ek-ek step comment dekho
+// Frequency buckets: minF tracks lowest freq; evict any key from minF bucket
 // LC: https://leetcode.com/problems/lfu-cache/
 function LFUCache(capacity) {
-  // Hinglish: step 1 — maps lo
   this.cap = capacity;
-  this.vals = new Map();
-  this.freq = new Map();
-  this.buckets = new Map();
-  this.minF = 0;
+  this.vals = new Map(); // key -> value
+  this.freq = new Map(); // key -> frequency count
+  this.buckets = new Map(); // freq -> Set of keys at that freq
+  this.minF = 0; // Current minimum frequency among keys
 }
 LFUCache.prototype._touch = function (key) {
   const f = this.freq.get(key);
-  this.buckets.get(f).delete(key); // Hinglish: purani bucket se nikalo
+  this.buckets.get(f).delete(key); // Remove from old frequency set
   if (this.buckets.get(f).size === 0) {
     this.buckets.delete(f);
-    if (this.minF === f) this.minF++; // Hinglish: min aage badhao
+    if (this.minF === f) this.minF++; // No keys left at min freq — bump minF
   }
   this.freq.set(key, f + 1);
   if (!this.buckets.has(f + 1)) this.buckets.set(f + 1, new Set());
-  this.buckets.get(f + 1).add(key); // Hinglish: nayi bucket me daalo
+  this.buckets.get(f + 1).add(key); // Add to incremented frequency bucket
 };
 LFUCache.prototype.get = function (key) {
   if (!this.vals.has(key)) return -1;
-  this._touch(key);
+  this._touch(key); // Access increases frequency
   return this.vals.get(key);
 };
 LFUCache.prototype.put = function (key, value) {
   if (this.cap === 0) return;
   if (this.vals.has(key)) { this.vals.set(key, value); this._touch(key); return; }
   if (this.vals.size === this.cap) {
-    const out = this.buckets.get(this.minF).values().next().value; // Hinglish: sabse kam freq wala
+    const out = this.buckets.get(this.minF).values().next().value; // Evict one LFU key
     this.buckets.get(this.minF).delete(out);
     this.vals.delete(out); this.freq.delete(out);
   }
-  this.vals.set(key, value); this.freq.set(key, 1); this.minF = 1;
+  this.vals.set(key, value); this.freq.set(key, 1); this.minF = 1; // New key starts at freq 1
   if (!this.buckets.has(1)) this.buckets.set(1, new Set());
   this.buckets.get(1).add(key);
 };
@@ -469,33 +451,31 @@ LFUCache.prototype.put = function (key, value) {
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// Heap — k-way merge
+// Min-heap of list heads — same pattern as merge two sorted lists
 // LC: https://leetcode.com/problems/merge-k-sorted-lists/
 function mergeKLists(lists) {
   const h = [];
   const less = (a, b) => a.val < b.val;
-  for (const node of lists) if (node) heapPush(h, node, less); // Hinglish: heap me daalo
+  for (const node of lists) if (node) heapPush(h, node, less); // Seed heap with each list head
   const dummy = { val: 0, next: null };
   let tail = dummy;
   while (h.length) {
-    const node = heapPop(h, less); // Hinglish: sabse chhota nikala
+    const node = heapPop(h, less); // Smallest current head
     tail.next = node;
     tail = node;
-    if (node.next) heapPush(h, node.next, less); // Hinglish: heap me daalo
+    if (node.next) heapPush(h, node.next, less); // Push next node from that list
   }
   return dummy.next;
 }
 
-// Heap helpers — har solution ke saath (min-heap default)
-// Hinglish: push karke upar bubble, pop karke neeche bubble
+// Array-based min-heap helpers (default numeric compare)
 function heapPush(h, val, less = (a, b) => a < b) {
   h.push(val);
   let i = h.length - 1;
   while (i > 0) {
     const p = (i - 1) >> 1;
     if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
+    [h[i], h[p]] = [h[p], h[i]]; // Bubble up while child is smaller
     i = p;
   }
 }
@@ -509,7 +489,7 @@ function heapPop(h, less = (a, b) => a < b) {
     if (l < h.length && less(h[l], h[m])) m = l;
     if (r < h.length && less(h[r], h[m])) m = r;
     if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
+    [h[i], h[m]] = [h[m], h[i]]; // Bubble down with smaller child
     i = m;
   }
   return top;
@@ -521,26 +501,25 @@ function heapPop(h, less = (a, b) => a < b) {
       lcSlug: "reverse-nodes-in-k-group",
       title: "Reverse Nodes in k-Group",
       diff: "Hard",
-      body: `K-k nodes ulto — pehle k hain ya nahi dekho, phir palto, aage jodo.
+      body: `If at least \`k\` nodes remain, reverse that block in place, then recurse on the rest and link.
 
 [Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/)
 
 \`\`\`js
-// Hinglish: k-k palto — ek-ek step comment dekho
+// Reverse first k nodes if k exist; recurse on remainder
 // LC: https://leetcode.com/problems/reverse-nodes-in-k-group/
 function reverseKGroup(head, k) {
-  // Hinglish: step 1 — k hain ya nahi
   let cnt = 0, node = head;
-  while (node && cnt < k) { node = node.next; cnt++; }
-  if (cnt < k) return head; // Hinglish: kam hain to waise hi
+  while (node && cnt < k) { node = node.next; cnt++; } // Check k nodes available
+  if (cnt < k) return head; // Short tail — leave unchanged
   let prev = null, cur = head;
   for (let i = 0; i < k; i++) {
     const nxt = cur.next;
-    cur.next = prev; // Hinglish: palto
+    cur.next = prev; // Standard iterative reverse step
     prev = cur; cur = nxt;
   }
-  head.next = reverseKGroup(cur, k); // Hinglish: baaki recursion kare
-  return prev;
+  head.next = reverseKGroup(cur, k); // head is old group head — links to next reversed chunk
+  return prev; // prev is new head of this k-block
 }
 \`\`\``,
     },
@@ -549,26 +528,25 @@ function reverseKGroup(head, k) {
       lcSlug: "flatten-a-multilevel-doubly-linked-list",
       title: "Flatten a Multilevel Doubly Linked List",
       diff: "Medium",
-      body: `Child mile to stack me next rakho, child pe jao — DFS order me seedha karo.
+      body: `When a node has a child, push the main-level \`next\` on a stack and dive into the child — DFS preorder flattening.
 
 [Flatten a Multilevel Doubly Linked List](https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/)
 
 \`\`\`js
-// Hinglish: child me ghuso — ek-ek step comment dekho
+// DFS preorder on multilevel list — stack saves main-level continuations
 // LC: https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/
 function flatten(head) {
-  // Hinglish: step 1 — traverse karo
   let cur = head;
-  const st = [];
+  const st = []; // Stack of next nodes after child subtrees
   while (cur) {
     if (cur.child) {
-      if (cur.next) st.push(cur.next); // Hinglish: wapas aane ke liye rakho
-      cur.next = cur.child; // Hinglish: child pe jao
-      cur.next.prev = cur;
-      cur.child = null;
+      if (cur.next) st.push(cur.next); // Resume main level after child chain
+      cur.next = cur.child; // Dive into child list
+      cur.next.prev = cur; // Maintain doubly linked property
+      cur.child = null; // Child consumed into next chain
     }
     if (!cur.next && st.length) {
-      const nxt = st.pop(); // Hinglish: rakha hua uthao
+      const nxt = st.pop(); // End of child — attach saved sibling
       cur.next = nxt; nxt.prev = cur;
     }
     cur = cur.next;
@@ -582,23 +560,20 @@ function flatten(head) {
       lcSlug: "palindrome-linked-list",
       title: "Palindrome Linked List",
       diff: "Easy",
-      body: `Middle dhoondo, second half reverse karo, fir dono half compare karo.
+      body: `Find the middle, reverse the second half, then compare values from both halves for a palindrome.
 
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
+// O(n) time O(1) space — find mid, reverse second half, compare halves
 // LC: https://leetcode.com/problems/palindrome-linked-list/
 function isPalindrome(head) {
-  // Hinglish: middle
   let slow=head, fast=head;
-  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; }
-  // Hinglish: reverse second half
+  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; } // slow at second half start
   let prev=null, cur=slow;
-  while (cur) { const nxt=cur.next; cur.next=prev; prev=cur; cur=nxt; }
-  // Hinglish: compare
-  let p1=head, p2=prev;
-  while (p2) { if (p1.val!==p2.val) return false; p1=p1.next; p2=p2.next; }
+  while (cur) { const nxt=cur.next; cur.next=prev; prev=cur; cur=nxt; } // Reverse from slow onward
+  let p1=head, p2=prev; // p1 first half, p2 reversed second half
+  while (p2) { if (p1.val!==p2.val) return false; p1=p1.next; p2=p2.next; } // Mirror compare
   return true;
 }
 \`\`\``,
@@ -608,18 +583,20 @@ function isPalindrome(head) {
       lcSlug: "intersection-of-two-linked-lists",
       title: "Intersection of Two Linked Lists",
       diff: "Easy",
-      body: `Do pointers, end par dusri list pe switch karo. Milenge to intersection.
+      body: `Two pointers walk both lists and switch to the other head at end — they meet at the intersection or both become null.
 
 [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
+// Two pointers swap lists at end — equalizes walked length before intersection
 // LC: https://leetcode.com/problems/intersection-of-two-linked-lists/
 function getIntersectionNode(headA, headB) {
-  // Hinglish: dono switch karte hain
   let a=headA, b=headB;
-  while (a!==b) { a = a ? a.next : headB; b = b ? b.next : headA; } // Hinglish: end par dusri list
-  return a;
+  while (a!==b) {
+    a = a ? a.next : headB; // Switch to B when A exhausts
+    b = b ? b.next : headA; // Switch to A when B exhausts
+  }
+  return a; // Both null or both at intersection node
 }
 \`\`\``,
     },
@@ -628,30 +605,29 @@ function getIntersectionNode(headA, headB) {
       lcSlug: "sort-list",
       title: "Sort List",
       diff: "Medium",
-      body: `Merge sort linked list pe — slow/fast se todo, dono sort karke merge karo. O(1) space.
+      body: `Merge sort on a linked list — split with slow/fast, sort halves recursively, merge sorted runs. O(1) extra space besides recursion.
 
 [Sort List](https://leetcode.com/problems/sort-list/)
 
 \`\`\`js
-// Hinglish: todo-sort-merge — ek-ek step comment dekho
+// Merge sort on linked list — O(n log n) time, O(1) extra if ignoring recursion stack
 // LC: https://leetcode.com/problems/sort-list/
 function sortList(head) {
-  // Hinglish: step 1 — base case
-  if (!head || !head.next) return head;
+  if (!head || !head.next) return head; // Base: 0 or 1 node sorted
   let slow = head, fast = head.next;
-  while (fast && fast.next) { slow = slow.next; fast = fast.next.next; } // Hinglish: middle dhoondo
+  while (fast && fast.next) { slow = slow.next; fast = fast.next.next; } // Mid before second half
   const mid = slow.next;
-  slow.next = null; // Hinglish: todo
-  const l = sortList(head), r = sortList(mid); // Hinglish: dono sort karo
+  slow.next = null; // Cut list in half
+  const l = sortList(head), r = sortList(mid); // Recursively sort halves
   const dummy = { val: 0, next: null };
   let tail = dummy;
   let a = l, b = r;
   while (a && b) {
-    if (a.val < b.val) { tail.next = a; a = a.next; } // Hinglish: chhota jodo
+    if (a.val < b.val) { tail.next = a; a = a.next; }
     else { tail.next = b; b = b.next; }
     tail = tail.next;
   }
-  tail.next = a || b;
+  tail.next = a || b; // Attach leftover sorted run
   return dummy.next;
 }
 \`\`\``,
@@ -661,22 +637,21 @@ function sortList(head) {
       lcSlug: "add-two-numbers",
       title: "Add Two Numbers",
       diff: "Medium",
-      body: `Ulte order me digits — jodte jao carry saath rakho, lambi list khatm ho to zero samjho.
+      body: `Digits are LSB-first — add with carry, treat missing nodes as zero until both lists and carry are exhausted.
 
 [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/)
 
 \`\`\`js
-// Hinglish: jodo carry rakho — ek-ek step comment dekho
+// Digits stored LSB-first — simulate elementary addition with carry
 // LC: https://leetcode.com/problems/add-two-numbers/
 function addTwoNumbers(l1, l2) {
-  // Hinglish: step 1 — dummy lo
   const dummy = { val: 0, next: null };
   let tail = dummy, carry = 0;
   while (l1 || l2 || carry) {
-    const a = l1 ? l1.val : 0, b = l2 ? l2.val : 0; // Hinglish: na ho to zero
+    const a = l1 ? l1.val : 0, b = l2 ? l2.val : 0; // Treat missing digits as 0
     const s = a + b + carry;
-    tail.next = { val: s % 10, next: null }; // Hinglish: digit jodo
-    carry = Math.floor(s / 10); // Hinglish: carry bachao
+    tail.next = { val: s % 10, next: null }; // Append ones digit
+    carry = Math.floor(s / 10); // Carry for next position
     tail = tail.next;
     if (l1) l1 = l1.next;
     if (l2) l2 = l2.next;
@@ -690,23 +665,22 @@ function addTwoNumbers(l1, l2) {
       lcSlug: "add-two-numbers-ii",
       title: "Add Two Numbers II",
       diff: "Medium",
-      body: `Seedhe order me digits — stack me daal ke ulta karo, phir upar wala tareeka lagao.
+      body: `MSB-first lists — push digits onto stacks, pop and add with carry while prepending result nodes.
 
 [Add Two Numbers II](https://leetcode.com/problems/add-two-numbers-ii/)
 
 \`\`\`js
-// Hinglish: ulta karke jodo — ek-ek step comment dekho
+// MSB-first lists — stack digits then build result from front via prepend
 // LC: https://leetcode.com/problems/add-two-numbers-ii/
 function addTwoNumbers(l1, l2) {
-  // Hinglish: step 1 — stacks bharo
   const s1 = [], s2 = [];
-  while (l1) { s1.push(l1.val); l1 = l1.next; }
+  while (l1) { s1.push(l1.val); l1 = l1.next; } // Push MSB...LSB then pop from LSB
   while (l2) { s2.push(l2.val); l2 = l2.next; }
   let carry = 0, head = null;
   while (s1.length || s2.length || carry) {
     const a = s1.length ? s1.pop() : 0, b = s2.length ? s2.pop() : 0;
     const s = a + b + carry;
-    const node = { val: s % 10, next: head }; // Hinglish: aage jodo
+    const node = { val: s % 10, next: head }; // Prepend digit — builds MSB-first result
     head = node;
     carry = Math.floor(s / 10);
   }

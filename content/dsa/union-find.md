@@ -8,14 +8,14 @@
 
 ```js
 // Union-Find skeleton — path compression + union by rank
-// Hinglish: boss dhoondo, rasta chhota karo, rank se jodo
+// boss dhoondo, rasta smaller do, rank from append
 function find(p, x) {
   while (p[x] !== x) { p[x] = p[p[x]]; x = p[x]; } // path half
   return x;
 }
 function union(p, rank, a, b) {
   a = find(p, a); b = find(p, b);
-  if (a === b) return false; // pehle se juda / cycle
+  if (a === b) return false; // already same set — union would create cycle
   if (rank[a] < rank[b]) [a, b] = [b, a];
   p[b] = a;
   if (rank[a] === rank[b]) rank[a]++;
@@ -31,11 +31,9 @@ Add edges one by one. The first edge whose ends are already connected is the ext
 [Redundant Connection](https://leetcode.com/problems/redundant-connection/)
 
 ```js
-// Hinglish: find-union — ek-ek step comment dekho
-// Union-find — extra edge
+// First edge connecting already-connected nodes is redundant
 // LC: https://leetcode.com/problems/redundant-connection/
 function findRedundantConnection(edges) {
-  // Hinglish: step 1 — base case check karo
   const n = edges.length;
   const p = Array.from({ length: n + 1 }, (_, i) => i);
   const rank = Array(n + 1).fill(0);
@@ -52,11 +50,9 @@ Manhattan edges between every pair. Sort cheap → expensive. Kruskal: union if 
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
-// Hinglish: find-union — ek-ek step comment dekho
-// Union-find — Kruskal MST
+// Kruskal MST on complete graph (Manhattan edges)
 // LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
-  // Hinglish: step 1 — base case check karo
   const n = points.length;
   const edges = [];
   for (let i = 0; i < n; i++) {
@@ -65,15 +61,16 @@ function minCostConnectPoints(points) {
       edges.push([w, i, j]);
     }
   }
-  edges.sort((a, b) => a[0] - b[0]);
-  const p = Array.from({ length: n }, (_, i) => i);
-  const rank = Array(n).fill(0);
+  edges.sort((a, b) => a[0] - b[0]); // cheapest edge first
+  const parent = Array.from({ length: n }, (_, i) => i);
+  const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
   let cost = 0, used = 0;
-  for (const [w, a, b] of edges) {
-    if (union(p, rank, a, b)) {
+  for (const [w, u, v] of edges) {
+    const ru = find(u), rv = find(v);
+    if (ru !== rv) { // connects two components, no cycle
+      parent[ru] = rv;
       cost += w;
-      used++;
-      if (used === n - 1) break;
+      if (++used === n - 1) break; // MST has n-1 edges
     }
   }
   return cost;
@@ -87,10 +84,8 @@ Union-Find se bhi provinces gin sakte hain. Connected cities ko union karo.
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 ```js
-// Hinglish: find-union — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/number-of-provinces/
 function findCircleNumUF(isConnected) {
-  // Hinglish: DSU
   const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
   const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
   const union=(a,b)=>{
@@ -98,7 +93,7 @@ function findCircleNumUF(isConnected) {
     if(rank[a]<rank[b]) [a,b]=[b,a];
     p[b]=a; if(rank[a]===rank[b]) rank[a]++;
   };
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j); // Hinglish: juda to union
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j);
   const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
   return roots.size;
 }
@@ -111,21 +106,19 @@ Same email wale accounts merge karo. Email ko node, account ke emails ko union k
 [Accounts Merge](https://leetcode.com/problems/accounts-merge/)
 
 ```js
-// Hinglish: find-union — ek-ek step comment dekho
+// Union emails within same account; merge DSU components
 // LC: https://leetcode.com/problems/accounts-merge/
 function accountsMerge(accounts) {
-  // Hinglish: email -> id
   const id=new Map(); let eid=0;
   for(const acc of accounts) for(let i=1;i<acc.length;i++) if(!id.has(acc[i])) id.set(acc[i], eid++);
   const p=Array.from({length:eid},(_,i)=>i), rank=Array(eid).fill(0);
   const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
   const union=(a,b)=>{ a=find(a); b=find(b); if(a===b) return; if(rank[a]<rank[b]) [a,b]=[b,a]; p[b]=a; if(rank[a]===rank[b]) rank[a]++; };
-  for(const acc of accounts) for(let i=2;i<acc.length;i++) union(id.get(acc[1]), id.get(acc[i])); // Hinglish: ek account ke emails union
+  for(const acc of accounts) for(let i=2;i<acc.length;i++) union(id.get(acc[1]), id.get(acc[i]));
   const groups=new Map();
   for(const [email,i] of id) { const r=find(i); if(!groups.has(r)) groups.set(r, []); groups.get(r).push(email); }
   const ans=[];
-  for(const emails of groups.values()){ emails.sort(); // Hinglish: sort
-    // naam dhoondo
+  for(const emails of groups.values()){ emails.sort();
     let name="";
     for(const acc of accounts) if(acc.includes(emails[0])){ name=acc[0]; break; }
     ans.push([name, ...emails]);

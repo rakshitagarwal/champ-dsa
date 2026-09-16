@@ -8,11 +8,11 @@
 
 ```js
 // String skeleton — two pointers (palindrome / reverse)
-// Hinglish: dono siron se aao, beech me milo
+// two pointers from ends toward center
 function isPalindrome(s) {
   let l = 0, r = s.length - 1;
   while (l < r) {
-    while (l < r && !isAlphaNum(s[l])) l++; // Hinglish: kachra skip
+    while (l < r && !isAlphaNum(s[l])) l++; // skip non-alphanumeric characters
     while (l < r && !isAlphaNum(s[r])) r--;
     if (s[l].toLowerCase() !== s[r].toLowerCase()) return false;
     l++; r--;
@@ -21,9 +21,9 @@ function isPalindrome(s) {
 }
 
 // String skeleton — frequency count (anagram)
-// Hinglish: gino, phir compare karo
+// count frequencies, then compare the two strings
 function freqCount(s) {
-  const f = Array(26).fill(0); // Hinglish: a-z ke dibbe
+  const f = Array(26).fill(0); // a-z of dibbe
   for (const ch of s.toLowerCase()) {
     if (ch >= "a" && ch <= "z") f[ch.charCodeAt(0) - 97]++;
   }
@@ -31,10 +31,10 @@ function freqCount(s) {
 }
 
 // String skeleton — expand around center (palindromic substring)
-// Hinglish: har center se bahar phailo
+// for each center, expand outward while characters match
 function expand(s, l, r) {
   while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-  return [l + 1, r - l - 1]; // Hinglish: start + length
+  return [l + 1, r - l - 1]; // start + length
 }
 ```
 
@@ -56,16 +56,15 @@ Dono siron se aao, alphanumeric nahi to skip, case ignore karke compare.
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-palindrome/
 function isPalindrome(s) {
-  // Hinglish: step 1 — dono pointer lo
+  // two pointers from both ends toward center
   const isAlphaNum = (c) => /[a-z0-9]/i.test(c);
   let l = 0, r = s.length - 1;
   while (l < r) {
-    while (l < r && !isAlphaNum(s[l])) l++; // Hinglish: kachra skip
+    while (l < r && !isAlphaNum(s[l])) l++; // skip non-alphanumeric characters
     while (l < r && !isAlphaNum(s[r])) r--;
-    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false; // Hinglish: mismatch
+    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false; // mismatch
     l++; r--;
   }
   return true;
@@ -79,17 +78,16 @@ Dono ke letter counts barabar hon to anagram. Ek ka +1, doosre ka -1 — sab zer
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-anagram/
 function isAnagram(s, t) {
-  // Hinglish: step 1 — lambai check karo
+  // lengths must match for an anagram
   if (s.length !== t.length) return false;
   const f = Array(26).fill(0);
   for (let i = 0; i < s.length; i++) {
-    f[s.charCodeAt(i) - 97]++; // Hinglish: pehle ka +1
-    f[t.charCodeAt(i) - 97]--; // Hinglish: doosre ka -1
+    f[s.charCodeAt(i) - 97]++; // first of +1
+    f[t.charCodeAt(i) - 97]--; // doosre of -1
   }
-  return f.every((x) => x === 0); // Hinglish: sab zero to anagram
+  return f.every((x) => x === 0); // sab zero to anagram
 }
 ```
 
@@ -100,15 +98,14 @@ Sorted word hi group ki key hai — anagram sort karke same bante hain. Map me k
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/group-anagrams/
 function groupAnagrams(strs) {
-  // Hinglish: step 1 — map banao
+  // step 1 — build the map
   const map = new Map();
   for (const w of strs) {
-    const key = [...w].sort().join(""); // Hinglish: sort = group key
+    const key = [...w].sort().join(""); // sort = group key
     if (!map.has(key)) map.set(key, []);
-    map.get(key).push(w); // Hinglish: group me daalo
+    map.get(key).push(w); // group in push into heap
   }
   return [...map.values()];
 }
@@ -121,18 +118,17 @@ Window badhao, repeat aaye to left se hatao. Map me last index rakho taaki left 
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
 function lengthOfLongestSubstring(s) {
-  // Hinglish: step 1 — window + map lo
+  // step 1 — window + map lo
   const last = new Map();
   let l = 0, best = 0;
   for (let r = 0; r < s.length; r++) {
     if (last.has(s[r]) && last.get(s[r]) >= l) {
-      l = last.get(s[r]) + 1; // Hinglish: repeat hatao, jump karo
+      l = last.get(s[r]) + 1; // repeat remove, jump do
     }
     last.set(s[r], r);
-    best = Math.max(best, r - l + 1); // Hinglish: best update
+    best = Math.max(best, r - l + 1); // window is valid — track longest length
   }
   return best;
 }
@@ -145,18 +141,18 @@ Har center (odd + even) se expand karo, sabse lamba rakho. `O(n²)` time, `O(1)`
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
 function longestPalindrome(s) {
-  // Hinglish: step 1 — expand helper
+  // Expand while chars match; return start index and length
   const expand = (l, r) => {
     while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-    return [l + 1, r - l - 1]; // Hinglish: start + length
+    return [l + 1, r - l - 1];
   };
   let start = 0, len = 0;
   for (let i = 0; i < s.length; i++) {
-    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) { // Hinglish: odd + even
-      if (ln > len) { start = st; len = ln; } // Hinglish: lamba mila
+    // Try odd-length (i,i) and even-length (i,i+1) centers
+    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) {
+      if (ln > len) { start = st; len = ln; }
     }
   }
   return s.slice(start, start + len);

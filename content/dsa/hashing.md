@@ -8,20 +8,20 @@
 
 ```js
 // Hashing skeleton — lookup then store (Two Sum / pair)
-// Hinglish: pehle dekho saathi hai kya, fir khud ko yaad rakho
+// check complement first, then store current element
 const seen = new Map(); // ya Set
 for (const x of nums) {
-  if (seen.has(needFor(x))) return found; // saathi mil gaya
-  seen.set(keyFor(x), x);                 // khud ko store
+  if (seen.has(needFor(x))) return found; // complement already stored — pair found
+  seen.set(keyFor(x), x);                 // store current element for future lookups
 }
 
 // Frequency skeleton
-// Hinglish: har char kitni baar aaya gino
+// count frequency of each character
 const freq = new Map();
 for (const ch of s) freq.set(ch, (freq.get(ch) || 0) + 1);
 
 // Group-by-key skeleton
-// Hinglish: same key wale ek bucket me
+// bucket strings sharing the same canonical key
 const groups = new Map();
 for (const s of strs) {
   const key = [...s].sort().join(""); // sorted = canonical
@@ -36,15 +36,14 @@ I would remember each number’s index. When `target - nums[i]` is already in th
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — complement
+// Complement lookup in one pass
 // LC: https://leetcode.com/problems/two-sum/
 function twoSum(nums, target) {
-  const seen = new Map();
+  const seen = new Map(); // value -> index
   for (let i = 0; i < nums.length; i++) {
-    const need = target - nums[i];
-    if (seen.has(need)) return [seen.get(need), i]; // Hinglish: saathi mila kya?
-    seen.set(nums[i], i); // Hinglish: yaad rakho
+    const need = target - nums[i]; // partner we still need
+    if (seen.has(need)) return [seen.get(need), i]; // found pair
+    seen.set(nums[i], i); // remember index for later
   }
 }
 ```
@@ -56,18 +55,16 @@ Same letters sorted become the same key. Bucket words by that key.
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — group by signature
+// Map key = sorted letters (canonical anagram form)
 // LC: https://leetcode.com/problems/group-anagrams/
 function groupAnagrams(strs) {
-  // Hinglish: step 1 — base case check karo
   const groups = new Map();
   for (const s of strs) {
-    const key = [...s].sort().join("");
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(s);
+    const key = [...s].sort().join(""); // anagrams share the same key
+    if (!groups.has(key)) groups.set(key, []); // start a new bucket
+    groups.get(key).push(s); // append word to its anagram group
   }
-  return [...groups.values()];
+  return [...groups.values()]; // one array per distinct key
 }
 ```
 
@@ -78,19 +75,17 @@ Count letters of `s`, subtract letters of `t`. If anything is left, they are not
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — frequency cancel
+// Frequency map — increment s, decrement t
 // LC: https://leetcode.com/problems/valid-anagram/
 function isAnagram(s, t) {
-  // Hinglish: step 1 — base case check karo
-  if (s.length !== t.length) return false;
+  if (s.length !== t.length) return false; // different lengths cannot match
   const count = Object.create(null);
-  for (const ch of s) count[ch] = (count[ch] || 0) + 1;
+  for (const ch of s) count[ch] = (count[ch] || 0) + 1; // tally letters in s
   for (const ch of t) {
-    if (!count[ch]) return false;
-    count[ch]--;
+    if (!count[ch]) return false; // t uses a letter s did not have
+    count[ch]--; // cancel one occurrence from s's count
   }
-  return true;
+  return true; // all counts hit zero when counts match
 }
 ```
 
@@ -101,18 +96,16 @@ Put everything in a set. Only start counting at a number that has no `n - 1`. Th
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — only start a streak at the left edge
+// Only start counting at streak left edge (no n-1 in set)
 // LC: https://leetcode.com/problems/longest-consecutive-sequence/
 function longestConsecutive(nums) {
-  // Hinglish: step 1 — base case check karo
-  const set = new Set(nums);
+  const set = new Set(nums); // O(1) membership for neighbors
   let best = 0;
   for (const n of set) {
-    if (set.has(n - 1)) continue;
+    if (set.has(n - 1)) continue; // not a streak start — skip
     let len = 1;
-    while (set.has(n + len)) len++;
-    best = Math.max(best, len);
+    while (set.has(n + len)) len++; // walk n+1, n+2, … while present
+    best = Math.max(best, len); // track longest run seen
   }
   return best;
 }
@@ -125,16 +118,15 @@ Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing 
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// Set membership — duplicate on second sighting
 // LC: https://leetcode.com/problems/contains-duplicate/
 function containsDuplicate(nums) {
-  // Hinglish: set me pehle se hai kya?
   const seen = new Set();
   for (const x of nums) {
-    if (seen.has(x)) return true; // Hinglish: duplicate mil gaya
-    seen.add(x); // Hinglish: yaad rakho
+    if (seen.has(x)) return true; // already in set — duplicate exists
+    seen.add(x); // first time seeing x
   }
-  return false;
+  return false; // all elements unique
 }
 ```
 
@@ -145,20 +137,19 @@ Har row, column, aur 3x3 box me 1-9 ek baar hi aana chahiye. Hash set se check k
 [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// Row / col / 3×3 box sets — each digit once per unit
 // LC: https://leetcode.com/problems/valid-sudoku/
 function isValidSudoku(board) {
-  // Hinglish: 3 tarah ke set — row, col, box
   const rows = Array.from({length:9}, ()=> new Set());
   const cols = Array.from({length:9}, ()=> new Set());
   const boxes = Array.from({length:9}, ()=> new Set());
   for (let r=0; r<9; r++) {
     for (let c=0; c<9; c++) {
       const v = board[r][c];
-      if (v === ".") continue;
-      const b = Math.floor(r/3)*3 + Math.floor(c/3); // Hinglish: box index
-      if (rows[r].has(v) || cols[c].has(v) || boxes[b].has(v)) return false; // Hinglish: pehle se hai to invalid
-      rows[r].add(v); cols[c].add(v); boxes[b].add(v); // Hinglish: yaad rakho
+      if (v === ".") continue; // empty cell — no constraint
+      const b = Math.floor(r/3)*3 + Math.floor(c/3); // box id 0..8
+      if (rows[r].has(v) || cols[c].has(v) || boxes[b].has(v)) return false; // duplicate in row/col/box
+      rows[r].add(v); cols[c].add(v); boxes[b].add(v); // mark digit used in all three units
     }
   }
   return true;
@@ -172,20 +163,18 @@ Frequency gino, fir heap / bucket se top K nikalo. Hashing + heap combo ka class
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
+// Count freq, then bucket sort by frequency index
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
 function topKFrequent(nums, k) {
-  // Hinglish: pehle frequency map banao
   const freq = new Map();
-  for (const x of nums) freq.set(x, (freq.get(x)||0)+1);
-  // Hinglish: frequency ke hisaab se bucket
-  const bucket = Array(nums.length+1).fill(0).map(()=>[]);
-  for (const [num, f] of freq) bucket[f].push(num); // Hinglish: f wali bucket me daalo
+  for (const x of nums) freq.set(x, (freq.get(x)||0)+1); // tally each value
+  const bucket = Array(nums.length+1).fill(0).map(()=>[]); // index = frequency
+  for (const [num, f] of freq) bucket[f].push(num); // all nums with freq f
   const ans = [];
-  for (let f=bucket.length-1; f>=0 && ans.length < k; f--) {
+  for (let f=bucket.length-1; f>=0 && ans.length < k; f--) { // highest freq first
     for (const n of bucket[f]) {
       ans.push(n);
-      if (ans.length===k) break;
+      if (ans.length===k) break; // collected k elements
     }
   }
   return ans;

@@ -8,14 +8,13 @@
 
 ```js
 // Fenwick (BIT) skeleton — 1-based
-// Hinglish: add upar jao, sum neeche aao
 function bitAdd(bit, i, v) { for (; i < bit.length; i += i & -i) bit[i] += v; }
 function bitSum(bit, i) { let s = 0; for (; i > 0; i -= i & -i) s += bit[i]; return s; }
 const bit = Array(n + 1).fill(0);
 // range [l..r] = bitSum(bit, r) - bitSum(bit, l-1)
 
 // Count smaller after self — merge-sort sketch
-// Hinglish: right wala chhota to left ke baaki sabse chhota
+// pop while stack top ≤ current — maintain increasing stack
 // during merge: if right[j] < left[i], count left.remaining += 1
 ```
 ## Range Sum Query Mutable
@@ -25,11 +24,8 @@ Fenwick on the array. Update = delta at index. Range = prefix(right) - prefix(le
 [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
 
 ```js
-// Hinglish: BIT / merge count — ek-ek step comment dekho
-// Fenwick — point add, range sum
 // LC: https://leetcode.com/problems/range-sum-query-mutable/
 function NumArray(nums) {
-  // Hinglish: step 1 — base case check karo
   this.n = nums.length;
   this.nums = nums.slice();
   this.bit = Array(this.n + 1).fill(0);
@@ -59,11 +55,8 @@ Merge sort the indexes. When I take a value from the right half, it is smaller t
 [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
 
 ```js
-// Hinglish: BIT / merge count — ek-ek step comment dekho
-// Merge sort — count right-side smaller
 // LC: https://leetcode.com/problems/count-of-smaller-numbers-after-self/
 function countSmaller(nums) {
-  // Hinglish: step 1 — base case check karo
   const n = nums.length;
   const idx = Array.from({ length: n }, (_, i) => i);
   const ans = Array(n).fill(0);
@@ -102,18 +95,17 @@ function countSmaller(nums) {
 [Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)
 
 ```js
-// Hinglish: BIT / merge count — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/range-sum-query-2d-immutable/
 function NumMatrix(matrix){
-  // Hinglish: 2D prefix banao
+  // build 2D prefix sums
   const R=matrix.length, C=matrix[0].length;
   this.pref=Array.from({length:R+1},()=>Array(C+1).fill(0));
   for(let i=0;i<R;i++) for(let j=0;j<C;j++){
-    this.pref[i+1][j+1]=matrix[i][j]+this.pref[i][j+1]+this.pref[i+1][j]-this.pref[i][j]; // Hinglish: 2D jod
+    this.pref[i+1][j+1]=matrix[i][j]+this.pref[i][j+1]+this.pref[i+1][j]-this.pref[i][j]; // 2D prefix sum inclusion–exclusion formula
   }
 }
 NumMatrix.prototype.sumRegion=function(r1,c1,r2,c2){
-  // Hinglish: inclusion-exclusion
+  // inclusion-exclusion
   return this.pref[r2+1][c2+1]-this.pref[r1][c2+1]-this.pref[r2+1][c1]+this.pref[r1][c1];
 };
 ```
@@ -125,18 +117,21 @@ NumMatrix.prototype.sumRegion=function(r1,c1,r2,c2){
 [Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)
 
 ```js
-// Hinglish: BIT / merge count — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reverse-pairs/
 function reversePairs(nums){
-  // Hinglish: merge sort count
   let ans=0;
   const mergeSort=(l,r)=>{
     if(r-l<=1) return;
-    const m=(l+r)>>1; mergeSort(l,m); mergeSort(m,r);
-    // Hinglish: count pairs l..m-1 se m..r-1
+    const m=(l+r)>>1;
+    mergeSort(l,m);
+    mergeSort(m,r);
+    // Count pairs with left index in [l,m) and right in [m,r)
     let j=m;
-    for(let i=l;i<m;i++){ while(j<r && nums[i] > 2*nums[j]) j++; ans += j-m; } // Hinglish: kitne satisfy
-    // Hinglish: normal merge
+    for(let i=l;i<m;i++){
+      while(j<r && nums[i] > 2*nums[j]) j++;
+      ans += j-m;
+    }
+    // Standard merge keeps order for next levels
     const tmp=[]; let i=l, k=m;
     while(i<m && k<r) tmp.push(nums[i]<=nums[k]? nums[i++]: nums[k++]);
     while(i<m) tmp.push(nums[i++]); while(k<r) tmp.push(nums[k++]);

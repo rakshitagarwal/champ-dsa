@@ -8,16 +8,16 @@
 
 ```js
 // Sorting skeleton
-// Hinglish: pehle sort karo
+// first sort do
 nums.sort((a, b) => a - b); // O(n log n)
 
 // Interval skeleton — sort then linear merge
-// Hinglish: sort karke pichhle se compare, overlap to stretch
+// sort by start; merge overlapping intervals
 items.sort((a, b) => a[0] - b[0]);
 const out = [items[0]];
 for (const cur of items.slice(1)) {
   const last = out.at(-1);
-  if (cur[0] <= last[1]) last[1] = Math.max(last[1], cur[1]); // overlap → badhao
+  if (cur[0] <= last[1]) last[1] = Math.max(last[1], cur[1]); // overlap — extend current interval end
   else out.push(cur);
 }
 ```
@@ -28,18 +28,16 @@ Sort by start. Overlap means `start <= lastEnd`. Then the new end is the max of 
 [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 ```js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — merge overlaps
 // LC: https://leetcode.com/problems/merge-intervals/
 function merge(intervals) {
-  // Hinglish: step 1 — base case check karo
-  intervals.sort((a, b) => a[0] - b[0]);
-  const out = [intervals[0]];
+  // Empty input is handled by caller; we need at least one interval to seed output
+  intervals.sort((a, b) => a[0] - b[0]); // Overlaps only matter after sorting by start
+  const out = [intervals[0]]; // First interval starts the merged list
   for (let i = 1; i < intervals.length; i++) {
-    const last = out[out.length - 1];
-    const [s, e] = intervals[i];
-    if (s <= last[1]) last[1] = Math.max(last[1], e);
-    else out.push([s, e]);
+    const last = out[out.length - 1]; // Current merged interval at the tail
+    const [s, e] = intervals[i]; // Candidate interval to place or merge
+    if (s <= last[1]) last[1] = Math.max(last[1], e); // Overlap: extend end only
+    else out.push([s, e]); // Disjoint: append as a new interval
   }
   return out;
 }
@@ -52,22 +50,20 @@ Walk existing intervals. Copy the ones that end before the new start. Merge ever
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 ```js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — insert then merge
+// Three phases: before, merge overlap, after — no full resort needed
 // LC: https://leetcode.com/problems/insert-interval/
 function insert(intervals, newInterval) {
-  // Hinglish: step 1 — base case check karo
   const out = [];
   let i = 0, n = intervals.length;
-  let [ns, ne] = newInterval;
-  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // before
+  let [ns, ne] = newInterval; // Mutable bounds while merging overlaps
+  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // Wholly before new interval
   while (i < n && intervals[i][0] <= ne) {
-    ns = Math.min(ns, intervals[i][0]);
-    ne = Math.max(ne, intervals[i][1]);
-    i++;
+    ns = Math.min(ns, intervals[i][0]); // Expand merged start left if needed
+    ne = Math.max(ne, intervals[i][1]); // Expand merged end right if needed
+    i++; // Consume overlapping interval
   }
-  out.push([ns, ne]);
-  while (i < n) out.push(intervals[i++]); // after
+  out.push([ns, ne]); // Single merged block for new + overlaps
+  while (i < n) out.push(intervals[i++]); // Remaining intervals after merged block
   return out;
 }
 ```
@@ -79,17 +75,15 @@ Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy r
 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 ```js
-// Hinglish: sort karke merge — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/non-overlapping-intervals/
 function eraseOverlapIntervals(intervals) {
-  // Hinglish: end se sort, jaldi khatam wala pehle
-  intervals.sort((a,b)=>a[1]-b[1]);
-  let kept = 0, lastEnd = -Infinity;
+  intervals.sort((a,b)=>a[1]-b[1]); // Sort by end time ascending
+  let kept = 0, lastEnd = -Infinity; // lastEnd = end of last kept interval
   for (const [s,e] of intervals) {
-    if (s >= lastEnd) { kept++; lastEnd = e; } // Hinglish: overlap nahi to rakho
-    // warna hatao
+    if (s >= lastEnd) { kept++; lastEnd = e; } // No overlap with kept set — keep it
+    // else skip: this interval overlaps something we already kept
   }
-  return intervals.length - kept; // Hinglish: hatane wale
+  return intervals.length - kept; // Removals = total minus kept
 }
 ```
 
@@ -100,15 +94,14 @@ Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
 [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
 ```js
-// Hinglish: sort karke merge — ek-ek step comment dekho
+// Sort by start; any start before previous end means double-booking
 // LC: https://leetcode.com/problems/meeting-rooms/ (premium, lintcode 920)
 function canAttendMeetings(intervals) {
-  // Hinglish: start se sort
-  intervals.sort((a,b)=>a[0]-b[0]);
+  intervals.sort((a,b)=>a[0]-b[0]); // Earliest meetings first
   for (let i=1;i<intervals.length;i++) {
-    if (intervals[i][0] < intervals[i-1][1]) return false; // Hinglish: overlap to nahi kar sakte
+    if (intervals[i][0] < intervals[i-1][1]) return false; // Overlap: cannot attend all
   }
-  return true;
+  return true; // No overlap found
 }
 ```
 
@@ -119,15 +112,14 @@ function canAttendMeetings(intervals) {
 [Sort Colors](https://leetcode.com/problems/sort-colors/)
 
 ```js
-// Hinglish: sort karke merge — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/sort-colors/
 function sortColors(nums) {
-  // Hinglish: 0 left, 2 right
+  // 0 left, 2 right
   let lo=0, mid=0, hi=nums.length-1;
   while (mid <= hi) {
-    if (nums[mid]===0) [nums[lo++], nums[mid++]] = [nums[mid], nums[lo]]; // Hinglish: 0 ko aage bhejo
-    else if (nums[mid]===1) mid++; // Hinglish: 1 to sahi jagah
-    else [nums[mid], nums[hi--]] = [nums[hi], nums[mid]]; // Hinglish: 2 ko piche bhejo
+    if (nums[mid]===0) [nums[lo++], nums[mid++]] = [nums[mid], nums[lo]]; // Dutch flag: swap 0 toward low region
+    else if (nums[mid]===1) mid++; // 1 stays in middle band — advance mid
+    else [nums[mid], nums[hi--]] = [nums[hi], nums[mid]]; // swap 2 toward high region
   }
 }
 ```

@@ -8,14 +8,14 @@
 
 ```js
 // Topological skeleton (Kahn)
-// Hinglish: jiska indegree 0, queue me daalo
+// Kahn: enqueue all indegree-zero nodes
 const q = nodes.filter(n => indeg[n] === 0);
 while (q.length) { const u = q.shift(); for (const v of graph[u]) if (--indeg[v] === 0) q.push(v); }
 
 // DFS topo skeleton — 3 colors
-// Hinglish: 0=white, 1=grey (visiting), 2=black (done)
+// DFS colors: unvisited / on stack / finished
 const state = Array(n).fill(0), stack = [];
-// grey pe wapas aana = back-edge = cycle
+// revisiting a grey node means back-edge — cycle detected
 ```
 ## Course Schedule
 
@@ -24,15 +24,13 @@ Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each take
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — Kahn topo
+// Kahn topo: cycle exists iff not all courses get indegree 0
 // LC: https://leetcode.com/problems/course-schedule/
 function canFinish(numCourses, prerequisites) {
-  // Hinglish: step 1 — base case check karo
   const graph = Array.from({ length: numCourses }, () => []);
   const indeg = Array(numCourses).fill(0);
   for (const [a, b] of prerequisites) {
-    graph[b].push(a);
+    graph[b].push(a); // b must be taken before a
     indeg[a]++;
   }
   const q = [];
@@ -57,22 +55,20 @@ Topo order wapas bhi karna hai, sirf possible/impossible nahi. Kahn me nikalte t
 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
+// Kahn topological sort returns one valid order
 // LC: https://leetcode.com/problems/course-schedule-ii/
-// Kahn — indegree queue se order
 function findOrder(numCourses, prerequisites) {
-  // Hinglish: graph + indegree banao
   const g = Array.from({length:numCourses}, ()=>[]);
   const indeg = Array(numCourses).fill(0);
-  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; } // Hinglish: b -> a
-  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i); // Hinglish: zero wale start
+  for (const [a,b] of prerequisites) { g[b].push(a); indeg[a]++; }
+  const q = []; for(let i=0;i<numCourses;i++) if(indeg[i]===0) q.push(i);
   const order = [];
   while(q.length){
     const u = q.shift();
-    order.push(u); // Hinglish: order me daalo
-    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); } // Hinglish: neighbor unlock
+    order.push(u);
+    for(const v of g[u]){ indeg[v]--; if(indeg[v]===0) q.push(v); }
   }
-  return order.length===numCourses ? order : []; // Hinglish: cycle to []
+  return order.length===numCourses ? order : []; // empty if cycle
 }
 ```
 
@@ -81,21 +77,20 @@ function findOrder(numCourses, prerequisites) {
 Grey node pe wapas aana = back-edge = cycle. White/grey/black colors se ek DFS me cycle pakdo.
 
 ```js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Detect cycle DFS — 3 colors
 function hasCycleDFS(n, edges){
-  // Hinglish: 0=white, 1=grey, 2=black
+  // three-color DFS for cycle detection
   const g = Array.from({length:n}, ()=>[]);
   for(const [u,v] of edges) g[u].push(v);
   const color = Array(n).fill(0);
   let hasCycle = false;
   const dfs = (u)=>{
-    color[u]=1; // Hinglish: visiting
+    color[u]=1; // mark node as on current DFS path
     for(const v of g[u]){
-      if(color[v]===1) hasCycle=true; // Hinglish: back edge
+      if(color[v]===1) hasCycle=true; // edge to grey node ⇒ cycle
       else if(color[v]===0) dfs(v);
     }
-    color[u]=2; // Hinglish: done
+    color[u]=2; // mark node finished (black)
   };
   for(let i=0;i<n;i++) if(color[i]===0) dfs(i);
   return hasCycle;

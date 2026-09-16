@@ -8,17 +8,17 @@
 
 ```js
 // Binary search skeleton — first true (lower bound / answer search)
-// Hinglish: aadha kaato, check karo good hai kya
+// halve search space; test monotonic predicate
 let lo = 0, hi = n; // hi exclusive
-while (lo < hi) {
+while (lo < hi) { // binary search on half-open [lo, hi)
   const mid = lo + ((hi - lo) >> 1);
-  if (good(mid)) hi = mid; // ye wala bhi chalega, left dekho
-  else lo = mid + 1; // chhota hai, right jao
+  if (good(mid)) hi = mid; // predicate true at mid — answer could be mid or left
+  else lo = mid + 1; // smaller is true, right jao
 }
-return lo; // pehla good, ya n agar koi nahi
+return lo; // first index where good(x) is true, or n if none
 
 // Exact value skeleton
-// Hinglish: barabar mila to return, nahi to side choose karo
+// exact match return; else discard half
 let l = 0, r = nums.length - 1;
 while (l <= r) {
   const m = l + ((r - l) >> 1);
@@ -35,13 +35,11 @@ Classic. Mid too small, search right. Too big, search left.
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — find target
 // LC: https://leetcode.com/problems/binary-search/
 function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
   let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) {
+  while (lo <= hi) { // classic BS on inclusive [lo, hi]
     const mid = lo + ((hi - lo) >> 1);
     if (nums[mid] === target) return mid;
     if (nums[mid] < target) lo = mid + 1;
@@ -58,13 +56,11 @@ One half is always sorted. If target lives in the sorted half, go there. Else th
 [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — rotated, pick the sorted side
 // LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
 function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
   let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) {
+  while (lo <= hi) { // classic BS on inclusive [lo, hi]
     const mid = lo + ((hi - lo) >> 1);
     if (nums[mid] === target) return mid;
     if (nums[lo] <= nums[mid]) {
@@ -86,13 +82,11 @@ If mid is greater than the right end, the min is to the right of mid. Else min i
 [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — min of rotated
 // LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
 function findMin(nums) {
-  // Hinglish: step 1 — base case check karo
   let lo = 0, hi = nums.length - 1;
-  while (lo < hi) {
+  while (lo < hi) { // binary search on half-open [lo, hi)
     const mid = lo + ((hi - lo) >> 1);
     if (nums[mid] > nums[hi]) lo = mid + 1;
     else hi = mid;
@@ -108,14 +102,12 @@ I binary search the speed. `hours(k)` = how long Koko needs at speed k. First k 
 [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — on the answer
 // LC: https://leetcode.com/problems/koko-eating-bananas/
 function minEatingSpeed(piles, h) {
-  // Hinglish: step 1 — base case check karo
   let lo = 1, hi = Math.max(...piles);
   const hours = (k) => piles.reduce((s, p) => s + Math.ceil(p / k), 0);
-  while (lo < hi) {
+  while (lo < hi) { // binary search on half-open [lo, hi)
     const mid = lo + ((hi - lo) >> 1);
     if (hours(mid) <= h) hi = mid;
     else lo = mid + 1;
@@ -131,11 +123,9 @@ Same as Koko. Smallest capacity such that I can ship in `days` days. Greedy: fil
 [Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — on capacity
 // LC: https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/
 function shipWithinDays(weights, days) {
-  // Hinglish: step 1 — base case check karo
   let lo = Math.max(...weights), hi = weights.reduce((a, b) => a + b, 0);
   const need = (cap) => {
     let d = 1, load = 0;
@@ -148,7 +138,7 @@ function shipWithinDays(weights, days) {
     }
     return d;
   };
-  while (lo < hi) {
+  while (lo < hi) { // binary search on half-open [lo, hi)
     const mid = lo + ((hi - lo) >> 1);
     if (need(mid) <= days) hi = mid;
     else lo = mid + 1;
@@ -164,21 +154,22 @@ I binary search the cut on the shorter array so left parts have the same count (
 [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — partition the shorter array
 // LC: https://leetcode.com/problems/median-of-two-sorted-arrays/
 function findMedianSortedArrays(a, b) {
-  // Hinglish: step 1 — base case check karo
+  // Always binary search on the shorter array
   if (a.length > b.length) return findMedianSortedArrays(b, a);
   const m = a.length, n = b.length;
   let lo = 0, hi = m;
   while (lo <= hi) {
     const i = (lo + hi) >> 1;
+    // Left partition must hold (m+n+1)/2 elements total
     const j = ((m + n + 1) >> 1) - i;
     const aL = i ? a[i - 1] : -Infinity;
     const aR = i < m ? a[i] : Infinity;
     const bL = j ? b[j - 1] : -Infinity;
     const bR = j < n ? b[j] : Infinity;
+    // Valid partition: every left elem <= every right elem
     if (aL <= bR && bL <= aR) {
       const left = Math.max(aL, bL);
       if ((m + n) % 2) return left;
@@ -197,11 +188,8 @@ Halve n. If n is odd, multiply by x one extra time. Negative n → 1 / pow(x, -n
 [Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
-// Binary exponentiation
 // LC: https://leetcode.com/problems/powx-n/
 function myPow(x, n) {
-  // Hinglish: step 1 — base case check karo
   if (n === 0) return 1;
   if (n < 0) return 1 / myPow(x, -n);
   const half = myPow(x, Math.floor(n / 2));
@@ -216,15 +204,14 @@ Target kahan insert hoga wahi lower_bound hai. Binary search se `lo` hi answer.
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/search-insert-position/
 function searchInsert(nums, target) {
-  // Hinglish: lower bound
+  // first index where nums[i] >= target
   let lo=0, hi=nums.length;
   while (lo<hi) {
     const mid = lo + ((hi-lo)>>1);
-    if (nums[mid] < target) lo=mid+1; // Hinglish: chhota to right
-    else hi=mid; // Hinglish: bada/equal to left me rakho
+    if (nums[mid] < target) lo=mid+1; // target larger than mid — search right half
+    else hi=mid; // mid is candidate — shrink hi to keep it
   }
   return lo;
 }
@@ -237,18 +224,17 @@ Lower bound aur upper bound ka khel. Do binary search.
 [Find First and Last Position](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 ```js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
 function searchRange(nums, target) {
-  // Hinglish: first >= target
+  // lower_bound: first position not less than target
   const lower = ()=>{
     let lo=0, hi=nums.length;
     while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<target) lo=mid+1; else hi=mid; }
     return lo;
   };
   const l = lower();
-  if (l===nums.length || nums[l]!==target) return [-1,-1]; // Hinglish: mila hi nahi
-  // Hinglish: first > target -1 = last
+  if (l===nums.length || nums[l]!==target) return [-1,-1]; // target absent — return [-1,-1]
+  // upper_bound minus one = last occurrence
   let lo=0, hi=nums.length;
   while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<=target) lo=mid+1; else hi=mid; }
   return [l, lo-1];

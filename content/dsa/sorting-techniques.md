@@ -7,11 +7,11 @@
 **How it works:** Comparison sorts me ya to adjacent swap karo (bubble), ya sahi jagah pick karo (selection), ya sorted hisse me ghusao (insertion), ya todo-jodo (merge), ya pivot se baanto (quick). JS me `sort()` default lexicographic hai — numbers ke liye comparator farz hai.
 
 ```js
-// Hinglish: JS built-in sort — comparator bhoolna mat
-// Default sort strings ki tarah karta hai: [10, 9] galat lagega
-nums.sort((a, b) => a - b); // Hinglish: ascending
-nums.sort((a, b) => b - a); // Hinglish: descending
-items.sort((a, b) => a[0] - b[0] || a[1] - b[1]); // Hinglish: pehle start, phir end
+// Built-in sort — always pass a numeric comparator
+// default sort is lexicographic — use numeric comparator for numbers
+nums.sort((a, b) => a - b); // ascending numeric order
+nums.sort((a, b) => b - a); // descending numeric order
+items.sort((a, b) => a[0] - b[0] || a[1] - b[1]); // tie-break: sort by start, then by end
 ```
 
 ## Bubble Sort — O(n²)
@@ -19,18 +19,18 @@ items.sort((a, b) => a[0] - b[0] || a[1] - b[1]); // Hinglish: pehle start, phir
 Paas-paas walo ko compare karke bada aage bhejo. Har pass me sabse bada aakhir me set hota hai. Sorted flag laga do to best case `O(n)`.
 
 ```js
-// Hinglish: Bubble Sort template — paas walo ko swap karo
+// Bubble sort — swap adjacent out-of-order pairs
 function bubbleSort(nums) {
   const n = nums.length;
   for (let i = 0; i < n - 1; i++) {
-    let swapped = false; // Hinglish: koi swap nahi to sorted
+    let swapped = false; // no swaps this pass — array already sorted
     for (let j = 0; j < n - 1 - i; j++) {
       if (nums[j] > nums[j + 1]) {
-        [nums[j], nums[j + 1]] = [nums[j + 1], nums[j]]; // Hinglish: bada aage bhejo
+        [nums[j], nums[j + 1]] = [nums[j + 1], nums[j]]; // bubble larger neighbor to the right
         swapped = true;
       }
     }
-    if (!swapped) break; // Hinglish: pehle se sorted
+    if (!swapped) break; // early exit when a pass does no swaps
   }
   return nums;
 }
@@ -41,15 +41,15 @@ function bubbleSort(nums) {
 Har position ke liye baaki me se sabse chhota dhoondh ke lao. Swaps kam (`O(n)`), comparisons zyada. Stable nahi hai.
 
 ```js
-// Hinglish: Selection Sort template — sabse chhota pick karo
+// Selection sort — pick minimum for each position
 function selectionSort(nums) {
   const n = nums.length;
   for (let i = 0; i < n - 1; i++) {
-    let min = i; // Hinglish: min ka index yaad rakho
+    let min = i; // track index of current minimum
     for (let j = i + 1; j < n; j++) {
       if (nums[j] < nums[min]) min = j;
     }
-    [nums[i], nums[min]] = [nums[min], nums[i]]; // Hinglish: sahi jagah rakho
+    [nums[i], nums[min]] = [nums[min], nums[i]]; // swap minimum into position i
   }
   return nums;
 }
@@ -60,16 +60,16 @@ function selectionSort(nums) {
 Ek-ek karke sorted hisse me ghusao — cards wali feel. Chhote ya almost-sorted input pe tez. Stable hai.
 
 ```js
-// Hinglish: Insertion Sort template — sorted hisse me ghusao
+// Insertion sort — insert key into sorted prefix
 function insertionSort(nums) {
   for (let i = 1; i < nums.length; i++) {
-    const key = nums[i]; // Hinglish: ye card lagana hai
+    const key = nums[i]; // key = element to insert
     let j = i - 1;
     while (j >= 0 && nums[j] > key) {
-      nums[j + 1] = nums[j]; // Hinglish: bade ko aage sarakao
+      nums[j + 1] = nums[j]; // shift larger elements one slot right
       j--;
     }
-    nums[j + 1] = key; // Hinglish: sahi jagah rakho
+    nums[j + 1] = key; // swap minimum into position i
   }
   return nums;
 }
@@ -80,19 +80,19 @@ function insertionSort(nums) {
 Todo aur jodo — stable hai, par `O(n)` extra space leta hai. Linked list pe best (space `O(1)` ho jaata hai slow/fast se).
 
 ```js
-// Hinglish: Merge Sort template — todo, sort karo, jodo
+// Merge sort — divide, sort halves, merge sorted runs
 function mergeSort(nums) {
-  if (nums.length <= 1) return nums; // Hinglish: base case
-  const mid = nums.length >> 1;
-  const left = mergeSort(nums.slice(0, mid)); // Hinglish: left half
-  const right = mergeSort(nums.slice(mid)); // Hinglish: right half
+  if (nums.length <= 1) return nums; // base case: 0 or 1 element
+  const mid = nums.length >> 1; // split near middle
+  const left = mergeSort(nums.slice(0, mid)); // recurse on left subarray
+  const right = mergeSort(nums.slice(mid)); // recurse on right subarray
   const out = [];
   let i = 0, j = 0;
   while (i < left.length && j < right.length) {
-    if (left[i] <= right[j]) out.push(left[i++]); // Hinglish: chhota pehle (stable)
+    if (left[i] <= right[j]) out.push(left[i++]); // take smaller front element (stable merge)
     else out.push(right[j++]);
   }
-  return out.concat(left.slice(i), right.slice(j)); // Hinglish: bacha hua jodo
+  return out.concat(left.slice(i), right.slice(j)); // append remaining tail of left or right
 }
 ```
 
@@ -101,25 +101,25 @@ function mergeSort(nums) {
 Pivot chuno, chhote left — bade right, dono pe recurse. In-place hai, par sorted input + pehla pivot = worst `O(n²)`. Random/middle pivot se bacho.
 
 ```js
-// Hinglish: Quick Sort template — pivot se baanto
+// Quick sort — partition around pivot
 function quickSort(nums, lo = 0, hi = nums.length - 1) {
-  if (lo >= hi) return; // Hinglish: base case
-  const p = partition(nums, lo, hi); // Hinglish: pivot sahi jagah
-  quickSort(nums, lo, p - 1); // Hinglish: left todo
-  quickSort(nums, p + 1, hi); // Hinglish: right todo
+  if (lo >= hi) return; // base case: 0 or 1 element
+  const p = partition(nums, lo, hi); // pivot now sits at final partition index
+  quickSort(nums, lo, p - 1); // sort left partition
+  quickSort(nums, p + 1, hi); // sort right partition
 }
 function partition(nums, lo, hi) {
-  const mid = (lo + hi) >> 1; // Hinglish: middle pivot (sorted input safe)
+  const mid = (lo + hi) >> 1; // mid index pivot avoids worst case on sorted input
   [nums[mid], nums[hi]] = [nums[hi], nums[mid]];
   const pivot = nums[hi];
   let i = lo;
   for (let j = lo; j < hi; j++) {
     if (nums[j] < pivot) {
-      [nums[i], nums[j]] = [nums[j], nums[i]]; // Hinglish: chhota left me
+      [nums[i], nums[j]] = [nums[j], nums[i]]; // elements ≤ pivot go to the left region
       i++;
     }
   }
-  [nums[i], nums[hi]] = [nums[hi], nums[i]]; // Hinglish: pivot sahi jagah
+  [nums[i], nums[hi]] = [nums[hi], nums[i]]; // pivot now sits at final partition index
   return i;
 }
 ```
@@ -129,13 +129,13 @@ function partition(nums, lo, hi) {
 Range chhoti ho (0-100, ages, marks) to gino aur likh do. Comparison hi nahi hota, isliye `n log n` se tez. Stable version ke liye prefix sum use karo.
 
 ```js
-// Hinglish: Counting Sort template — gino phir likho
+// Counting sort — count then emit
 function countingSort(nums, maxVal) {
   const cnt = Array(maxVal + 1).fill(0);
-  for (const x of nums) cnt[x]++; // Hinglish: gino
+  for (const x of nums) cnt[x]++; // increment count for value x
   const out = [];
   for (let v = 0; v <= maxVal; v++) {
-    while (cnt[v]-- > 0) out.push(v); // Hinglish: utni baar likho
+    while (cnt[v]-- > 0) out.push(v); // emit value v count[v] times
   }
   return out;
 }
@@ -158,21 +158,19 @@ Khud sort implement karo — merge sort likho (stable, pakka `O(n log n)`). Inte
 [Sort an Array](https://leetcode.com/problems/sort-an-array/)
 
 ```js
-// Hinglish: merge sort lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/sort-an-array/
 function sortArray(nums) {
-  // Hinglish: step 1 — base case check karo
   if (nums.length <= 1) return nums;
   const mid = nums.length >> 1;
-  const left = sortArray(nums.slice(0, mid)); // Hinglish: left todo
-  const right = sortArray(nums.slice(mid)); // Hinglish: right todo
+  const left = sortArray(nums.slice(0, mid)); // sort left partition
+  const right = sortArray(nums.slice(mid)); // sort right partition
   const out = [];
   let i = 0, j = 0;
   while (i < left.length && j < right.length) {
-    if (left[i] <= right[j]) out.push(left[i++]); // Hinglish: chhota pehle
+    if (left[i] <= right[j]) out.push(left[i++]); // merge: smaller value first
     else out.push(right[j++]);
   }
-  return out.concat(left.slice(i), right.slice(j)); // Hinglish: bacha jodo
+  return out.concat(left.slice(i), right.slice(j)); // concatenate leftover run
 }
 ```
 
@@ -183,17 +181,16 @@ Numbers ko aise jodo ki sabse bada number bane — comparator custom hai: `a` pe
 [Largest Number](https://leetcode.com/problems/largest-number/)
 
 ```js
-// Hinglish: custom comparator — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/largest-number/
 function largestNumber(nums) {
-  // Hinglish: step 1 — strings banao
+  // compare concatenations a+b vs b+a
   const strs = nums.map(String);
   strs.sort((a, b) => {
     const ab = a + b, ba = b + a;
     if (ba === ab) return 0;
-    return ba > ab ? 1 : -1; // Hinglish: jo aage bada banaye wo pehle
+    return ba > ab ? 1 : -1; // larger concatenation should sort first
   });
-  if (strs[0] === "0") return "0"; // Hinglish: sab zero
+  if (strs[0] === "0") return "0"; // edge case: all zeros → "0"
   return strs.join("");
 }
 ```
@@ -205,14 +202,13 @@ Sort karke dekho kahaan `citations[i] >= n-i` hota hai — wahi h-index hai. Peh
 [H-Index](https://leetcode.com/problems/h-index/)
 
 ```js
-// Hinglish: sort karke scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/h-index/
 function hIndex(citations) {
-  // Hinglish: step 1 — sort karo
+  // sort citations descending for h-index scan
   citations.sort((a, b) => a - b);
   const n = citations.length;
   for (let i = 0; i < n; i++) {
-    if (citations[i] >= n - i) return n - i; // Hinglish: h papers, h+ citations
+    if (citations[i] >= n - i) return n - i; // h-index: h papers with at least h citations
   }
   return 0;
 }

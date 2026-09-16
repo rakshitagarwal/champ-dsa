@@ -17,17 +17,15 @@ export const GREEDY_SOLUTIONS: SolutionGroup = {
 [Jump Game](https://leetcode.com/problems/jump-game/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
-// Greedy — running max reach
+// Greedy reach — never need to simulate every jump path
 // LC: https://leetcode.com/problems/jump-game/
 function canJump(nums) {
-  // Hinglish: step 1 — base case check karo
-  let reach = 0;
+  let reach = 0; // Farthest index reachable from index 0 so far
   for (let i = 0; i < nums.length; i++) {
-    if (i > reach) return false;
-    reach = Math.max(reach, i + nums[i]);
+    if (i > reach) return false; // Stepped past what any prior jump could reach
+    reach = Math.max(reach, i + nums[i]); // From i, extend furthest landing
   }
-  return true;
+  return true; // Last index is within reach
 }
 \`\`\``,
     },
@@ -41,17 +39,15 @@ function canJump(nums) {
 [Jump Game II](https://leetcode.com/problems/jump-game-ii/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
-// Greedy — jumps by window
+// BFS-style layers: each jump expands the window [0..end]
 // LC: https://leetcode.com/problems/jump-game-ii/
 function jump(nums) {
-  // Hinglish: step 1 — base case check karo
-  let jumps = 0, end = 0, far = 0;
+  let jumps = 0, end = 0, far = 0; // end = last index of current jump layer
   for (let i = 0; i < nums.length - 1; i++) {
-    far = Math.max(far, i + nums[i]);
+    far = Math.max(far, i + nums[i]); // Best reach seen inside this layer
     if (i === end) {
-      jumps++;
-      end = far;
+      jumps++; // Must consume one jump to leave this layer
+      end = far; // Next layer ends at farthest we saw
     }
   }
   return jumps;
@@ -68,22 +64,20 @@ function jump(nums) {
 [Gas Station](https://leetcode.com/problems/gas-station/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
-// Greedy — unique start if total works
+// If total surplus >= 0, exactly one valid start exists
 // LC: https://leetcode.com/problems/gas-station/
 function canCompleteCircuit(gas, cost) {
-  // Hinglish: step 1 — base case check karo
-  let total = 0, tank = 0, start = 0;
+  let total = 0, tank = 0, start = 0; // tank = surplus on current candidate start
   for (let i = 0; i < gas.length; i++) {
-    const d = gas[i] - cost[i];
-    total += d;
+    const d = gas[i] - cost[i]; // Net at station i
+    total += d; // Global feasibility check
     tank += d;
     if (tank < 0) {
-      start = i + 1;
-      tank = 0;
+      start = i + 1; // Cannot start at or before i — try next index
+      tank = 0; // Reset partial circuit surplus
     }
   }
-  return total < 0 ? -1 : start;
+  return total < 0 ? -1 : start; // Negative total means impossible
 }
 \`\`\``,
     },
@@ -92,18 +86,17 @@ function canCompleteCircuit(gas, cost) {
       lcSlug: "best-time-to-buy-and-sell-stock-ii",
       title: "Best Time to Buy and Sell Stock II",
       diff: "Medium",
-      body: `Har chadhai becho — aaj kal se zyada ho to fark jod lo. Greedy yahin kaam karta hai.
+      body: `Capture every upward day’s profit — sum each \`prices[i] - prices[i-1]\` when price rises. Equivalent to buying before every rise.
 
 [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
 
 \`\`\`js
-// Hinglish: chadhai becho — ek-ek step comment dekho
+// Capture every upward day — equivalent to buy low sell high on each rise
 // LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
 function maxProfit(prices) {
-  // Hinglish: step 1 — din gin lo
   let ans = 0;
   for (let i = 1; i < prices.length; i++) {
-    if (prices[i] > prices[i - 1]) ans += prices[i] - prices[i - 1]; // Hinglish: upar gaya to kamao
+    if (prices[i] > prices[i - 1]) ans += prices[i] - prices[i - 1]; // Add today's gain if price rose
   }
   return ans;
 }
@@ -114,18 +107,17 @@ function maxProfit(prices) {
       lcSlug: "queue-reconstruction-by-height",
       title: "Queue Reconstruction by Height",
       diff: "Medium",
-      body: `Lambe pehle lagao, phir har banda apne k index pe ghuse — lamba pehle hone se ginati bigadti nahi.
+      body: `Sort by height descending (then by \`k\`). Insert each person at index \`k\` in the built queue — taller people first so shorter inserts do not shift counts.
 
 [Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/)
 
 \`\`\`js
-// Hinglish: lamba pehle — ek-ek step comment dekho
+// Taller people first — shorter inserts do not shift taller people's k counts
 // LC: https://leetcode.com/problems/queue-reconstruction-by-height/
 function reconstructQueue(people) {
-  // Hinglish: step 1 — lamba pehle, k chhota pehle
-  people.sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  people.sort((a, b) => b[0] - a[0] || a[1] - b[1]); // Height desc, then k asc
   const out = [];
-  for (const p of people) out.splice(p[1], 0, p); // Hinglish: k index pe ghusao
+  for (const p of people) out.splice(p[1], 0, p); // Insert at k-th position in current queue
   return out;
 }
 \`\`\``,
@@ -140,20 +132,18 @@ function reconstructQueue(people) {
 [Partition Labels](https://leetcode.com/problems/partition-labels/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
-// Greedy — last occurrence of each letter
+// A partition must include every last occurrence of letters seen so far
 // LC: https://leetcode.com/problems/partition-labels/
 function partitionLabels(s) {
-  // Hinglish: step 1 — base case check karo
   const last = Array(26).fill(0);
-  for (let i = 0; i < s.length; i++) last[s.charCodeAt(i) - 97] = i;
+  for (let i = 0; i < s.length; i++) last[s.charCodeAt(i) - 97] = i; // Rightmost index per letter
   const out = [];
-  let start = 0, end = 0;
+  let start = 0, end = 0; // Current partition bounds
   for (let i = 0; i < s.length; i++) {
-    end = Math.max(end, last[s.charCodeAt(i) - 97]);
+    end = Math.max(end, last[s.charCodeAt(i) - 97]); // Extend end to cover this letter's last spot
     if (i === end) {
-      out.push(end - start + 1);
-      start = i + 1;
+      out.push(end - start + 1); // Closed a valid partition
+      start = i + 1; // Next partition starts after i
     }
   }
   return out;
@@ -165,20 +155,19 @@ function partitionLabels(s) {
       lcSlug: "two-city-scheduling",
       title: "Two City Scheduling",
       diff: "Medium",
-      body: `Sabko A bhejo, phir fark (costB-costA) se saste N ko B bhejo. Saving greedy hai.
+      body: `Pay city A for everyone first, then send the n people with largest \`(costB - costA)\` savings to city B instead.
 
 [Two City Scheduling](https://leetcode.com/problems/two-city-scheduling/)
 
 \`\`\`js
-// Hinglish: fark se chuno — ek-ek step comment dekho
+// Pay everyone city A first; swap cheapest B-savings for half the people
 // LC: https://leetcode.com/problems/two-city-scheduling/
 function twoCitySchedCost(costs) {
-  // Hinglish: step 1 — fark se sort karo
-  costs.sort((a, b) => (a[1] - a[0]) - (b[1] - b[0])); // Hinglish: B sasta pehle
+  costs.sort((a, b) => (a[1] - a[0]) - (b[1] - b[0])); // Largest B-minus-A discount first
   let ans = 0;
-  const n = costs.length / 2;
+  const n = costs.length / 2; // Exactly n people must fly to B
   for (let i = 0; i < costs.length; i++) {
-    ans += i < n ? costs[i][1] : costs[i][0]; // Hinglish: pehle aadhe B, baaki A
+    ans += i < n ? costs[i][1] : costs[i][0]; // First half to B, rest stay on A pricing
   }
   return ans;
 }
@@ -189,23 +178,22 @@ function twoCitySchedCost(costs) {
       lcSlug: "lemonade-change",
       title: "Lemonade Change",
       diff: "Easy",
-      body: `5,10,20 notes. Greedy: 20 aaye to 10+5 do, nahi to 5+5+5.
+      body: `Track $5 and $10 bills in the drawer. For a $20, prefer change as $10+$5; otherwise use three $5s.
 
 [Lemonade Change](https://leetcode.com/problems/lemonade-change/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
+// Greedy change: prefer giving one $10 when paying back $20
 // LC: https://leetcode.com/problems/lemonade-change/
 function lemonadeChange(bills) {
-  // Hinglish: 5 aur 10 ka count
-  let five=0, ten=0;
+  let five=0, ten=0; // Count of $5 and $10 bills in drawer
   for(const b of bills){
-    if(b===5) five++; // Hinglish: 5 aaya
-    else if(b===10){ if(!five) return false; five--; ten++; } // Hinglish: 5 do
-    else { // 20
-      if(ten && five){ ten--; five--; } // Hinglish: 10+5 best
-      else if(five>=3) five-=3; // Hinglish: 5x3
-      else return false;
+    if(b===5) five++; // Customer pays exact — no change
+    else if(b===10){ if(!five) return false; five--; ten++; } // Need one $5 as change
+    else { // $20 bill
+      if(ten && five){ ten--; five--; } // Best: $10 + $5 change
+      else if(five>=3) five-=3; // Fallback: three $5 bills
+      else return false; // Cannot make $15 change
     }
   }
   return true;
@@ -217,22 +205,21 @@ function lemonadeChange(bills) {
       lcSlug: "candy",
       title: "Candy",
       diff: "Hard",
-      body: `Do pass — left se badhao, right se badhao, max lo. Padosi rule dono taraf se lagta hai.
+      body: `Two passes: left-to-right enforce higher-than-left neighbor, then right-to-left for the right rule; take the max requirement at each index.
 
 [Candy](https://leetcode.com/problems/candy/)
 
 \`\`\`js
-// Hinglish: dono taraf se baanto — ek-ek step comment dekho
+// Two-pass greedy satisfies both left and right neighbor constraints
 // LC: https://leetcode.com/problems/candy/
 function candy(ratings) {
-  // Hinglish: step 1 — sabko 1 do
-  const n = ratings.length, give = Array(n).fill(1);
+  const n = ratings.length, give = Array(n).fill(1); // Everyone gets at least one
   for (let i = 1; i < n; i++) {
-    if (ratings[i] > ratings[i - 1]) give[i] = give[i - 1] + 1; // Hinglish: left se zyada
+    if (ratings[i] > ratings[i - 1]) give[i] = give[i - 1] + 1; // Left neighbor rule
   }
   for (let i = n - 2; i >= 0; i--) {
     if (ratings[i] > ratings[i + 1] && give[i] <= give[i + 1]) {
-      give[i] = give[i + 1] + 1; // Hinglish: right se zyada
+      give[i] = give[i + 1] + 1; // Right neighbor rule — take max with left pass
     }
   }
   return give.reduce((a, b) => a + b, 0);
@@ -244,20 +231,19 @@ function candy(ratings) {
       lcSlug: "wiggle-subsequence",
       title: "Wiggle Subsequence",
       diff: "Medium",
-      body: `Up-down-up chalao — direction badle to count badhao. Barabar ignore karo.
+      body: `Count turning points in the sequence — ignore flat steps; increment when the up/down direction changes.
 
 [Wiggle Subsequence](https://leetcode.com/problems/wiggle-subsequence/)
 
 \`\`\`js
-// Hinglish: direction gino — ek-ek step comment dekho
+// Count turning points; flat steps do not change direction
 // LC: https://leetcode.com/problems/wiggle-subsequence/
 function wiggleMaxLength(nums) {
-  // Hinglish: step 1 — direction lo
   if (nums.length < 2) return nums.length;
-  let dir = 0, ans = 1;
+  let dir = 0, ans = 1; // dir: -1 down, +1 up, 0 unset
   for (let i = 1; i < nums.length; i++) {
     const d = nums[i] > nums[i - 1] ? 1 : nums[i] < nums[i - 1] ? -1 : 0;
-    if (d !== 0 && d !== dir) { ans++; dir = d; } // Hinglish: muda to gino
+    if (d !== 0 && d !== dir) { ans++; dir = d; } // New peak or valley extends subsequence
   }
   return ans;
 }
@@ -268,22 +254,21 @@ function wiggleMaxLength(nums) {
       lcSlug: "maximum-units-on-a-truck",
       title: "Maximum Units on a Truck",
       diff: "Easy",
-      body: `Units/box zyada wala pehle lo — truck bhare tab tak bharo. Sorting greedy hai.
+      body: `Sort box types by units per box descending. Take as many boxes as truck capacity allows from the best types first.
 
 [Maximum Units on a Truck](https://leetcode.com/problems/maximum-units-on-a-truck/)
 
 \`\`\`js
-// Hinglish: mehenga maal pehle — ek-ek step comment dekho
+// Fractional knapsack on box types — take highest units-per-box first
 // LC: https://leetcode.com/problems/maximum-units-on-a-truck/
 function maximumUnits(boxTypes, truckSize) {
-  // Hinglish: step 1 — units se sort karo
-  boxTypes.sort((a, b) => b[1] - a[1]);
+  boxTypes.sort((a, b) => b[1] - a[1]); // Sort by units per box descending
   let ans = 0;
   for (const [boxes, units] of boxTypes) {
-    const take = Math.min(boxes, truckSize); // Hinglish: jitna sama sake
+    const take = Math.min(boxes, truckSize); // Use as many boxes as capacity allows
     ans += take * units;
     truckSize -= take;
-    if (truckSize === 0) break;
+    if (truckSize === 0) break; // Truck full — stop early
   }
   return ans;
 }

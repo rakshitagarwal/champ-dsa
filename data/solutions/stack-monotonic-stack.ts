@@ -17,21 +17,18 @@ export const STACK_MONOTONIC_STACK_SOLUTIONS: SolutionGroup = {
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 \`\`\`js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// Stack — match open/close
-// LC: https://leetcode.com/problems/valid-parentheses/
+// Stack — open push, close must match top
 function isValid(s) {
-  // Hinglish: step 1 — base case check karo
   const stack = [];
   const pair = { ")": "(", "]": "[", "}": "{" };
   for (const ch of s) {
     if (!pair[ch]) {
-      stack.push(ch);
+      stack.push(ch); // opener
       continue;
     }
-    if (stack.pop() !== pair[ch]) return false;
+    if (stack.pop() !== pair[ch]) return false; // wrong or empty
   }
-  return stack.length === 0;
+  return stack.length === 0; // no dangling opens
 }
 \`\`\``,
     },
@@ -45,11 +42,8 @@ function isValid(s) {
 [Min Stack](https://leetcode.com/problems/min-stack/)
 
 \`\`\`js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// Stack — parallel min stack
-// LC: https://leetcode.com/problems/min-stack/
+// Parallel min stack tracks min so far after each push
 function MinStack() {
-  // Hinglish: step 1 — base case check karo
   this.vals = [];
   this.mins = [];
 }
@@ -75,23 +69,24 @@ MinStack.prototype.getMin = function () {
       lcSlug: "evaluate-reverse-polish-notation",
       title: "Evaluate Reverse Polish Notation",
       diff: "Medium",
-      body: `Stack me number push, operator aaye to top 2 pop karke compute karke wapas push karo.
+      body: `Push numbers; on an operator, pop two operands, apply it, and push the result.
 
 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
 \`\`\`js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/evaluate-reverse-polish-notation/
+// Postfix — operands stack, operator pops two
 function evalRPN(tokens) {
-  // Hinglish: stack me numbers
-  const st=[];
+  const st = [];
   for (const t of tokens) {
     if (["+","-","*","/"].includes(t)) {
-      const b=st.pop(), a=st.pop(); // Hinglish: do nikal ke compute
-      let v=0;
-      if (t==='+') v=a+b; else if (t==='-') v=a-b; else if (t==='*') v=a*b; else v=Math.trunc(a/b); // Hinglish: divide truncate
+      const b = st.pop(), a = st.pop(); // note order for - and /
+      let v = 0;
+      if (t === "+") v = a + b;
+      else if (t === "-") v = a - b;
+      else if (t === "*") v = a * b;
+      else v = Math.trunc(a / b); // toward zero
       st.push(v);
-    } else st.push(Number(t)); // Hinglish: number push
+    } else st.push(Number(t));
   }
   return st[0];
 }
@@ -102,22 +97,20 @@ function evalRPN(tokens) {
       lcSlug: "simplify-path",
       title: "Simplify Path",
       diff: "Medium",
-      body: `Stack me folder names dalo — .. aaye to pop karo, . ya khaali ko ignore karo.
+      body: `Push path segments; pop on \`..\`, ignore \`.\` and empty parts.
 
 [Simplify Path](https://leetcode.com/problems/simplify-path/)
 
 \`\`\`js
-// Hinglish: folder stack — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/simplify-path/
+// Path stack — .. pops one level
 function simplifyPath(path) {
-  // Hinglish: step 1 — tukde karo
-  const st = [];
+  const st = []; // canonical directory stack
   for (const part of path.split("/")) {
-    if (part === "" || part === ".") continue; // Hinglish: bekaar chhodo
-    if (part === "..") st.pop(); // Hinglish: ek upar jao
-    else st.push(part); // Hinglish: andar jao
+    if (part === "" || part === ".") continue; // skip empty and current dir
+    if (part === "..") st.pop(); // go up one level
+    else st.push(part); // enter subdirectory
   }
-  return "/" + st.join("/");
+  return "/" + st.join("/"); // absolute normalized path
 }
 \`\`\``,
     },
@@ -126,22 +119,31 @@ function simplifyPath(path) {
       lcSlug: "basic-calculator",
       title: "Basic Calculator",
       diff: "Hard",
-      body: `Brackets wala calculator — number jodo sign se, bracket khule to haalat stack me rakho.
+      body: `Expression with parentheses: accumulate signed numbers; push state when \`(\` opens.
 
 [Basic Calculator](https://leetcode.com/problems/basic-calculator/)
 
 \`\`\`js
-// Hinglish: sign + stack — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/basic-calculator/
+// Stack saves (result, sign) on '('
 function calculate(s) {
-  // Hinglish: step 1 — stack + sign lo
   const st = [];
   let ans = 0, num = 0, sign = 1;
   for (const ch of s) {
-    if (ch >= "0" && ch <= "9") num = num * 10 + Number(ch); // Hinglish: number banao
-    else if (ch === "+" || ch === "-") { ans += sign * num; num = 0; sign = ch === "+" ? 1 : -1; } // Hinglish: jodo
-    else if (ch === "(") { st.push(ans); st.push(sign); ans = 0; sign = 1; } // Hinglish: haalat rakho
-    else if (ch === ")") { ans += sign * num; num = 0; ans = st.pop() * ans + st.pop(); } // Hinglish: bahar lao
+    if (ch >= "0" && ch <= "9") num = num * 10 + Number(ch);
+    else if (ch === "+" || ch === "-") {
+      ans += sign * num;
+      num = 0;
+      sign = ch === "+" ? 1 : -1;
+    } else if (ch === "(") {
+      st.push(ans);
+      st.push(sign);
+      ans = 0;
+      sign = 1;
+    } else if (ch === ")") {
+      ans += sign * num;
+      num = 0;
+      ans = st.pop() * ans + st.pop(); // sign * inner + outer
+    }
   }
   return ans + sign * num;
 }
@@ -152,28 +154,30 @@ function calculate(s) {
       lcSlug: "basic-calculator-ii",
       title: "Basic Calculator II",
       diff: "Medium",
-      body: `Brackets nahi, par *,/ pehle — stack me jod ke rakho, aakhir me sum karo.
+      body: `No parentheses: apply */ immediately on stack values, then sum the stack.
 
 [Basic Calculator II](https://leetcode.com/problems/basic-calculator-ii/)
 
 \`\`\`js
-// Hinglish: *,/ pehle karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/basic-calculator-ii/
+// Defer * and / on stack; + - push signed nums
 function calculate(s) {
-  // Hinglish: step 1 — stack lo
   const st = [];
   let num = 0, op = "+";
   const apply = () => {
-    if (op === "+") st.push(num); // Hinglish: jodne ke liye rakho
+    if (op === "+") st.push(num);
     else if (op === "-") st.push(-num);
-    else if (op === "*") st.push(st.pop() * num); // Hinglish: turant compute
+    else if (op === "*") st.push(st.pop() * num);
     else st.push(Math.trunc(st.pop() / num));
   };
   for (let i = 0; i <= s.length; i++) {
-    const ch = s[i] || "+";
+    const ch = s[i] || "+"; // flush last number
     if (ch >= "0" && ch <= "9") num = num * 10 + Number(ch);
-    else if (ch === " " ) continue;
-    else { apply(); op = ch; num = 0; } // Hinglish: operator badlo
+    else if (ch === " ") continue;
+    else {
+      apply();
+      op = ch;
+      num = 0;
+    }
   }
   let ans = 0;
   for (const x of st) ans += x;
@@ -186,25 +190,26 @@ function calculate(s) {
       lcSlug: "decode-string",
       title: "Decode String",
       diff: "Medium",
-      body: `Number stack me, string stack me — ] aaye to kholo, repeat karke jodo.
+      body: `Use number and string stacks; on \`]\`, expand repeats and merge.
 
 [Decode String](https://leetcode.com/problems/decode-string/)
 
 \`\`\`js
-// Hinglish: do stack kholo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/decode-string/
+// stacks: repeat count and prefix string before '['
 function decodeString(s) {
-  // Hinglish: step 1 — stacks lo
   const counts = [], strs = [];
   let cur = "", num = 0;
   for (const ch of s) {
-    if (ch >= "0" && ch <= "9") num = num * 10 + Number(ch); // Hinglish: ginti banao
-    else if (ch === "[") { counts.push(num); strs.push(cur); num = 0; cur = ""; } // Hinglish: andar jao
-    else if (ch === "]") {
+    if (ch >= "0" && ch <= "9") num = num * 10 + Number(ch);
+    else if (ch === "[") {
+      counts.push(num);
+      strs.push(cur);
+      num = 0;
+      cur = "";
+    } else if (ch === "]") {
       const rep = counts.pop(), prev = strs.pop();
-      cur = prev + cur.repeat(rep); // Hinglish: repeat karke jodo
-    }
-    else cur += ch;
+      cur = prev + cur.repeat(rep);
+    } else cur += ch;
   }
   return cur;
 }
@@ -215,25 +220,23 @@ function decodeString(s) {
       lcSlug: "minimum-remove-to-make-valid-parentheses",
       title: "Minimum Remove to Make Valid Parentheses",
       diff: "Medium",
-      body: `Pehle galat ) hatao (stack se match), bache open hatao — do pass me saaf.
+      body: `Remove invalid \`)\` by matching \`(\`; second pass drops unmatched open parens.
 
 [Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)
 
 \`\`\`js
-// Hinglish: galat brackets hatao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/
+// Mark unmatched ')' then leftover '(' indices
 function minRemoveToMakeValid(s) {
-  // Hinglish: step 1 — array banao
   const a = [...s];
   const st = [];
   for (let i = 0; i < a.length; i++) {
-    if (a[i] === "(") st.push(i); // Hinglish: open yaad rakho
+    if (a[i] === "(") st.push(i);
     else if (a[i] === ")") {
-      if (st.length) st.pop(); // Hinglish: jodi mil gayi
-      else a[i] = ""; // Hinglish: akela band hatao
+      if (st.length) st.pop(); // matched
+      else a[i] = ""; // extra close
     }
   }
-  for (const i of st) a[i] = ""; // Hinglish: bache open hatao
+  for (const i of st) a[i] = ""; // unmatched opens
   return a.join("");
 }
 \`\`\``,
@@ -243,18 +246,16 @@ function minRemoveToMakeValid(s) {
       lcSlug: "remove-all-adjacent-duplicates-in-string",
       title: "Remove All Adjacent Duplicates In String",
       diff: "Easy",
-      body: `Stack me daalo, top same ho to dono udao — chain reaction khud sambhal jayega.
+      body: `Push chars; when top matches (case-sensitive), pop both — adjacent duplicates collapse.
 
 [Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
 
 \`\`\`js
-// Hinglish: same aaye to udao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/
+// Stack cancels pairs as we scan
 function removeDuplicates(s) {
-  // Hinglish: step 1 — stack lo
   const st = [];
   for (const ch of s) {
-    if (st.length && st[st.length - 1] === ch) st.pop(); // Hinglish: jodi ud gayi
+    if (st.length && st[st.length - 1] === ch) st.pop();
     else st.push(ch);
   }
   return st.join("");
@@ -266,19 +267,17 @@ function removeDuplicates(s) {
       lcSlug: "make-the-string-great",
       title: "Make The String Great",
       diff: "Easy",
-      body: `Upar wala hi, par shart case-insensitive same letter hai — aA jodi ud jayegi.
+      body: `Same as adjacent removal, but treat equal letters case-insensitively.
 
 [Make The String Great](https://leetcode.com/problems/make-the-string-great/)
 
 \`\`\`js
-// Hinglish: ulta case jodi udao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/make-the-string-great/
+// Pop if same letter different case (bad pair)
 function makeGood(s) {
-  // Hinglish: step 1 — stack lo
   const st = [];
-  const bad = (a, b) => a !== b && a.toLowerCase() === b.toLowerCase(); // Hinglish: same letter ulta case
+  const bad = (a, b) => a !== b && a.toLowerCase() === b.toLowerCase();
   for (const ch of s) {
-    if (st.length && bad(st[st.length - 1], ch)) st.pop(); // Hinglish: jodi ud gayi
+    if (st.length && bad(st[st.length - 1], ch)) st.pop();
     else st.push(ch);
   }
   return st.join("");
@@ -295,19 +294,18 @@ function makeGood(s) {
       lcSlug: "daily-temperatures",
       title: "Daily Temperatures",
       diff: "Medium",
-      body: `Monotonic decreasing stack se next warmer day ka wait nikalo. (Monotonic page se link)
+      body: `Monotonic decreasing stack: each pop reveals days until a warmer temperature.
 
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 \`\`\`js
-// Hinglish: stack push-pop — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/daily-temperatures/
+// Decreasing stack of indices — pop when warmer day found
 function dailyTemperatures(temps) {
-  // Hinglish: decreasing stack
-  const n=temps.length, ans=Array(n).fill(0), st=[];
-  for (let i=0;i<n;i++) {
-    while(st.length && temps[i] > temps[st.at(-1)]) {
-      const j=st.pop(); ans[j]=i-j; // Hinglish: garam mila to wait pata chala
+  const n = temps.length, ans = Array(n).fill(0), st = [];
+  for (let i = 0; i < n; i++) {
+    while (st.length && temps[i] > temps[st.at(-1)]) {
+      const j = st.pop();
+      ans[j] = i - j; // days until warmer
     }
     st.push(i);
   }
@@ -320,22 +318,23 @@ function dailyTemperatures(temps) {
       lcSlug: "next-greater-element-i",
       title: "Next Greater Element I",
       diff: "Easy",
-      body: `Map se next greater nikalo. Stack decreasing rakho, pop hote hi answer pata chalta hai.
+      body: `Decreasing stack: when a larger value pops smaller ones, assign it as their next greater element.
 
 [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
 
 \`\`\`js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/next-greater-element-i/
+// NGE for nums2, then lookup for nums1
 function nextGreaterElement(nums1, nums2) {
-  // Hinglish: nums2 ka next greater map
-  const mp=new Map(), st=[];
+  const mp = new Map(), st = [];
   for (const x of nums2) {
-    while(st.length && x > st.at(-1)) { const y=st.pop(); mp.set(y, x); } // Hinglish: bada mila to pop ka answer
+    while (st.length && x > st.at(-1)) {
+      const y = st.pop();
+      mp.set(y, x); // y's next greater is x
+    }
     st.push(x);
   }
-  for (const y of st) mp.set(y, -1); // Hinglish: bacha to -1
-  return nums1.map(x=> mp.get(x));
+  for (const y of st) mp.set(y, -1); // no greater ahead
+  return nums1.map((x) => mp.get(x));
 }
 \`\`\``,
     },
@@ -344,22 +343,20 @@ function nextGreaterElement(nums1, nums2) {
       lcSlug: "next-greater-element-ii",
       title: "Next Greater Element II",
       diff: "Medium",
-      body: `Circular array — do baar ghoomo (2n), monotonic decreasing stack rakho. Pehli baar answer bharo.
+      body: `Run two passes over length \`2n\` with a decreasing stack to handle circular next greater.
 
 [Next Greater Element II](https://leetcode.com/problems/next-greater-element-ii/)
 
 \`\`\`js
-// Hinglish: do chakkar lagao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/next-greater-element-ii/
+// Double loop simulates circular array
 function nextGreaterElements(nums) {
-  // Hinglish: step 1 — answer -1 se bharo
   const n = nums.length, ans = Array(n).fill(-1), st = [];
   for (let i = 0; i < 2 * n; i++) {
-    const j = i % n; // Hinglish: gol ghoomo
+    const j = i % n;
     while (st.length && nums[j] > nums[st[st.length - 1]]) {
-      ans[st.pop()] = nums[j]; // Hinglish: bada mil gaya
+      ans[st.pop()] = nums[j];
     }
-    if (i < n) st.push(j); // Hinglish: pehle chakkar me daalo
+    if (i < n) st.push(j); // only push once
   }
   return ans;
 }
@@ -375,15 +372,12 @@ function nextGreaterElements(nums) {
 [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
 
 \`\`\`js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// Monotonic stack — nearest smaller, then width * height
-// LC: https://leetcode.com/problems/largest-rectangle-in-histogram/
+// Monotonic increasing stack — pop when shorter bar ends width
 function largestRectangleArea(heights) {
-  // Hinglish: step 1 — base case check karo
-  const stack = [-1];
+  const stack = [-1]; // sentinel left boundary
   let best = 0;
   for (let i = 0; i <= heights.length; i++) {
-    const h = i === heights.length ? 0 : heights[i];
+    const h = i === heights.length ? 0 : heights[i]; // flush with 0
     while (stack.at(-1) !== -1 && h < heights[stack.at(-1)]) {
       const height = heights[stack.pop()];
       const width = i - stack.at(-1) - 1;
@@ -400,15 +394,13 @@ function largestRectangleArea(heights) {
       lcSlug: "maximal-rectangle",
       title: "Maximal Rectangle",
       diff: "Hard",
-      body: `Har row ko histogram banao (upar kitne 1), phir largest rectangle lagao. 2D ko 1D me todo.
+      body: `Build a histogram of consecutive 1s per row, then largest rectangle in histogram per row.
 
 [Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
 
 \`\`\`js
-// Hinglish: row ko histogram banao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximal-rectangle/
+// Row-by-row histogram + largest rectangle in histogram
 function maximalRectangle(matrix) {
-  // Hinglish: step 1 — heights lo
   if (!matrix.length) return 0;
   const cols = matrix[0].length;
   const h = Array(cols).fill(0);
@@ -421,14 +413,14 @@ function maximalRectangle(matrix) {
       while (st.length && cur < heights[st[st.length - 1]]) {
         const height = heights[st.pop()];
         const left = st.length ? st[st.length - 1] + 1 : 0;
-        mx = Math.max(mx, height * (i - left)); // Hinglish: chauda * uncha
+        mx = Math.max(mx, height * (i - left));
       }
       st.push(i);
     }
     return mx;
   };
   for (const row of matrix) {
-    for (let c = 0; c < cols; c++) h[c] = row[c] === "1" ? h[c] + 1 : 0; // Hinglish: unchai badhao
+    for (let c = 0; c < cols; c++) h[c] = row[c] === "1" ? h[c] + 1 : 0;
     const area = largest(h);
     if (area > best) best = area;
   }
@@ -441,18 +433,18 @@ function maximalRectangle(matrix) {
       lcSlug: "online-stock-span",
       title: "Online Stock Span",
       diff: "Medium",
-      body: `Har din ka span = kitne consecutive peeche wale days price <= aaj. Stack me [price, span] rakho.
+      body: `Stock span: stack of \`[price, span]\` while previous days are not higher.
 
 [Online Stock Span](https://leetcode.com/problems/online-stock-span/)
 
 \`\`\`js
-// Hinglish: stack se next greater — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/online-stock-span/
-function StockSpanner() { this.st=[]; } // [price, span]
+// Monotonic decreasing [price, span] stack
+function StockSpanner() { this.st = []; }
 StockSpanner.prototype.next = function(price) {
-  // Hinglish: chhote prices ko kha jao
-  let span=1;
-  while(this.st.length && this.st.at(-1)[0] <= price) { span += this.st.pop()[1]; } // Hinglish: combine span
+  let span = 1;
+  while (this.st.length && this.st.at(-1)[0] <= price) {
+    span += this.st.pop()[1]; // absorb previous spans
+  }
   this.st.push([price, span]);
   return span;
 };
@@ -463,24 +455,23 @@ StockSpanner.prototype.next = function(price) {
       lcSlug: "remove-k-digits",
       title: "Remove K Digits",
       diff: "Medium",
-      body: `Chhota number chahiye to bada digit hatao — monotonic increasing stack, k khatm hone tak.
+      body: `Remove \`k\` digits: increasing stack drops larger leading digits while budget remains.
 
 [Remove K Digits](https://leetcode.com/problems/remove-k-digits/)
 
 \`\`\`js
-// Hinglish: bada hatao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/remove-k-digits/
+// Greedy — pop while top > current and k left
 function removeKdigits(num, k) {
-  // Hinglish: step 1 — stack lo
   const st = [];
   for (const ch of num) {
     while (st.length && k > 0 && st[st.length - 1] > ch) {
-      st.pop(); k--; // Hinglish: bada hatao
+      st.pop();
+      k--;
     }
     st.push(ch);
   }
-  while (k > 0) { st.pop(); k--; } // Hinglish: bache peeche se hatao
-  let ans = st.join("").replace(/^0+/, ""); // Hinglish: aage ke zero hatao
+  while (k > 0) { st.pop(); k--; } // drop from end
+  let ans = st.join("").replace(/^0+/, "");
   return ans === "" ? "0" : ans;
 }
 \`\`\``,
@@ -490,25 +481,24 @@ function removeKdigits(num, k) {
       lcSlug: "remove-duplicate-letters",
       title: "Remove Duplicate Letters",
       diff: "Medium",
-      body: `Sabse chhota lexicographic result — stack me rakho, baad me phir milega to bada hatao.
+      body: `Build smallest lexicographic number: pop larger digits when the same digit appears again later.
 
 [Remove Duplicate Letters](https://leetcode.com/problems/remove-duplicate-letters/)
 
 \`\`\`js
-// Hinglish: chhota rakho, bada hatao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/remove-duplicate-letters/
+// Monotonic stack + last occurrence map
 function removeDuplicateLetters(s) {
-  // Hinglish: step 1 — last occurrence gin lo
   const last = new Map();
   for (let i = 0; i < s.length; i++) last.set(s[i], i);
   const st = [], inStack = new Set();
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
-    if (inStack.has(ch)) continue; // Hinglish: ek hi baar
+    if (inStack.has(ch)) continue;
     while (st.length && ch < st[st.length - 1] && last.get(st[st.length - 1]) > i) {
-      inStack.delete(st.pop()); // Hinglish: bada hatao, baad me milega
+      inStack.delete(st.pop()); // can pick smaller letter later
     }
-    st.push(ch); inStack.add(ch);
+    st.push(ch);
+    inStack.add(ch);
   }
   return st.join("");
 }
@@ -519,21 +509,19 @@ function removeDuplicateLetters(s) {
       lcSlug: "132-pattern",
       title: "132 Pattern",
       diff: "Medium",
-      body: `Peeche se chalao, min prefix yaad rakho, stack me middle candidates rakho — 132 mila to true.
+      body: `Scan from the right with min suffix; a middle peak in a stack pattern detects 132 sequence.
 
 [132 Pattern](https://leetcode.com/problems/132-pattern/)
 
 \`\`\`js
-// Hinglish: peeche se dekho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/132-pattern/
+// Scan right to left — stack holds decreasing "3" candidates
 function find132pattern(nums) {
-  // Hinglish: step 1 — stack + third rakho
   const st = [];
-  let third = -Infinity; // Hinglish: 2 wala candidate
+  let third = -Infinity; // best middle (2) seen
   for (let i = nums.length - 1; i >= 0; i--) {
-    if (nums[i] < third) return true; // Hinglish: 1 < 2 < 3 mila
+    if (nums[i] < third) return true; // 1 < 2 < 3 pattern
     while (st.length && nums[i] > st[st.length - 1]) {
-      third = st.pop(); // Hinglish: 2 update karo
+      third = st.pop(); // update middle
     }
     st.push(nums[i]);
   }
@@ -546,31 +534,29 @@ function find132pattern(nums) {
       lcSlug: "sum-of-subarray-minimums",
       title: "Sum of Subarray Minimums",
       diff: "Medium",
-      body: `Har element kitne subarrays ka minimum hai — pichhla chhota aur agla chhota-or-equal dhoondo, guna karo.
+      body: `Sum of subarray minimums: use previous smaller and next smaller-or-equal bounds, multiply contribution.
 
 [Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/)
 
 \`\`\`js
-// Hinglish: contribution gino — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sum-of-subarray-minimums/
+// Contribution: arr[i] * leftSpan * rightSpan
 function sumSubarrayMins(arr) {
-  // Hinglish: step 1 — seemayein nikalo
   const MOD = 1000000007, n = arr.length;
   const left = Array(n), right = Array(n);
   let st = [];
   for (let i = 0; i < n; i++) {
-    while (st.length && arr[st[st.length - 1]] > arr[i]) st.pop(); // Hinglish: sakht bada hatao
+    while (st.length && arr[st[st.length - 1]] > arr[i]) st.pop(); // strict left
     left[i] = st.length ? i - st[st.length - 1] : i + 1;
     st.push(i);
   }
   st = [];
   for (let i = n - 1; i >= 0; i--) {
-    while (st.length && arr[st[st.length - 1]] >= arr[i]) st.pop(); // Hinglish: barabar bhi hatao
+    while (st.length && arr[st[st.length - 1]] >= arr[i]) st.pop(); // non-strict right
     right[i] = st.length ? st[st.length - 1] - i : n - i;
     st.push(i);
   }
   let ans = 0;
-  for (let i = 0; i < n; i++) ans = (ans + arr[i] * left[i] * right[i]) % MOD; // Hinglish: left*right subarrays
+  for (let i = 0; i < n; i++) ans = (ans + arr[i] * left[i] * right[i]) % MOD;
   return ans;
 }
 \`\`\``,
@@ -580,15 +566,13 @@ function sumSubarrayMins(arr) {
       lcSlug: "sum-of-subarray-ranges",
       title: "Sum of Subarray Ranges",
       diff: "Medium",
-      body: `Max wala sum minus min wala sum — upar wala pattern do baar chalao (max ke liye, min ke liye).
+      body: `Sum of subarray ranges equals sum of subarray maximums minus sum of subarray minimums (two passes).
 
 [Sum of Subarray Ranges](https://leetcode.com/problems/sum-of-subarray-ranges/)
 
 \`\`\`js
-// Hinglish: max minus min — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sum-of-subarray-ranges/
+// sum(max contributions) - sum(min contributions)
 function subArrayRanges(nums) {
-  // Hinglish: step 1 — helper banao
   const contrib = (isMax) => {
     const n = nums.length, left = Array(n), right = Array(n);
     let st = [];
@@ -609,7 +593,7 @@ function subArrayRanges(nums) {
     for (let i = 0; i < n; i++) s += nums[i] * left[i] * right[i];
     return s;
   };
-  return contrib(true) - contrib(false); // Hinglish: max minus min
+  return contrib(true) - contrib(false);
 }
 \`\`\``,
     },

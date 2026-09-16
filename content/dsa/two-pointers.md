@@ -8,9 +8,9 @@
 
 ```js
 // Two pointers skeleton — opposite ends (sorted array)
-// Hinglish: sum dekho, chhota hai to left badhao, bada hai to right ghatao
+// compare sum to target; move left if too small, right if too large
 let left = 0, right = arr.length - 1;
-while (left < right) {
+while (left < right) { // invariant: answer lies in [left, right]
   const sum = arr[left] + arr[right];
   if (sum === target) break;
   else if (sum < target) left++;
@@ -18,9 +18,9 @@ while (left < right) {
 }
 
 // Center-expand skeleton (palindrome)
-// Hinglish: center se bahar failo jab tak match
+// expand outward while characters match
 for (let center = 0; center < n; center++) {
-  let l = center, r = center; // odd; even ke liye (center, center+1)
+  let l = center, r = center; // odd; even-length centers use (center, center+1)
   while (l >= 0 && r < n && s[l] === s[r]) { l--; r++; }
 }
 ```
@@ -31,16 +31,14 @@ Sorted, so if the sum is too small I need a bigger left. Too big, smaller right.
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// Two pointers — opposite ends
-// LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+// Sorted array → two pointers from both ends
 function twoSum(numbers, target) {
-  let left = 0, right = numbers.length - 1;
-  while (left < right) { // Hinglish: do pointer chalao
+  let left = 0, right = numbers.length - 1; // start at extremes
+  while (left < right) {
     const sum = numbers[left] + numbers[right];
-    if (sum === target) return [left + 1, right + 1];
-    if (sum < target) left++; // Hinglish: left badhao
-    else right--; // Hinglish: right ghatao
+    if (sum === target) return [left + 1, right + 1]; // 1-based answer
+    if (sum < target) left++; // need a larger value — move left rightward
+    else right--; // need a smaller value — move right leftward
   }
 }
 ```
@@ -52,26 +50,21 @@ Every palindrome has a center. I expand while left and right match. Do it for od
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// Two pointers — expand around center
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
 function longestPalindrome(s) {
-  // Hinglish: step 1 — base case check karo
-  let best = "";
-  const grow = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) {
-      l--;
-      r++;
-    }
-    return s.slice(l + 1, r);
+  // Expand while chars match; return start index and length
+  const expand = (l, r) => {
+    while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
+    return [l + 1, r - l - 1];
   };
+  let start = 0, len = 0;
   for (let i = 0; i < s.length; i++) {
-    const odd = grow(i, i);
-    const even = grow(i, i + 1);
-    const cur = odd.length > even.length ? odd : even;
-    if (cur.length > best.length) best = cur;
+    // Try odd-length (i,i) and even-length (i,i+1) centers
+    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) {
+      if (ln > len) { start = st; len = ln; }
+    }
   }
-  return best;
+  return s.slice(start, start + len);
 }
 ```
 
@@ -82,21 +75,19 @@ Water at `i` is min(tallest on left, tallest on right) minus height[i]. Two poin
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
-// Two pointers — water limited by the shorter wall
 // LC: https://leetcode.com/problems/trapping-rain-water/
 function trap(height) {
   let left = 0, right = height.length - 1;
   let leftMax = 0, rightMax = 0, water = 0;
-  while (left < right) { // Hinglish: do pointer chalao
+  while (left < right) { // Main two-pointer loop
     if (height[left] < height[right]) {
       leftMax = Math.max(leftMax, height[left]);
       water += leftMax - height[left];
-      left++; // Hinglish: left badhao
+      left++; // shorter left wall — its max is binding; advance left
     } else {
       rightMax = Math.max(rightMax, height[right]);
       water += rightMax - height[right];
-      right--; // Hinglish: right ghatao
+      right--; // shorter right wall — process right side; advance right
     }
   }
   return water;
@@ -105,20 +96,19 @@ function trap(height) {
 
 ## Container With Most Water
 
-Do pointer, jo height chhoti usko move karo. Area = min(h[l],h[r]) * width, best rakho.
+Move the pointer at the shorter wall — only that side can improve area. Track `min(h[l], h[r]) * width`.
 
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/container-with-most-water/
 function maxArea(height) {
-  // Hinglish: dono end se start
+  // Start pointers at both ends of the array
   let l=0, r=height.length-1, best=0;
   while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l); // Hinglish: current area
+    const area = Math.min(height[l], height[r]) * (r - l); // width × shorter height = water held now
     best = Math.max(best, area);
-    if (height[l] < height[r]) l++; // Hinglish: chhoti height hatayi, badi ka chance
+    if (height[l] < height[r]) l++; // drop the shorter wall — only that side can improve area
     else r--;
   }
   return best;
@@ -127,24 +117,23 @@ function maxArea(height) {
 
 ## 3Sum
 
-Sort karke har `i` ko fix karo, fir `l,r` se 2-sum dhoondo. Duplicate skip karo.
+Sort, fix index `i`, then two-pointer 2-sum on the rest. Skip duplicate triplets.
 
 [3Sum](https://leetcode.com/problems/3sum/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/3sum/
 function threeSum(nums) {
-  // Hinglish: pehle sort
+  // sort so two-pointer / duplicate skip works
   nums.sort((a,b)=>a-b);
   const ans=[];
   for (let i=0;i<nums.length-2;i++) {
-    if (i>0 && nums[i]===nums[i-1]) continue; // Hinglish: duplicate i skip
+    if (i>0 && nums[i]===nums[i-1]) continue; // skip duplicate fixed first index
     let l=i+1, r=nums.length-1;
     while (l<r) {
       const sum = nums[i]+nums[l]+nums[r];
-      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // Hinglish: mila to dono move + duplicate skip
-      else if (sum<0) l++; // Hinglish: chhota to left badhao
+      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // found triplet — shrink both sides and skip duplicate l/r
+      else if (sum<0) l++; // sum below zero — need a larger middle value
       else r--;
     }
   }
@@ -154,19 +143,18 @@ function threeSum(nums) {
 
 ## Valid Palindrome
 
-String ko alphanum karke lower case, do pointer se palindrome check karo.
+Keep only letters and digits, lowercase, then two pointers from both ends.
 
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-palindrome/
 function isPalindrome(s) {
-  // Hinglish: sirf alphanum, lower
+  // normalize: lowercase letters and digits only
   s = s.toLowerCase().replace(/[^a-z0-9]/g,"");
   let l=0, r=s.length-1;
   while (l<r) {
-    if (s[l]!==s[r]) return false; // Hinglish: mismatch to false
+    if (s[l]!==s[r]) return false; // characters differ — not a palindrome
     l++; r--;
   }
   return true;

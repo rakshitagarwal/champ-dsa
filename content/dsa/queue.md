@@ -7,20 +7,20 @@
 **How it works:** JS me array `push`/`shift` se queue banti hai (shift `O(n)` hai, bade input pe head pointer ya deque use karo). Circular queue me head + count + modulo se ghoomo. Time `O(n)`, space `O(n)`.
 
 ```js
-// Queue skeleton — line me lagao, aage se nikalo
-// Hinglish: piche jodo, aage se lo
+// Queue skeleton — enqueue at back, dequeue from front (FIFO)
+// queue: enqueue at back, dequeue from front
 const q = [start];
 while (q.length) {
-  const x = q.shift(); // Hinglish: aage wala nikala
-  // ... kaam karo ...
-  for (const nxt of neighbors(x)) q.push(nxt); // Hinglish: piche jodo
+  const x = q.shift(); // pop from outStack — amortized O(1) dequeue
+  // ... kaam ...
+  for (const nxt of neighbors(x)) q.push(nxt); // enqueue neighbor at back
 }
 
-// Circular queue skeleton — fixed size, modulo se ghoomo
-// Hinglish: head + count, index % k
+// Circular queue skeleton — fixed size, modulo from ghoomo
+// ring buffer: head index + count modulo capacity
 const a = Array(k).fill(0);
 let head = 0, count = 0;
-const idx = (head + count) % k; // Hinglish: pichhli khaali jagah
+const idx = (head + count) % k; // next enqueue slot at (head+count) % k
 ```
 ## Number of Recent Calls
 
@@ -29,16 +29,15 @@ const idx = (head + count) % k; // Hinglish: pichhli khaali jagah
 [Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
 
 ```js
-// Hinglish: queue push-shift — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/number-of-recent-calls/
 function RecentCounter() {
-  // Hinglish: step 1 — queue lo
+  // BFS uses a FIFO queue
   this.q = [];
 }
 RecentCounter.prototype.ping = function (t) {
-  this.q.push(t); // Hinglish: naya time jodo
-  while (this.q[0] < t - 3000) this.q.shift(); // Hinglish: purane nikalo
-  return this.q.length; // Hinglish: window me kitne
+  this.q.push(t); // enqueue new ping timestamp
+  while (this.q[0] < t - 3000) this.q.shift(); // drop timestamps older than 3000ms window
+  return this.q.length; // return count of requests in last 3000ms
 };
 ```
 
@@ -49,18 +48,17 @@ Ek queue lo — push ke baad purane sab ghuma ke piche daal do, taaki naya aage 
 [Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/)
 
 ```js
-// Hinglish: queue push-shift — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/implement-stack-using-queues/
 function MyStack() {
-  // Hinglish: step 1 — queue lo
   this.q = [];
 }
 MyStack.prototype.push = function (x) {
-  this.q.push(x); // Hinglish: piche jodo
-  for (let i = 1; i < this.q.length; i++) this.q.push(this.q.shift()); // Hinglish: purane ghumao
+  this.q.push(x);
+  // Rotate so newest element sits at front (stack top)
+  for (let i = 1; i < this.q.length; i++) this.q.push(this.q.shift());
 };
 MyStack.prototype.pop = function () {
-  return this.q.shift(); // Hinglish: aage wala = top
+  return this.q.shift();
 };
 MyStack.prototype.top = function () {
   return this.q[0];
@@ -77,10 +75,8 @@ Fixed size `k` — head + count rakho, index `% k` se ghoomo. Full/empty ka fara
 [Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
 
 ```js
-// Hinglish: queue push-shift — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/design-circular-queue/
 function MyCircularQueue(k) {
-  // Hinglish: step 1 — array + head + count
   this.a = Array(k).fill(0);
   this.head = 0;
   this.count = 0;
@@ -88,13 +84,14 @@ function MyCircularQueue(k) {
 }
 MyCircularQueue.prototype.enQueue = function (v) {
   if (this.isFull()) return false;
-  this.a[(this.head + this.count) % this.k] = v; // Hinglish: pichhli jagah
+  // Tail slot wraps with modulo capacity
+  this.a[(this.head + this.count) % this.k] = v;
   this.count++;
   return true;
 };
 MyCircularQueue.prototype.deQueue = function () {
   if (this.isEmpty()) return false;
-  this.head = (this.head + 1) % this.k; // Hinglish: aage badho
+  this.head = (this.head + 1) % this.k;
   this.count--;
   return true;
 };

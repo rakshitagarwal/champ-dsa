@@ -8,17 +8,17 @@
 
 ```js
 // Matrix skeleton — traversal with directions
-// Hinglish: rows/cols nikalo, directions se ghoomo
+// grid DFS/BFS — four directions from (r,c)
 const rows = grid.length, cols = grid[0].length;
-const dirs = [[1,0],[-1,0],[0,1],[0,-1]]; // Hinglish: 4 disha
+const dirs = [[1,0],[-1,0],[0,1],[0,-1]]; // four orthogonal direction vectors
 const inBounds = (r, c) => r >= 0 && c >= 0 && r < rows && c < cols;
 for (const [dr, dc] of dirs) {
   const nr = r + dr, nc = c + dc;
-  if (!inBounds(nr, nc)) continue; // Hinglish: bahar to chhodo
+  if (!inBounds(nr, nc)) continue; // skip neighbor outside grid bounds
 }
 
 // Rotate 90° skeleton — transpose + reverse rows
-// Hinglish: pehle transpose, phir har row ulta
+// rotate 90° CW: transpose then reverse each row
 for (let r = 0; r < n; r++)
   for (let c = r + 1; c < n; c++)
     [a[r][c], a[c][r]] = [a[c][r], a[r][c]];
@@ -43,25 +43,24 @@ Boundaries rakho (top/bottom/left/right), ek-ek layer nikalo, har side ke baad s
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 ```js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/spiral-matrix/
 function spiralOrder(matrix) {
-  // Hinglish: step 1 — boundaries lo
+  // layer-by-layer spiral with top/bottom/left/right
   const out = [];
   let top = 0, bottom = matrix.length - 1;
   let left = 0, right = matrix[0].length - 1;
   while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) out.push(matrix[top][c]); // Hinglish: upar row
+    for (let c = left; c <= right; c++) out.push(matrix[top][c]); // traverse top row left → right
     top++;
-    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]); // Hinglish: right col
-    right--;
+    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]); // traverse right column top → bottom
+    right--; // move right pointer leftward
     if (top <= bottom) {
-      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]); // Hinglish: neeche row
+      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]); // traverse bottom row right → left
       bottom--;
     }
     if (left <= right) {
-      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]); // Hinglish: left col
-      left++;
+      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]); // traverse left column bottom → top
+      left++; // shrink or move left pointer rightward
     }
   }
   return out;
@@ -75,17 +74,16 @@ Transpose karo (r,c) ↔ (c,r), phir har row reverse. In-place, extra space nahi
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 ```js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
+// Transpose then reverse each row — 90° clockwise in-place
 // LC: https://leetcode.com/problems/rotate-image/
 function rotate(matrix) {
-  // Hinglish: step 1 — transpose karo
   const n = matrix.length;
   for (let r = 0; r < n; r++) {
     for (let c = r + 1; c < n; c++) {
-      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]]; // Hinglish: adla-badli
+      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]]; // swap across diagonal (transpose)
     }
   }
-  for (const row of matrix) row.reverse(); // Hinglish: har row ulta
+  for (const row of matrix) row.reverse(); // reverse each row in place
 }
 ```
 
@@ -96,22 +94,21 @@ Jis cell me 0 ho, uski poori row+col zero karo. O(1) space ke liye pehli row/col
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 ```js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
+// Mark zeros in row0/col0, then apply — O(1) extra space
 // LC: https://leetcode.com/problems/set-matrix-zeroes/
 function setZeroes(matrix) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = matrix.length, cols = matrix[0].length;
   let firstRowZero = false, firstColZero = false;
   for (let c = 0; c < cols; c++) if (matrix[0][c] === 0) firstRowZero = true;
   for (let r = 0; r < rows; r++) if (matrix[r][0] === 0) firstColZero = true;
   for (let r = 1; r < rows; r++) {
     for (let c = 1; c < cols; c++) {
-      if (matrix[r][c] === 0) { matrix[r][0] = 0; matrix[0][c] = 0; } // Hinglish: nishan lagao
+      if (matrix[r][c] === 0) { matrix[r][0] = 0; matrix[0][c] = 0; } // mark row0/col0 when a zero is seen
     }
   }
   for (let r = 1; r < rows; r++) {
     for (let c = 1; c < cols; c++) {
-      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0; // Hinglish: nishan to zero
+      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0; // use markers to zero entire row/column
     }
   }
   if (firstRowZero) for (let c = 0; c < cols; c++) matrix[0][c] = 0;
@@ -126,15 +123,14 @@ Har row sorted, har row ka pehla pichhli row ke aakhri se bada — poori matrix 
 [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)
 
 ```js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
+// Treat matrix as one sorted array — binary search on flat index
 // LC: https://leetcode.com/problems/search-a-2d-matrix/
 function searchMatrix(matrix, target) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = matrix.length, cols = matrix[0].length;
   let lo = 0, hi = rows * cols - 1;
-  while (lo <= hi) {
+  while (lo <= hi) { // classic BS on inclusive [lo, hi]
     const mid = (lo + hi) >> 1;
-    const val = matrix[Math.floor(mid / cols)][mid % cols]; // Hinglish: flat se 2D
+    const val = matrix[Math.floor(mid / cols)][mid % cols]; // treat mid as row-major index into matrix
     if (val === target) return true;
     if (val < target) lo = mid + 1;
     else hi = mid - 1;

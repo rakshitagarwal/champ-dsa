@@ -8,15 +8,15 @@
 
 ```js
 // Array skeleton — read / write pointer (in-place filter)
-// Hinglish: write tabhi badhao jab element rakhna hai
+// advance write only when we keep the element
 let write = 0;
 for (let read = 0; read < arr.length; read++) {
-  if (shouldKeep(arr[read])) arr[write++] = arr[read]; // rakhna hai to copy karo
+  if (shouldKeep(arr[read])) arr[write++] = arr[read]; // rakhna is true to copy 
 }
-// arr.length = write  (ya tail fill karo)
+// arr.length = write (ya tail fill )
 
 // Do-pointer skeleton (reverse / swap)
-// Hinglish: dono end se beech tak swap karo
+// swap from both ends until pointers meet
 let l = 0, r = arr.length - 1;
 while (l < r) {
   [arr[l], arr[r]] = [arr[r], arr[l]]; // swap
@@ -24,10 +24,10 @@ while (l < r) {
 }
 
 // Running best skeleton (Kadane)
-// Hinglish: naya start karu ya purana sum continue karu?
+// restart subarray at x, or extend the running sum?
 let run = 0, best = -Infinity;
 for (const x of arr) {
-  run = Math.max(x, run + x); // naya ya continue
+  run = Math.max(x, run + x); // best ending here: fresh start vs extend
   best = Math.max(best, run);
 }
 ```
@@ -38,18 +38,15 @@ Two ends, swap, walk in. Same as swapping two cups until they meet.
 [Reverse String](https://leetcode.com/problems/reverse-string/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — reverse in place
 // LC: https://leetcode.com/problems/reverse-string/
 function reverseString(s) {
-  // Hinglish: step 1 — base case check karo
   let left = 0, right = s.length - 1;
-  while (left < right) {
+  while (left < right) { // invariant: answer lies in [left, right]
     const tmp = s[left];
     s[left] = s[right];
     s[right] = tmp;
-    left++;
-    right--;
+    left++; // shrink or move left pointer rightward
+    right--; // move right pointer leftward
   }
 }
 ```
@@ -61,11 +58,8 @@ Copy every non-zero forward. Then fill the tail with zeroes. Order of the real n
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — compact then fill
 // LC: https://leetcode.com/problems/move-zeroes/
 function moveZeroes(nums) {
-  // Hinglish: step 1 — base case check karo
   let write = 0;
   for (let read = 0; read < nums.length; read++) {
     if (nums[read] !== 0) nums[write++] = nums[read];
@@ -81,11 +75,8 @@ function moveZeroes(nums) {
 [Rotate Array](https://leetcode.com/problems/rotate-array/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — reverse trick
 // LC: https://leetcode.com/problems/rotate-array/
 function rotate(nums, k) {
-  // Hinglish: step 1 — base case check karo
   k %= nums.length;
   const rev = (l, r) => {
     while (l < r) {
@@ -107,11 +98,8 @@ Kadane: keep a running sum. If it goes negative, drop it and start at the next n
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — Kadane
 // LC: https://leetcode.com/problems/maximum-subarray/
 function maxSubArray(nums) {
-  // Hinglish: step 1 — base case check karo
   let run = 0, best = -Infinity;
   for (const x of nums) {
     run = Math.max(x, run + x); // restart or continue
@@ -128,14 +116,13 @@ Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek 
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
 function maxProfit(prices) {
-  // Hinglish: sabse kam price yaad rakho
+  // track cheapest buy price seen so far
   let best = 0, minPrice = Infinity;
   for (const p of prices) {
-    minPrice = Math.min(minPrice, p); // Hinglish: sasta mila to update
-    best = Math.max(best, p - minPrice); // Hinglish: bech ke dekho profit
+    minPrice = Math.min(minPrice, p); // new minimum buy price
+    best = Math.max(best, p - minPrice); // sell today — update best profit
   }
   return best;
 }
@@ -148,16 +135,15 @@ Sorted hai to duplicates bagal me honge. Write pointer se unique hi rakho, lengt
 [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/remove-duplicates-from-sorted-array/
 function removeDuplicates(nums) {
-  // Hinglish: write = unique ka end
+  // write marks end of unique prefix
   if (!nums.length) return 0;
   let write = 1;
   for (let read=1; read<nums.length; read++) {
-    if (nums[read] !== nums[read-1]) nums[write++] = nums[read]; // Hinglish: naya unique mila to copy
+    if (nums[read] !== nums[read-1]) nums[write++] = nums[read]; // append next distinct value
   }
-  return write; // Hinglish: naya length
+  return write; // return new logical length
 }
 ```
 
@@ -168,14 +154,13 @@ Boyer-Moore voting — candidate rakho, count badhao/ghatao. End me candidate hi
 [Majority Element](https://leetcode.com/problems/majority-element/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/majority-element/
 function majorityElement(nums) {
-  // Hinglish: vote karo
+  // Boyer–Moore majority voting
   let cand = 0, count = 0;
   for (const x of nums) {
-    if (count===0) cand = x; // Hinglish: naya candidate
-    count += (x===cand ? 1 : -1); // Hinglish: same to +1 warna -1
+    if (count===0) cand = x; // reset candidate when count hits zero
+    count += (x===cand ? 1 : -1); // match candidate +1 else cancel one vote
   }
   return cand;
 }
@@ -188,13 +173,12 @@ Do sorted arrays, piche se bharo taaki overwrite na ho. `m+n` jagah pehle se hai
 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
 
 ```js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/merge-sorted-array/
 function merge(nums1, m, nums2, n) {
-  // Hinglish: piche se bharo
+  // merge from the back to avoid overwriting nums1
   let i=m-1, j=n-1, k=m+n-1;
   while (j>=0) {
-    if (i>=0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--]; // Hinglish: bada wala piche
+    if (i>=0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--]; // place the larger tail element at the back
     else nums1[k--] = nums2[j--];
   }
 }

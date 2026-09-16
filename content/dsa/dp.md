@@ -8,7 +8,7 @@
 
 ```js
 // DP skeleton — bottom-up tabulation
-// Hinglish: dp[i] ka matlab pehle socho fir loop se bharo
+// define dp[i] in English first, then fill the table in order
 const dp = Array(n + 1).fill(0);
 dp[0] = base;
 for (let i = 1; i <= n; i++) {
@@ -17,11 +17,11 @@ for (let i = 1; i <= n; i++) {
 return dp[n];
 
 // Memo skeleton (top-down)
-// Hinglish: yaad hai to wapas do, nahi to compute karke yaad rakho
+// return memo hit; else compute, store, return
 const memo = new Map();
 function solve(i, remain) {
   const key = i + "," + remain;
-  if (memo.has(key)) return memo.get(key); // yaad hai
+  if (memo.has(key)) return memo.get(key); // cache hit
   if (isBase(i, remain)) return baseVal;
   let best = -Infinity;
   for (const choice of choices) best = Math.max(best, solve(next, remain-choice) + gain);
@@ -50,13 +50,11 @@ Ways to reach i = ways to i-1 + ways to i-2.
 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — Fibonacci
+// dp[i] = ways to reach step i; recurrence dp[i]=dp[i-1]+dp[i-2]
 // LC: https://leetcode.com/problems/climbing-stairs/
 function climbStairs(n) {
-  // Hinglish: step 1 — base case check karo
   if (n <= 2) return n;
-  let a = 1, b = 2;
+  let a = 1, b = 2; // dp[1], dp[2]
   for (let i = 3; i <= n; i++) {
     const c = a + b;
     a = b;
@@ -73,19 +71,17 @@ function climbStairs(n) {
 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — cost jod ke min lo
+// dp[i] = min cost to stand on step i (can start at 0 or 1 for free)
 // LC: https://leetcode.com/problems/min-cost-climbing-stairs/
 function minCostClimbingStairs(cost) {
-  // Hinglish: step 1 — base case check karo
   const n = cost.length;
-  let a = 0, b = 0;
+  let a = 0, b = 0; // dp at i-2 and i-1
   for (let i = 2; i <= n; i++) {
     const c = Math.min(b + cost[i - 1], a + cost[i - 2]);
     a = b;
     b = c;
   }
-  return b;
+  return b; // top beyond last index
 }
 ```
 
@@ -96,14 +92,12 @@ At each house: rob it (then I skipped the previous) or skip it. Two variables ar
 [House Robber](https://leetcode.com/problems/house-robber/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — take or skip
+// prev1 = best if we end at prev house; prev2 = best two houses back
 // LC: https://leetcode.com/problems/house-robber/
 function rob(nums) {
-  // Hinglish: step 1 — base case check karo
   let prev2 = 0, prev1 = 0;
   for (const x of nums) {
-    const cur = Math.max(prev1, prev2 + x);
+    const cur = Math.max(prev1, prev2 + x); // rob x vs skip x
     prev2 = prev1;
     prev1 = cur;
   }
@@ -118,17 +112,16 @@ Ghar gol me hain, pehla aur aakhri saath nahi loot sakte. Do cases: [0..n-2] aur
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
+// Circular: max of robbing [0..n-2] or [1..n-1] (one end excluded)
 // LC: https://leetcode.com/problems/house-robber-ii/
 function rob2(nums) {
-  // Hinglish: single to wahi
   if(nums.length===1) return nums[0];
   const robRange=(l,r)=>{
     let prev2=0, prev1=0;
-    for(let i=l;i<=r;i++){ const cur=Math.max(prev1, prev2+nums[i]); prev2=prev1; prev1=cur; } // Hinglish: loot ya chhodo
+    for(let i=l;i<=r;i++){ const cur=Math.max(prev1, prev2+nums[i]); prev2=prev1; prev1=cur; }
     return prev1;
   };
-  return Math.max(robRange(0, nums.length-2), robRange(1, nums.length-1)); // Hinglish: pehla chhodo ya aakhri chhodo
+  return Math.max(robRange(0, nums.length-2), robRange(1, nums.length-1));
 }
 ```
 
@@ -139,19 +132,17 @@ function rob2(nums) {
 [Decode Ways](https://leetcode.com/problems/decode-ways/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — 1 or 2 digits
+// dp[i] = ways to decode prefix s[0..i-1]
 // LC: https://leetcode.com/problems/decode-ways/
 function numDecodings(s) {
-  // Hinglish: step 1 — base case check karo
   const n = s.length;
   const dp = Array(n + 1).fill(0);
-  dp[0] = 1;
+  dp[0] = 1; // empty prefix
   for (let i = 1; i <= n; i++) {
-    if (s[i - 1] !== "0") dp[i] += dp[i - 1];
+    if (s[i - 1] !== "0") dp[i] += dp[i - 1]; // single digit 1-9
     if (i >= 2) {
       const two = Number(s.slice(i - 2, i));
-      if (two >= 10 && two <= 26) dp[i] += dp[i - 2];
+      if (two >= 10 && two <= 26) dp[i] += dp[i - 2]; // two digit 10-26
     }
   }
   return dp[n];
@@ -165,18 +156,16 @@ function numDecodings(s) {
 [Word Break](https://leetcode.com/problems/word-break/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — prefix can be segmented
+// dp[i] = can s[0..i-1] be segmented into dictionary words
 // LC: https://leetcode.com/problems/word-break/
 function wordBreak(s, wordDict) {
-  // Hinglish: step 1 — base case check karo
   const dict = new Set(wordDict);
   const dp = Array(s.length + 1).fill(false);
   dp[0] = true;
   for (let i = 1; i <= s.length; i++) {
     for (let j = 0; j < i; j++) {
       if (dp[j] && dict.has(s.slice(j, i))) {
-        dp[i] = true;
+        dp[i] = true; // last word is s[j..i-1]
         break;
       }
     }
@@ -206,11 +195,9 @@ function wordBreak(s, wordDict) {
 [Coin Change](https://leetcode.com/problems/coin-change/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — unbounded knapsack
+// dp[a] = min coins to make amount a (unbounded coin reuse)
 // LC: https://leetcode.com/problems/coin-change/
 function coinChange(coins, amount) {
-  // Hinglish: step 1 — base case check karo
   const dp = Array(amount + 1).fill(Infinity);
   dp[0] = 0;
   for (let a = 1; a <= amount; a++) {
@@ -229,13 +216,13 @@ Kitne tareeke se amount banao? Order nahi count karna, coin loop bahar.
 [Coin Change II](https://leetcode.com/problems/coin-change-2/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
+// Count combos: outer coin loop avoids permutations of same multiset
 // LC: https://leetcode.com/problems/coin-change-2/
 function change(amount, coins) {
-  // Hinglish: dp[a] = tareeke
-  const dp=Array(amount+1).fill(0); dp[0]=1; // Hinglish: 0 ka 1 tareeka
-  for(const c of coins){
-    for(let a=c;a<=amount;a++) dp[a]+=dp[a-c]; // Hinglish: c wala use karo
+  const dp = Array(amount + 1).fill(0);
+  dp[0] = 1;
+  for (const c of coins) {
+    for (let a = c; a <= amount; a++) dp[a] += dp[a - c];
   }
   return dp[amount];
 }
@@ -248,11 +235,9 @@ Can I pick a subset that sums to total/2? 0/1 knapsack on a boolean array.
 [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — 0/1 knapsack boolean
+// Subset sum to target/2; reverse loop = each number used once
 // LC: https://leetcode.com/problems/partition-equal-subset-sum/
 function canPartition(nums) {
-  // Hinglish: step 1 — base case check karo
   const total = nums.reduce((a, b) => a + b, 0);
   if (total % 2) return false;
   const target = total / 2;
@@ -272,11 +257,9 @@ Har number ke aage + ya - lagake target banao — kitne tareeke? Subset-sum me b
 [Target Sum](https://leetcode.com/problems/target-sum/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — 0/1 knapsack count
+// Subset sum count: P - N = target => sum(P) = (total + target) / 2
 // LC: https://leetcode.com/problems/target-sum/
 function findTargetSumWays(nums, target) {
-  // Hinglish: step 1 — base case check karo
   const total = nums.reduce((a, b) => a + b, 0);
   if ((total + target) % 2 !== 0 || total < Math.abs(target)) return 0;
   const t = (total + target) / 2;
@@ -308,11 +291,9 @@ function findTargetSumWays(nums, target) {
 [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — LCS
+// dp[i][j] = LCS length of a[0..i-1] and b[0..j-1]
 // LC: https://leetcode.com/problems/longest-common-subsequence/
 function longestCommonSubsequence(a, b) {
-  // Hinglish: step 1 — base case check karo
   const m = a.length, n = b.length;
   const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
   for (let i = 1; i <= m; i++) {
@@ -332,15 +313,13 @@ function longestCommonSubsequence(a, b) {
 [Edit Distance](https://leetcode.com/problems/edit-distance/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — insert / delete / replace
+// dp[i][j] = edit distance between a[0..i-1] and b[0..j-1]
 // LC: https://leetcode.com/problems/edit-distance/
 function minDistance(a, b) {
-  // Hinglish: step 1 — base case check karo
   const m = a.length, n = b.length;
   const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 0; i <= m; i++) dp[i][0] = i; // delete all from a
+  for (let j = 0; j <= n; j++) dp[0][j] = j; // insert all into a
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1];
@@ -358,15 +337,14 @@ function minDistance(a, b) {
 [Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
+// LPS length = LCS(s, reverse(s))
 // LC: https://leetcode.com/problems/longest-palindromic-subsequence/
 function longestPalindromeSubseq(s) {
-  // Hinglish: reverse se LCS
   const t=[...s].reverse().join("");
   const n=s.length, dp=Array.from({length:n+1},()=>Array(n+1).fill(0));
   for(let i=1;i<=n;i++) for(let j=1;j<=n;j++){
-    if(s[i-1]===t[j-1]) dp[i][j]=dp[i-1][j-1]+1; // Hinglish: match to +1
-    else dp[i][j]=Math.max(dp[i-1][j], dp[i][j-1]); // Hinglish: ek chhodo
+    if(s[i-1]===t[j-1]) dp[i][j]=dp[i-1][j-1]+1;
+    else dp[i][j]=Math.max(dp[i-1][j], dp[i][j-1]);
   }
   return dp[n][n];
 }
@@ -391,14 +369,12 @@ Only right and down. `dp[c] += dp[c - 1]` while scanning a row.
 [Unique Paths](https://leetcode.com/problems/unique-paths/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — grid paths
+// dp[c] = paths to cell in current row; only right/down moves
 // LC: https://leetcode.com/problems/unique-paths/
 function uniquePaths(m, n) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(n).fill(1);
+  const dp = Array(n).fill(1); // first row all 1
   for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) dp[c] += dp[c - 1];
+    for (let c = 1; c < n; c++) dp[c] += dp[c - 1]; // from left + from above
   }
   return dp[n - 1];
 }
@@ -411,11 +387,9 @@ Har cell pe `grid + min(upar, left)`. Pehli row/col seedha accumulate hoti hai.
 [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — grid min cost
+// dp[r][c] = min path sum to (r,c) moving only right/down
 // LC: https://leetcode.com/problems/minimum-path-sum/
 function minPathSum(grid) {
-  // Hinglish: step 1 — base case check karo
   const m = grid.length, n = grid[0].length;
   const dp = Array.from({ length: m }, () => Array(n).fill(0));
   dp[0][0] = grid[0][0];
@@ -449,11 +423,9 @@ function minPathSum(grid) {
 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — LIS O(n^2)
+// dp[i] = LIS length ending at index i
 // LC: https://leetcode.com/problems/longest-increasing-subsequence/
 function lengthOfLIS(nums) {
-  // Hinglish: step 1 — base case check karo
   const dp = Array(nums.length).fill(1);
   let best = 1;
   for (let i = 0; i < nums.length; i++) {
@@ -477,12 +449,10 @@ Interval DP. `dp[l][r]` = best coins bursting balloons strictly inside (l, r). L
 [Burst Balloons](https://leetcode.com/problems/burst-balloons/)
 
 ```js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — interval, last balloon k
+// dp[l][r] = max coins bursting balloons strictly between l and r (exclusive)
 // LC: https://leetcode.com/problems/burst-balloons/
 function maxCoins(nums) {
-  // Hinglish: step 1 — base case check karo
-  const a = [1, ...nums, 1];
+  const a = [1, ...nums, 1]; // boundary sentinels
   const n = a.length;
   const dp = Array.from({ length: n }, () => Array(n).fill(0));
   for (let len = 2; len < n; len++) {

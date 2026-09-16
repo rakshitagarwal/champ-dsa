@@ -8,17 +8,17 @@
 
 ```js
 // Backtracking skeleton — choose / explore / unchoose
-// Hinglish: choice lo, aage jao, fir wapas hatao
+// take a choice, recurse forward, then undo (backtrack)
 function backtrack(start, path) {
   ans.push([...path]); // ya: if (isSolution(path)) ans.push([...path]); return
 
-  // prune — ye branch aage nahi ja sakti
+  // prune — this branch cannot lead to a valid solution
   // if (!isValid(path)) return;
 
   for (let i = start; i < nums.length; i++) {
-    path.push(nums[i]);      // choose — choice liya
-    backtrack(i + 1, path);  // explore — aage recurse (i = reuse allowed, i+1 = no reuse)
-    path.pop();              // unchoose — wapas hataya (backtrack)
+    path.push(nums[i]);      // choose — take nums[i] into current path
+    backtrack(i + 1, path);  // explore — recurse (i+1 = no reuse; i = reuse allowed)
+    path.pop();              // unchoose — undo choice before next branch
   }
 }
 const ans = [];
@@ -31,17 +31,16 @@ Every prefix of the path is a subset. Recurse with `i + 1` so I do not reuse an 
 [Subsets](https://leetcode.com/problems/subsets/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — subsets
+// Backtracking: every prefix of path is a valid subset
 // LC: https://leetcode.com/problems/subsets/
 function subsets(nums) {
   const ans = [];
   const dfs = (start, path) => {
-    ans.push([...path]);
+    ans.push([...path]); // snapshot current subset before branching
     for (let i = start; i < nums.length; i++) {
-      path.push(nums[i]); // Hinglish: choice liya
-      dfs(i + 1, path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
+      path.push(nums[i]); // include nums[i] in the subset
+      dfs(i + 1, path); // only pick indices after i (no reuse)
+      path.pop(); // undo choice for next sibling branch
     }
   };
   dfs(0, []);
@@ -56,21 +55,20 @@ I may reuse the same coin, so I recurse on `i` not `i + 1`. Stop when remain is 
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — reuse allowed
+// Recurse on i (not i+1) because the same coin may be reused
 // LC: https://leetcode.com/problems/combination-sum/
 function combinationSum(candidates, target) {
   const ans = [];
   const dfs = (start, remain, path) => {
     if (remain === 0) {
-      ans.push([...path]);
+      ans.push([...path]); // exact target hit
       return;
     }
-    if (remain < 0) return;
+    if (remain < 0) return; // overshoot, prune
     for (let i = start; i < candidates.length; i++) {
-      path.push(candidates[i]); // Hinglish: choice liya
-      dfs(i, remain - candidates[i], path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
+      path.push(candidates[i]);
+      dfs(i, remain - candidates[i], path); // stay at i to allow reuse
+      path.pop();
     }
   };
   dfs(0, target, []);
@@ -85,23 +83,22 @@ function combinationSum(candidates, target) {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — permutations
+// used[i] tracks which indices are already in the current permutation
 // LC: https://leetcode.com/problems/permutations/
 function permute(nums) {
   const ans = [], used = Array(nums.length).fill(false);
   const dfs = (path) => {
     if (path.length === nums.length) {
-      ans.push([...path]);
+      ans.push([...path]); // full permutation built
       return;
     }
     for (let i = 0; i < nums.length; i++) {
-      if (used[i]) continue;
+      if (used[i]) continue; // each index at most once
       used[i] = true;
-      path.push(nums[i]); // Hinglish: choice liya
+      path.push(nums[i]);
       dfs(path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
-      used[i] = false;
+      path.pop();
+      used[i] = false; // free index for other positions
     }
   };
   dfs([]);
@@ -116,19 +113,17 @@ I can add `(` if I still have some. I can add `)` if closes < opens. When the st
 [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — count open/close
+// Add '(' if budget left; add ')' only if it would close an unmatched '('
 // LC: https://leetcode.com/problems/generate-parentheses/
 function generateParenthesis(n) {
-  // Hinglish: step 1 — base case check karo
   const ans = [];
   const dfs = (s, open, close) => {
     if (s.length === 2 * n) {
-      ans.push(s);
+      ans.push(s); // balanced string of length 2n
       return;
     }
-    if (open < n) dfs(s + "(", open + 1, close);
-    if (close < open) dfs(s + ")", open, close + 1);
+    if (open < n) dfs(s + "(", open + 1, close); // open another pair
+    if (close < open) dfs(s + ")", open, close + 1); // close only when valid
   };
   dfs("", 0, 0);
   return ans;
@@ -142,29 +137,27 @@ DFS from every cell. Mark the cell, try 4 directions, unmark. If I consume the w
 [Word Search](https://leetcode.com/problems/word-search/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — grid DFS
+// Grid DFS with in-place visited mark (#), restore on backtrack
 // LC: https://leetcode.com/problems/word-search/
 function exist(board, word) {
-  // Hinglish: step 1 — base case check karo
   const rows = board.length, cols = board[0].length;
   const dfs = (r, c, i) => {
-    if (i === word.length) return true;
+    if (i === word.length) return true; // matched full word
     if (r < 0 || c < 0 || r >= rows || c >= cols) return false;
     if (board[r][c] !== word[i]) return false;
     const ch = board[r][c];
-    board[r][c] = "#";
+    board[r][c] = "#"; // mark cell used on this path
     const ok =
       dfs(r + 1, c, i + 1) ||
       dfs(r - 1, c, i + 1) ||
       dfs(r, c + 1, i + 1) ||
       dfs(r, c - 1, i + 1);
-    board[r][c] = ch;
+    board[r][c] = ch; // unmark for other paths
     return ok;
   };
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (dfs(r, c, 0)) return true;
+      if (dfs(r, c, 0)) return true; // try every start cell
     }
   }
   return false;
@@ -178,11 +171,9 @@ One queen per row. `cols`, `diag`, `anti` sets. Place, recurse next row, remove.
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — place per row
+// One queen per row; track column and both diagonal directions
 // LC: https://leetcode.com/problems/n-queens/
 function solveNQueens(n) {
-  // Hinglish: step 1 — base case check karo
   const ans = [], board = Array.from({ length: n }, () => Array(n).fill("."));
   const cols = new Set(), diag = new Set(), anti = new Set();
   const dfs = (r) => {
@@ -191,7 +182,7 @@ function solveNQueens(n) {
       return;
     }
     for (let c = 0; c < n; c++) {
-      if (cols.has(c) || diag.has(r - c) || anti.has(r + c)) continue;
+      if (cols.has(c) || diag.has(r - c) || anti.has(r + c)) continue; // attack line
       cols.add(c); diag.add(r - c); anti.add(r + c);
       board[r][c] = "Q";
       dfs(r + 1);
@@ -211,19 +202,18 @@ Duplicate numbers ke saath subsets, duplicate subsets avoid karo. Sort karke `i>
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// Sort + skip equal values at same depth to avoid duplicate subsets
 // LC: https://leetcode.com/problems/subsets-ii/
 function subsetsWithDup(nums) {
-  // Hinglish: sort karke duplicate pakdo
-  nums.sort((a,b)=>a-b);
+  nums.sort((a,b)=>a-b); // duplicates become adjacent
   const ans=[];
   const dfs=(start, path)=>{
-    ans.push([...path]); // Hinglish: har path save
+    ans.push([...path]);
     for(let i=start;i<nums.length;i++){
-      if(i>start && nums[i]===nums[i-1]) continue; // Hinglish: duplicate skip
-      path.push(nums[i]); // Hinglish: choice liya
+      if(i>start && nums[i]===nums[i-1]) continue; // same value already tried at this level
+      path.push(nums[i]);
       dfs(i+1, path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
+      path.pop();
     }
   };
   dfs(0, []);
@@ -238,20 +228,19 @@ Har coin ek baar, duplicate combos nahi. Sort + skip `i>start && same`.
 [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// Each number once; sort + skip dupes like subsets II
 // LC: https://leetcode.com/problems/combination-sum-ii/
 function combinationSum2(candidates, target) {
-  // Hinglish: sort
   candidates.sort((a,b)=>a-b);
   const ans=[];
   const dfs=(start, remain, path)=>{
-    if(remain===0){ ans.push([...path]); return; } // Hinglish: mil gaya
-    if(remain<0) return; // Hinglish: overshoot
+    if(remain===0){ ans.push([...path]); return; }
+    if(remain<0) return;
     for(let i=start;i<candidates.length;i++){
-      if(i>start && candidates[i]===candidates[i-1]) continue; // Hinglish: duplicate skip
-      path.push(candidates[i]); // Hinglish: choice liya
-      dfs(i+1, remain-candidates[i], path);
-      path.pop(); // Hinglish: backtrack
+      if(i>start && candidates[i]===candidates[i-1]) continue;
+      path.push(candidates[i]);
+      dfs(i+1, remain-candidates[i], path); // i+1: each coin used at most once
+      path.pop();
     }
   };
   dfs(0, target, []);
@@ -266,19 +255,18 @@ String ko tukdon me kaato jahan har tukda palindrome ho. Backtrack se cut try ka
 [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// Try every palindrome prefix; recurse on the suffix
 // LC: https://leetcode.com/problems/palindrome-partitioning/
 function partition(s) {
-  // Hinglish: palindrome check
   const isPal=(l,r)=>{ while(l<r){ if(s[l++]!==s[r--]) return false; } return true; };
   const ans=[];
   const dfs=(start, path)=>{
-    if(start===s.length){ ans.push([...path]); return; } // Hinglish: pura kaat liya
+    if(start===s.length){ ans.push([...path]); return; }
     for(let end=start; end<s.length; end++){
-      if(!isPal(start,end)) continue; // Hinglish: palindrome nahi to skip
-      path.push(s.slice(start,end+1)); // Hinglish: choice liya
-      dfs(end+1, path);
-      path.pop(); // Hinglish: backtrack
+      if(!isPal(start,end)) continue; // cut [start..end] must be palindrome
+      path.push(s.slice(start,end+1));
+      dfs(end+1, path); // partition remainder
+      path.pop();
     }
   };
   dfs(0, []);
@@ -293,17 +281,16 @@ Phone digits se saare letter combos. Har digit ke letters pe loop.
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 
 ```js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// DFS over digit index; try every letter mapped to that digit
 // LC: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
 function letterCombinations(digits) {
-  // Hinglish: empty to []
   if(!digits) return [];
   const mp={2:"abc",3:"def",4:"ghi",5:"jkl",6:"mno",7:"pqrs",8:"tuv",9:"wxyz"};
   const ans=[];
   const dfs=(i, path)=>{
-    if(i===digits.length){ ans.push(path); return; } // Hinglish: pura ban gaya
+    if(i===digits.length){ ans.push(path); return; }
     for(const ch of mp[digits[i]]){
-      dfs(i+1, path+ch); // Hinglish: har letter try
+      dfs(i+1, path+ch); // append letter and move to next digit
     }
   };
   dfs(0, "");

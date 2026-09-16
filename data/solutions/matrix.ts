@@ -12,29 +12,31 @@ export const MATRIX_SOLUTIONS: SolutionGroup = {
       lcSlug: "spiral-matrix-ii",
       title: "Spiral Matrix II",
       diff: "Medium",
-      body: `Spiral Matrix jaisa, par bharna hai 1 se n² tak — boundaries shrink karte jao.
+      body: `Same spiral walk as Spiral Matrix, but fill with 1…n² while shrinking top/bottom/left/right bounds each lap.
 
 [Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
 
 \`\`\`js
-// Hinglish: bharte jao shrink karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/spiral-matrix-ii/
+// Layer-by-layer spiral fill with four boundary pointers
 function generateMatrix(n) {
-  // Hinglish: step 1 — khaali banao
   const out = Array.from({ length: n }, () => Array(n).fill(0));
   let top = 0, bottom = n - 1, left = 0, right = n - 1, v = 1;
   while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) out[top][c] = v++; // Hinglish: upar row
-    top++;
-    for (let r = top; r <= bottom; r++) out[r][right] = v++; // Hinglish: right col
-    right--;
+    // Fill top row left → right
+    for (let c = left; c <= right; c++) out[top][c] = v++;
+    top++; // top row consumed
+    // Fill right column top → bottom
+    for (let r = top; r <= bottom; r++) out[r][right] = v++;
+    right--; // right column consumed
     if (top <= bottom) {
-      for (let c = right; c >= left; c--) out[bottom][c] = v++; // Hinglish: neeche row
-      bottom--;
+      // Fill bottom row right → left
+      for (let c = right; c >= left; c--) out[bottom][c] = v++;
+      bottom--; // bottom row consumed
     }
     if (left <= right) {
-      for (let r = bottom; r >= top; r--) out[r][left] = v++; // Hinglish: left col
-      left++;
+      // Fill left column bottom → top
+      for (let r = bottom; r >= top; r--) out[r][left] = v++;
+      left++; // left column consumed
     }
   }
   return out;
@@ -46,23 +48,21 @@ function generateMatrix(n) {
       lcSlug: "search-a-2d-matrix",
       title: "Search a 2D Matrix",
       diff: "Medium",
-      body: `Har row sorted, har row ka pehla pichhli row ke aakhri se bada — poori matrix ek sorted array hai. Flatten index pe binary search lagao.
+      body: `Each row is sorted and every row’s first value exceeds the previous row’s last — treat the grid as one sorted array and binary-search by flat index.
 
 [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/search-a-2d-matrix/
+// Binary search on virtual 1D index into row-major order
 function searchMatrix(matrix, target) {
-  // Hinglish: step 1 — rows/cols lo
   const rows = matrix.length, cols = matrix[0].length;
-  let lo = 0, hi = rows * cols - 1;
+  let lo = 0, hi = rows * cols - 1; // search space is rows*cols cells
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    const val = matrix[Math.floor(mid / cols)][mid % cols]; // Hinglish: flat se 2D
+    const val = matrix[Math.floor(mid / cols)][mid % cols]; // map flat mid → (r,c)
     if (val === target) return true;
-    if (val < target) lo = mid + 1;
-    else hi = mid - 1;
+    if (val < target) lo = mid + 1; // target is in upper half
+    else hi = mid - 1; // target is in lower half
   }
   return false;
 }
@@ -73,21 +73,19 @@ function searchMatrix(matrix, target) {
       lcSlug: "search-a-2d-matrix-ii",
       title: "Search a 2D Matrix II",
       diff: "Medium",
-      body: `Upar-right kone se shuru karo — bada ho to neeche jao, chhota ho to left jao. Har step ek row/col khatam.
+      body: `Start at the top-right corner: if the cell is too big move left, if too small move down — each step eliminates a row or column.
 
 [Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)
 
 \`\`\`js
-// Hinglish: kone se dhoondo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/search-a-2d-matrix-ii/
+// Staircase search from top-right
 function searchMatrix(matrix, target) {
-  // Hinglish: step 1 — kone pe khade ho
-  let r = 0, c = matrix[0].length - 1;
+  let r = 0, c = matrix[0].length - 1; // begin at smallest-in-row, largest-in-col corner
   while (r < matrix.length && c >= 0) {
     const v = matrix[r][c];
-    if (v === target) return true; // Hinglish: mil gaya
-    if (v > target) c--; // Hinglish: chhota chahiye to left
-    else r++; // Hinglish: bada chahiye to neeche
+    if (v === target) return true;
+    if (v > target) c--; // need smaller value → go left
+    else r++; // need larger value → go down
   }
   return false;
 }
@@ -98,29 +96,27 @@ function searchMatrix(matrix, target) {
       lcSlug: "diagonal-traverse",
       title: "Diagonal Traverse",
       diff: "Medium",
-      body: `r+c same wale ek diagonal pe hain — groups banao, alternate ulta karo.
+      body: `Cells with the same \`r + c\` lie on one diagonal — bucket by that sum, reverse every other diagonal for the zigzag order.
 
 [Diagonal Traverse](https://leetcode.com/problems/diagonal-traverse/)
 
 \`\`\`js
-// Hinglish: diagonal groups banao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/diagonal-traverse/
+// Group by diagonal index r+c, alternate reversal per diagonal
 function findDiagonalOrder(mat) {
-  // Hinglish: step 1 — groups banao
   const rows = mat.length, cols = mat[0].length;
   const groups = new Map();
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const k = r + c; // Hinglish: same jod = same diagonal
+      const k = r + c; // diagonal id
       if (!groups.has(k)) groups.set(k, []);
       groups.get(k).push(mat[r][c]);
     }
   }
   const out = [];
-  const keys = [...groups.keys()].sort((a, b) => a - b);
+  const keys = [...groups.keys()].sort((a, b) => a - b); // visit diagonals in order
   for (const k of keys) {
     const arr = groups.get(k);
-    if (k % 2 === 0) arr.reverse(); // Hinglish: alternate ulta
+    if (k % 2 === 0) arr.reverse(); // even diagonals go up-left in output
     for (const x of arr) out.push(x);
   }
   return out;
@@ -132,28 +128,26 @@ function findDiagonalOrder(mat) {
       lcSlug: "spiral-matrix-iii",
       title: "Spiral Matrix III",
       diff: "Medium",
-      body: `Steps 1,1,2,2,3,3 badhte hain — direction ghoomte jao, grid ke andar ho to uthao.
+      body: `Walk in expanding square rings (1,1,2,2,3,3… steps per direction). Record coordinates that still lie inside the grid.
 
 [Spiral Matrix III](https://leetcode.com/problems/spiral-matrix-iii/)
 
 \`\`\`js
-// Hinglish: kadam badhate jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/spiral-matrix-iii/
+// Outward spiral with step length increasing every two turns
 function spiralMatrixIII(rows, cols, rStart, cStart) {
-  // Hinglish: step 1 — start se shuru karo
   const out = [[rStart, cStart]];
-  const dirs = [[0,1],[1,0],[0,-1],[-1,0]]; // Hinglish: right, down, left, up
-  let d = 0, step = 1;
+  const dirs = [[0,1],[1,0],[0,-1],[-1,0]]; // R, D, L, U
+  let d = 0, step = 1; // current direction and steps in that direction
   let r = rStart, c = cStart;
   while (out.length < rows * cols) {
-    for (let t = 0; t < 2; t++) {
+    for (let t = 0; t < 2; t++) { // two sides at this step length before step++
       for (let i = 0; i < step; i++) {
-        r += dirs[d][0]; c += dirs[d][1]; // Hinglish: chalo
-        if (r >= 0 && c >= 0 && r < rows && c < cols) out.push([r, c]); // Hinglish: andar ho to uthao
+        r += dirs[d][0]; c += dirs[d][1];
+        if (r >= 0 && c >= 0 && r < rows && c < cols) out.push([r, c]);
       }
-      d = (d + 1) % 4; // Hinglish: mudo
+      d = (d + 1) % 4; // turn clockwise
     }
-    step++; // Hinglish: kadam badhao
+    step++; // longer legs on next lap
   }
   return out;
 }
@@ -164,19 +158,17 @@ function spiralMatrixIII(rows, cols, rStart, cStart) {
       lcSlug: "diagonal-traverse-ii",
       title: "Diagonal Traverse II",
       diff: "Medium",
-      body: `Upar wala hi, par jagged rows hain — groups banao, ulta karke jodo.
+      body: `Same diagonal grouping as the rectangular case, but rows have different lengths — scan bottom-up so each diagonal list is already in visit order.
 
 [Diagonal Traverse II](https://leetcode.com/problems/diagonal-traverse-ii/)
 
 \`\`\`js
-// Hinglish: groups bana ke ulta jodo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/diagonal-traverse-ii/
+// Bucket by r+c on jagged rows; bottom-up fill preserves diagonal order
 function findDiagonalOrder(nums) {
-  // Hinglish: step 1 — groups banao
   const groups = new Map();
   for (let r = nums.length - 1; r >= 0; r--) {
     for (let c = 0; c < nums[r].length; c++) {
-      const k = r + c; // Hinglish: same jod = same diagonal
+      const k = r + c;
       if (!groups.has(k)) groups.set(k, []);
       groups.get(k).push(nums[r][c]);
     }

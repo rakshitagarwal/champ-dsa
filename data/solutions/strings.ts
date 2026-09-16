@@ -12,23 +12,23 @@ export const STRINGS_SOLUTIONS: SolutionGroup = {
       lcSlug: "longest-palindromic-substring",
       title: "Longest Palindromic Substring",
       diff: "Medium",
-      body: `Har center (odd + even) se expand karo, sabse lamba rakho. \`O(n²)\` time, \`O(1)\` space.
+      body: `Expand around each odd and even center and keep the longest palindrome. \`O(n²)\` time, \`O(1)\` space.
 
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
 function longestPalindrome(s) {
-  // Hinglish: step 1 — expand helper
+  // Expand while chars match; return start index and length
   const expand = (l, r) => {
     while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-    return [l + 1, r - l - 1]; // Hinglish: start + length
+    return [l + 1, r - l - 1];
   };
   let start = 0, len = 0;
   for (let i = 0; i < s.length; i++) {
-    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) { // Hinglish: odd + even
-      if (ln > len) { start = st; len = ln; } // Hinglish: lamba mila
+    // Try odd-length (i,i) and even-length (i,i+1) centers
+    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) {
+      if (ln > len) { start = st; len = ln; }
     }
   }
   return s.slice(start, start + len);
@@ -40,22 +40,23 @@ function longestPalindrome(s) {
       lcSlug: "palindrome-number",
       title: "Palindrome Number",
       diff: "Easy",
-      body: `Aadha ulta karo — ulta aadha se bada-barabar ho to palindrome hai. Overflow ka dar nahi.
+      body: `Reverse only the second half of the digits; when the original half is gone, you have a palindrome. No overflow risk.
 
 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
 
 \`\`\`js
-// Hinglish: aadha palto — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindrome-number/
 function isPalindrome(x) {
-  // Hinglish: step 1 — negative aur zero-end hatao
+  // Negatives and numbers ending in 0 (except 0) cannot be palindromes
   if (x < 0 || (x % 10 === 0 && x !== 0)) return false;
   let rev = 0;
+  // Build reversed half; stop when x <= rev
   while (x > rev) {
-    rev = rev * 10 + (x % 10); // Hinglish: peeche jodo
-    x = Math.floor(x / 10); // Hinglish: aage ghatao
+    rev = rev * 10 + (x % 10);
+    x = Math.floor(x / 10);
   }
-  return x === rev || x === Math.floor(rev / 10); // Hinglish: odd me beech wala extra
+  // Even digits: x === rev; odd digits: middle digit dropped in rev
+  return x === rev || x === Math.floor(rev / 10);
 }
 \`\`\``,
     },
@@ -64,20 +65,19 @@ function isPalindrome(x) {
       lcSlug: "palindromic-substrings",
       title: "Palindromic Substrings",
       diff: "Medium",
-      body: `Har center (odd + even) se expand karo, match mile to count badhao.
+      body: `Expand from each odd and even center and increment the count for every palindrome found.
 
 [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
 
 \`\`\`js
-// Hinglish: expand karke gino — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindromic-substrings/
 function countSubstrings(s) {
-  // Hinglish: step 1 — counter lo
   let ans = 0;
   const expand = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) { ans++; l--; r++; } // Hinglish: mila to gino
+    // Each successful expand step is one palindromic substring
+    while (l >= 0 && r < s.length && s[l] === s[r]) { ans++; l--; r++; }
   };
-  for (let i = 0; i < s.length; i++) { expand(i, i); expand(i, i + 1); } // Hinglish: odd + even
+  for (let i = 0; i < s.length; i++) { expand(i, i); expand(i, i + 1); }
   return ans;
 }
 \`\`\``,
@@ -87,24 +87,24 @@ function countSubstrings(s) {
       lcSlug: "shortest-palindrome",
       title: "Shortest Palindrome",
       diff: "Hard",
-      body: `Aage jodne ke liye sabse lamba palindromic prefix dhoondo (KMP) — baaki ulta karke aage lagao.
+      body: `Use KMP on \`s + # + reverse(s)\` to find the longest palindromic prefix, then prepend the reverse of the leftover suffix.
 
 [Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
 
 \`\`\`js
-// Hinglish: lamba prefix dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/shortest-palindrome/
 function shortestPalindrome(s) {
-  // Hinglish: step 1 — KMP table banao
+  // KMP on s + # + reverse(s) finds longest palindromic prefix of s
   const t = s + "#" + [...s].reverse().join("");
   const lps = Array(t.length).fill(0);
   for (let i = 1; i < t.length; i++) {
     let j = lps[i - 1];
-    while (j > 0 && t[i] !== t[j]) j = lps[j - 1]; // Hinglish: peeche jao
+    while (j > 0 && t[i] !== t[j]) j = lps[j - 1];
     if (t[i] === t[j]) j++;
     lps[i] = j;
   }
-  const add = [...s.slice(lps[t.length - 1])].reverse().join(""); // Hinglish: bacha ulta karo
+  // Prefix not in palindrome gets reversed and prepended
+  const add = [...s.slice(lps[t.length - 1])].reverse().join("");
   return add + s;
 }
 \`\`\``,
@@ -114,22 +114,22 @@ function shortestPalindrome(s) {
       lcSlug: "find-the-index-of-the-first-occurrence-in-a-string",
       title: "Find the Index of the First Occurrence in a String",
       diff: "Easy",
-      body: `Seedha check karo har position se — KMP tez hai par interview me simple loop chalega.
+      body: `Brute-force every start index; KMP is faster, but the nested loop is fine in interviews.
 
 [Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
 
 \`\`\`js
-// Hinglish: har jagah try karo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/
 function strStr(haystack, needle) {
-  // Hinglish: step 1 — lambai lo
   const n = haystack.length, m = needle.length;
+  // Try every start index where needle fits
   for (let i = 0; i + m <= n; i++) {
     let ok = true;
+    // Character-by-character match at offset i
     for (let j = 0; j < m; j++) {
-      if (haystack[i + j] !== needle[j]) { ok = false; break; } // Hinglish: mismatch
+      if (haystack[i + j] !== needle[j]) { ok = false; break; }
     }
-    if (ok) return i; // Hinglish: mil gaya
+    if (ok) return i;
   }
   return -1;
 }
@@ -140,18 +140,17 @@ function strStr(haystack, needle) {
       lcSlug: "repeated-substring-pattern",
       title: "Repeated Substring Pattern",
       diff: "Easy",
-      body: `String ko khud se jod ke beech ka hissa dekho — original mile to repeat hai.
+      body: `If \`s\` repeats, it appears inside \`s + s\` with the first and last character removed.
 
 [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
 
 \`\`\`js
-// Hinglish: jod ke dekho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/repeated-substring-pattern/
 function repeatedSubstringPattern(s) {
-  // Hinglish: step 1 — double banao
+  // s repeats iff s appears inside s+s with first/last char removed
   const t = s + s;
-  const inner = t.slice(1, -1); // Hinglish: pehla-aakhri hatao
-  return inner.includes(s); // Hinglish: mila to repeat hai
+  const inner = t.slice(1, -1);
+  return inner.includes(s);
 }
 \`\`\``,
     },
@@ -160,19 +159,19 @@ function repeatedSubstringPattern(s) {
       lcSlug: "repeated-string-match",
       title: "Repeated String Match",
       diff: "Medium",
-      body: `A ko itna dohrao ki B sama jaye (+1 extra) — phir includes se check karo.
+      body: `Repeat \`a\` until length covers \`b\`, then try one extra repeat to handle wrap-around matches.
 
 [Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
 
 \`\`\`js
-// Hinglish: dohra ke dekho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/repeated-string-match/
 function repeatedStringMatch(a, b) {
-  // Hinglish: step 1 — dohrai hui banao
   let t = "", ans = 0;
-  while (t.length < b.length) { t += a; ans++; } // Hinglish: sama jaye tab tak
+  // Repeat a until length >= b (minimum copies needed)
+  while (t.length < b.length) { t += a; ans++; }
   if (t.includes(b)) return ans;
-  t += a; // Hinglish: ek extra try karo
+  // One extra copy handles wrap-around matches
+  t += a;
   if (t.includes(b)) return ans + 1;
   return -1;
 }
@@ -188,19 +187,18 @@ function repeatedStringMatch(a, b) {
       lcSlug: "longest-common-prefix",
       title: "Longest Common Prefix",
       diff: "Easy",
-      body: `Pehla word pakdo, baaki se ghis-te jao — prefix chhota hota jayega.
+      body: `Start from the first string and shorten the common prefix against each remaining word.
 
 [Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/)
 
 \`\`\`js
-// Hinglish: ghis-te jao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-common-prefix/
 function longestCommonPrefix(strs) {
-  // Hinglish: step 1 — pehla uthao
   if (!strs.length) return "";
   let pre = strs[0];
   for (let i = 1; i < strs.length; i++) {
-    while (!strs[i].startsWith(pre)) pre = pre.slice(0, -1); // Hinglish: aakhir kaato
+    // Shrink prefix until strs[i] starts with it
+    while (!strs[i].startsWith(pre)) pre = pre.slice(0, -1);
     if (!pre) return "";
   }
   return pre;
@@ -212,17 +210,17 @@ function longestCommonPrefix(strs) {
       lcSlug: "reverse-words-in-a-string",
       title: "Reverse Words in a String",
       diff: "Medium",
-      body: `Words todo, khaali hatao, ulta jodo — split + filter + reverse + join.
+      body: `Split on spaces, drop empties, reverse the word list, and join with a single space.
 
 [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/)
 
 \`\`\`js
-// Hinglish: todo ulta jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reverse-words-in-a-string/
 function reverseWords(s) {
-  // Hinglish: step 1 — words nikalo
-  const words = s.split(" ").filter((w) => w.length > 0); // Hinglish: khaali hatao
-  return words.reverse().join(" "); // Hinglish: ulta jodo
+  // Split on spaces — may produce empty tokens
+  const words = s.split(" ").filter((w) => w.length > 0);
+  // Reverse word order, single space between
+  return words.reverse().join(" ");
 }
 \`\`\``,
     },
@@ -231,16 +229,16 @@ function reverseWords(s) {
       lcSlug: "reverse-words-in-a-string-iii",
       title: "Reverse Words in a String III",
       diff: "Easy",
-      body: `Har word alag ulta karo — order same rakho, letters palto.
+      body: `Reverse the characters inside each word while keeping word order unchanged.
 
 [Reverse Words in a String III](https://leetcode.com/problems/reverse-words-in-a-string-iii/)
 
 \`\`\`js
-// Hinglish: har word palto — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reverse-words-in-a-string-iii/
 function reverseWords(s) {
-  // Hinglish: step 1 — words todo
-  return s.split(" ").map((w) => [...w].reverse().join("")).join(" "); // Hinglish: har ek ulta
+  const words = s.split(" "); // preserve word boundaries
+  const rev = words.map((w) => [...w].reverse().join("")); // reverse letters per word
+  return rev.join(" "); // same spacing, reversed chars inside each word
 }
 \`\`\``,
     },
@@ -249,30 +247,29 @@ function reverseWords(s) {
       lcSlug: "multiply-strings",
       title: "Multiply Strings",
       diff: "Medium",
-      body: `Haath se guna karo — har digit pair ka result sahi jagah jodo, carry sambhalo.
+      body: `Grade-school multiplication: accumulate each digit product at the correct indices and propagate carry.
 
 [Multiply Strings](https://leetcode.com/problems/multiply-strings/)
 
 \`\`\`js
-// Hinglish: haath se guna — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/multiply-strings/
 function multiply(num1, num2) {
-  // Hinglish: step 1 — zero check karo
   if (num1 === "0" || num2 === "0") return "0";
   const m = num1.length, n = num2.length;
+  // Grade-school multiply: digit i,j affects indices i+j and i+j+1
   const ans = Array(m + n).fill(0);
   for (let i = m - 1; i >= 0; i--) {
     for (let j = n - 1; j >= 0; j--) {
-      const mul = Number(num1[i]) * Number(num2[j]); // Hinglish: guna karo
+      const mul = Number(num1[i]) * Number(num2[j]);
       const p = i + j + 1;
       const sum = mul + ans[p];
-      ans[p] = sum % 10; // Hinglish: digit rakho
-      ans[p - 1] += Math.floor(sum / 10); // Hinglish: carry aage
+      ans[p] = sum % 10;
+      ans[p - 1] += Math.floor(sum / 10);
     }
   }
   let s = ans.join("");
   let k = 0;
-  while (s[k] === "0") k++; // Hinglish: aage ke zero hatao
+  while (s[k] === "0") k++;
   return s.slice(k);
 }
 \`\`\``,
@@ -282,22 +279,20 @@ function multiply(num1, num2) {
       lcSlug: "add-strings",
       title: "Add Strings",
       diff: "Easy",
-      body: `Peeche se jodo carry ke saath — number me badle bina string hi rakho.
+      body: `Add from the least significant digit with carry, building the result as a string.
 
 [Add Strings](https://leetcode.com/problems/add-strings/)
 
 \`\`\`js
-// Hinglish: peeche se jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/add-strings/
 function addStrings(num1, num2) {
-  // Hinglish: step 1 — peeche se chalo
   let i = num1.length - 1, j = num2.length - 1, carry = 0, out = "";
   while (i >= 0 || j >= 0 || carry) {
     const a = i >= 0 ? Number(num1[i--]) : 0;
     const b = j >= 0 ? Number(num2[j--]) : 0;
     const s = a + b + carry;
-    out = String(s % 10) + out; // Hinglish: digit aage jodo
-    carry = Math.floor(s / 10); // Hinglish: carry bachao
+    out = String(s % 10) + out;
+    carry = Math.floor(s / 10);
   }
   return out;
 }
@@ -308,25 +303,23 @@ function addStrings(num1, num2) {
       lcSlug: "string-to-integer-atoi",
       title: "String to Integer (atoi)",
       diff: "Medium",
-      body: `Space hatao, sign dekho, digits jodo — limit cross ho to clamp karo. Steps tartib se karo.
+      body: `Skip leading spaces, read sign, parse digits, and clamp to 32-bit integer bounds in order.
 
 [String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
 
 \`\`\`js
-// Hinglish: tartib se padho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/string-to-integer-atoi/
 function myAtoi(s) {
-  // Hinglish: step 1 — space hatao
   let i = 0;
   while (i < s.length && s[i] === " ") i++;
   let sign = 1;
-  if (s[i] === "+" || s[i] === "-") { sign = s[i] === "-" ? -1 : 1; i++; } // Hinglish: sign dekho
+  if (s[i] === "+" || s[i] === "-") { sign = s[i] === "-" ? -1 : 1; i++; }
   let num = 0;
   const LIM = 2147483648;
   while (i < s.length && s[i] >= "0" && s[i] <= "9") {
-    num = num * 10 + Number(s[i]); // Hinglish: jodte jao
-    if (sign * num <= -LIM) return -LIM; // Hinglish: neeche clamp
-    if (sign * num >= LIM - 1 && sign === 1) return LIM - 1; // Hinglish: upar clamp
+    num = num * 10 + Number(s[i]);
+    if (sign * num <= -LIM) return -LIM;
+    if (sign * num >= LIM - 1 && sign === 1) return LIM - 1;
     i++;
   }
   return sign * num;
@@ -338,22 +331,20 @@ function myAtoi(s) {
       lcSlug: "zigzag-conversion",
       title: "Zigzag Conversion",
       diff: "Medium",
-      body: `Rows me upar-neeche chalao — direction disha badalte hi palto, aakhir me jod do.
+      body: `Simulate zigzag rows: bounce direction at the ends, append each character to its row, then join rows.
 
 [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 
 \`\`\`js
-// Hinglish: upar-neeche chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/zigzag-conversion/
 function convert(s, numRows) {
-  // Hinglish: step 1 — ek row ho to wapas do
   if (numRows === 1) return s;
   const rows = Array.from({ length: numRows }, () => "");
   let r = 0, dir = 1;
   for (const ch of s) {
-    rows[r] += ch; // Hinglish: is row me daalo
+    rows[r] += ch;
     if (r === 0) dir = 1;
-    if (r === numRows - 1) dir = -1; // Hinglish: disha palto
+    if (r === numRows - 1) dir = -1;
     r += dir;
   }
   return rows.join("");
@@ -365,20 +356,19 @@ function convert(s, numRows) {
       lcSlug: "integer-to-roman",
       title: "Integer to Roman",
       diff: "Medium",
-      body: `Bade se chhota values ghatao — 900, 400 wale khaas cases list me rakho.
+      body: `Greedy subtract from a table of values and symbols, including subtractive pairs like 900 and 400.
 
 [Integer to Roman](https://leetcode.com/problems/integer-to-roman/)
 
 \`\`\`js
-// Hinglish: ghata-te jao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/integer-to-roman/
 function intToRoman(num) {
-  // Hinglish: step 1 — value-symbol jodi banao
-  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1]; // descending value table
   const syms = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"];
   let out = "";
   for (let i = 0; i < vals.length; i++) {
-    while (num >= vals[i]) { out += syms[i]; num -= vals[i]; } // Hinglish: jitni baar sama sake
+    // Greedy: take as many of this symbol as num allows
+    while (num >= vals[i]) { out += syms[i]; num -= vals[i]; }
   }
   return out;
 }
@@ -389,20 +379,19 @@ function intToRoman(num) {
       lcSlug: "roman-to-integer",
       title: "Roman to Integer",
       diff: "Easy",
-      body: `Left se padho — agla bada ho to ghatao, nahi to jodo.
+      body: `Scan left to right: subtract when the next symbol is larger, otherwise add.
 
 [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
 
 \`\`\`js
-// Hinglish: aage dekh ke jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/roman-to-integer/
 function romanToInt(s) {
-  // Hinglish: step 1 — map banao
   const v = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
   let ans = 0;
   for (let i = 0; i < s.length; i++) {
-    if (i + 1 < s.length && v[s[i]] < v[s[i + 1]]) ans -= v[s[i]]; // Hinglish: chhota pehle to ghatao
-    else ans += v[s[i]]; // Hinglish: nahi to jodo
+    const cur = v[s[i]], next = i + 1 < s.length ? v[s[i + 1]] : 0;
+    if (cur < next) ans -= cur; // subtractive pair (e.g. IV, IX)
+    else ans += cur; // normal additive symbol
   }
   return ans;
 }
@@ -413,25 +402,23 @@ function romanToInt(s) {
       lcSlug: "count-and-say",
       title: "Count and Say",
       diff: "Medium",
-      body: `Pichhli line padh ke agli banao — groups gino (count + digit), repeat karo.
+      body: `Each line describes the next: run-length encode the previous string (count + digit) and repeat.
 
 [Count and Say](https://leetcode.com/problems/count-and-say/)
 
 \`\`\`js
-// Hinglish: padh ke banao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/count-and-say/
 function countAndSay(n) {
-  // Hinglish: step 1 — pehli line lo
-  let cur = "1";
+  let cur = "1"; // first term in the sequence
   for (let round = 1; round < n; round++) {
     let next = "", i = 0;
     while (i < cur.length) {
       let j = i;
-      while (j < cur.length && cur[j] === cur[i]) j++; // Hinglish: group gino
-      next += String(j - i) + cur[i]; // Hinglish: gin ke likho
-      i = j;
+      while (j < cur.length && cur[j] === cur[i]) j++; // run of same digit
+      next += String(j - i) + cur[i]; // count + digit
+      i = j; // advance to next run
     }
-    cur = next;
+    cur = next; // line becomes input for next round
   }
   return cur;
 }

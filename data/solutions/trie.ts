@@ -17,27 +17,31 @@ export const TRIE_SOLUTIONS: SolutionGroup = {
 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
 // Trie — insert / search / prefix
 // LC: https://leetcode.com/problems/implement-trie-prefix-tree/
 function Trie() {
-  // Hinglish: step 1 — base case check karo
+  // Root has no letters; children map lives on kids
   this.root = { kids: Object.create(null), end: false };
 }
 Trie.prototype.insert = function (word) {
+  // Walk from root, creating missing edges as we go
   let cur = this.root;
   for (const ch of word) {
+    // Lazy-create child node for this character
     if (!cur.kids[ch]) cur.kids[ch] = { kids: Object.create(null), end: false };
     cur = cur.kids[ch];
   }
+  // Mark full word — search requires this flag
   cur.end = true;
 };
 Trie.prototype.search = function (word) {
   let cur = this.root;
   for (const ch of word) {
+    // Missing edge means word not in trie
     if (!cur.kids[ch]) return false;
     cur = cur.kids[ch];
   }
+  // Prefix walk ok but must be a complete word
   return !!cur.end;
 };
 Trie.prototype.startsWith = function (prefix) {
@@ -46,6 +50,7 @@ Trie.prototype.startsWith = function (prefix) {
     if (!cur.kids[ch]) return false;
     cur = cur.kids[ch];
   }
+  // Any path that reaches here is a valid prefix
   return true;
 };
 \`\`\``,
@@ -55,26 +60,30 @@ Trie.prototype.startsWith = function (prefix) {
       lcSlug: "design-add-and-search-words-data-structure",
       title: "Design Add and Search Words Data Structure",
       diff: "Medium",
-      body: `Trie me \`.\` wildcard search bhi chahiye. DFS se har child try karo.
+      body: `Support \`.\` wildcards in the trie — DFS tries every child at each dot position.
 
 [Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/design-add-and-search-words-data-structure/
 function WordDictionary(){ this.root={kids:{}, end:false}; }
 WordDictionary.prototype.addWord=function(word){
-  // Hinglish: insert
+  // Standard trie insert — same as LC 208
   let cur=this.root;
-  for(const ch of word){ if(!cur.kids[ch]) cur.kids[ch]={kids:{}, end:false}; cur=cur.kids[ch]; }
-  cur.end=true; // Hinglish: khatam
+  for(const ch of word){
+    if(!cur.kids[ch]) cur.kids[ch]={kids:{}, end:false};
+    cur=cur.kids[ch];
+  }
+  cur.end=true;
 };
 WordDictionary.prototype.search=function(word){
-  // Hinglish: DFS
+  // DFS on trie; index i tracks position in query
   const dfs=(node,i)=>{
+    // Consumed entire string — success only if word ends here
     if(i===word.length) return node.end;
     const ch=word[i];
-    if(ch==='.'){ for(const kid in node.kids) if(dfs(node.kids[kid], i+1)) return true; return false; } // Hinglish: har rasta try
+    // Dot matches any single letter — try every child branch
+    if(ch==='.'){ for(const kid in node.kids) if(dfs(node.kids[kid], i+1)) return true; return false; }
     if(!node.kids[ch]) return false;
     return dfs(node.kids[ch], i+1);
   };
@@ -92,11 +101,10 @@ WordDictionary.prototype.search=function(word){
 [Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
 // Trie + DFS on the grid
 // LC: https://leetcode.com/problems/word-search-ii/
 function findWords(board, words) {
-  // Hinglish: step 1 — base case check karo
+  // Store matched word at terminal node (not just a boolean)
   const root = { kids: Object.create(null), word: null };
   for (const w of words) {
     let cur = root;
@@ -110,19 +118,24 @@ function findWords(board, words) {
   const dfs = (r, c, node) => {
     const ch = board[r][c];
     const next = node.kids[ch];
+    // No trie edge for this cell letter — prune
     if (!next) return;
     if (next.word) {
       ans.push(next.word);
+      // Clear so same word is not collected again on other paths
       next.word = null;
     }
+    // Mark visited for this DFS path
     board[r][c] = "#";
     for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || board[nr][nc] === "#") continue;
       dfs(nr, nc, next);
     }
+    // Restore cell when backtracking
     board[r][c] = ch;
   };
+  // Start DFS from every cell
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) dfs(r, c, root);
   }
@@ -133,17 +146,16 @@ function findWords(board, words) {
     {
       id: 648,
       lcSlug: "replace-words",
-      title: "Replace Words",
+      title: "Replace Word",
       diff: "Medium",
-      body: `Trie me roots daalo — har word ka sabse chhota prefix dhoondo, mile to badlo.
+      body: `Insert words into a trie — for each word find the shortest prefix that is unique and replace the word.
 
-[Replace Words](https://leetcode.com/problems/replace-words/)
+[Replace Word](https://leetcode.com/problems/replace-words/)
 
 \`\`\`js
-// Hinglish: chhota prefix dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/replace-words/
 function replaceWords(dictionary, sentence) {
-  // Hinglish: step 1 — trie banao
+  // Build trie of dictionary roots
   const root = {};
   for (const w of dictionary) {
     let node = root;
@@ -157,11 +169,13 @@ function replaceWords(dictionary, sentence) {
   for (const w of sentence.split(" ")) {
     let node = root, found = "";
     for (const ch of w) {
-      if (!node[ch] || node.end) break; // Hinglish: rasta toota ya root mila
+      // Stop if no path or we already hit a shorter root
+      if (!node[ch] || node.end) break;
       node = node[ch];
       found += ch;
     }
-    out.push(node.end ? found : w); // Hinglish: mila to badlo
+    // Use shortest matching root, else keep original word
+    out.push(node.end ? found : w);
   }
   return out.join(" ");
 }
@@ -172,34 +186,36 @@ function replaceWords(dictionary, sentence) {
       lcSlug: "map-sum-pairs",
       title: "Map Sum Pairs",
       diff: "Medium",
-      body: `Trie me values jodo — prefix node ke neeche sab jod do. Simple DFS sum karo.
+      body: `Store values on trie nodes — each prefix node sums everything in its subtree via DFS.
 
 [Map Sum Pairs](https://leetcode.com/problems/map-sum-pairs/)
 
 \`\`\`js
-// Hinglish: neeche sab jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/map-sum-pairs/
 function MapSum() {
-  // Hinglish: step 1 — root lo
   this.root = {};
 }
 MapSum.prototype.insert = function (key, val) {
+  // Walk to key's terminal node
   let node = this.root;
   for (const ch of key) {
     if (!node[ch]) node[ch] = {};
     node = node[ch];
   }
-  node.val = val; // Hinglish: overwrite ho jayega
+  // Overwrite value for this key at leaf
+  node.val = val;
 };
 MapSum.prototype.sum = function (prefix) {
+  // Navigate to prefix node
   let node = this.root;
   for (const ch of prefix) {
-    if (!node[ch]) return 0; // Hinglish: rasta hi nahi
+    if (!node[ch]) return 0;
     node = node[ch];
   }
+  // Sum all val fields in subtree
   let ans = 0;
   const dfs = (nd) => {
-    if (nd.val !== undefined) ans += nd.val; // Hinglish: value mili
+    if (nd.val !== undefined) ans += nd.val;
     for (const k of Object.keys(nd)) {
       if (k !== "val") dfs(nd[k]);
     }
@@ -214,24 +230,24 @@ MapSum.prototype.sum = function (prefix) {
       lcSlug: "search-suggestions-system",
       title: "Search Suggestions System",
       diff: "Medium",
-      body: `Products sort karo — har prefix pe binary search se start dhoondo, 3 uthao.
+      body: `Sort products. For each prefix, binary-search the first product with that prefix and take three suggestions.
 
 [Search Suggestions System](https://leetcode.com/problems/search-suggestions-system/)
 
 \`\`\`js
-// Hinglish: prefix se 3 uthao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/search-suggestions-system/
 function suggestedProducts(products, searchWord) {
-  // Hinglish: step 1 — sort karo
+  // Sorted array lets us scan consecutive prefix matches
   products.sort();
   const out = [];
+  // lo never decreases — skip products before current prefix
   let lo = 0;
   for (let i = 0; i < searchWord.length; i++) {
     const pre = searchWord.slice(0, i + 1);
-    while (lo < products.length && products[lo] < pre) lo++; // Hinglish: aage badhao
+    while (lo < products.length && products[lo] < pre) lo++;
     const row = [];
     for (let j = lo; j < Math.min(lo + 3, products.length); j++) {
-      if (products[j].startsWith(pre)) row.push(products[j]); // Hinglish: match wale lo
+      if (products[j].startsWith(pre)) row.push(products[j]);
       else break;
     }
     out.push(row);
