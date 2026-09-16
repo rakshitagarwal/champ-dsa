@@ -12,8 +12,6 @@ import {
   setLastVisited,
   LEARNING_UPDATED_EVENT,
 } from "@/lib/storage/learning-store";
-import { saveAnswerToDb } from "@/lib/api/save-answer";
-
 export function PracticeWorkspace({ question }: { question: Question }) {
   const setCode = useVisualizerStore((s) => s.setCode);
   const setStdin = useVisualizerStore((s) => s.setStdin);
@@ -76,15 +74,9 @@ export function PracticeWorkspace({ question }: { question: Question }) {
 
   const handleMarkSolved = () => {
     const prog = getProgress(question.id);
-    const code = useVisualizerStore.getState().code;
     markQuestionSolved(question.id, {
       firstAttempt: prog.attempts <= 1,
       independent: prog.hintsUsed <= 2,
-    });
-    void saveAnswerToDb({
-      questionId: question.id,
-      code,
-      passed: true,
     });
     setSolved(true);
     setShowConfidence(true);

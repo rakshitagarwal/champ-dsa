@@ -65,10 +65,10 @@ export function SdSidebar({ docs, className }: Props) {
                     <li key={doc.slug} className="relative">
                       <span
                         className={cn(
-                          "absolute -left-[19px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-background text-[9px] font-mono tabular-nums",
+                          "absolute -left-[21px] top-1 flex h-4 w-4 items-center justify-center rounded-full border bg-background text-[9px] font-mono tabular-nums text-white",
                           active
-                            ? "border-primary text-primary"
-                            : "border-muted-foreground/30 text-muted-foreground/70",
+                            ? "border-primary"
+                            : "border-white/35",
                         )}
                         aria-hidden
                       >

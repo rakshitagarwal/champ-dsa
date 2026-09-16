@@ -25,4 +25,17 @@ describe("parseNoteSegments runnable fences", () => {
     const segments = parseNoteSegments(md, { enableRunnable: false });
     expect(segments[0]?.type).toBe("html");
   });
+
+  it("renders standalone markdown images as figure blocks", () => {
+    const md = "Intro\n\n![UML class diagram](/images/lld/uml-class-order.png)\n\nMore text";
+    const segments = parseNoteSegments(md);
+    const figure = segments.find(
+      (s) => s.type === "html" && s.html.includes("note-figure"),
+    );
+    expect(figure?.type).toBe("html");
+    if (figure?.type === "html") {
+      expect(figure.html).toContain('src="/images/lld/uml-class-order.png"');
+      expect(figure.html).toContain("UML class diagram");
+    }
+  });
 });

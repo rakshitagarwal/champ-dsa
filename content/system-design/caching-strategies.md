@@ -6,47 +6,102 @@
 
 ## Why Caching
 
-Databases melt under repeated hot reads; caches absorb them. Sessions, rate-limit counters, leaderboard snapshots, and rendered pages all live here. If the cache vanished, the system must still work (slower) — never depend on cached data for correctness.
+Repeated reads dominate most products — home feeds, product pages, config flags, and auth sessions hit the same keys at high QPS. A memory cache (local or Redis) cuts p99 latency by orders of magnitude and protects the database from meltdown during spikes. Cache only **derived** or **read-heavy** data; never treat the cache as authoritative for financial or safety-critical state. Design so cache loss degrades to slower DB paths, not wrong answers.
+
+- **80/20 keys:** Often 20% of keys serve 80% of traffic — identify with metrics before sizing memory.
+- **TTL vs explicit invalidation:** TTL alone allows stale windows; writes should invalidate or version keys you care about.
+- **Cold start:** Empty cache after deploy causes miss storm — warm caches or gradual rollout mitigates.
+- **Cost math:** Redis GB-month vs RDS read IOPS — caching usually wins when hit ratio > ~90% on hot paths.
 
 ## Cache-Aside (Lazy Loading)
 
-The default pattern: app checks cache, on miss reads the database and stores with TTL, on write deletes or updates the key. Only hot keys get cached; cold data never pollutes memory. Pair with TTL plus delete-on-write.
+Application code owns the flow: read cache → on miss load DB → populate cache with TTL → return. Writes update the DB first, then **delete** (preferred) or update cache keys — delete avoids race where stale value wins over concurrent writes. Only requested keys enter memory, so cold data never wastes RAM. This is the default pattern for most services because logic stays explicit and debuggable.
+
+- **Delete-on-write:** Safer than write-through cache in cache-aside — next read rebuilds fresh value.
+- **Stampede risk:** Hot key expiry triggers many DB loads — combine with singleflight or brief stale serve.
+- **Negative caching:** Cache "not found" briefly to stop DB hammering on bogus IDs.
+- **Serialization cost:** Large JSON blobs — compress or store IDs and hydrate lightly on hit.
 
 ## Read-Through and Write-Through
 
-The cache library handles filling (read-through) and the app writes cache plus database together (write-through). Reads always hit; writes pay double. Good when read freshness matters more than write speed.
+**Read-through:** Cache library wraps DB — miss triggers loader callback, app always talks to cache API. **Write-through:** App writes cache and DB synchronously; both stay aligned on success, writes pay double latency. Use when you want uniform read path abstraction or when stale reads are unacceptable without app-level invalidation logic. Less flexible than cache-aside for complex invalidation graphs.
+
+- **Read-through:** Good for uniform SDK across services; loader must be idempotent and timeout-bounded.
+- **Write-through:** Stronger consistency on reads immediately after write; hurts write p99.
+- **Write-around variant pairing:** Sometimes read-through + write-around for write-once read-many blobs.
+- **When to skip:** Highly conditional invalidation (graph of dependent keys) — cache-aside stays clearer.
 
 ## Write-Behind (Write-Back)
 
-Write to cache, flush to database asynchronously. Fastest writes, but a crash loses unflushed data — acceptable only for loss-tolerant data like metrics or counters.
+Accept writes into cache, acknowledge fast, flush to DB asynchronously in batches. Write throughput and burst absorption improve dramatically; crash before flush loses recent updates unless you replicate cache or use durable queues. Restrict to metrics, analytics counters, presence heartbeats — never account balances without durable WAL elsewhere.
+
+- **Durability window:** Name max seconds of data loss on node failure — stakeholders must accept it.
+- **Ordering:** Per-key serialization prevents lost updates; global order usually unnecessary.
+- **Backpressure:** Flush queue full → shed writes or block — unbounded queues OOM the cache node.
+- **Hybrid:** Write-through for critical fields, write-behind for view counts on same object — split keys.
 
 ## Write-Around
 
-Writes go straight to the database, bypassing the cache; reads populate on demand. Avoids filling cache with write-once data. Best for write-heavy, rarely re-read workloads.
+Writes skip cache entirely and land in DB; cache fills only on read miss. Prevents polluting RAM with data written once and never read again (audit logs, archival uploads metadata). Pair with TTL on reads if occasional re-read happens. Ideal for write-heavy ingestion where read ratio is low.
+
+- **Bulk import:** Never warm cache during ETL — write-around keeps memory for hot keys.
+- **Invalidation still needed:** If old cached copy exists from earlier read pattern, delete on write anyway.
+- **Read-after-write:** User creates resource then reads — bypass cache or insert fresh entry on create response path.
+- **Contrast write-through:** Choose write-around when write volume >> read volume for that entity type.
 
 ## TTL and Eviction
 
-TTL bounds staleness — expire entries after seconds to hours, with slight randomization to avoid synchronized expiry. When memory fills, eviction picks victims: LRU (least recently used) is the standard; LFU and FIFO suit special cases.
+TTL caps staleness and reclaims memory without manual deletes — set per key type (session 24h, config 5m, HTML fragment 60s). Add **jitter** (±10–20%) so millions of keys do not expire in the same second. When memory hits `maxmemory`, eviction policies apply: **LRU** evicts least recently used keys (default for general caching); **LFU** keeps frequently accessed keys under skew; **volatile-lru** only evicts keys with TTL set.
+
+- **No TTL + no eviction policy:** Redis can refuse writes — configure `maxmemory-policy` explicitly.
+- **Too short TTL:** High miss rate and DB load; too long TTL → stale UX and memory bloat.
+- **Sliding vs absolute TTL:** Refresh TTL on access for session stickiness; absolute for compliance-bound data.
+- **Monitor hit ratio:** Drop below target → TTL too aggressive, wrong keys cached, or hot key eviction.
 
 ## LRU in Brief
 
-Track recency per key; evict the stalest. Implementation is hash map plus doubly linked list for O(1) get, put, and evict. The classic interview data structure — know it cold.
+LRU approximates "keep what we used recently" — on access, mark key most-recent; on eviction, drop least-recent. Classic implementation: hash map for O(1) lookup plus doubly linked list for O(1) promote/evict. Distributed caches use sampled LRU (Redis) for memory efficiency — good enough at scale. Interview: implement LRU with map + DLL; discuss thread safety and lock granularity for concurrent caches.
+
+- **O(1) operations:** `get` promotes node to head; `put` inserts or updates; evict from tail when over capacity.
+- **Scan resistance:** Pure LRU punishes one-time large scans — LFU or TTL helps mixed workloads.
+- **Not global optimal:** LRU is heuristic; know when LFU wins (hot set smaller than cache).
+- **Local vs distributed:** Process-local LRU (Caffeine) plus Redis tier — L1 shaves cross-network RTT.
 
 ## Cache Invalidation
 
-The hard problem: delete or version keys on write (delete-on-write beats update races), use short TTLs as a safety net, and version URLs for static assets (new file means new name, no purge needed).
+Hardest part of caching: when source data changes, every derived cache entry must update or disappear. Prefer **delete** over in-place update to avoid races; use **versioned keys** (`product:123:v7`) for immutable snapshots. Short TTL is a safety net, not a strategy — it bounds worst-case staleness only. Static assets use content-hash filenames — "invalidate" by deploying new URL, zero purge.
+
+- **Dependency graph:** Order update invalidates user, feed, and count keys — document or use tags (Redis cache tags pattern).
+- **Event-driven purge:** Pub/sub or stream consumer deletes keys on domain events — scales better than inline deletes in every writer.
+- **Thundering delete:** Mass invalidation causes miss storm — stagger or singleflight rebuild.
+- **CDN layer:** Purge by path or tag; prefer immutable URLs for images and JS bundles.
 
 ## Cache Stampede, Penetration, Avalanche
 
-Stampede (thundering herd): hot key expires, thousands hit the database at once — fix with singleflight locks, jittered TTLs, or stale-while-revalidate. Penetration: requests for nonexistent keys bypass cache every time — fix with Bloom filters or cached negatives. Avalanche: many keys expiring together — fix with randomized TTLs.
+**Stampede (thundering herd):** Hot key expires; thousands of threads miss together and hammer DB — mitigate with **singleflight** (one loader, others wait), **probabilistic early refresh**, or **stale-while-revalidate** (serve stale, refresh async). **Penetration:** Attacker or bug requests random nonexistent IDs; cache never helps — use **Bloom filters** upstream or cache negative results briefly. **Avalanche:** Many keys share TTL and expire together — **randomize TTL** and shard expiry windows.
+
+- **Singleflight:** `sync.Singleflight` in Go, or Redis lock `SETNX load:key` with short lease.
+- **Bloom false positives:** Only block definitely-missing keys; tune false positive rate vs memory.
+- **Circuit breaker on loader:** Stop DB retry loops when backend unhealthy — return degraded default.
+- **Pre-warm:** Cron or deploy hook loads top-N keys before traffic shifts.
 
 ## Distributed Cache
 
-Shard by consistent hashing across Redis nodes; replicate each shard for failover. Clients route by hash slot; node changes move only `1/N` of keys. Hot keys still hammer single shards — split them or front with local caches.
+Scale-out uses **consistent hashing**: keys map to ring slots; adding/removing a node moves roughly `1/N` of keys, not the whole cache. Replicate each slot to a follower for failover (Redis Cluster, Memcached proxy setups). Clients must handle **MOVED/ASK** redirects and topology changes. Hot keys still land on one shard — replicate hot key to local L1 or logical sub-keys.
+
+- **1/N key movement:** Why consistent hashing beats modulo `hash(key) % N` on node add/drop.
+- **Virtual nodes:** More vnodes per physical node smooths uneven load on small clusters.
+- **Local L1:** Caffeine in-process + Redis L2 — watch consistency window between tiers.
+- **Multi-AZ:** Place replicas across zones; accept cross-AZ latency for durability vs local replicas for speed.
 
 ## Redis
 
-The standard distributed cache: in-memory structures (strings, hashes, sorted sets for leaderboards, HyperLogLog for unique counts), ~1ms latency, optional persistence. Use for cache, sessions, rate limits, and presence — never as the sole source of truth.
+De facto distributed cache: strings, hashes, lists, sets, sorted sets (leaderboards), HyperLogLog (UV), streams (light queue), pub/sub (not durable). Sub-ms LAN latency; optional RDB snapshots and AOF for restart recovery — still not your system of record. Use for sessions, rate limiting (`INCR` + EXPIRE), distributed locks (with fencing caveats), and ephemeral coordination.
+
+- **Data structures match use case:** Sorted set for rank; hash for object fields; set for unique tags.
+- **Single-threaded model:** One big command blocks others — avoid `KEYS *`, use `SCAN`, keep values small.
+- **Cluster limits:** Multi-key transactions only in same hash slot — design key names with hash tags `{user}:session:1`.
+- **Memory:** `allkeys-lru` vs `volatile-lru` — align with whether every cached key has TTL.
 
 ```mermaid
 graph LR
@@ -60,9 +115,9 @@ graph LR
 
 ## Keep in mind
 
-- Default to cache-aside with TTL plus delete-on-write.
-- Database stays source of truth — cache loss must only slow things.
-- Randomize TTLs; synchronized expiry causes stampedes.
-- Stampede needs singleflight, penetration needs Bloom filters, avalanche needs jitter.
-- Shard caches by consistent hashing; split hot keys.
-- Redis for hot path, Postgres for truth — say this line.
+- Default to cache-aside with TTL plus delete-on-write; DB remains source of truth.
+- Cache loss must only slow the system — never change correctness or lose committed money state.
+- Randomize TTLs; synchronized expiry causes stampedes and avalanches.
+- Stampede → singleflight/stale-while-revalidate; penetration → Bloom or negative cache; avalanche → jitter.
+- Shard with consistent hashing; split or L1-cache hot keys that dominate one slot.
+- Redis for hot path latency, SQL for truth — say it clearly in interviews.

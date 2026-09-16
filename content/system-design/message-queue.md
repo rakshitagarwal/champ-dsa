@@ -6,47 +6,102 @@
 
 ## Message Queue Basics
 
-Producers publish, the broker stores, consumers process at their pace. Point-to-point queues deliver each message to one consumer; competing consumers scale throughput. Persistence plus acknowledgments decide durability: acked messages leave, unacked ones redeliver.
+A **broker** buffers messages between **producers** (publishers) and **consumers** (workers). **Point-to-point** queues deliver each message to exactly one consumer in a competing-consumer group — work queues, job processing. **Persistence** (disk append log vs memory) and **acknowledgments** define durability: after ack, message is gone; before ack, broker redelivers on consumer crash. Throughput scales with partitioning and consumer count until broker or downstream DB becomes the bottleneck.
+
+- **Broker vs bus:** Queue = one consumer per message per group; log = retain for replay and multiple independent consumer groups.
+- **Backlog depth:** Monitor queue lag — sustained growth means consumers slower than producers, not "free buffer forever."
+- **Message size limits:** Large payloads belong in object storage with queue carrying pointer — Kafka default ~1MB per message.
+- **Ordering contract:** Define per-partition or per-queue — global order is expensive and usually unnecessary.
 
 ## Producer and Consumer Roles
 
-Producers fire and forget (with optional confirmations); consumers pull or receive pushes, process idempotently, then ack. Slow consumers exert backpressure — brokers buffer, shed, or throttle. Consumers must tolerate redelivery because at-least-once is the norm.
+Producers serialize events and publish with optional **publisher confirms** (RabbitMQ) or **acks=all** (Kafka) before considering send successful. Consumers fetch or receive push, process **idempotently**, then **ack** — nack or fail without ack triggers redelivery. Slow consumers create lag; fast producers fill retention — both sides need SLAs. Never assume exactly-once processing without dedup keys and idempotent side effects.
+
+- **Idempotent consumer:** Store processed message ID or business idempotency key before side effects commit.
+- **Prefetch / max.poll:** Tune batch size so one poison message does not block entire partition worker unfairly.
+- **Graceful shutdown:** Finish in-flight, commit offset/ack, then exit — hard kill causes duplicate work.
+- **Poison messages:** After N failures route to DLQ — do not infinite retry on bad JSON.
 
 ## Pub/Sub Model
 
-One message fans to many subscribers via topics — each subscriber group gets its own copy. Perfect for event-driven systems (order created → five reactions). Ordering holds per partition or subject, not globally.
+**Topics** (or exchanges + bindings) fan out one published event to many **subscriber groups** — each group receives every message independently (payments group + analytics group both see `OrderCreated`). Within a group, partitions divide work among members. Use for event-driven architectures: domain events trigger notifications, search indexing, and billing without orchestrating synchronous RPC chains.
+
+- **Fan-out vs queue:** Pub/sub duplicates to groups; queue competes within one group — Kafka combines both via consumer groups.
+- **Subject/topic naming:** Version or schema in name (`order.created.v2`) eases evolution alongside schema registry.
+- **Filtering:** RabbitMQ routing keys, Kafka headers — reduce noise so consumers do not parse irrelevant events.
+- **Choreography:** Many subscribers react to one event — document ordering assumptions and compensations.
 
 ## Asynchronous Processing
 
-Move slow work off the request path: uploads return 202 while transcoding queues; emails send after signup responds. Async raises availability (survives downstream outages) at the cost of eventual results and harder debugging.
+Move work off the critical HTTP path: return `202 Accepted` with job ID while encoding, PDF generation, or fraud scoring runs in workers. User-perceived latency drops; system absorbs downstream outages by growing backlog (within retention limits). Tradeoffs: harder tracing (correlate trace ID in message), delayed failure visibility, and need for status polling or webhooks on completion.
+
+- **Outbox pattern:** Write DB + outbox row in one transaction; relay publishes to broker — avoids "DB committed, message lost."
+- **Inbox pattern:** Dedup incoming events at consumer DB before processing — pairs with at-least-once delivery.
+- **SLA messaging:** Tell users "email within 5 minutes" — backlog alerts before SLA breach.
+- **Sync fallback:** Some flows need synchronous failure (payment declined) — do not queue what must fail fast to the user.
 
 ## Delivery Guarantees
 
-At-most-once (may lose, never duplicate — metrics), at-least-once (redelivers, may duplicate — the default; pair with idempotent consumers), exactly-once (effectively once via transactions plus idempotency — Kafka + idempotent sinks). State the guarantee per flow, never assume.
+**At-most-once:** Fire and forget or ack before process — may lose messages, never duplicates (metrics, non-critical telemetry). **At-least-once:** Default — broker redelivers until ack; consumers **must** dedupe (idempotency keys, unique constraints). **Exactly-once effect:** Kafka transactions + idempotent producer + deduping sink, or database idempotency table — say "effectively once" in interviews. Pick guarantee **per flow** and document who dedupes (producer, broker, consumer).
+
+- **Ack timing:** Ack after successful side effect, not before — early ack loses message on crash mid-process.
+- **Duplicate window:** Retries + redelivery mean duplicates for minutes — design DB upserts accordingly.
+- **Ordering vs guarantee:** Stronger delivery often couples to partition single-thread processing.
+- **Financial events:** At-least-once + idempotent ledger entries beats pretending exactly-once exists everywhere.
 
 ## Message Ordering
 
-Order holds within a partition or key (same chat, same order ID), never across the whole topic. Need global order? Single partition — and accept the throughput ceiling. Design keys so related events share partitions.
+Total order across a high-throughput topic requires single partition — throughput ceiling of one consumer thread. Practical order: **per partition** or **per message key** (same `order_id` → same partition) so related events serialize (created → paid → shipped). Unrelated orders parallelize across partitions. If cross-key order matters, rethink domain boundaries or use a saga orchestrator with explicit state machine.
+
+- **Key choice:** Skewed keys (all events for one tenant) create hot partitions — salt or sub-partition strategies.
+- **Reordering on retry:** Failed message retried later may appear out of order — consumers use version numbers or state checks.
+- **FIFO queues (SQS):** Throughput limit per message group — similar to Kafka partition semantics.
+- **Global sequence:** Rare; often replaced by causal IDs and idempotent state transitions.
 
 ## Retries
 
-Retry transient failures with exponential backoff plus jitter (prevents retry storms). Cap attempts — infinite retries poison queues. Separate retryable (timeouts) from fatal (bad payload) errors early.
+Transient failures (network blip, DB deadlock, 503) deserve retry with **exponential backoff** and **jitter** so retries do not synchronize into storms. Cap attempts (3–5 typical) and total delay; route permanent failures (schema mismatch, 400 business rule) straight to DLQ. Distinguish retryable in code early — parsing errors should not retry forever.
+
+- **Backoff example:** 1s, 2s, 4s + random 0–500ms — cap max delay at 5–10 minutes.
+- **Retry topic:** Kafka retry topic with delay tiers decouples main consumer from sleep loops.
+- **Idempotency on retry:** Same delivery attempt count may run twice — side effects must tolerate duplicates.
+- **Alert on retry rate:** Spike often signals downstream outage before DLQ fills.
 
 ## Dead Letter Queue
 
-Messages failing all retries park in a DLQ with error context for inspection and replay. Every queue needs one; without it, poison messages loop forever or vanish silently. Alert on DLQ depth.
+After max retries, move message to **DLQ** with original payload, error reason, stack trace, and attempt count. Operators inspect, fix code or data, **replay** to main queue or discard. Without DLQ, poison messages block partition head (Kafka) or spin forever (bad retry policy). Alert on DLQ depth and age — silent DLQ growth is production debt.
+
+- **Replay tooling:** Idempotent replay mandatory — replays duplicate if original actually succeeded but ack failed.
+- **Separate DLQ per consumer:** Easier ownership than one global graveyard.
+- **Retention:** DLQ retention longer than main queue — investigations take days.
+- **Security:** DLQ may contain PII — encrypt and restrict access like primary topics.
 
 ## Backpressure
 
-When producers outrun consumers: bounded queues plus 429s, load shedding (drop low-priority), autoscaling consumers, or pull-based consumption (consumers set the pace). Pick one deliberately — unbounded buffering just moves the crash to memory.
+When produce rate exceeds consume rate, unbounded buffers OOM brokers or hide failure until catastrophic lag. Explicit strategies: **bounded queues** with **429/503** to producers, **drop low-priority** traffic (load shedding), **autoscale consumers** on lag metrics, or **pull-based** consumption where workers fetch only when ready. Kafka consumers pause partitions when downstream slow — prefer measured rejection over silent buffer growth.
+
+- **Producer rate limit:** Client-side token bucket when broker returns backpressure signals.
+- **Priority queues:** Separate topics for critical vs bulk work — shed bulk first under stress.
+- **Lag SLO:** Alert at N minutes lag, not only DLQ — user-visible delay precedes data loss.
+- **End-to-end:** Backpressure useless if consumer calls unbounded thread pool to DB — limit concurrency per partition.
 
 ## Consumer Groups
 
-Groups split partitions across consumers for parallel processing; each group gets the full stream independently. Rebalances on scaling pause consumption briefly. Size partitions for peak parallelism — you cannot scale consumers past partition count.
+A **consumer group** is one logical subscriber: partitions assign exclusively to group members — scale consumers up to partition count, not beyond. Rebalance on member join/leave pauses consumption briefly — minimize churn during deploys (static membership, cooperative rebalance). Multiple groups read the same topic independently — analytics and billing both consume `orders` without stealing each other's messages.
+
+- **Partitions ≥ peak parallelism:** Plan 12–24 partitions minimum for services that scale to dozens of workers.
+- **Rebalance storms:** Frequent k8s restarts cause rebalance loop — `session.timeout.ms` and stable consumer IDs matter.
+- **Static assignment:** Advanced — manual partition map avoids rebalance for fixed topology.
+- **One slow consumer:** Same partition stuck on poison message blocks that partition's order — fix with DLQ and parallel processing only across partitions.
 
 ## Kafka, RabbitMQ, NATS, SQS/SNS
 
-Kafka: durable partitioned log, replay, 100k+ msgs/s — heavy streaming backbone. RabbitMQ: exchanges with smart routing, per-message acks — flexible task queues. NATS JetStream: lightweight pub-sub plus persistence — simplest ops. SQS/SNS: managed AWS queue plus notifications — zero ops, moderate throughput.
+**Kafka:** Durable partitioned commit log, high throughput (100k+ msg/s per cluster), retention for replay, stream processing (Flink, ksqlDB) — event backbone and analytics pipelines. **RabbitMQ:** Exchanges (direct, topic, fanout) route to queues, per-message acks, classic task queues and RPC-over-mq patterns. **NATS JetStream:** Lightweight ops, pub/sub with persistence and at-least-once — good for edge and microservice mesh signals. **SQS/SNS:** Fully managed, moderate throughput, visibility timeout semantics — AWS-native decoupling with minimal ops.
+
+- **Kafka:** Log compaction for changelog topics (`KTable` state); not a job queue unless you add delay/retry topics.
+- **RabbitMQ:** Dead-letter exchanges built-in; clustering differs from Kafka — know quorum queues for durability.
+- **NATS:** Core NATS is fire-and-forget; JetStream adds persistence — pick JetStream for jobs needing ack.
+- **SQS:** Standard vs FIFO; SNS fan-out to multiple SQS queues — common serverless pattern.
 
 ```mermaid
 graph LR
@@ -58,9 +113,9 @@ graph LR
 
 ## Keep in mind
 
-- Decouple in time: producers never wait for consumers.
-- At-least-once plus idempotent consumers is the default contract.
-- Order per partition only — design keys accordingly.
-- Retry with backoff and caps; park failures in a DLQ.
-- Backpressure needs an explicit strategy, not hope.
-- Kafka for logs, RabbitMQ for routing, NATS for light ops, SQS for managed.
+- Decouple in time: producers never block on consumer completion — define backlog and retention limits.
+- At-least-once plus idempotent consumers is the default; state who dedupes and where keys live.
+- Order per partition/key only — design partition keys from domain cohesion, not convenience.
+- Retry with backoff, jitter, and hard caps; permanent failures go to DLQ with alerts.
+- Backpressure is explicit: bounded buffers, shed load, scale consumers, or slow producers — not hope.
+- Kafka for durable logs/replay, RabbitMQ for routing/task queues, NATS JetStream for light persistent pub/sub, SQS for managed AWS.

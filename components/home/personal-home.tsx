@@ -37,11 +37,6 @@ const SECTIONS = [
     description: "Low-Level Design notes coming soon.",
   },
   {
-    href: "/jobs",
-    title: "CV Analyzer",
-    description: "Resume ATS score and suggestions.",
-  },
-  {
     href: "/tips",
     title: "Tips & Tricks",
     description: "Resume, LinkedIn, and interview prep notes.",

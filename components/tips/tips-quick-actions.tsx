@@ -5,7 +5,6 @@ import { buttonVariants } from "@/components/ui/button";
 import type { TipsTabSlug } from "@/data/tips/manifest";
 import { cn } from "@/lib/utils";
 import {
-  Briefcase,
   Building2,
   BookOpen,
   Code2,
@@ -20,25 +19,18 @@ type QuickAction = {
 };
 
 const ACTIONS: Record<TipsTabSlug, QuickAction[]> = {
-  resume: [{ label: "Open ATS scorer", href: "/jobs", icon: Briefcase }],
-  linkedin: [
-    { label: "Browse companies", href: "/companies", icon: Building2 },
-    { label: "CV Analyzer", href: "/jobs", icon: Briefcase },
-  ],
+  resume: [],
+  linkedin: [{ label: "Browse companies", href: "/companies", icon: Building2 }],
   projects: [
     { label: "DSA Patterns", href: "/patterns", icon: BookOpen },
     { label: "HLD", href: "/hld", icon: Network },
-    { label: "Score my resume", href: "/jobs", icon: Briefcase },
   ],
   interview: [
     { label: "DSA Patterns", href: "/patterns", icon: BookOpen },
     { label: "Solve", href: "/practice", icon: Code2 },
     { label: "HLD", href: "/hld", icon: Network },
   ],
-  email: [
-    { label: "Browse companies", href: "/companies", icon: Building2 },
-    { label: "CV Analyzer", href: "/jobs", icon: Briefcase },
-  ],
+  email: [{ label: "Browse companies", href: "/companies", icon: Building2 }],
   referral: [
     { label: "Browse companies", href: "/companies", icon: Building2 },
     { label: "LinkedIn tips", href: "/tips?tab=linkedin", icon: ExternalLink },

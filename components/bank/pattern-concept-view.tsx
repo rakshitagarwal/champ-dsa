@@ -14,8 +14,6 @@ import {
 import { setLastVisited } from "@/lib/storage/learning-store";
 import { cn } from "@/lib/utils";
 import { highlightCode } from "@/lib/notes/highlight-code";
-import { PatternAiExplain } from "@/components/bank/pattern-ai-explain";
-
 export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
   const f = pattern.fundamentals;
   const enrich = getPatternEnrichment(pattern.slug);
@@ -55,10 +53,6 @@ export function PatternConceptView({ pattern }: { pattern: DsaPattern }) {
             {summary}
           </p>
         </header>
-
-        <div id="ai-notes" className="scroll-mt-24">
-          <PatternAiExplain slug={pattern.slug} patternName={pattern.name} />
-        </div>
 
         {dev ? (
           <div className="grid gap-4 md:grid-cols-2">

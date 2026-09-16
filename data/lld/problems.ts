@@ -5,594 +5,1075 @@ export const PROBLEMS: LldTopic[] = [
     slug: "parking-lot",
     title: "Design Parking Lot",
     tag: "Interview Question",
-    body: `Parking Lot is the most asked LLD problem, so the bar is a complete working design. Requirements: multiple floors with spots sized for bikes, cars, and trucks, entry gates issuing tickets, exit gates computing fees from duration and vehicle type, and real-time availability display. Entry concurrency matters: two cars must never receive the same spot.
+    body: `Parking Lot is the most asked LLD problem, so interviewers expect a complete object model—not just a diagram. **Functional requirements:** multiple floors; spot sizes for bikes, compact cars, and trucks; entry gates that issue tickets; exit gates that compute fees from duration and vehicle type; and a live availability board. **Non-functional:** entry concurrency—two vehicles must never be assigned the same spot; fee rules should change (hourly, daily, surge) without rewriting core logic.
 
-Structure ParkingLot owning Floors owning Spots; Vehicle carries its size, Ticket records entry time and spot, and a PricingStrategy computes fees so hourly, daily, and surge rules swap cleanly. Allocation picks the nearest free compatible spot and marks it atomically. Walk entry and exit as one story: ticket in, fee out.
+**Entities and relationships:** \`ParkingLot\` aggregates \`Floor\` objects; each floor owns many \`Spot\` instances tagged with a \`SpotSize\`. A \`Vehicle\` (with size) enters through an \`EntryGate\`; the lot returns a \`Ticket\` binding vehicle, spot, and entry timestamp. Exit uses the same ticket plus a \`PricingStrategy\` to produce a fee. Spots are the source of truth for occupancy—gates only orchestrate.
+
+**Key algorithm—nearest compatible allocation:** scan floors/spots (often smallest floor first) for the first free spot whose size fits the vehicle; **atomically** flip \`occupied\` (DB row lock, \`SELECT FOR UPDATE\`, or compare-and-set). On exit: \`fee = strategy.calculate(ticket, exitTime)\`, collect payment, then free the spot.
+
+## Real-world example
+
+Airport and mall parking apps (ParkWhiz, SpotHero, FastTag-linked garage systems) mirror this model: a **facility** has **levels**, each level has **slots** by vehicle class, **ANPR or ticket** on entry, and **tariff engines** on exit.
+
+- **ParkingLot / Floor / Spot** map to garage hierarchy in operator dashboards; occupancy is per-slot telemetry or loop detectors.
+- **Ticket** is the QR/barcode or license-plate session; duration drives billing.
+- **PricingStrategy** swaps peak/off-peak, event surge, or member discounts without changing allocation code.
+- **Atomic allocation** is why production uses row-level locks or reservation tokens—double booking causes physical conflicts.
 
 ## Core classes
 
-ParkingLot, Floor, Spot (size plus occupied flag), Vehicle (size), Ticket (spot, entry time), Gate, PricingStrategy. Allocation targets the nearest free compatible spot.
+\`ParkingLot\`, \`Floor\`, \`Spot\` (size + occupied), \`Vehicle\` (size), \`Ticket\` (spot, vehicle, entry time), \`Gate\` (entry/exit), \`PricingStrategy\` (hourly/daily/surge). Allocation = nearest free compatible spot in one atomic step.
 
-\`\`\`js
-// Allocation must be atomic; pricing swaps via Strategy
+\`\`\`ts
+enum SpotSize { Bike, Compact, Large }
+
+interface PricingStrategy {
+  calculate(ticket: Ticket, exitTime: Date): number;
+}
+
+class Spot {
+  constructor(
+    readonly id: string,
+    readonly size: SpotSize,
+    private occupied = false,
+  ) {}
+  isFree(): boolean { return !this.occupied; }
+  occupy(): void { this.occupied = true; }
+  release(): void { this.occupied = false; }
+}
+
+class Ticket {
+  constructor(
+    readonly spot: Spot,
+    readonly vehicle: Vehicle,
+    readonly entryTime: Date,
+  ) {}
+}
+
 class ParkingLot {
-  park(vehicle) {
-    const spot = this.findNearestFree(vehicle.size()); // atomic pick
-    spot.occupy(); return new Ticket(spot, Date.now());
+  constructor(
+    private floors: Floor[],
+    private pricing: PricingStrategy,
+  ) {}
+
+  park(vehicle: Vehicle): Ticket {
+    const spot = this.findNearestFree(vehicle.size); // must be atomic in production
+    spot.occupy();
+    return new Ticket(spot, vehicle, new Date());
   }
-  checkout(ticket) { return this.pricing.calculate(ticket); }
+
+  checkout(ticket: Ticket): number {
+    const fee = this.pricing.calculate(ticket, new Date());
+    ticket.spot.release();
+    return fee;
+  }
+
+  private findNearestFree(size: SpotSize): Spot { /* scan floors */ throw new Error("impl"); }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Atomic allocation:** pick plus mark as one unit — two cars never share a spot.
-- **Pricing as Strategy:** hourly, daily, surge swap without edits.
-- **Nearest-free:** beats random allocation, matches real lots.
-- **Availability from spot state:** separate counters drift — read the source.
+- **Atomic allocation:** find + mark occupied as one unit—two cars never share a spot.
+- **Pricing as Strategy:** hourly, daily, surge, and vehicle-type multipliers swap without editing \`ParkingLot\`.
+- **Nearest-free (or smallest-fit):** better UX and traffic flow than random assignment.
+- **Availability from spot state:** aggregate counts for display, but never treat counters as authoritative—they drift.
 
 ## Walkthrough
 
-A car reaches the entry gate — the system picks the nearest free car-size spot atomically and issues a Ticket (spot plus time). At exit, duration feeds PricingStrategy, payment clears, the spot frees. A second car asking mid-way sees occupied and moves to the next candidate.
+A car reaches the entry gate—the system picks the nearest free car-size spot atomically and issues a \`Ticket\` (spot + timestamp). The availability board reflects one fewer compact slot. At exit, duration and vehicle type feed \`PricingStrategy\`; after payment, the spot frees and the board updates. A second car requesting mid-allocation sees the spot already occupied and receives the next candidate.
 
-**Mistake:** "Track availability in a separate counter."
-**Correct:** "Name entities, allocate atomically, price via Strategy — ticket in, fee out."
+**Mistake:** "Track availability in a separate counter and decrement on entry."
+**Correct:** "Spots own occupancy; allocate atomically; price via Strategy—ticket in, fee out, spot released."
 
 ## Keep in mind
 
-- Entities first: Lot, Floor, Spot, Vehicle, Ticket, Gate, Pricing.
-- Spot allocation must be atomic or two cars share one spot.
-- Keep pricing in a Strategy: hourly, daily, surge swap without edits.
-- Nearest-free allocation beats random for real lots — say it.
-- Availability display reads spot state, never a drifting counter.`,
+- Name entities first: Lot, Floor, Spot, Vehicle, Ticket, Gate, Pricing.
+- Spot allocation must be atomic or two cars share one spot in concurrent entry.
+- Keep pricing in a Strategy: hourly, daily, surge swap without core edits.
+- Nearest-free (or best-fit by size) beats random—say it explicitly.
+- Display availability by scanning spot state (or cached projection), not a lone counter.`,
   },
   {
     slug: "elevator-system",
     title: "LLD of Elevator System",
     tag: "Interview Question",
-    body: `The elevator system tests concurrent state machines plus scheduling. Requirements: multiple elevators across floors, inside panel buttons plus outside up and down buttons, movement with door open and close states, and a dispatch strategy assigning the best elevator per request. Concurrency is inherent: passengers press buttons while elevators move.
+    body: `Elevator LLD tests **concurrent state machines** and **dispatch scheduling**. **Requirements:** multiple elevators serving many floors; hall buttons (up/down) and car buttons (floor destinations); door open/close and movement; a policy that picks which car serves each hall call. Passengers press buttons while cars move—request intake must be thread-safe.
 
-Design around an Elevator with floor, direction, and a State object (Idle, Moving, DoorsOpen), a Request with source floor and direction, and a Dispatcher owning the scheduling strategy. The classic algorithm is SCAN: keep moving one direction serving queued stops, then reverse. Button panels produce requests; the dispatcher alone decides.
+**Entities:** \`Building\` holds \`Elevator\` cars and \`Floor\` indices. Each \`Elevator\` has current floor, direction (\`Up\` | \`Down\` | \`Idle\`), a **State** (\`Idle\`, \`Moving\`, \`DoorsOpen\`), and a stop queue. \`HallRequest\` = (floor, direction); \`CarRequest\` = destination floor. \`Dispatcher\` applies a **scheduling strategy** (SCAN is the interview default).
+
+**SCAN algorithm:** each car keeps moving in its current direction, serving all queued stops in order; when no stops remain ahead, it reverses or idles. Dispatch scores cars by distance, direction match, and load—**a nearest car heading away is worse** than a farther car already moving toward the floor.
+
+## Real-world example
+
+Otis, KONE, and Schindler group controllers implement the same abstractions: **cars** as state machines, **hall/car calls** as events, and **dispatch** as configurable algorithms (SCAN, LOOK, destination dispatch in modern systems).
+
+- **Elevator + State** mirror firmware modes: idle at floor, running, door cycle, out of service.
+- **Request** objects are persisted call records; panels only emit requests—they do not pick the car.
+- **Dispatcher** is the group supervisor assigning calls to minimize wait and energy (direction-aware).
+- **Synchronized queues** on each car match why stop lists are updated under locks during motion.
 
 ## Core classes
 
-Elevator (floor, direction, state), Request (source floor plus direction), Dispatcher (strategy owner). States stay classes — Idle, Moving, DoorsOpen — never boolean flags.
+\`Building\`, \`Elevator\` (floor, direction, state, stop set), \`HallRequest\`, \`CarRequest\`, \`Dispatcher\` (strategy owner). States as classes—never a pile of booleans.
 
-\`\`\`js
-// Dispatcher owns strategy, elevators own state
-class Elevator {
-  move() { /* depends on state */ }
-  openDoors() { /* ... */ }
-  addStop(floor) { /* ... */ }
+\`\`\`ts
+enum Direction { Up, Down, Idle }
+
+interface ElevatorState {
+  onMove(e: Elevator): void;
+  onOpenDoors(e: Elevator): void;
 }
+
+class Elevator {
+  floor = 0;
+  direction: Direction = Direction.Idle;
+  private stops = new Set<number>();
+  constructor(private state: ElevatorState) {}
+
+  addStop(floor: number): void { this.stops.add(floor); }
+  move(): void { this.state.onMove(this); }
+  openDoors(): void { this.state.onOpenDoors(this); }
+  setState(state: ElevatorState): void { this.state = state; }
+}
+
+class HallRequest {
+  constructor(readonly floor: number, readonly direction: Direction) {}
+}
+
 class Dispatcher {
-  assign(request) { /* SCAN: nearest in-direction car wins */ }
+  assign(request: HallRequest, cars: Elevator[]): Elevator {
+    // SCAN: prefer in-direction, then distance
+    throw new Error("impl");
+  }
 }
 \`\`\`
 
 ## Key decisions
 
-- **SCAN scheduling:** serve along the direction, then reverse — the expected algorithm.
-- **States as classes:** flags grow switch jungles.
-- **Synchronized intake:** button presses race movement — guard request intake.
-- **Single decider:** panels produce, the dispatcher chooses.
+- **SCAN (or LOOK) scheduling:** serve along direction, then reverse—the algorithm interviewers expect.
+- **States as classes:** \`Idle\`, \`Moving\`, \`DoorsOpen\` avoid nested switches as features grow.
+- **Synchronized intake:** hall and car buttons race movement—guard stop lists and state transitions.
+- **Single decider:** panels produce requests; only the dispatcher assigns cars.
 
 ## Walkthrough
 
-An up request arrives from floor 5 — the dispatcher picks the nearest same-direction car and queues the stop. The car arrives, opens doors (DoorsOpen), the passenger presses 9 inside — the internal request joins the queue. After serving its direction, the car reverses.
+An up request arrives from floor 5—the dispatcher picks the nearest car already heading up (or idle nearby) and adds floor 5 to its stop queue. The car arrives, enters \`DoorsOpen\`, passenger presses 9 inside—9 joins the car queue. After serving all stops upward, the car reverses or idles. Show one external hall call plus one internal floor press end to end.
 
-**Mistake:** "Nearest elevator is always best."
-**Correct:** "A nearest car heading away loses — SCAN weighs direction; show one outside plus one inside request."
+**Mistake:** "Always assign the geographically nearest elevator."
+**Correct:** "Direction-aware SCAN—a nearest car heading away loses; walk hall + car requests."
 
 ## Keep in mind
 
-- Name entities first: Elevator, Floor, Panel buttons, Request, Dispatcher.
-- SCAN scheduling is the expected algorithm: serve along direction, then reverse.
-- Model Idle, Moving, and DoorsOpen as states, not boolean flags.
-- Concurrency lives in button presses versus movement: guard request intake.
-- Walk one external plus one internal request end to end.`,
+- Entities: Elevator, Floor, Panel, Request, Dispatcher, State.
+- SCAN: serve along direction, then reverse—name it early.
+- Model Idle, Moving, DoorsOpen as states, not boolean flags.
+- Concurrency: button events vs. motion—protect shared stop sets.
+- Walk one outside request and one inside destination through the full cycle.`,
   },
   {
     slug: "atm",
     title: "LLD of ATM",
     tag: "Interview Question",
-    body: `ATM design covers secure transactional flows with hardware. Requirements: card authentication with PIN, balance inquiry, cash withdrawal with denomination breakup, deposit, and PIN change — all within daily limits and cash availability. Every cash movement must be transactional: dispense and debit succeed or fail together.
+    body: `ATM design covers **secure transactional flows** and **hardware coupling**. **Requirements:** card + PIN authentication; balance inquiry; cash withdrawal with denomination mix; deposit; PIN change; daily limits and machine cash inventory. **Invariant:** dispense and ledger debit succeed together or neither happens.
 
-Entities are Card, Account, Transaction records, a CashDispenser with denomination inventory, and the ATM controller running screens. Withdrawal is the walkthrough to master: authenticate, validate limits and balance, reserve the amount, dispense notes via Chain of Responsibility over denominations, and commit the ledger only after successful dispense. Failures at any step roll back cleanly.
+**Entities:** \`Card\` links to \`Account\` at the \`BankService\`. \`ATM\` drives UI screens and coordinates hardware. \`CashDispenser\` tracks note counts per denomination. Every action creates an immutable \`Transaction\` audit row. Withdrawal path: authenticate → validate (PIN, limits, balance, stock) → compute note mix → dispense → **commit debit** only after notes leave.
+
+**Denomination algorithm:** greedy from largest note downward (or backtracking if greedy fails)—often modeled as **Chain of Responsibility** where each handler tries one denomination then passes remainder.
+
+## Real-world example
+
+NCR and Diebold ATMs and bank switch networks (Visa/Mastercard rails) use the same separation: **terminal controller**, **host authorization**, **cassette inventory**, and **atomic settlement**.
+
+- **ATM** orchestrates screens and hardware; it does not own account truth—the host does.
+- **CashDispenser** maps to physical cassettes; low-stock alerts block large withdrawals.
+- **Transaction** records match ISO 8583-style audit trails for reconciliation.
+- **Validate-then-dispense-then-debit** mirrors two-phase commit: never debit before cash is physically dispensed.
 
 ## Core classes
 
-Card, Account, Transaction (audit record), CashDispenser (denomination inventory), ATM controller (drives screens). Flow: authenticate, validate, dispense, commit.
+\`Card\`, \`Account\`, \`Transaction\`, \`CashDispenser\` (denomination inventory), \`BankService\`, \`ATM\` (screen flow). Withdrawal = validate → dispense → commit.
 
-\`\`\`js
-// Dispense and debit are one atomic unit
+\`\`\`ts
+class Account {
+  constructor(readonly id: string, private balance: number) {}
+  canWithdraw(amount: number): boolean { return this.balance >= amount; }
+  debit(amount: number): void { this.balance -= amount; }
+}
+
+class CashDispenser {
+  constructor(private notes: Map<number, number>) {} // denomination -> count
+  canDispense(amount: number): boolean { /* check inventory */ return true; }
+  dispense(amount: number): Map<number, number> { /* greedy / chain */ return new Map(); }
+}
+
 class ATM {
-  withdraw(card, pin, amount) {
+  constructor(private bank: BankService, private dispenser: CashDispenser) {}
+
+  withdraw(card: Card, pin: string, amount: number): Transaction {
     const account = this.bank.authenticate(card, pin);
-    this.validate(account, amount); // limits, balance, cash stock
-    this.dispense(amount);           // chain over denominations
-    return this.bank.debit(account, amount); // commit only after dispense
+    this.validate(account, amount);
+    const mix = this.dispenser.dispense(amount); // hardware step
+    const txn = this.bank.debit(account, amount, mix); // commit after dispense
+    return txn;
+  }
+
+  private validate(account: Account, amount: number): void {
+    /* limits, balance, dispenser stock */
   }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Atomic dispense+debit:** money out and ledger cut together — never one without the other.
-- **Denomination chain:** biggest notes first across note types.
-- **Validation order:** PIN, daily limits, balance, machine cash stock — in that sequence.
-- **Audit everything:** every action writes a Transaction record for reconciliation.
+- **Atomic dispense + debit:** money out and ledger cut together—rollback if jam or host timeout.
+- **Denomination chain:** largest notes first; fail early if no valid mix exists.
+- **Validation order:** PIN → daily limits → balance → machine cash stock.
+- **Audit everything:** each step writes a \`Transaction\` for dispute resolution.
 
 ## Walkthrough
 
-Card inserted, PIN correct — 5000 requested. The system checks limits, balance, and machine stock, then the chain dispenses 2000x2 plus 1000x1. Only after notes leave does the ledger debit commit. A mid-dispense jam fails the dispense — no debit happens, money stays safe.
+Card inserted, PIN correct—₹5000 requested. System checks limits, balance, and cassette stock; chain dispenses e.g. 2000×2 + 1000×1. Only after notes exit does the host debit commit. Mid-dispense jam aborts dispense—**no debit**, customer sees error, audit logs failure. Mention card capture after repeated wrong PINs.
 
-**Mistake:** "Debit first, dispense after."
-**Correct:** "Validate, dispense, then commit the debit — with an audit record at every step."
+**Mistake:** "Debit the account first, then dispense cash."
+**Correct:** "Validate, dispense, then commit debit—with audit at each step."
 
 ## Keep in mind
 
-- Cash dispense plus account debit must be atomic: never one without the other.
-- Denomination breakup is a Chain of Responsibility over note types.
-- Validate in order: PIN, daily limits, balance, machine cash stock.
-- Every action writes an audit Transaction record for reconciliation.
-- Card retention after repeated wrong PINs is expected detail — say it.`,
+- Dispense and debit must be one logical transaction.
+- Denomination breakup = Chain of Responsibility or bounded greedy search.
+- Validate: PIN, limits, balance, machine stock—in that order.
+- Immutable audit \`Transaction\` rows for every action.
+- Card retention after N failed PINs is expected follow-up detail.`,
   },
   {
     slug: "vending-machine",
     title: "Design Vending Machine",
     tag: "Interview Question",
-    body: `Vending Machine is the State pattern made concrete: coin handling, selection, dispensing, and change across NoCoin, HasCoin, Dispensing, and SoldOut states. Requirements: accept coins, select items, dispense with correct change, cancel with refund, and handle sold-out items gracefully.
+    body: `Vending Machine is the **State pattern** in miniature. **Requirements:** accept coins/cash, select a product, dispense item and change, cancel with refund, handle sold-out SKUs. The machine must reject illegal actions (select before payment, double dispense).
 
-Design VendingMachine holding items with prices and quantities, a CoinStore tracking inserted money, and a State object per phase. Inserting a coin in NoCoin moves to HasCoin; pressing a button in HasCoin dispenses and returns change; cancel anytime refunds. Each state class owns its transitions — no switch statements.
+**Entities:** \`VendingMachine\` holds \`Item\` inventory (price, quantity), a \`CoinStore\` (inserted value), and \`currentState\`. Each **state class** (\`NoCoin\`, \`HasCoin\`, \`Dispensing\`, \`SoldOut\`) implements allowed transitions: insert coin, select item, cancel, dispense complete. Change = inserted − price, returned via greedy coin breakdown.
+
+**Flow:** \`NoCoin\` + insert → \`HasCoin\`; \`HasCoin\` + valid selection → dispense + change → \`NoCoin\`; cancel from \`HasCoin\` refunds → \`NoCoin\`; zero stock → \`SoldOut\` (often still allows another selection after refund path).
+
+## Real-world example
+
+Canteen and airport vending platforms (Crane, Sanden) use the same phased controller: **idle**, **credit accumulated**, **vend motor active**, **fault/sold out**.
+
+- **State classes** map to PLC states—transitions are explicit, not scattered \`if\` chains.
+- **Item** + slot inventory mirrors spiral columns and motor feedback.
+- **CoinStore** corresponds to coin mech + bill validator running totals.
+- **Cancel/refund** paths are first-class because cash handling is regulated.
 
 ## Core classes
 
-VendingMachine (items, coin store, current state), Item (name, price, quantity), State classes (NoCoin, HasCoin, Dispensing, SoldOut).
+\`VendingMachine\`, \`Item\`, \`CoinStore\`, \`VendingState\` implementations (\`NoCoin\`, \`HasCoin\`, \`Dispensing\`, \`SoldOut\`).
 
-\`\`\`js
-// States own transitions — the machine only delegates
-class HasCoin {
-  pressButton(machine, item) {
-    if (machine.stock(item) === 0) { machine.setState(new SoldOut()); return; }
-    machine.dispense(item); // item out, change back
+\`\`\`ts
+interface VendingState {
+  insertCoin(machine: VendingMachine, amount: number): void;
+  selectItem(machine: VendingMachine, code: string): void;
+  cancel(machine: VendingMachine): void;
+}
+
+class HasCoin implements VendingState {
+  insertCoin(machine: VendingMachine, amount: number): void {
+    machine.addCredit(amount);
+  }
+  selectItem(machine: VendingMachine, code: string): void {
+    const item = machine.getItem(code);
+    if (!item || item.quantity === 0) {
+      machine.setState(new SoldOut());
+      return;
+    }
+    machine.dispense(item);
+    machine.returnChange();
     machine.setState(new NoCoin());
   }
-  cancel(machine) { machine.refund(); machine.setState(new NoCoin()); }
+  cancel(machine: VendingMachine): void {
+    machine.refund();
+    machine.setState(new NoCoin());
+  }
+}
+
+class VendingMachine {
+  private credit = 0;
+  constructor(private state: VendingState, private items: Map<string, Item>) {}
+  setState(state: VendingState): void { this.state = state; }
+  addCredit(n: number): void { this.credit += n; }
+  dispense(item: Item): void { item.quantity -= 1; }
+  refund(): void { this.credit = 0; }
+  returnChange(): void { /* price vs credit */ }
+  getItem(code: string): Item | undefined { return this.items.get(code); }
 }
 \`\`\`
 
 ## Key decisions
 
-- **State classes:** NoCoin, HasCoin, Dispensing, SoldOut — transitions live inside.
-- **Change math:** inserted minus price, greedy over denominations.
-- **Cancel path:** refund from any pre-dispense state.
-- **SoldOut handling:** selection of empty items moves to SoldOut, then back.
+- **State classes own transitions**—the machine delegates; no giant \`switch(status)\`.
+- **Change math:** inserted minus price; greedy over available coin denominations.
+- **Cancel path:** full refund from any pre-dispense state.
+- **Stock:** decrement only on successful dispense; sold-out is a state/response, not silent failure.
 
 ## Walkthrough
 
-User inserts 100 for a 70 item — NoCoin becomes HasCoin. Button pressed — stock checked, item dispensed, 30 returned, back to NoCoin. Cancel pressed instead — full 100 refunded. Empty item selected — SoldOut shown, money kept for another choice.
+User inserts ₹100 for a ₹70 item—\`NoCoin\` → \`HasCoin\`. Button pressed—stock OK, item drops, ₹30 returned, → \`NoCoin\`. User inserts again but picks empty slot—→ \`SoldOut\`, credit retained for another pick or cancel refunds ₹100.
 
-**Mistake:** "One class with a state enum and switches."
-**Correct:** "One class per state, transitions inside states — cancel and refund paths included."
+**Mistake:** "One enum and a switch for all behavior."
+**Correct:** "One class per state; transitions inside states; cancel and sold-out explicit."
 
 ## Keep in mind
 
-- Four states: NoCoin, HasCoin, Dispensing, SoldOut.
-- Change = inserted minus price, greedy over denominations.
+- Four states: NoCoin, HasCoin, Dispensing, SoldOut (names may vary).
+- Change = credit − price; greedy breakdown.
 - Cancel refunds from any pre-dispense state.
-- SoldOut keeps money for another choice, never swallows it.
-- Stock decrements only on successful dispense.`,
+- SoldOut must not swallow money—refund or reselect.
+- Quantity updates only after successful vend.`,
   },
   {
     slug: "library-system",
     title: "Design Library Management System",
     tag: "Interview Question",
-    body: `Library System is classic OOP practice — state machines plus Strategy in one design. Requirements: books with multiple copies, members, borrowing with due dates, fines, reservations, and search. Every copy's condition must stay tracked.
+    body: `Library Management combines **catalog metadata**, **copy-level inventory**, and **loan lifecycle**. **Requirements:** books (many copies), members, checkout with due dates, fines, reservations/waitlists, search by title/author/ISBN. Each **physical copy** has its own status—never lend the same copy twice.
 
-Design Book (title and author metadata), BookCopy (the physical copy with barcode — Available, Borrowed, Reserved states), Member, Loan (copy plus dates), and Reservation. Fines go in a Strategy (student vs faculty rates differ). The state machine guards transitions — a Borrowed copy can never issue twice.
+**Entities:** \`Book\` = bibliographic record (title, author, ISBN). \`BookCopy\` = barcode + state (\`Available\`, \`Borrowed\`, \`Reserved\`). \`Member\` has type (student/faculty) for fine rules. \`Loan\` links member, copy, checkout/ due dates. \`Reservation\` queues members when all copies are out. **FineStrategy** computes overdue charges without hardcoding rates in \`Loan\`.
+
+**State machine:** only \`Available\` copies may \`borrow()\`; return moves to \`Available\` or \`Reserved\` if waitlist head exists—notify next member.
+
+## Real-world example
+
+Koha, Evergreen, and university ILS products split **bibliographic** vs **holdings** exactly this way—think WorldCat metadata vs shelf barcode.
+
+- **Book vs BookCopy** = MARC record vs item barcode scanned at circulation desk.
+- **Loan** rows power due-date emails and fine calculation on return scan.
+- **Reservation queue** becomes "holds" in OPAC—next return triggers pickup notice.
+- **FineStrategy** maps to patron categories (staff, student, public) in policy tables.
 
 ## Core classes
 
-Book (metadata), BookCopy (barcode plus state), Member, Loan (copy, member, due date), Reservation (queue), FineStrategy.
+\`Book\`, \`BookCopy\` (barcode + status), \`Member\`, \`Loan\`, \`Reservation\`, \`FineStrategy\`.
 
-\`\`\`js
-// Copy state machine blocks illegal transitions
+\`\`\`ts
+enum CopyStatus { Available, Borrowed, Reserved }
+
+interface FineStrategy {
+  compute( loan: Loan, returnDate: Date): number;
+}
+
 class BookCopy {
-  constructor(barcode) { this.barcode = barcode; this.status = 'Available'; }
-  borrow() {
-    if (this.status !== 'Available') throw new Error('Copy not available');
-    this.status = 'Borrowed';
+  status: CopyStatus = CopyStatus.Available;
+  constructor(readonly barcode: string, readonly book: Book) {}
+
+  borrow(): void {
+    if (this.status !== CopyStatus.Available) throw new Error("Copy not available");
+    this.status = CopyStatus.Borrowed;
   }
-  returnCopy() { this.status = 'Reserved'; } // or Available when no waitlist
+
+  returnCopy(hasWaitlist: boolean): void {
+    this.status = hasWaitlist ? CopyStatus.Reserved : CopyStatus.Available;
+  }
+}
+
+class Loan {
+  constructor(
+    readonly member: Member,
+    readonly copy: BookCopy,
+    readonly dueDate: Date,
+  ) {}
+}
+
+class LibraryService {
+  checkout(member: Member, copy: BookCopy): Loan {
+    copy.borrow();
+    return new Loan(member, copy, this.dueDateFor(member));
+  }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Book vs BookCopy split:** metadata once, physical copies many — the first and most important call.
-- **State machine:** Available, Borrowed, Reserved — illegal issues become impossible.
-- **Fine Strategy:** rates vary by member type without code changes.
-- **Reservation queue:** returns offer to the waitlist first.
+- **Book vs BookCopy:** metadata once, many lendable items—decide this first.
+- **Copy state machine:** illegal double-issue becomes impossible.
+- **Fine Strategy:** member-type rates without changing checkout code.
+- **Reservation queue:** on return, offer copy to head of queue before open shelf.
 
 ## Walkthrough
 
-A member requests "Clean Code" — an available copy issues, a Loan opens with a 14-day due date, the copy turns Borrowed. Returned on time — back to Available. Returned late — the FineStrategy computes the charge. Both copies busy — a Reservation queues the member, and the next return notifies them first.
+Member requests *Clean Code*—available copy A123 checks out, \`Loan\` due in 14 days, copy \`Borrowed\`. Returned on time → \`Available\`. Returned late → \`FineStrategy\` charge. Both copies out—\`Reservation\` queues member; next return sets copy \`Reserved\` and notifies waitlist.
 
-**Mistake:** "One class for Book and copy."
-**Correct:** "Split Book from BookCopy, guard transitions with states, price fines with Strategy."
+**Mistake:** "Single Book class with a borrowed boolean."
+**Correct:** "Split Book/BookCopy; state-guarded borrow; fines via Strategy; reservation queue."
 
 ## Keep in mind
 
-- Book (metadata) and BookCopy (physical) stay separate — decide this first.
-- Copy states Available/Borrowed/Reserved make bad issues impossible.
-- Fines live in a Strategy — rates vary by member type.
-- Keep a reservation queue — returns offer to the waitlist first.
-- Walk due dates and fines end to end.`,
+- Book (metadata) and BookCopy (physical) stay separate.
+- States: Available / Borrowed / Reserved.
+- Fines in Strategy—rates vary by member type.
+- Waitlist on return before re-shelving.
+- Walk due date → overdue fine in the narrative.`,
   },
   {
     slug: "hotel-booking",
     title: "Design Hotel Booking System",
     tag: "Interview Question",
-    body: `Hotel Booking centers on date-range inventory: the same room cannot host overlapping stays. Requirements: hotels with room types, search by city and dates, reservation with payment, check-in and check-out, cancellation with policy-based refunds.
+    body: `Hotel booking is **date-range inventory**: one physical room cannot overlap two confirmed stays. **Requirements:** hotels and room types, search by city + check-in/check-out, book with payment, check-in/out, cancel with policy-based refund.
 
-Design Hotel, Room (type plus nightly rate), Booking (room, guest, date range, status), and Payment. Availability is a range-overlap query per room — the same invariant as car rental. Booking must be atomic: check range, hold room, charge. Cancellation refunds by policy (free before 48h, partial after).
+**Entities:** \`Hotel\` has \`Room\` instances (type, nightly rate). \`Guest\` / \`User\` places \`Booking\` (room, date range, status: Pending/Confirmed/Cancelled/CheckedIn). \`Payment\` captures charge/refund. **Overlap query:** for room R and [start, end), no other Confirmed booking intersects. **CancellationPolicy** (Strategy) returns refund amount from cancel time vs check-in.
+
+**Booking algorithm:** in one transaction—lock room row or version field → run overlap check → insert booking → charge. Concurrent double-book fails on overlap or optimistic conflict.
+
+## Real-world example
+
+Booking.com, Marriott Bonvoy, and OYO expose the same core: **property**, **room nights**, **hold/confirm**, **cancellation tiers**.
+
+- **Room + date range** is the inventory unit—OTA calendars are per-room-type aggregation of this invariant.
+- **BookingService** overlap check matches PMS (Opera, Cloudbeds) night-level allotments.
+- **CancellationPolicy** mirrors non-refundable vs free-cancel-before-48h product flags.
+- **Search** reads cached availability; **book** writes transactionally—CQRS-lite.
 
 ## Core classes
 
-Hotel, Room (type, rate), Booking (room, guest, range, status), Payment, CancellationPolicy (Strategy per policy).
+\`Hotel\`, \`Room\`, \`Booking\`, \`Payment\`, \`CancellationPolicy\`, \`BookingService\`.
 
-\`\`\`js
-// Range check plus hold must be atomic
+\`\`\`ts
+type DateRange = { checkIn: Date; checkOut: Date };
+
+interface CancellationPolicy {
+  refundAmount(booking: Booking, cancelledAt: Date): number;
+}
+
+class Booking {
+  constructor(
+    readonly guest: Guest,
+    readonly room: Room,
+    readonly range: DateRange,
+    public status: "Confirmed" | "Cancelled" = "Confirmed",
+  ) {}
+}
+
 class BookingService {
-  book(guest, room, range) {
-    // production: DB transaction or version check around this unit
-    if (this.overlaps(room, range)) throw new Error('Room taken for these dates');
+  constructor(private policy: CancellationPolicy) {}
+
+  book(guest: Guest, room: Room, range: DateRange): Booking {
+    // DB transaction: overlap check + insert + charge
+    if (this.overlaps(room, range)) throw new Error("Room taken for these dates");
     const booking = new Booking(guest, room, range);
     this.charge(booking);
     return booking;
   }
+
+  cancel(booking: Booking): number {
+    const refund = this.policy.refundAmount(booking, new Date());
+    booking.status = "Cancelled";
+    return refund;
+  }
+
+  private overlaps(room: Room, range: DateRange): boolean { return false; }
+  private charge(booking: Booking): void {}
 }
 \`\`\`
 
 ## Key decisions
 
-- **Overlap invariant:** one room, no overlapping confirmed stays — state it first.
-- **Atomic book:** check plus hold as one unit — locks or optimistic versioning.
-- **Cancellation as Strategy:** free, partial, and non-refundable policies swap cleanly.
-- **Search vs book split:** cached availability reads, transactional writes.
+- **Overlap invariant:** state it first—one room, no overlapping confirmed stays.
+- **Atomic book:** check + hold + pay as one unit (lock or optimistic versioning).
+- **Cancellation as Strategy:** free, partial, non-refundable products swap cleanly.
+- **Search vs book:** cached reads for browsing; transactional writes for confirm.
 
 ## Walkthrough
 
-A guest searches Udaipur for Dec 20-22 — available rooms list from a cached range query. Booking runs atomically: no overlap found, room held, payment charged. Cancelled Dec 18 — free-cancellation policy refunds fully. Same dates requested twice concurrently — the second sees the overlap and fails cleanly.
+Guest searches Udaipur Dec 20–22—available rooms from range query (minus confirmed bookings). Book runs atomically: no overlap, room held, payment captured. Cancel Dec 18 under free-cancel policy → full refund. Two concurrent books for same room—second transaction sees overlap and fails cleanly.
 
-**Mistake:** "Check availability, then book in two steps."
-**Correct:** "Atomic check-and-hold, overlap invariant stated first, cancellation by policy."
+**Mistake:** "Check availability in UI, then book in a separate request without locking."
+**Correct:** "Atomic check-and-hold; overlap invariant; cancellation via policy Strategy."
 
 ## Keep in mind
 
-- One room, no overlapping confirmed stays — the invariant.
-- Check-and-hold must be atomic: locks or version checks, never two steps.
-- Overlap detection is a range query — index room plus dates.
-- Cancellation policies belong in a Strategy.
-- Cache availability reads; transact the booking.`,
+- Core invariant: no overlapping confirmed stays per room.
+- Check-and-hold must be atomic—never two-step race.
+- Overlap = interval intersection—index (room_id, dates).
+- Cancellation policies belong in Strategy.
+- Cache search; transact booking.`,
   },
   {
     slug: "bookmyshow",
     title: "LLD of BookMyShow | Design MovieTicketBooking",
     tag: "Interview Question",
-    body: `BookMyShow stands on one hard problem: two users grabbing the same seat. Requirements span movies, theatres, shows with seat maps, temporary seat holds, payment, and confirmed bookings with cancellation. The hold-then-confirm flow with a timeout is the design every interviewer wants to hear.
+    body: `Movie ticketing LLD hinges on **seat-level concurrency**. **Requirements:** movies, theatres/screens, shows (movie + time + layout), interactive seat map, temporary holds, payment, confirmed tickets, cancellation/refund. Two users must never confirm the same seat.
 
-Model Movie, Theatre, Show (movie plus screen plus time), Seat with a state machine (Available, Held, Booked), and Booking tying user to seats plus payment. The flow: select seats, hold them with a TTL (say ten minutes), pay within the window, confirm on success or release on timeout. The hold must be atomic per seat, and payment failure must always release.
+**Entities:** \`Movie\`, \`Theatre\`, \`Screen\` (seat layout), \`Show\` (screen + start time). Each \`Seat\` has state \`Available | Held | Booked\` and optional \`holdExpiry\`. \`Hold\` groups seats for one user with TTL (~10 min). \`Booking\` ties user, show, seats, payment status.
+
+**Flow:** select seats → **atomic** Available→Held for all seats in cart → pay before expiry → Held→Booked; on payment failure or timeout → release to Available. Use per-seat row lock or CAS on status.
+
+## Real-world example
+
+BookMyShow, Ticketmaster, and AMC use **hold baskets**, **inventory locks**, and **payment webhooks** with the same state machine.
+
+- **Seat** state maps to real-time seat maps backed by row-level locks or Redis CAS.
+- **Hold + TTL** is the shopping cart timer—expiry cron or delayed queue releases inventory.
+- **BookingService.confirm** runs after payment gateway success—never on click alone.
+- **Cancellation** reverses Booked→Available and triggers refund pipeline.
 
 ## Core classes
 
-Movie, Theatre, Show, Seat (Available/Held/Booked states), Hold (seats plus expiry), Booking (user, seats, payment). Holds carry TTL; confirms need payment; failures release.
+\`Movie\`, \`Theatre\`, \`Show\`, \`Seat\`, \`Hold\`, \`Booking\`, \`BookingService\`.
 
-\`\`\`js
-// TTL hold, confirm on payment, release on timeout
+\`\`\`ts
+enum SeatStatus { Available, Held, Booked }
+
+class Seat {
+  constructor(
+    readonly id: string,
+    public status: SeatStatus = SeatStatus.Available,
+    public holdExpiry?: Date,
+  ) {}
+}
+
+class Hold {
+  constructor(
+    readonly userId: string,
+    readonly showId: string,
+    readonly seatIds: string[],
+    readonly expiresAt: Date,
+  ) {}
+}
+
 class BookingService {
-  holdSeats(user, show, seats) {
-    // transition every seat Available -> Held atomically
-    return { user, seats, expiresAt: Date.now() + 10 * 60 * 1000 };
+  holdSeats(userId: string, show: Show, seats: Seat[]): Hold {
+    // transaction: all seats Available -> Held or rollback
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    for (const s of seats) {
+      if (s.status !== SeatStatus.Available) throw new Error("Seat taken");
+      s.status = SeatStatus.Held;
+      s.holdExpiry = expiresAt;
+    }
+    return new Hold(userId, show.id, seats.map(s => s.id), expiresAt);
   }
-  confirm(hold, payment) { /* pay, then Held -> Booked */ }
+
+  confirm(hold: Hold, paymentId: string): Booking {
+    // verify payment, Held -> Booked
+    throw new Error("impl");
+  }
+
+  release(hold: Hold): void {
+    /* Held -> Available */
+  }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Seat states:** Available, Held, Booked — Held carries a TTL.
-- **Atomic hold:** per-seat transition in one unit or double booking happens.
-- **Failure releases:** payment failure always frees held seats, no exceptions.
-- **Cancellation:** seats return to Available and trigger the refund flow.
+- **Seat states:** Available → Held (TTL) → Booked—never skip Held in interview answers.
+- **Atomic hold:** all seats in cart transition together or none.
+- **Failure releases:** payment failure and timeout always free seats.
+- **Cancellation:** Booked → Available + refund workflow.
 
 ## Walkthrough
 
-A user picks 2 seats — both check Available and flip to Held atomically with a 10-minute TTL. Payment succeeds in 5 minutes — Held becomes Booked, tickets confirmed. Payment fails instead — seats release immediately. Timeout expires — an expiry job releases them.
+User picks 2 seats—both flip to Held atomically, 10-minute TTL starts. Payment succeeds at T+5 → Booked, tickets issued. Payment fails → immediate release. TTL expires → background job releases. Mention lock/CAS on seat row for concurrency story.
 
-**Mistake:** "Mark Booked on selection."
-**Correct:** "Available-Held-Booked states, atomic hold, TTL expiry, guaranteed release on failure."
+**Mistake:** "Mark Booked when user clicks a seat."
+**Correct:** "Available–Held–Booked; atomic hold; TTL; release on failure/timeout."
 
 ## Keep in mind
 
-- Seat states Available, Held, Booked with TTL on holds — the core.
-- Hold must be atomic per seat or double booking is certain.
-- Failed payments must always release held seats, no exceptions.
-- Cancellation returns seats to Available and triggers refunds.
-- Concurrency answer: lock or CAS on the seat state transition.`,
+- Held carries TTL—core of the design.
+- Hold must be atomic per transaction/cart.
+- Failed payments always release—no exceptions.
+- Cancellation restores inventory and triggers refund.
+- Concurrency: row lock, CAS, or serializable transaction on seat.`,
   },
   {
     slug: "cab-booking",
     title: "Design Cab Booking (Uber)",
     tag: "Interview Question",
-    body: `Cab Booking blends matching, location, and trip state. Requirements: riders requesting rides with pickup and drop, nearby driver search, fare estimate with surge, trip lifecycle (requested, matched, ongoing, completed, cancelled), and payments plus ratings at the end.
+    body: `Cab booking blends **spatial matching**, **pricing**, and **trip lifecycle**. **Requirements:** rider requests pickup/drop; find nearby available drivers; fare estimate with surge; trip states Requested → Matched → Ongoing → Completed (or Cancelled); payment and mutual ratings.
 
-Design Rider, Driver (location plus status), Trip (state machine across its lifecycle), and a MatchingService pairing requests with nearby available drivers. Nearby search uses geohash-indexed driver locations. Fare comes from a pricing Strategy (base plus distance plus surge multiplier). Trip states transition strictly — cancel rules and charges depend on the current state.
+**Entities:** \`Rider\`, \`Driver\` (location, status: Available/OnTrip/Offline), \`Trip\` (parties, route, fare, status). \`MatchingService\` queries drivers near pickup (geohash/H3 cell, not full table scan). \`PricingStrategy\` = base + distance/time + surge multiplier. **Assignment** must be atomic—one driver accepts one trip (CAS on driver status).
+
+**Trip state machine** gates cancel fees and location sharing—cancel rules depend on current state (e.g. fee after Matched).
+
+## Real-world example
+
+Uber, Ola, and Lyft production stacks separate **supply location indexes**, **dispatch**, **trip state**, and **fare engines** the same way.
+
+- **Driver** location streams update geospatial indexes (Redis GEO, S2/H3)—matching is cell-local.
+- **Trip** status drives rider/driver UI and billing (metered vs upfront estimate).
+- **PricingStrategy** encodes surge as dynamic multiplier on top of base fare tables.
+- **Atomic assignment** prevents double dispatch when two riders match one driver.
 
 ## Core classes
 
-Rider, Driver (location, status), Trip (rider, driver, route, status), MatchingService (nearby search plus assignment), PricingStrategy (fare math).
+\`Rider\`, \`Driver\`, \`Trip\`, \`MatchingService\`, \`PricingStrategy\`.
 
-\`\`\`js
-// Match nearest available driver, trip owns the lifecycle
+\`\`\`ts
+enum DriverStatus { Available, OnTrip, Offline }
+enum TripStatus { Requested, Matched, Ongoing, Completed, Cancelled }
+
+class Driver {
+  constructor(
+    readonly id: string,
+    public location: { lat: number; lng: number },
+    public status: DriverStatus = DriverStatus.Available,
+  ) {}
+}
+
+class Trip {
+  constructor(
+    readonly rider: Rider,
+    public driver: Driver | null,
+    readonly pickup: GeoPoint,
+    readonly drop: GeoPoint,
+    public status: TripStatus = TripStatus.Requested,
+    public estimatedFare?: number,
+  ) {}
+}
+
 class MatchingService {
-  requestTrip(rider, pickup, drop) {
-    const driver = this.nearestAvailable(pickup); // geohash lookup
-    if (!driver) throw new Error('No drivers nearby');
-    return new Trip(rider, driver, pickup, drop); // status: Requested
+  requestTrip(rider: Rider, pickup: GeoPoint, drop: GeoPoint): Trip {
+    const driver = this.nearestAvailable(pickup); // geohash bucket lookup
+    if (!driver) throw new Error("No drivers nearby");
+    driver.status = DriverStatus.OnTrip;
+    return new Trip(rider, driver, pickup, drop);
   }
+
+  private nearestAvailable(pickup: GeoPoint): Driver | null { return null; }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Nearby search:** geohash-indexed driver locations, not full scans.
-- **Trip state machine:** Requested, Matched, Ongoing, Completed, Cancelled — transitions guarded.
-- **Pricing Strategy:** base plus distance plus surge — swap rules without edits.
-- **Assignment atomicity:** one driver takes one trip — CAS on driver status.
+- **Nearby search:** geohash/H3 indexed locations—not O(n) over all drivers.
+- **Trip state machine:** strict transitions; cancel policy per state.
+- **Pricing Strategy:** base + distance + surge—swap rules without touching matching.
+- **Assignment atomicity:** compare-and-set driver Available → OnTrip.
 
 ## Walkthrough
 
-A rider requests airport pickup — geohash search finds the nearest available driver, the trip opens as Matched, fare estimated with 1.5x surge. Driver arrives, trip goes Ongoing; arrival completes it, payment charges, both rate each other. Cancel mid-way applies the state-dependent fee.
+Rider requests airport pickup—geohash finds nearest Available driver, trip Matched, fare shown with 1.5× surge. Driver arrives → Ongoing; drop-off → Completed, payment capture, ratings. Rider cancels after Matched → cancellation fee per policy.
 
-**Mistake:** "Scan all drivers for matching."
-**Correct:** "Geohash-indexed nearby search, atomic assignment, strict trip states."
+**Mistake:** "Loop all drivers to find closest."
+**Correct:** "Geospatial index, atomic driver claim, strict trip states, Strategy pricing."
 
 ## Keep in mind
 
-- Nearby search uses geohash indexes, never full scans.
-- Trip lifecycle is a strict state machine — cancel rules depend on state.
-- Pricing belongs in a Strategy: base, distance, surge.
-- Driver assignment must be atomic — one driver, one trip.
-- Payments and ratings close the lifecycle.`,
+- Geohash (or similar) for nearby supply.
+- Trip lifecycle is a guarded state machine.
+- Pricing in Strategy—base, distance, surge.
+- One driver, one active trip—atomic assignment.
+- Payment + ratings close the loop after Completed.`,
   },
   {
     slug: "food-delivery",
     title: "Design Food Delivery",
     tag: "Interview Question",
-    body: `Food Delivery chains three parties: customer, restaurant, and delivery partner. Requirements: restaurant listing with menus, cart plus order placement, restaurant accept and prepare flow, partner assignment and live tracking, and delivery confirmation with payments.
+    body: `Food delivery orchestrates **customer**, **restaurant**, and **delivery partner** with a shared **order state machine**. **Requirements:** browse restaurants/menus, cart, place order, restaurant accept/reject and prep, assign rider when food is ready, live tracking, deliver, pay, rate.
 
-Design Customer, Restaurant (menu plus prep states), Order (state machine: Placed, Accepted, Preparing, Ready, PickedUp, Delivered), and DeliveryPartner (location plus status). Assignment matches ready orders with nearby free partners. Each handoff — restaurant accept, partner pickup, customer delivery — advances the state machine and notifies the next party.
+**Entities:** \`Customer\`, \`Restaurant\` (menu, prep queue), \`OrderLine\`, \`Order\` (status, items, restaurant, optional \`DeliveryPartner\`). \`AssignmentService\` matches **Ready** orders to nearby free partners (same geospatial pattern as cabs). Each transition notifies the next actor (push/SMS/webhook).
+
+**Split ownership:** restaurant advances Placed→Accepted→Preparing→Ready; partner advances Ready→PickedUp→Delivered. Reject from restaurant → cancel + refund, no rider assigned.
+
+## Real-world example
+
+Swiggy, Zomato, and DoorDash use **order state buses**, **merchant tablets**, and **rider dispatch** with the same handoffs.
+
+- **Order** status is the cross-party contract—Kafka/event logs often mirror these enums.
+- **Restaurant** KDS marks Accepted/Preparing/Ready—dispatch triggers on Ready, not Placed.
+- **DeliveryPartner** app mirrors Trip/Ongoing tracking from cab systems.
+- **Reject path** auto-refunds payment intents—no partner allocation.
 
 ## Core classes
 
-Customer, Restaurant (menu, prep queue), Order (items, status), DeliveryPartner (location, status), AssignmentService (order to partner matching).
+\`Customer\`, \`Restaurant\`, \`Order\`, \`DeliveryPartner\`, \`AssignmentService\`, \`OrderService\`.
 
-\`\`\`js
-// Each handoff advances the order state machine
+\`\`\`ts
+enum OrderStatus {
+  Placed, Accepted, Preparing, Ready, PickedUp, Delivered, Cancelled,
+}
+
+class Order {
+  constructor(
+    readonly customer: Customer,
+    readonly restaurant: Restaurant,
+    readonly items: OrderLine[],
+    public status: OrderStatus = OrderStatus.Placed,
+    public partner: DeliveryPartner | null = null,
+  ) {}
+}
+
 class OrderService {
-  placeOrder(customer, items) { return new Order(customer, items); } // Placed
-  assignPartner(order) {
-    const partner = this.nearestFree(order.restaurant); // geohash lookup
-    order.assign(partner); // Ready -> PickedUp later
-    return partner;
+  placeOrder(customer: Customer, items: OrderLine[], restaurant: Restaurant): Order {
+    return new Order(customer, restaurant, items);
   }
+
+  markReady(order: Order): void {
+    order.status = OrderStatus.Ready;
+    this.assignPartner(order);
+  }
+
+  private assignPartner(order: Order): void {
+    const partner = this.assignment.nearestFree(order.restaurant.location);
+    order.partner = partner;
+    order.status = OrderStatus.PickedUp; // after pickup scan in full design
+  }
+
+  constructor(private assignment: AssignmentService) {}
 }
 \`\`\`
 
 ## Key decisions
 
-- **Order state machine:** Placed through Delivered — every handoff is a transition.
-- **Assignment:** ready orders meet nearby free partners — same matching shape as cabs.
-- **Notifications per transition:** each state change pings the next party.
-- **Prep vs delivery split:** restaurant owns food states, partner owns movement states.
+- **Order state machine:** every handoff is an explicit transition + notification.
+- **Assign on Ready:** partners not wasted on unaccepted or slow prep orders (variant: assign earlier with tradeoffs—state your choice).
+- **Geospatial assignment:** nearby free partners—same index pattern as ride-hail.
+- **Reject/refund:** immediate on restaurant decline.
 
 ## Walkthrough
 
-A customer orders biryani — order Placed, restaurant Accepts, food Prepares. Ready fires assignment: nearest free partner matched, PicksUp, live location streams, Delivers on arrival. Payment settles, ratings close the loop. Restaurant rejects — instant refund, no partner assigned.
+Customer orders biryani—Placed. Restaurant Accepts → Preparing → Ready. Ready triggers nearest free partner → PickedUp → live location → Delivered, payment settled, ratings. Restaurant rejects at Placed—Cancelled, instant refund, partner never assigned.
 
-**Mistake:** "One status field updated from everywhere."
-**Correct:** "Guarded state machine with per-transition notifications — each handoff explicit."
+**Mistake:** "Single status string updated from anywhere."
+**Correct:** "Guarded transitions, notify on each step, split restaurant vs rider ownership."
 
 ## Keep in mind
 
-- Order lifecycle: Placed, Accepted, Preparing, Ready, PickedUp, Delivered.
-- Assignment matches ready orders with nearby free partners.
-- Every transition notifies the next party.
-- Restaurant owns food states; partner owns movement states.
-- Rejections refund immediately without assignment.`,
+- Lifecycle: Placed through Delivered (plus Cancelled).
+- Match Ready orders to nearby free partners.
+- Notify customer/restaurant/rider per transition.
+- Restaurant owns kitchen states; partner owns last-mile states.
+- Rejection path refunds without assignment.`,
   },
   {
     slug: "splitwise",
     title: "LLD of Splitwise",
     tag: "Interview Question",
-    body: `Splitwise is a graph problem disguised as an app: track who paid what, compute who owes whom, and simplify debts. Requirements cover users, groups, expenses with equal or custom splits, payments recording, and balance sheets per user and group. The simplification algorithm separates good answers from great ones.
+    body: `Splitwise is **ledger design plus graph simplification**. **Requirements:** users, groups, expenses (who paid, how to split), payments/settlements, balances per user and per group. Users should settle with **few transactions**, not every pairwise micro-debt.
 
-Model User, Group, Expense with a list of splits, and Payment records. Balances derive from expenses minus payments — never stored as primary truth. Debt simplification uses the classic greedy: repeatedly match the biggest creditor with the biggest debtor until all settle, minimizing transaction count. Walk through one group dinner with unequal shares to prove splits work.
+**Entities:** \`User\`, \`Group\`, \`Expense\` (payer, total, list of \`Split\` shares), \`Payment\` (from → to, amount). **Balances are derived:** net(user) = sum owed to user − sum user owes, computed from expenses and payments—never authoritative duplicated balance fields without events.
+
+**Simplification algorithm (greedy):** while debts remain, match largest creditor with largest debtor, settle min of their magnitudes, repeat—reduces edge count (not always globally optimal for all constraints, but interview-standard).
+
+**Split types:** equal, exact amounts, percentages—encode in \`Split\` strategy or typed split records.
+
+## Real-world example
+
+Splitwise, Tricount, and Settle Up store **events** and run **debt simplification** on read or on settle—same mental model.
+
+- **Expense** rows are immutable event log entries—edits create adjusting entries in production.
+- **Group** scopes balances; **Payment** records Venmo/UPI settlements between users.
+- **Settlement.simplify** mirrors "Settle up" UX minimizing number of transfers.
+- **Derived balances** power "you owe / you are owed" without drift from double-written totals.
 
 ## Core classes
 
-User, Group, Expense (payer, amount, splits), Payment, Settlement (greedy simplifier). Balances derive — events are truth.
+\`User\`, \`Group\`, \`Expense\`, \`Split\`, \`Payment\`, \`BalanceSheet\`, \`Settlement\`.
 
-\`\`\`js
-// Balances derive from events; simplification is greedy max-match
-class Expense { /* payer, amount, list of splits */ }
+\`\`\`ts
+type Split =
+  | { kind: "equal"; memberIds: string[] }
+  | { kind: "exact"; amounts: Map<string, number> }
+  | { kind: "percent"; percents: Map<string, number> };
+
+class Expense {
+  constructor(
+    readonly groupId: string,
+    readonly payerId: string,
+    readonly amount: number,
+    readonly split: Split,
+    readonly createdAt: Date,
+  ) {}
+}
+
 class Settlement {
-  simplify(balances) {
+  simplify(balances: Map<string, number>): Array<{ from: string; to: string; amount: number }> {
+    const txs: Array<{ from: string; to: string; amount: number }> = [];
     // repeatedly match max creditor with max debtor
+    return txs;
+  }
+}
+
+class BalanceSheet {
+  static fromEvents(expenses: Expense[], payments: Payment[]): Map<string, number> {
+    return new Map();
   }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Events are truth, balances derive:** expenses plus payments stored, math derived.
-- **Three split types:** equal, exact, and percentage supported from day one.
-- **Greedy simplify:** max creditor to max debtor minimizes transactions.
-- **Scopes differ:** groups scope expenses; friendships scope direct payments.
+- **Events are truth; balances derive**—expenses + payments stored, nets computed.
+- **Three split types:** equal, exact, percentage—model from day one.
+- **Greedy simplify:** max creditor ↔ max debtor minimizes transaction count in practice.
+- **Scopes:** group expenses vs direct friend payments may differ.
 
 ## Walkthrough
 
-Four friends split a 4000 dinner unequally (2000/1000/500/500) — one Expense with three splits records it. Balances derive debtors. Greedy simplification compresses three payments into two — each recorded, balances re-derived to zero.
+Four friends, ₹4000 dinner, payer A, splits ₹2000/₹1000/₹500/₹500—one \`Expense\`, derived nets show B/C/D owe A. Greedy simplification may collapse to two transfers instead of three pairwise payments. Recording \`Payment\` zeros nets.
 
-**Mistake:** "Store balances directly."
-**Correct:** "Store events, derive balances; support three splits; simplify greedily — show one unequal dinner end to end."
+**Mistake:** "Update running balance column on each expense."
+**Correct:** "Append events, derive nets; support split types; greedy simplify—walk one unequal dinner."
 
 ## Keep in mind
 
-- Store expenses and payments as truth, derive balances — never the reverse.
-- Support equal, exact, and percentage splits from the start.
-- Greedy max-creditor to max-debtor minimizes settlement transactions.
-- Groups scope expenses; friendships scope direct payments.
-- Show one unequal dinner split end to end in the walkthrough.`,
+- Store expenses and payments; derive balances.
+- Equal, exact, and percent splits upfront.
+- Greedy max-creditor/debtor for "settle up."
+- Group vs direct scopes—mention both.
+- Walk unequal split numbers in the narrative.`,
   },
   {
     slug: "chess-game",
     title: "Design Chess Game",
     tag: "Interview Question",
-    body: `Chess is Tic-Tac-Toe's bigger sibling — same turn-based skeleton, but pieces move differently. Requirements: 8x8 board, two players, legal moves for all 6 piece types, turn alternation, check, checkmate and stalemate detection, move validation, and game history. Scope first: two humans play, no AI opponent.
+    body: `Chess extends the turn-based board pattern with **piece-specific movement** and **check rules**. **Requirements:** 8×8 board, two players, legal moves for all six piece types, turn alternation, check/checkmate/stalemate, move history. Scope: two humans locally—no AI unless asked.
 
-Design Board (8x8 cells), a Piece base with 6 subclasses (or move strategies), Player, Move records, and the Game loop. The key decision is check detection: after every move, verify your own king is safe by simulating. Special moves (castling, en passant, promotion) are edge cases — name them, build them with time.
+**Entities:** \`Board\` (8×8 \`Cell\` or nullable \`Piece\`), \`Piece\` hierarchy (Pawn…King), \`Player\` (color), \`Move\` (from, to, optional promotion/capture), \`Game\` (turn loop, status). Each piece implements \`getLegalMoves(board, from)\`. **Check detection:** simulate candidate move, ask if own king is attacked, reject illegal self-check moves.
+
+**Special moves** (castling, en passant, promotion)—name in design; implement if time permits via flags on \`Move\` or game state (\`enPassantTarget\` square).
+
+## Real-world example
+
+Chess.com and Lichess server models use **board + move list**, **piece generators**, and **legality** via attack maps—same responsibilities, optimized with bitboards in production.
+
+- **Piece polymorphism** keeps \`Game\` thin—engines generate pseudo-legal moves then filter checks.
+- **Move history** enables PGN export, undo, and threefold repetition draws.
+- **Game status** (active, checkmate, stalemate, draw) drives UI end screens.
+- **Simulate-for-check** matches naive interview approach; prod uses pin/skewer pruning.
 
 ## Core classes
 
-Board (cells), Piece base plus 6 faces (Pawn, Rook, Knight, Bishop, Queen, King), Player (color), Move (from, to, captured), Game (turn loop, status).
+\`Board\`, \`Piece\` (+ six types), \`Player\`, \`Move\`, \`Game\`.
 
-\`\`\`js
-// Each piece knows its moves — Game only runs turns
-class Piece {
-  constructor(color) { this.color = color; }
-  legalMoves(board, from) { throw new Error('piece defines this'); }
+\`\`\`ts
+enum Color { White, Black }
+
+abstract class Piece {
+  constructor(readonly color: Color) {}
+  abstract legalMoves(board: Board, from: Square): Square[];
 }
+
 class Knight extends Piece {
-  legalMoves(board, from) { /* 8 L-jumps, inside board, not own piece */ }
+  legalMoves(board: Board, from: Square): Square[] {
+    /* L-jumps, block own color */
+    return [];
+  }
 }
+
 class Game {
-  play() { /* take turn, validate move, check for check/checkmate */ }
+  private turn: Color = Color.White;
+  constructor(private board: Board) {}
+
+  playMove(m: Move): void {
+    if (!this.isLegal(m)) throw new Error("Illegal move");
+    this.board.apply(m);
+    if (this.isCheckmate(this.turn)) { /* end */ }
+    this.turn = this.turn === Color.White ? Color.Black : Color.White;
+  }
+
+  private isLegal(m: Move): boolean {
+    /* piece rules + does not leave own king in check */
+    return true;
+  }
+
+  private isCheckmate(color: Color): boolean { return false; }
 }
 \`\`\`
 
 ## Key decisions
 
-- **Moves live in pieces:** Game with a switch over six pieces becomes a jungle — polymorphism instead.
-- **Check by simulation:** move, test own king safety, keep or revert.
-- **Special moves scoped:** castling, en passant, promotion named upfront, built with time.
-- **History kept:** Move records enable undo and draw-by-repetition claims.
+- **Moves in pieces:** polymorphism beats six-way switches in \`Game\`.
+- **Check by simulation:** apply move, test king safety, revert if illegal.
+- **Special moves scoped:** list upfront; optional follow-up methods.
+- **History:** \`Move[]\` for undo and repetition rules.
 
 ## Walkthrough
 
-White plays e2-e4 — validated against Pawn moves, board updates, check tested (none), turn passes to Black. Black answers e7-e5. Play continues until a king is caught with no legal moves left — checkmate ends the Game with status set.
+White e2→e4—pawn rules validate, board updates, no check on white king, turn Black. Black e7→e5. Continue until king has no legal moves while in check—checkmate, \`Game\` status set. Mention stalemate as king not in check but no legal moves.
 
-**Mistake:** "All movement logic in Game with if-else."
-**Correct:** "Piece base plus 6 faces, simulate for check, scope special moves."
+**Mistake:** "All movement in Game with if-else on piece type."
+**Correct:** "Piece subclasses, simulate for check, history list, special moves named."
 
 ## Keep in mind
 
-- Each piece knows its legal moves — never a switch in Game.
-- Check detection simulates: move, then test own king safety.
-- Castling, en passant, promotion are edge cases — name them, build with time.
-- Keep move history — undo and draw claims come from it.
-- The Tic-Tac-Toe turn loop works here too — reuse the pattern.`,
+- Each piece computes its own legal moves.
+- Check = simulate move, verify own king not attacked.
+- Castling, en passant, promotion—edge cases to name.
+- Move history powers undo/draw claims.
+- Same turn loop pattern as Tic-Tac-Toe at the \`Game\` level.`,
   },
   {
     slug: "tic-tac-toe",
     title: "Design Tic Tac Toe game",
     tag: "Interview Question",
-    body: `Tic Tac Toe is the warm-up LLD problem: small enough to finish, rich enough to show method. Requirements are a 3x3 board, two players alternating X and O, win detection across rows, columns, and diagonals, plus draw detection when the board fills. Clarify board size upfront: interviewers often generalize to NxN afterward.
+    body: `Tic-Tac-Toe is the **warm-up LLD**: small surface area, clear OOP story. **Requirements:** 3×3 board (clarify generalization to N×N), two players (X/O), win on row/column/diagonal, draw when full. Invalid moves (occupied, out of bounds) rejected.
 
-The clean design centers on Board holding a grid of Piece objects, Player holding a symbol, and Game orchestrating turns with a queue. Win detection in O(1) per move uses counters per row, column, and diagonal instead of rescanning the board. Walk through one full game to prove turns, validation of occupied cells, and termination all work.
+**Entities:** \`Board\` (grid), \`Player\` (symbol), \`Game\` (turn order, status). **Win detection:** maintain row/column/diagonal **counters** per player; on place at (r,c), increment counters—O(1) win check vs scanning board each turn.
+
+**Turn loop:** queue or index swap between two players until win or draw.
+
+## Real-world example
+
+Chess.com mini-games, classroom demos, and mobile SDK samples use the same **Board + Game loop**—production adds networking (\`GameSession\`) on top.
+
+- **Board.place** validates occupancy—multiplayer servers reject stale moves the same way.
+- **Counter-based win** is how optimized engines avoid full-board scans each ply.
+- **Game status** enum drives rematch UX—identical to larger board games.
+- **N×N generalization** appears in interview follow-ups—design arrays sized by \`n\`.
 
 ## Core classes
 
-Board (cells plus counters), Player (symbol), Game (turn queue plus win checks). Design for N from the start.
+\`Board\`, \`Player\`, \`Game\`, optional \`GameStatus\`.
 
-\`\`\`js
-// Core entities: Board owns cells, Game owns turn order
+\`\`\`ts
+enum Symbol { X, O }
+enum GameStatus { InProgress, Win, Draw }
+
 class Board {
-  place(r, c, piece) { /* false if occupied */ }
-  hasWinner(r, c, piece) { /* O(1) via counters */ }
+  private grid: (Symbol | null)[][] = [];
+  private rowCount: number[];
+  private colCount: number[];
+
+  place(r: number, c: number, s: Symbol): boolean {
+    if (this.grid[r][c] !== null) return false;
+    this.grid[r][c] = s;
+    this.updateCounters(r, c, s);
+    return true;
+  }
+
+  hasWinner(r: number, c: number, s: Symbol): boolean {
+    return this.rowCount[r] === this.size /* etc */;
+  }
+
+  constructor(private size: number) {
+    this.rowCount = Array(size).fill(0);
+    this.colCount = Array(size).fill(0);
+  }
+
+  private updateCounters(r: number, c: number, s: Symbol): void {}
 }
+
 class Game {
-  play() { /* array as queue: shift a player, push back after */ }
+  private players: Player[];
+  private idx = 0;
+  constructor(private board: Board, p1: Player, p2: Player) {
+    this.players = [p1, p2];
+  }
+
+  play(r: number, c: number): GameStatus {
+    const p = this.players[this.idx];
+    if (!this.board.place(r, c, p.symbol)) throw new Error("Invalid move");
+    if (this.board.hasWinner(r, c, p.symbol)) return GameStatus.Win;
+    this.idx = 1 - this.idx;
+    return GameStatus.InProgress;
+  }
 }
 \`\`\`
 
 ## Key decisions
 
-- **NxN from the start:** generalization comes later as a trap — preempt it.
-- **O(1) win check:** row, column, diagonal counters beat rescans.
-- **Validate placement:** occupied and out-of-bounds checks explicit.
-- **Draw is terminal:** full board without a winner ends the game too.
+- **Design for N×N** early—interviewers often ask generalization.
+- **O(1) win check** via row/col/diag counters.
+- **Validate placement** explicitly—occupied and bounds.
+- **Draw detection:** move count == n² without win.
 
 ## Walkthrough
 
-First player marks (0,0) with X — placed, counters updated, no win. Second marks (1,1) with O — same flow. Play continues until some row counter hits 3 — hasWinner returns true, Game loop stops and declares the winner. A full board with no complete counter ends in a draw.
+X at (0,0)—placed, counters updated, no win. O at (1,1). Continue until a row counter hits 3—winner declared. Full board with no counter at n → draw. State invalid second mark on (0,0).
 
-**Mistake:** "Rescan the whole board every move."
-**Correct:** "NxN design, O(1) counter win checks, occupied validation, draw included in walkthrough."
+**Mistake:** "Scan all cells after every move."
+**Correct:** "NxN board, O(1) counters, validation, draw in walkthrough."
 
 ## Keep in mind
 
-- Clarify NxN generalization before coding; design for N from the start.
-- O(1) win check with row, column, and diagonal counters impresses immediately.
-- Validate occupied cells and out-of-bounds moves explicitly.
-- Turn order with a queue keeps the loop clean and extensible.
-- End the walkthrough naming draw detection, not just wins.`,
+- Clarify N×N before coding; size-parameterize board.
+- O(1) win via counters impresses quickly.
+- Reject occupied and OOB moves.
+- Turn alternation via index or queue.
+- Mention draw, not only win.`,
   },
   {
     slug: "snake-and-ladder",
     title: "LLD of Snake and Ladder game",
     tag: "Interview Question",
-    body: `Snake and Ladder tests clean turn-based modeling with a twist in movement rules. Requirements: a numbered board, two or more players, dice rolls, ladders that jump forward, snakes that slide back, exact-landing win rule, and extra turns on sixes per standard rules. Clarify the rules first because variants differ.
+    body: `Snake and Ladder tests **turn-based rules** and **rule variants**. **Requirements:** numbered board (usually 100), 2+ players, dice rolls, ladders (jump up), snakes (slide down), **exact landing** to win, often **extra turn on rolling 6**—confirm rules up front.
 
-The natural entities are Board holding cells plus maps of snake and ladder jumps, Dice as a separate rollable object, Player with position, and Game running the turn loop. Representing jumps as a single map from start to end square elegantly unifies snakes and ladders: landing on a key teleports to its value. The win check is exact position equals board size.
+**Entities:** \`Board\` (size, \`jumps: Map<from, to>\`), \`Dice\` (\`roll(): number\`), \`Player\` (id, position), \`Game\` (turn queue, winner). **Movement:** \`next = pos + roll\`; if \`next > boardSize\`, stay (exact landing rule); else if \`jumps.has(next)\`, teleport to \`jumps.get(next)\`—**one map** covers snakes (to < from) and ladders (to > from).
+
+**Turn loop:** dequeue player, roll, update position, check win, re-queue; if roll==6, same player again (standard rule).
+
+## Real-world example
+
+Digital board-game apps (Ludo King-style engines, Hasbro licensed games) encapsulate **rules engines** with pluggable **boards** and **dice**—same class boundaries.
+
+- **Jump map** is data-driven level design—designers edit JSON rather than code forks.
+- **Dice** interface allows \`FixedDice(4)\` in unit tests—production uses RNG.
+- **Exact win rule** matches official Snake & Ladder—products encode variants in config.
+- **Game loop** matches other turn-based titles—reuse queue pattern from Tic-Tac-Toe.
 
 ## Core classes
 
-Board (cells plus jump map), Dice (rollable, testable with loaded dice), Player (position), Game (turn loop). One map unifies both jump types.
+\`Board\`, \`Dice\`, \`Player\`, \`Game\`.
 
-\`\`\`js
-// One jump map unifies snakes and ladders
+\`\`\`ts
+class Dice {
+  roll(): number { return 1 + Math.floor(Math.random() * 6); }
+}
+
 class Board {
-  move(pos, roll) {
-    const next = pos + roll;
-    return this.jumps.get(next) ?? next;
+  constructor(
+    readonly size: number,
+    private jumps: Map<number, number>,
+  ) {}
+
+  move(pos: number, roll: number): number {
+    const raw = pos + roll;
+    if (raw > this.size) return pos; // exact landing: overshoot stays
+    return this.jumps.get(raw) ?? raw;
   }
 }
-class Game { play() { /* turns, dice, exact-win check */ } }
+
+class Player {
+  constructor(readonly id: string, public position = 0) {}
+}
+
+class Game {
+  private queue: Player[];
+  constructor(private board: Board, private dice: Dice, players: Player[]) {
+    this.queue = [...players];
+  }
+
+  playTurn(): Player | null {
+    const p = this.queue.shift()!;
+    const roll = this.dice.roll();
+    p.position = this.board.move(p.position, roll);
+    if (p.position === this.board.size) return p;
+    this.queue.push(p);
+    if (roll !== 6) { /* standard: only re-front on 6 — adjust per rules */ }
+    return null;
+  }
+}
 \`\`\`
 
 ## Key decisions
 
-- **Single jump map:** start-to-end covers snakes (down) and ladders (up) uniformly.
-- **Dice as its own class:** loaded dice make deterministic tests possible.
-- **Exact landing:** overshoots don't count — keep the rule explicit.
-- **Sixes grant turns:** encode the rule in turn logic, never hardcode.
+- **Single jump map** for snakes and ladders—uniform teleport after roll.
+- **Dice as class**—inject fixed sequences in tests.
+- **Exact landing** explicit—overshoot does not wrap or bounce unless variant says so.
+- **Sixes rule** in turn manager, not buried in board math.
 
 ## Walkthrough
 
-A player on 4 rolls 3 — lands 7 holding a ladder to 21, teleports up. Next turn rolls 5 — lands 26 holding a snake to 9, slides down. Only an exact landing on 100 wins; overshooting from 99 waits.
+Player on 4 rolls 3 → lands 7, ladder to 21. Later on 26, snake to 9. From 99, roll 1 wins exactly; roll 2 stays on 99. Show extra turn when rolling 6 if using standard rules.
 
-**Mistake:** "Separate logic for snakes and ladders."
-**Correct:** "One start-to-end map, separate Dice class, exact-landing rule — show both landings."
+**Mistake:** "Duplicate snake vs ladder methods."
+**Correct:** "One from→to map; Dice class; exact landing; walk ladder + snake hits."
 
 ## Keep in mind
 
-- Clarify rules first: board size, sixes grant extra turns, exact landing to win.
-- One jump map for both snakes and ladders keeps movement logic uniform.
-- Dice as its own class allows loaded dice in tests.
-- Turn loop with a queue extends cleanly to any player count.
-- Walk through a ladder landing and a snake landing explicitly.`,
+- Clarify rules: board size, sixes, exact win.
+- One jump map unifies movement modifiers.
+- Injectable \`Dice\` for deterministic tests.
+- Turn queue scales to N players.
+- Walkthrough includes both ladder and snake landing.`,
   },
 ];

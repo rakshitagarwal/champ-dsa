@@ -22,11 +22,11 @@ const INTRODUCTION: LldTopicWithNum = {
   short: "Introduction",
   group: "intro",
   num: 0,
-  body: `These notes cover Low Level Design in five groups: OOP fundamentals, design principles, design patterns, UML representation, and coding problems — all with JavaScript examples in plain English.
+  body: `These notes cover Low Level Design in five groups: OOP fundamentals, design principles, design patterns, UML representation, and coding problems — all with TypeScript examples in plain English.
 
 Start with group A to learn how objects relate, then group B for the principles behind good design. Group C teaches each pattern with a skeleton you can reuse. Group D shows how to draw designs so interviewers follow you. Finish with group E, which combines everything into complete interview builds.
 
-Every topic follows the same revision shape: short theory, how it works, a JavaScript skeleton, when to use it, common mistakes, and points to keep in mind.
+Every topic follows the same revision shape: short theory, how it works, a TypeScript skeleton, a real-world scenario, when to use it, common mistakes, and points to keep in mind.
 
 ## The interview loop
 

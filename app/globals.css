@@ -140,6 +140,34 @@ body {
   border-color: var(--border);
 }
 
+.note-prose .note-figure {
+  margin: 1.25rem 0 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--muted) 35%, transparent);
+  overflow: hidden;
+}
+
+.note-prose .note-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+}
+
+.note-prose .note-figure figcaption {
+  padding: 0.65rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+}
+
+/* Avoid wrapping a figure inside a <p> looking broken */
+.note-prose p:has(> .note-figure:only-child) {
+  margin: 0;
+  color: inherit;
+}
+
 .note-inline-code {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.875em;

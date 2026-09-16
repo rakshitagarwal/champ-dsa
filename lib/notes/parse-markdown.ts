@@ -23,6 +23,14 @@ function inlineFormat(text: string): string {
   s = s.replace(/`([^`]+)`/g, '<code class="note-inline-code">$1</code>');
   s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   s = s.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  // Images before links so ![alt](src) is not treated as a bare link.
+  s = s.replace(
+    /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g,
+    (_m, alt: string, src: string, title?: string) => {
+      const titleAttr = title ? ` title="${title}"` : "";
+      return `<figure class="note-figure"><img src="${src}" alt="${alt}"${titleAttr} loading="lazy" /><figcaption>${alt}</figcaption></figure>`;
+    },
+  );
   s = s.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
@@ -211,6 +219,20 @@ export function parseNoteSegments(
       continue;
     }
 
+    // Standalone markdown image on its own line → block figure (not wrapped in <p>).
+    const imageOnly = line.trim().match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/);
+    if (imageOnly) {
+      const alt = escapeHtml(imageOnly[1] ?? "");
+      const src = escapeHtml(imageOnly[2] ?? "");
+      const title = imageOnly[3] ? ` title="${escapeHtml(imageOnly[3])}"` : "";
+      segments.push({
+        type: "html",
+        html: `<figure class="note-figure"><img src="${src}" alt="${alt}"${title} loading="lazy" /><figcaption>${alt}</figcaption></figure>`,
+      });
+      i++;
+      continue;
+    }
+
     const para: string[] = [];
     while (
       i < lines.length &&
@@ -220,6 +242,7 @@ export function parseNoteSegments(
       !/^[-*] /.test(lines[i]) &&
       !/^\d+\. /.test(lines[i]) &&
       !lines[i].startsWith("> ") &&
+      !/^!\[[^\]]*\]\([^)\s]+(?:\s+"[^"]*")?\)$/.test(lines[i].trim()) &&
       !(
         lines[i].includes("|") &&
         i + 1 < lines.length &&
