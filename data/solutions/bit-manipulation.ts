@@ -7,7 +7,7 @@ export const BIT_MANIPULATION_SOLUTIONS: SolutionGroup = {
     {
       title: "Questions",
       topics: [
-    {
+{
       id: 0,
       lcSlug: "number-of-1-bits",
       title: "Number of 1 Bits",
@@ -36,7 +36,7 @@ var hammingWeight = function(n) {
 };
 \`\`\``,
     },
-    {
+{
       id: 1,
       lcSlug: "missing-number",
       title: "Missing Number",
@@ -62,7 +62,7 @@ var missingNumber = function(nums) {
 };
 \`\`\``,
     },
-    {
+{
       id: 2,
       lcSlug: "reverse-bits",
       title: "Reverse Bits",
@@ -96,7 +96,7 @@ var reverseBits = function(n) {
 };
 \`\`\``,
     },
-    {
+{
       id: 3,
       lcSlug: "sort-integers-by-the-number-of-1-bits",
       title: "Sort Integers By Number of 1 Bits",
@@ -137,8 +137,32 @@ function numberOfOnes(n){
 }
 \`\`\``,
     },
-    {
+{
       id: 4,
+      lcSlug: "power-of-two",
+      title: "Power of Two",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=Pd8tUeJw_TA&ab_channel=AlgoJS",
+      body: `Positive, and only one bit set: \`n > 0 && (n & (n - 1)) === 0\`.
+
+[Power of Two](https://leetcode.com/problems/power-of-two/)
+
+\`\`\`js
+/**
+ * @param {number} n
+ * @return {boolean}
+ */
+var isPowerOfTwo = function(n) {
+    
+    if(n <= 0) return false;
+    return (n & (n-1)) === 0;
+
+
+}
+\`\`\``,
+    },
+{
+      id: 5,
       lcSlug: "counting-bits",
       title: "Counting Bits",
       diff: "Medium",
@@ -176,8 +200,8 @@ function numberOfOnes(n){
 }
 \`\`\``
     },
-    {
-      id: 5,
+{
+      id: 6,
       lcSlug: "sum-of-two-integers",
       title: "Sum of Two Integers",
       diff: "Medium",
@@ -207,31 +231,7 @@ var getSum = function(a, b) {
 
 };
 \`\`\``,
-    },
-    {
-      id: 6,
-      lcSlug: "power-of-two",
-      title: "Power of Two",
-      diff: "Easy",
-    solutionUrl: "https://www.youtube.com/watch?v=Pd8tUeJw_TA&ab_channel=AlgoJS",
-      body: `Positive, and only one bit set: \`n > 0 && (n & (n - 1)) === 0\`.
-
-[Power of Two](https://leetcode.com/problems/power-of-two/)
-
-\`\`\`js
-/**
- * @param {number} n
- * @return {boolean}
- */
-var isPowerOfTwo = function(n) {
-    
-    if(n <= 0) return false;
-    return (n & (n-1)) === 0;
-
-
-}
-\`\`\``,
-    },
+    }
       ],
     },
   ],

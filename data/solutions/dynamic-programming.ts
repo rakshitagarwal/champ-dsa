@@ -141,7 +141,7 @@ var coinChange = function(coins, amount) {
 \`\`\``,
     },
     {
-      id: 5,
+      id: 4,
       lcSlug: "house-robber",
       title: "House Robber",
       diff: "Medium",
@@ -178,7 +178,7 @@ var rob = function(nums) {
 \`\`\``,
     },
     {
-      id: 6,
+      id: 5,
       lcSlug: "jump-game",
       title: "Jump Game",
       diff: "Medium",
@@ -204,7 +204,7 @@ var canJump = function(nums) {
 \`\`\``,
     },
     {
-      id: 7,
+      id: 6,
       lcSlug: "unique-paths",
       title: "Unique Paths",
       diff: "Medium",
@@ -236,7 +236,7 @@ var uniquePaths = function(m, n) {
 \`\`\``,
     },
     {
-      id: 8,
+      id: 7,
       lcSlug: "unique-paths-ii",
       title: "Unique Paths II",
       diff: "Medium",
@@ -290,7 +290,7 @@ var uniquePathsWithObstacles = function(obstacleGrid) {
 \`\`\``,
     },
     {
-      id: 9,
+      id: 8,
       lcSlug: "longest-common-subsequence",
       title: "Longest Common Subsequence",
       diff: "Medium",
@@ -327,7 +327,7 @@ var longestCommonSubsequence = function(text1, text2) {
 \`\`\``,
     },
     {
-      id: 10,
+      id: 9,
       lcSlug: "combination-sum",
       title: "Combination Sum (DP)",
       diff: "Medium",
@@ -370,7 +370,7 @@ var combinationSum = function(candidates, target) {
 \`\`\``,
     },
     {
-      id: 11,
+      id: 10,
       lcSlug: "longest-increasing-subsequence",
       title: "Longest Increasing Subsequence",
       diff: "Medium",
@@ -402,7 +402,7 @@ var lengthOfLIS = function(nums) {
 \`\`\``,
     },
     {
-      id: 12,
+      id: 11,
       lcSlug: "delete-operation-for-two-strings",
       title: "Delete Operations For Two Strings",
       diff: "Medium",
@@ -442,7 +442,7 @@ var minDistance = function(word1, word2) {
 \`\`\``,
     },
     {
-      id: 13,
+      id: 12,
       lcSlug: "maximum-product-subarray",
       title: "Maximum Product Subarray",
       diff: "Medium",
@@ -480,7 +480,7 @@ var maxProduct = function(nums) {
 \`\`\``,
     },
     {
-      id: 14,
+      id: 13,
       lcSlug: "decode-ways",
       title: "Decode Ways",
       diff: "Medium",
@@ -519,7 +519,7 @@ var numDecodings = function(s) {
 \`\`\``,
     },
     {
-      id: 15,
+      id: 14,
       lcSlug: "house-robber-ii",
       title: "House Robber II",
       diff: "Medium",

@@ -7,7 +7,7 @@ export const BACKTRACKING_SOLUTIONS: SolutionGroup = {
     {
       title: "Questions",
       topics: [
-    {
+{
       id: 0,
       lcSlug: "permutations",
       title: "Permutations",
@@ -39,7 +39,7 @@ var permute = function(nums, arr = [], res = []) {
 };
 \`\`\``,
     },
-    {
+{
       id: 1,
       lcSlug: "combinations",
       title: "Combinations",
@@ -79,7 +79,7 @@ var combine = function(n, k) {
 };
 \`\`\``,
     },
-    {
+{
       id: 2,
       lcSlug: "subsets",
       title: "Subsets",
@@ -108,7 +108,7 @@ function subsets(nums) {
 }
 \`\`\``,
     },
-    {
+{
       id: 3,
       lcSlug: "combination-sum-iii",
       title: "Combination Sum III",
@@ -152,7 +152,7 @@ var combinationSum3 = function(k, n) {
 };
 \`\`\``,
     },
-    {
+{
       id: 4,
       lcSlug: "subsets-ii",
       title: "Subsets II",
@@ -188,7 +188,7 @@ var subsetsWithDup = function(nums) {
 };
 \`\`\``,
     },
-    {
+{
       id: 5,
       lcSlug: "combination-sum",
       title: "Combination Sum",
@@ -227,8 +227,56 @@ var combinationSum = function(candidates, target) {
 };
 \`\`\``,
     },
-    {
+{
       id: 6,
+      lcSlug: "letter-combinations-of-a-phone-number",
+      title: "Letter Combinations of a Phone Number",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=40L6LFHeaIs&ab_channel=AlgoJS",
+      body: `Phone digits se saare letter combos. Har digit ke letters pe loop.
+
+[Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
+
+\`\`\`js
+/**
+ * @param {string} digits
+ * @return {string[]}
+ */
+var letterCombinations = function(digits, start = 0) {
+    
+    const map = {
+        '2': ['a','b','c'],
+        '3': ['d','e','f'],
+        '4': ['g','h','i'],
+        '5': ['j','k','l'],
+        '6': ['m','n','o'],
+        '7': ['p','q','r', 's'],
+        '8': ['t','u','v'],
+        '9': ['w','x','y','z'],
+    };
+    
+    if(digits === "") return [];
+    if(start >= digits.length) return [''];
+    
+    const digit = digits[start];
+    const letters = map[digit];
+    const combinations = [];
+    
+    const suffixCombinations = letterCombinations(digits, start + 1);
+    
+    for(const letter of letters){
+        for(const suffix of suffixCombinations){
+            combinations.push(letter + suffix);
+        }
+    }
+    
+    return combinations;
+    
+};
+\`\`\``,
+    },
+{
+      id: 7,
       lcSlug: "n-queens",
       title: "N-Queens",
       diff: "Hard",
@@ -293,8 +341,8 @@ var solveNQueens = function(n) {
 };
 \`\`\``,
     },
-    {
-      id: 7,
+{
+      id: 8,
       lcSlug: "n-queens-ii",
       title: "N-Queens II",
       diff: "Hard",
@@ -349,8 +397,8 @@ var totalNQueens = function(n) {
 };
 \`\`\``,
     },
-    {
-      id: 8,
+{
+      id: 9,
       lcSlug: "sudoku-solver",
       title: "Sudoku Solver",
       diff: "Hard",
@@ -426,55 +474,7 @@ function isValid(number, row, col, board){
     return true;
 }
 \`\`\``,
-    },
-    {
-      id: 9,
-      lcSlug: "letter-combinations-of-a-phone-number",
-      title: "Letter Combinations of a Phone Number",
-      diff: "Medium",
-    solutionUrl: "https://www.youtube.com/watch?v=40L6LFHeaIs&ab_channel=AlgoJS",
-      body: `Phone digits se saare letter combos. Har digit ke letters pe loop.
-
-[Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
-
-\`\`\`js
-/**
- * @param {string} digits
- * @return {string[]}
- */
-var letterCombinations = function(digits, start = 0) {
-    
-    const map = {
-        '2': ['a','b','c'],
-        '3': ['d','e','f'],
-        '4': ['g','h','i'],
-        '5': ['j','k','l'],
-        '6': ['m','n','o'],
-        '7': ['p','q','r', 's'],
-        '8': ['t','u','v'],
-        '9': ['w','x','y','z'],
-    };
-    
-    if(digits === "") return [];
-    if(start >= digits.length) return [''];
-    
-    const digit = digits[start];
-    const letters = map[digit];
-    const combinations = [];
-    
-    const suffixCombinations = letterCombinations(digits, start + 1);
-    
-    for(const letter of letters){
-        for(const suffix of suffixCombinations){
-            combinations.push(letter + suffix);
-        }
     }
-    
-    return combinations;
-    
-};
-\`\`\``,
-    },
       ],
     },
   ],
