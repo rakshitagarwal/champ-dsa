@@ -18,7 +18,7 @@ export const ARRAY_HASH_TABLES_SOLUTIONS: SolutionGroup = {
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+// Time: O(n) · Space: O(1)
 var maxProfit = function(prices) {
   let curMin = prices[0];
   let curMax = 0;
@@ -43,7 +43,7 @@ var maxProfit = function(prices) {
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/contains-duplicate/
+// Time: O(n) · Space: O(n)
 var containsDuplicate = function(nums) {
   let set = new Set(nums);
   return set.size !== nums.length;
@@ -61,7 +61,7 @@ var containsDuplicate = function(nums) {
 [Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/pascals-triangle/
+// Time: O(n²) · Space: O(n²)
 var generate = function(numRows) {
   let res = [];
 
@@ -110,7 +110,7 @@ var generate = function(numRows) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// LC: https://leetcode.com/problems/logger-rate-limiter/ (Premium)
+// Time: O(1) · Space: O(n)
 var Logger = function() {
   this.map = new Map();
 };
@@ -137,7 +137,7 @@ Logger.prototype.shouldPrintMessage = function(timestamp, message) {
 [Monotonic Array](https://leetcode.com/problems/monotonic-array/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/monotonic-array/
+// Time: O(n) · Space: O(1)
 var isMonotonic = function(nums) {
   let increasing = true;
   let decreasing = true;
@@ -166,7 +166,7 @@ var isMonotonic = function(nums) {
 [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/roman-to-integer/
+// Time: O(n) · Space: O(1)
 var romanToInt = function(s) {
   const symbols = {
     I: 1,
@@ -206,7 +206,7 @@ var romanToInt = function(s) {
 [Minimum Value to Get Positive Step by Step Sum](https://leetcode.com/problems/minimum-value-to-get-positive-step-by-step-sum/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/minimum-value-to-get-positive-step-by-step-sum/
+// Time: O(n) · Space: O(1)
 var minStartValue = function(nums) {
   let sumUp = 0;
   let minSum = 1;
@@ -236,7 +236,7 @@ var minStartValue = function(nums) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// LC: https://leetcode.com/problems/high-five/ (Premium)
+// Time: O(n log n) · Space: O(n)
 var highFive = function(items) {
   let scoresMap = {};
 
@@ -278,8 +278,8 @@ var highFive = function(items) {
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 // Hashing — complement
-// LC: https://leetcode.com/problems/two-sum/
 var twoSum = function(nums, target) {
   let map = new Map();
 
@@ -306,7 +306,7 @@ var twoSum = function(nums, target) {
 [Power of Three](https://leetcode.com/problems/power-of-three/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/power-of-three/
+// Time: O(log n) · Space: O(1)
 var isPowerOfThree = function(n) {
   return n > 0 && (3 ** 19) % n === 0;
 };
@@ -323,7 +323,7 @@ var isPowerOfThree = function(n) {
 [Power of Four](https://leetcode.com/problems/power-of-four/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/power-of-four/
+// Time: O(1) · Space: O(1)
 var isPowerOfFour = function(n) {
   // log 2 is even return true;
   return n > 0 && Math.log2(n) % 2 === 0;
@@ -341,8 +341,8 @@ var isPowerOfFour = function(n) {
 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Prefix / suffix products
-// LC: https://leetcode.com/problems/product-of-array-except-self/
 var productExceptSelf = function(nums) {
   let res = [];
   let start = 1;
@@ -374,7 +374,7 @@ var productExceptSelf = function(nums) {
 [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
+// Time: O(n) · Space: O(1)
 var maxProfit = function(prices) {
   let total = 0;
 
@@ -400,7 +400,7 @@ var maxProfit = function(prices) {
 [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/zigzag-conversion/
+// Time: O(n) · Space: O(n)
 var convert = function(s, numRows) {
   if (numRows === 1 || s.length < numRows) return s;
 
@@ -432,7 +432,7 @@ var convert = function(s, numRows) {
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/top-k-frequent-elements/
+// Time: O(n log k) · Space: O(n)
 var topKFrequent = function(nums, k) {
   let map = {};
   let bucket = [];
@@ -474,7 +474,7 @@ var topKFrequent = function(nums, k) {
 [Can Place Flowers](https://leetcode.com/problems/can-place-flowers/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/can-place-flowers/
+// Time: O(n) · Space: O(1)
 var canPlaceFlowers = function(flowerbed, n) {
   let i = 0;
   while (i < flowerbed.length && n !== 0) {
@@ -499,7 +499,7 @@ var canPlaceFlowers = function(flowerbed, n) {
 [Find the Winner of the Circular Game](https://leetcode.com/problems/find-the-winner-of-the-circular-game/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/find-the-winner-of-the-circular-game/
+// Time: O(n) · Space: O(n)
 var findTheWinner = function(n, k) {
   let queue = [];
 

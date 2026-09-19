@@ -18,6 +18,7 @@ export const DYNAMIC_PROGRAMMING_SOLUTIONS: SolutionGroup = {
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number} n
  * @return {number[]}
@@ -52,6 +53,7 @@ var countBits = function(n) {
 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number} n
  * @return {number}
@@ -85,6 +87,7 @@ var climbStairs = function(n) {
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -117,6 +120,7 @@ var maxSubArray = function(nums) {
 [Coin Change](https://leetcode.com/problems/coin-change/)
 
 \`\`\`js
+// Time: O(amount·coins) · Space: O(amount)
 /**
  * @param {number[]} coins
  * @param {number} amount
@@ -151,6 +155,7 @@ var coinChange = function(coins, amount) {
 [House Robber](https://leetcode.com/problems/house-robber/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -188,6 +193,7 @@ var rob = function(nums) {
 [Jump Game](https://leetcode.com/problems/jump-game/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 /**
  * @param {number[]} nums
  * @return {boolean}
@@ -214,6 +220,7 @@ var canJump = function(nums) {
 [Unique Paths](https://leetcode.com/problems/unique-paths/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 /**
  * @param {number} m
  * @param {number} n
@@ -246,6 +253,7 @@ var uniquePaths = function(m, n) {
 [Unique Paths II](https://leetcode.com/problems/unique-paths-ii/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 /**
  * @param {number[][]} obstacleGrid
  * @return {number}
@@ -300,6 +308,7 @@ var uniquePathsWithObstacles = function(obstacleGrid) {
 [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 /**
  * @param {string} text1
  * @param {string} text2
@@ -337,6 +346,7 @@ var longestCommonSubsequence = function(text1, text2) {
 [Combination Sum (DP)](https://leetcode.com/problems/combination-sum/)
 
 \`\`\`js
+// Time: O(n·2ⁿ) · Space: O(target)
 /**
  * @param {number[]} candidates
  * @param {number} target
@@ -380,6 +390,7 @@ var combinationSum = function(candidates, target) {
 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 \`\`\`js
+// Time: O(n²) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -412,6 +423,7 @@ var lengthOfLIS = function(nums) {
 [Delete Operations For Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 /**
  * @param {string} word1
  * @param {string} word2
@@ -452,6 +464,7 @@ var minDistance = function(word1, word2) {
 [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -490,6 +503,7 @@ var maxProduct = function(nums) {
 [Decode Ways](https://leetcode.com/problems/decode-ways/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {string} s
  * @return {number}
@@ -529,6 +543,7 @@ var numDecodings = function(s) {
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number}

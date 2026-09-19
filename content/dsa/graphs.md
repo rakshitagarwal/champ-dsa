@@ -1,30 +1,64 @@
 # Graphs
 
-**Definition:** Graph nodes (vertices) + edges (neighbors) ka jod hai. Representation adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Traversal DFS (stack/recursion — gehra jao, components paint karna) aur BFS (queue — sabse kam steps wala shortest path). `visited` mark karna zaroori warna loop.
+**Definition:** Graph **nodes (vertices) + edges (neighbors)** ka jod hai. Representation: adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Do core traversals: **DFS** (gehra jao — components, paths, cycles) aur **BFS** (level by level — unweighted shortest steps). `visited` bina loop.
 
-**When to use:** "Pahuch sakte hain kya?", "kitne islands/components?", "steps me shortest path" (BFS), ya multi-source spread (Rotting Oranges). Grid bhi graph hai — har cell 4 taraf connected.
+**When to use:** "Pahuch sakte hain?", "kitne islands/components?", "kitne steps shortest?" (BFS), multi-source spread (Rotting Oranges), course order (→ Topological Sort page). Grid bhi graph hai.
 
-**How it works:** `graph[node] = [neighbors]` banao. DFS unvisited neighbor par recurse; BFS `[start]` se level by level. Multi-source me saare sources ek saath queue me daalo. Time `O(V+E)`, space `O(V)`.
+**How it works:** `graph[node] = [neighbors]` banao. DFS unvisited pe recurse/stack; BFS queue se level-by-level. Multi-source: saare sources ek saath queue me. Time `O(V+E)`, space `O(V)`.
+
+## Study notes — BFS vs DFS (must know)
+
+| | **BFS** | **DFS** |
+| --- | --- | --- |
+| Structure | Queue | Recursion / explicit stack |
+| Order | Level by level | Go deep, backtrack |
+| Best for | Unweighted **shortest path** (steps), multi-source | Components, path exist, cycle detect, topo DFS, grid flood |
+| Space | Queue can be wide (`O(V)`) | Stack depth (`O(V)` worst) |
+| Grid tip | Same 4-dir neighbors | Same; mark visited/`0` |
+
+**BFS jab:** "minimum steps / distance" without weights.  
+**DFS jab:** "explore whole blob", "any path", "connected components", recursion natural.  
+**Weighted shortest:** BFS mat — Dijkstra (Shortest Path page).
+
+### Build adj list (undirected)
+```js
+const g = Array.from({ length: n }, () => []);
+for (const [u, v] of edges) {
+  g[u].push(v);
+  g[v].push(u);
+}
+```
+
+### Cycle detection (undirected): parent skip. Directed: 3-color / recursion stack.
+
+### Traps
+- Forget visited.
+- Directed vs undirected edges.
+- BFS me `steps++` level ke baahar vs andar confuse.
+- Grid bounds `r<0 || c<0 || r>=m || c>=n`.
 
 ```js
 // Graph skeleton — DFS (paint / components)
-// DFS: mark visited, recurse on neighbors
 const seen = new Set();
 function dfs(u) {
   if (seen.has(u)) return;
-  seen.add(u); // visit mark
+  seen.add(u);
   for (const v of graph[u]) dfs(v);
 }
 
 // Graph skeleton — BFS (shortest steps, unweighted)
-// BFS: process entire level before advancing
 const queue = [start], visited = new Set([start]);
 let steps = 0;
 while (queue.length) {
-  const n = queue.length; // ek level
+  const n = queue.length; // one level
   for (let i = 0; i < n; i++) {
     const node = queue.shift();
-    for (const nxt of graph[node]) if (!visited.has(nxt)) { visited.add(nxt); queue.push(nxt); }
+    for (const nxt of graph[node]) {
+      if (!visited.has(nxt)) {
+        visited.add(nxt);
+        queue.push(nxt);
+      }
+    }
   }
   steps++;
 }
@@ -36,9 +70,9 @@ Each unvisited `"1"` is a new island. DFS (or BFS) paints the whole blob to `"0"
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 ```js
+// Time: O(m·n) · Space: O(m·n)
 // flood-fill each unvisited land
 // Graph DFS — flood fill
-// LC: https://leetcode.com/problems/number-of-islands/
 var numIslands = function(grid) {
   let count = 0;
 
@@ -83,7 +117,7 @@ Map old node → new node. DFS: if I already cloned it, return that. Else create
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 ```js
-// LC: https://leetcode.com/problems/clone-graph/
+// Time: O(n+e) · Space: O(n)
 // BFS/DFS + map old node → clone
 /**
  * // Definition for a Node.
@@ -127,8 +161,8 @@ Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
 [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // O cells touching border cannot be captured; mark them safe first
-// LC: https://leetcode.com/problems/surrounded-regions/
 function solve(board) {
   const R=board.length, C=board[0].length;
   const dfs=(r,c)=>{
@@ -152,8 +186,8 @@ Water flows down or flat. I BFS/DFS uphill from the Pacific edge and from the At
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 ```js
+// Time: O(m·n) · Space: O(m·n)
 // Graph DFS — from oceans inland
-// LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
 var pacificAtlantic = function(heights) {
   let m = heights.length;
   let n = heights[0].length;
@@ -218,7 +252,7 @@ Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 ```js
-// LC: https://leetcode.com/problems/number-of-provinces/
+// Time: O(n²) · Space: O(n)
 /**
  * @param {number[][]} isConnected
  * @return {number}
@@ -276,8 +310,8 @@ All rotten oranges start in the queue together. Each level of BFS is one minute.
 [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Multi-source BFS: all rotten oranges spread one layer per minute
-// LC: https://leetcode.com/problems/rotting-oranges/
 function orangesRotting(grid) {
   const rows = grid.length, cols = grid[0].length;
   const q = [];
@@ -315,8 +349,8 @@ Each word is a node. Neighbors = same length, one letter off. BFS from beginWord
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 ```js
+// Time: O(n·L²) · Space: O(n·L)
 // Graph BFS — one letter at a time
-// LC: https://leetcode.com/problems/word-ladder/
 var ladderLength = function(beginWord, endWord, wordList) {
   let set = new Set(wordList);
   let queue = [[beginWord, 1]];

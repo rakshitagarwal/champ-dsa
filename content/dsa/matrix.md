@@ -43,8 +43,8 @@ Boundaries rakho (top/bottom/left/right), ek-ek layer nikalo, har side ke baad s
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 ```js
+// Time: O(m·n) · Space: O(1)
 // peel layers: right→down→left→up
-// LC: https://leetcode.com/problems/spiral-matrix/
 var spiralOrder = function(matrix) {
   let left = 0;
   let top = 0;
@@ -86,8 +86,8 @@ Transpose karo (r,c) ↔ (c,r), phir har row reverse. In-place, extra space nahi
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 ```js
+// Time: O(n²) · Space: O(1)
 // transpose then reverse each row
-// LC: https://leetcode.com/problems/rotate-image/
 var rotate = function(matrix) {
   // transpose
   for (let i = 0; i < matrix.length; i++) {
@@ -116,8 +116,8 @@ Jis cell me 0 ho, uski poori row+col zero karo. O(1) space ke liye pehli row/col
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 ```js
+// Time: O(m·n) · Space: O(1)
 // mark zeros; second pass write
-// LC: https://leetcode.com/problems/set-matrix-zeroes/
 var setZeroes = function(matrix) {
   let zeroPos = [];
 
@@ -150,8 +150,8 @@ Har row sorted, har row ka pehla pichhli row ke aakhri se bada — poori matrix 
 [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Treat matrix as one sorted array — binary search on flat index
-// LC: https://leetcode.com/problems/search-a-2d-matrix/
 function searchMatrix(matrix, target) {
   const rows = matrix.length, cols = matrix[0].length;
   let lo = 0, hi = rows * cols - 1;

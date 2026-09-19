@@ -6,6 +6,14 @@
 
 **How it works:** Decisive key par sort karo, fir ek scan me best state maintain karo (`reach`, `end`, `tank`, `last`). Time `O(n log n)` sort + `O(n)` scan; space `O(1)`.
 
+## Study notes
+
+- **Pehchan:** sort + one pass; local best is globally safe (or you can prove it).
+- **If unsure prove → try DP** (coin change min coins is DP, not greedy always).
+- **Classics:** jump game (farthest reach), gas station (tank reset), interval scheduling (earliest end), partition labels.
+- **Traps:** wrong sort key; greedy that fails on counterexample.
+- **Checklist:** what is the greedy choice? counterexample? still optimal?
+
 ```js
 // Greedy skeleton — sort by key, then one pass
 // sort once, then one greedy scan keeping the best
@@ -30,7 +38,7 @@ I track the farthest index I can still reach. If I walk past that, I am stuck.
 [Jump Game](https://leetcode.com/problems/jump-game/)
 
 ```js
-// LC: https://leetcode.com/problems/jump-game/
+// Time: O(n) · Space: O(1)
 // move target left when i can reach it
 /**
  * @param {number[]} nums
@@ -54,8 +62,8 @@ I jump in windows: current end of this jump, farthest I can see. When i hits the
 [Jump Game II](https://leetcode.com/problems/jump-game-ii/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // BFS-style layers: each jump expands the window [0..end]
-// LC: https://leetcode.com/problems/jump-game-ii/
 function jump(nums) {
   let jumps = 0, end = 0, far = 0; // end = last index of current jump layer
   for (let i = 0; i < nums.length - 1; i++) {
@@ -76,8 +84,8 @@ If total gas < total cost, impossible. Otherwise the unique start is the station
 [Gas Station](https://leetcode.com/problems/gas-station/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // If total surplus >= 0, exactly one valid start exists
-// LC: https://leetcode.com/problems/gas-station/
 function canCompleteCircuit(gas, cost) {
   let total = 0, tank = 0, start = 0; // tank = surplus on current candidate start
   for (let i = 0; i < gas.length; i++) {
@@ -100,8 +108,8 @@ Last index of each letter. Grow `end` to that last index while I scan. When i hi
 [Partition Labels](https://leetcode.com/problems/partition-labels/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // A partition must include every last occurrence of letters seen so far
-// LC: https://leetcode.com/problems/partition-labels/
 function partitionLabels(s) {
   const last = Array(26).fill(0);
   for (let i = 0; i < s.length; i++) last[s.charCodeAt(i) - 97] = i; // Rightmost index per letter
@@ -125,8 +133,8 @@ Count the most frequent task. I need `(maxFreq - 1) * (n + 1) + howManyHaveMaxFr
 [Task Scheduler](https://leetcode.com/problems/task-scheduler/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Frame idle slots around the most frequent task — or tasks fill naturally
-// LC: https://leetcode.com/problems/task-scheduler/
 function leastInterval(tasks, n) {
   const freq = Array(26).fill(0);
   for (const t of tasks) freq[t.charCodeAt(0) - 65]++; // Count each letter
@@ -145,8 +153,8 @@ Balloon = interval. End se sort karo, ek arrow jahan tak cover kare rakho.
 [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Same greedy as non-overlapping intervals — arrow position = last end in a cluster
-// LC: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/
 function findMinArrowShots(points) {
   points.sort((a,b)=>a[1]-b[1]); // Earliest finishing balloons first
   let arrows=0, last=-Infinity; // last = x-coordinate of last arrow placed
@@ -165,7 +173,7 @@ function findMinArrowShots(points) {
 [Lemonade Change](https://leetcode.com/problems/lemonade-change/)
 
 ```js
-// LC: https://leetcode.com/problems/lemonade-change/
+// Time: O(n) · Space: O(n)
 function lemonadeChange(bills) {
   let five=0, ten=0; // Count of $5 and $10 bills in drawer
   for(const b of bills){
@@ -188,7 +196,7 @@ function lemonadeChange(bills) {
 [Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/)
 
 ```js
-// LC: https://leetcode.com/problems/valid-parenthesis-string/
+// Time: O(n) · Space: O(n)
 function checkValidString(s) {
   // low = min open, high = max open
   let low=0, high=0;

@@ -28,8 +28,8 @@ Har pair ka Manhattan edge banao, sort karo, DSU se loop check karke jodo. `n-1`
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Kruskal MST on complete graph (Manhattan edges)
-// LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
   const n = points.length;
   const edges = [];

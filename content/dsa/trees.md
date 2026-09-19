@@ -6,6 +6,15 @@
 
 **How it works:** DFS `combine(node, dfs(left), dfs(right))` return karta hai `null → base`. BFS root push, fir jab tak queue hai `n = queue.length` nodes ek level ke. Time `O(n)`, space `O(h)` DFS / `O(w)` BFS.
 
+## Study notes
+
+- **DFS flavors:** pre (node first), in (left-node-right → BST sorted), post (kids then node).
+- **BFS:** level order — `const n = q.length` drain one level.
+- **Null base** always. Diameter/path-sum often return gain upward + track global max.
+- **BST rules** → BST page; here general binary trees.
+- **Traps:** forget null; mutate tree accidentally; BFS without level size.
+- **Checklist:** need depth combine or level view?
+
 ```js
 // Tree skeleton — DFS (post-order combine)
 // null base, fir left-right combine
@@ -37,7 +46,7 @@ Depth is 1 plus the deeper child. Empty tree is 0.
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/maximum-depth-of-binary-tree/
+// Time: O(n) · Space: O(h)
 // 1 + max(left, right)
 /**
  * Definition for a binary tree node.
@@ -82,7 +91,7 @@ Queue. Snapshot length. Those nodes are one level.
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 ```js
-// LC: https://leetcode.com/problems/binary-tree-level-order-traversal/
+// Time: O(n) · Space: O(w)
 // BFS queue by levels
 /**
  * Definition for a binary tree node.
@@ -128,7 +137,7 @@ Longest path (edges) between any two nodes. At each node I take left height + ri
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/diameter-of-binary-tree/
+// Time: O(n) · Space: O(h)
 // longest path through a node
 /**
  * Definition for a binary tree node.
@@ -172,7 +181,7 @@ If the node is p or q, return it. Recurse. If both sides return something, I am 
 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+// Time: O(n) · Space: O(h)
 // if split across sides → node is LCA
 /**
  * Definition for a binary tree node.
@@ -215,7 +224,7 @@ A path can bend at a node (left + node + right). I return to my parent only a on
 [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 ```js
-// LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
+// Time: O(n) · Space: O(h)
 // gain = val + max(0, child gain)
 /**
  * Definition for a binary tree node.
@@ -260,8 +269,8 @@ Preorder with `"#"` for null. Split on commas. Recurse with a queue of tokens �
 [Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Preorder with "#" null tokens — deserialize reads same token order
-// LC: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
 function serialize(root) {
   const out = [];
   const walk = (node) => {
@@ -297,7 +306,7 @@ Not “left < me < right” only on kids — the whole left subtree must stay in
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/validate-binary-search-tree/
+// Time: O(n) · Space: O(h)
 // keep valid (low, high) range
 /**
  * Definition for a binary tree node.
@@ -338,7 +347,7 @@ Inorder of a BST is sorted. Walk left, then me (count++), then right. Stop at k.
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+// Time: O(h+k) · Space: O(h)
 // inorder; count to k
 /**
  * Definition for a binary tree node.
@@ -382,7 +391,7 @@ Har node ke left/right swap karo. Recursion se dono subtree invert.
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/invert-binary-tree/
+// Time: O(n) · Space: O(h)
 // swap children; recurse
 /**
  * Definition for a binary tree node.
@@ -414,7 +423,7 @@ Dono trees ka structure aur value same hai kya? Dono null to true, ek null to fa
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/same-tree/
+// Time: O(n) · Space: O(h)
 // both null / values equal / recurse kids
 /**
  * Definition for a binary tree node.
@@ -453,7 +462,7 @@ var isSameTree = function(p, q) {
 [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/subtree-of-another-tree/
+// Time: O(n·m) · Space: O(h)
 // isSame at every node of root
 /**
  * Definition for a binary tree node.

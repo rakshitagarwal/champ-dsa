@@ -1,10 +1,58 @@
 # Hashing
 
-**Definition:** Hashing (hash map `Map` / hash set `Set`) average `O(1)` me lookup, insert, delete deta hai — keys ko hash karke buckets me daalta hai. Space deke time bachate hain, jo dekha use yaad rakho.
+**Definition:** Hashing (hash map `Map` / hash set `Set` / plain `Object`) average `O(1)` me lookup, insert, delete deta hai — keys ko hash karke buckets me daalta hai. Space deke time bachate hain: jo dekha use yaad rakho. **Arrays & Hashing** ka doosra hissa yahi hai.
 
 **When to use:** Jab lage "kaash jo pehle dekha wo yaad hota" — complement dhoondhna (Two Sum), signature se group (anagrams), frequency ginna, dedup, ya longest consecutive trick (streak ke left edge se hi start).
 
 **How it works:** Ek pass: pehle dekho saathi/group already hai kya, fir current element store karo. Grouping ke liye canonical key banao (sorted string). Time `O(n)` average, space `O(n)`.
+
+## Study notes
+
+- **Pehchan:** "already seen?", frequency, group-by-key, complement `target - x`.
+- **Map vs Object:** keys non-string / insertion order / `.size` chahiye → `Map`. Simple string keys → `{}` OK.
+- **Set vs Map:** sirf existence → `Set`; value store → `Map`.
+- **Traps:** `{}` pe `hasOwn` vs prototype; Map keys by reference for objects; forget to `set` after `get` freq bump.
+- **Checklist:** kya key hashable hai? collision/average vs worst (LC usually average OK)?
+
+## JS Object / Map / Set methods (interview cheatsheet)
+
+### Object (`{}`)
+
+| API | Notes |
+| --- | --- |
+| `obj[key] = v` / `obj.key` | set / get |
+| `key in obj` / `Object.hasOwn(obj, key)` | existence (`hasOwn` safer) |
+| `delete obj[key]` | remove |
+| `Object.keys` / `values` / `entries` | iterate |
+| `Object.assign` / `{...a, ...b}` | shallow merge |
+
+Keys always strings/symbols. Prefer `Map` for integer-looking keys if you care about type.
+
+### Map
+
+| API | Notes |
+| --- | --- |
+| `new Map()` / `new Map([[k,v]])` | create |
+| `set(k,v)` | chainable; upsert |
+| `get(k)` | missing → `undefined` |
+| `has(k)` | bool |
+| `delete(k)` / `clear()` | remove |
+| `size` | count |
+| `keys()` / `values()` / `entries()` / `for...of` | iterate insertion order |
+| `forEach((v,k) => ...)` | |
+
+Freq bump: `map.set(k, (map.get(k) || 0) + 1)`.
+
+### Set
+
+| API | Notes |
+| --- | --- |
+| `new Set()` / `new Set(arr)` | create / dedupe |
+| `add(x)` | chainable |
+| `has(x)` | bool — `O(1)` avg |
+| `delete(x)` / `clear()` | remove |
+| `size` | count |
+| `for...of` / `keys()` / `values()` | iterate |
 
 ```js
 // Hashing skeleton — lookup then store (Two Sum / pair)
@@ -36,9 +84,9 @@ I would remember each number’s index. When `target - nums[i]` is already in th
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // map value → index; look for complement
 // Hashing — complement
-// LC: https://leetcode.com/problems/two-sum/
 var twoSum = function(nums, target) {
   let map = new Map();
 
@@ -61,8 +109,8 @@ Same letters sorted become the same key. Bucket words by that key.
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
+// Time: O(n·k log k) · Space: O(n·k)
 // key = sorted letters
-// LC: https://leetcode.com/problems/group-anagrams/
 var groupAnagrams = function(strs) {
   let sorted = strs.map((str) => str.split("").sort().join(""));
 
@@ -87,8 +135,8 @@ Count letters of `s`, subtract letters of `t`. If anything is left, they are not
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // count chars; must match
-// LC: https://leetcode.com/problems/valid-anagram/
 var isAnagram = function(s, t) {
   if (s.length !== t.length) return false;
 
@@ -127,7 +175,7 @@ Put everything in a set. Only start counting at a number that has no `n - 1`. Th
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-consecutive-sequence/
+// Time: O(n) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -158,8 +206,8 @@ Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing 
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // set: if already seen → duplicate
-// LC: https://leetcode.com/problems/contains-duplicate/
 var containsDuplicate = function(nums) {
   let set = new Set(nums);
   return set.size !== nums.length;
@@ -173,8 +221,8 @@ Har row, column, aur 3x3 box me 1-9 ek baar hi aana chahiye. Hash set se check k
 [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Row / col / 3×3 box sets — each digit once per unit
-// LC: https://leetcode.com/problems/valid-sudoku/
 function isValidSudoku(board) {
   const rows = Array.from({length:9}, ()=> new Set());
   const cols = Array.from({length:9}, ()=> new Set());
@@ -199,8 +247,8 @@ Frequency gino, fir heap / bucket se top K nikalo. Hashing + heap combo ka class
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
+// Time: O(n log k) · Space: O(n)
 // count → heap/bucket of size k
-// LC: https://leetcode.com/problems/top-k-frequent-elements/
 var topKFrequent = function(nums, k) {
   let map = {};
   let bucket = [];

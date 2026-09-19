@@ -18,25 +18,25 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "arrays-strings",
     title: "Arrays",
-    description: "In-place scans, reverse, rotate, Kadane.",
+    description: "In-place scans + JS array methods. Pair with Hashing for Arrays & Hashing.",
     tier: "foundation",
   },
   {
     slug: "strings",
     title: "Strings",
-    description: "Scan, count, palindrome, anagram — string tricks.",
+    description: "Scan, count, palindrome — plus JS string methods cheatsheet.",
     tier: "foundation",
   },
   {
     slug: "sorting-techniques",
     title: "Sorting",
-    description: "Bubble, selection, insertion, merge, quick — templates with complexity.",
+    description: "Bubble → heap + complexity table, stability, when to pick which.",
     tier: "foundation",
   },
   {
     slug: "hashing",
     title: "Hashing",
-    description: "Remember what you already walked past.",
+    description: "Map / Set / Object methods + seen / frequency / group-by-key.",
     tier: "core",
   },
   {
@@ -66,13 +66,13 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "stack",
     title: "Stack",
-    description: "Last-in first-out. Nest, undo, match.",
+    description: "LIFO — brackets, nesting, undo. See Monotonic Stack for next-greater.",
     tier: "optional",
   },
   {
     slug: "queue",
-    title: "Queue",
-    description: "First-in first-out. Levels, windows, order.",
+    title: "Queue / Deque",
+    description: "FIFO for BFS; deque for sliding-window max.",
     tier: "optional",
   },
   {
@@ -96,7 +96,7 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "recursion",
     title: "Recursion",
-    description: "Base case first, trust the recursion.",
+    description: "Base case first, trust the recursion — foundation for BT/trees.",
     tier: "core",
   },
   {
@@ -107,8 +107,8 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   },
   {
     slug: "trees",
-    title: "Trees (DFS/BFS)",
-    description: "Recurse on kids, or queue one level at a time.",
+    title: "Trees",
+    description: "DFS/BFS on binary trees — depth, path, levels.",
     tier: "core",
   },
   {
@@ -119,13 +119,13 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   },
   {
     slug: "heap",
-    title: "Heap",
-    description: "Always grab the current smallest or largest.",
+    title: "Heap / Priority Queue",
+    description: "Always grab the current smallest or largest. Top K.",
     tier: "optional",
   },
   {
     slug: "graphs",
-    title: "Graphs",
+    title: "Graphs (BFS / DFS)",
     description: "BFS for steps, DFS for components. Grid as graph.",
     tier: "core",
   },
@@ -167,7 +167,7 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   },
   {
     slug: "trie",
-    title: "Trie",
+    title: "Tries",
     description: "A tree of prefixes. Share the start of words.",
     tier: "optional",
   },

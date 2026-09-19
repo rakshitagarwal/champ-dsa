@@ -1,10 +1,52 @@
 # Arrays
 
-**Definition:** Array ek contiguous memory structure hai — saare elements ek line me store hote hain aur index se `O(1)` me access milta hai. String bhi bas characters ka array hai.
+**Definition:** Array ek contiguous memory structure hai — saare elements ek line me store hote hain aur index se `O(1)` me access milta hai. String bhi bas characters ka array hai. **Arrays & Hashing** me pehle ye page (in-place / scan), phir Hashing page (Map/Set) padho.
 
-**When to use:** Jab array ko in-place badalna ho — reverse karna, rotate karna, zeroes/duplicate hatana, ya running sum / Kadane se best subarray nikalna ho. Agar key se yaad rakhna hai to ye page nahi, Hashing wala page dekho.
+**When to use:** Jab array ko in-place badalna ho — reverse karna, rotate karna, zeroes/duplicate hatana, ya running sum / Kadane se best subarray nikalna ho. Agar key se yaad rakhna hai to Hashing wala page dekho.
 
-**How it works:** Read/write pointer ya do-pointer (left-right) se ek hi scan me kaam ho jata hai, har element 1-2 baar visit hota hai. Time `O(n)`, extra space `O(1)`.
+**How it works:** Read/write pointer ya do-pointer (left-right) se ek hi scan me kaam ho jata hai, har element 1–2 baar visit hota hai. Time `O(n)`, extra space `O(1)`.
+
+## Study notes
+
+- **Pehchan:** in-place rewrite, contiguous best sum, swap/reverse/rotate, majority — bina Map ke.
+- **Complexity:** almost always `O(n)` time, `O(1)` extra space (sort alag).
+- **Traps:** off-by-one on `write` pointer; Kadane me all-negative — `best` ko `-Infinity` ya `nums[0]` se start; mutate vs copy.
+- **Checklist:** kya in-place chahiye? kya order matter karta hai? hashing better to nahi?
+
+## JS Array methods (interview cheatsheet)
+
+Mutating (array badalte hain):
+
+| Method | Kya karta hai | Notes |
+| --- | --- | --- |
+| `push(...x)` | end pe add | `O(1)` amortized |
+| `pop()` | end se hatao | stack top |
+| `unshift(...x)` | start pe add | `O(n)` — avoid in hot loops |
+| `shift()` | start se hatao | queue front, `O(n)` |
+| `splice(i, del, ...add)` | beech me cut/insert | `O(n)` |
+| `sort(cmp)` | in-place sort | default = string sort! use `(a,b)=>a-b` |
+| `reverse()` | ulta | in-place |
+| `fill(v, s?, e?)` | range fill | DP init |
+| `copyWithin(t, s, e?)` | copy inside self | rare |
+
+Non-mutating / read:
+
+| Method | Kya karta hai | Notes |
+| --- | --- | --- |
+| `slice(s?, e?)` | copy range | end exclusive; shallow copy |
+| `concat(a)` / `[...a, ...b]` | jodna | new array |
+| `includes(x)` | hai kya | `O(n)` |
+| `indexOf` / `lastIndexOf` | pehli/aakhri index | `-1` if missing |
+| `find` / `findIndex` | pehla match | callback |
+| `filter` / `map` / `reduce` | transform / fold | new array (filter/map) |
+| `every` / `some` | all / any | short-circuit |
+| `flat(depth)` / `flatMap` | nest kholna | |
+| `join(sep)` | string banao | |
+| `at(i)` | negative index OK | `at(-1)` = last |
+| `Array.from(x)` / `Array(n).fill(0)` | banao | `Array(n)` holes — prefer `fill` |
+| `Array.isArray(x)` | type check | |
+
+Handy patterns: `[...arr]`, `arr.toSorted?.(cmp)` (immutable sort), destructure `[a,b]=arr`, swap `[a[i],a[j]]=[a[j],a[i]]`.
 
 ```js
 // Array skeleton — read / write pointer (in-place filter)
@@ -38,7 +80,7 @@ Two ends, swap, walk in. Same as swapping two cups until they meet.
 [Reverse String](https://leetcode.com/problems/reverse-string/)
 
 ```js
-// LC: https://leetcode.com/problems/reverse-string/
+// Time: O(n) · Space: O(n)
 function reverseString(s) {
   let left = 0, right = s.length - 1;
   while (left < right) { // invariant: answer lies in [left, right]
@@ -58,9 +100,9 @@ Copy every non-zero forward. Then fill the tail with zeroes. Order of the real n
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // write non-zeros forward; fill zeros
 // Arrays — compact then fill
-// LC: https://leetcode.com/problems/move-zeroes/
 var moveZeroes = function(nums) {
   let left = 0;
   let right = 0;
@@ -82,7 +124,7 @@ var moveZeroes = function(nums) {
 [Rotate Array](https://leetcode.com/problems/rotate-array/)
 
 ```js
-// LC: https://leetcode.com/problems/rotate-array/
+// Time: O(n) · Space: O(n)
 function rotate(nums, k) {
   k %= nums.length;
   const rev = (l, r) => {
@@ -105,7 +147,7 @@ Kadane: keep a running sum. If it goes negative, drop it and start at the next n
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 ```js
-// LC: https://leetcode.com/problems/maximum-subarray/
+// Time: O(n) · Space: O(1)
 // Kadane: extend or restart at nums[i]
 /**
  * @param {number[]} nums
@@ -135,8 +177,8 @@ Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek 
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // track min buy; max profit
-// LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
 var maxProfit = function(prices) {
   let curMin = prices[0];
   let curMax = 0;
@@ -157,7 +199,7 @@ Sorted hai to duplicates bagal me honge. Write pointer se unique hi rakho, lengt
 [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
 
 ```js
-// LC: https://leetcode.com/problems/remove-duplicates-from-sorted-array/
+// Time: O(n) · Space: O(n)
 function removeDuplicates(nums) {
   // write marks end of unique prefix
   if (!nums.length) return 0;
@@ -176,7 +218,7 @@ Boyer-Moore voting — candidate rakho, count badhao/ghatao. End me candidate hi
 [Majority Element](https://leetcode.com/problems/majority-element/)
 
 ```js
-// LC: https://leetcode.com/problems/majority-element/
+// Time: O(n) · Space: O(n)
 function majorityElement(nums) {
   // Boyer–Moore majority voting
   let cand = 0, count = 0;
@@ -195,7 +237,7 @@ Do sorted arrays, piche se bharo taaki overwrite na ho. `m+n` jagah pehle se hai
 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
 
 ```js
-// LC: https://leetcode.com/problems/merge-sorted-array/
+// Time: O(n) · Space: O(n)
 function merge(nums1, m, nums2, n) {
   // merge from the back to avoid overwriting nums1
   let i=m-1, j=n-1, k=m+n-1;

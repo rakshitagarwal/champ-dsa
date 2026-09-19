@@ -1,10 +1,41 @@
 # Strings
 
-**Definition:** String questions me text ko scan, compare, count ya transform karna hota hai. Asli trick ye hai ki string ko array jaisa treat karo — two pointers, frequency counting aur sliding window yahi sabse zyada lagte hain. JS me strings immutable hain, isliye baar-baar `+=` mat karo, array me jodke `join` karo.
+**Definition:** String questions me text ko scan, compare, count ya transform karna hota hai. Asli trick ye hai ki string ko array jaisa treat karo — two pointers, frequency counting aur sliding window yahi sabse zyada lagte hain. JS me strings **immutable** hain, isliye baar-baar `+=` mat karo, array me jodke `join` karo.
 
 **When to use:** Palindrome check, anagram compare, substring search, grouping, ya string transform dikhe. "Sorted order me compare" (anagram) aur "bina repeat sabse lamba" (sliding window) pehchano.
 
 **How it works:** Pehle decide karo — order matter karta hai (two pointers/expand) ya count matter karta hai (frequency map). Case aur non-alphanumeric saaf karo (`toLowerCase`, regex), fir pattern chalao. Time aksar `O(n)`, space `O(1)` ya `O(k)`.
+
+## Study notes
+
+- **Pehchan:** palindrome, anagram, substring constraint, parse/build string.
+- **Build tip:** `const out = []; out.push(ch); return out.join("")` — kabhi loop me `s += ch` nahi.
+- **Traps:** Unicode/surrogate pairs rare in LC; empty string edge; off-by-one on `slice`.
+- **Checklist:** case? only alnum? need indices or just bool?
+
+## JS String methods (interview cheatsheet)
+
+| Method | Kya karta hai | Notes |
+| --- | --- | --- |
+| `length` | length | read-only |
+| `charAt(i)` / `s[i]` | char at i | out of range → `""` / `undefined` |
+| `charCodeAt(i)` | UTF-16 code unit | `'a'.charCodeAt(0) === 97` |
+| `at(i)` | index (negative OK) | `at(-1)` last char |
+| `slice(s, e?)` | substring copy | end exclusive; negatives OK |
+| `substring(s, e?)` | similar slice | negatives → 0; prefer `slice` |
+| `indexOf` / `lastIndexOf` | find substring | `-1` if missing |
+| `includes` / `startsWith` / `endsWith` | bool checks | |
+| `split(sep)` | → array | `""` sep = chars; watch empty parts |
+| `replace` / `replaceAll` | substitute | `replace` only first unless `/g` |
+| `toLowerCase` / `toUpperCase` | case | |
+| `trim` / `trimStart` / `trimEnd` | whitespace | |
+| `padStart` / `padEnd` | pad | |
+| `repeat(n)` | repeat | |
+| `match(re)` | regex match | |
+| `localeCompare(other)` | sort compare | string sort |
+| `[...s]` / `Array.from(s)` | char array | |
+
+Static: `String.fromCharCode(97)` → `"a"`. Template: `` `${a}${b}` ``.
 
 ```js
 // String skeleton — two pointers (palindrome / reverse)
@@ -56,8 +87,8 @@ Dono siron se aao, alphanumeric nahi to skip, case ignore karke compare.
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // two pointers; skip non-alnum
-// LC: https://leetcode.com/problems/valid-palindrome/
 var isPalindrome = function(s) {
   let cleanStr = cleanUp(s);
   return isPal(cleanStr);
@@ -101,8 +132,8 @@ Dono ke letter counts barabar hon to anagram. Ek ka +1, doosre ka -1 — sab zer
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // count chars; must match
-// LC: https://leetcode.com/problems/valid-anagram/
 var isAnagram = function(s, t) {
   if (s.length !== t.length) return false;
 
@@ -141,8 +172,8 @@ Sorted word hi group ki key hai — anagram sort karke same bante hain. Map me k
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
+// Time: O(n·k log k) · Space: O(n·k)
 // key = sorted letters
-// LC: https://leetcode.com/problems/group-anagrams/
 var groupAnagrams = function(strs) {
   let sorted = strs.map((str) => str.split("").sort().join(""));
 
@@ -167,8 +198,8 @@ Window badhao, repeat aaye to left se hatao. Map me last index rakho taaki left 
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
+// Time: O(n) · Space: O(min(n,Σ))
 // window: shrink when char repeats
-// LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
 var lengthOfLongestSubstring = function(s) {
   let longestStr = 0;
   let set = new Set();
@@ -200,7 +231,7 @@ Har center (odd + even) se expand karo, sabse lamba rakho. `O(n²)` time, `O(1)`
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-palindromic-substring/
+// Time: O(n²) · Space: O(1)
 var longestPalindrome = function(s) {
   let longest = "";
 

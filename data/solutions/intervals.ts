@@ -21,6 +21,7 @@ export const INTERVALS_SOLUTIONS: SolutionGroup = {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(n log n) · Space: O(1)
 /**
  * @param {number[][]} intervals
  * @return {boolean}
@@ -53,6 +54,7 @@ var canAttendMeetings = function(intervals) {
 [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 /**
  * @param {number[][]} intervals
  * @return {number[][]}
@@ -90,6 +92,7 @@ var merge = function(intervals) {
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number[][]} intervals
  * @param {number[]} newInterval
@@ -135,6 +138,7 @@ var insert = function(intervals, newInterval) {
 [Non-Overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 \`\`\`js
+// Time: O(n log n) · Space: O(1)
 /**
  * @param {number[][]} intervals
  * @return {number}
@@ -172,6 +176,7 @@ var eraseOverlapIntervals = function(intervals) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 /**
  * @param {number[][]} intervals
  * @return {number}

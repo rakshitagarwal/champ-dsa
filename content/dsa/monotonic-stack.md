@@ -6,6 +6,15 @@
 
 **How it works:** Ek scan. Jab `stack not empty && nums[i] > nums[stack.top]` (next greater ke liye) to pop karke `ans[popped] = nums[i]` record karo. Push `i`. Next smaller ke liye `>` ko `<` karo. Time `O(n)`, space `O(n)`.
 
+## Study notes
+
+- **Pehchan:** "next greater/smaller to the left/right", temperatures, histogram, stock span.
+- **Store indices** (not values) — distance `i - j` easy.
+- **Mono decreasing stack** (top = smallest among stack): next greater.
+- **Mono increasing stack:** next smaller.
+- **Traps:** wrong comparison `>` vs `>=` (duplicates); forget remaining stack defaults (`-1` or `0`).
+- **Related:** trapping rain / histogram often mono stack; plain brackets → Stack page.
+
 ```js
 // Monotonic stack skeleton — next greater to the right
 // when a larger value arrives, popped indices get their answer
@@ -27,8 +36,8 @@ When today is warmer than the day on the stack, that old day waited `i - j` days
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Monotonic stack — next warmer day to the right
-// LC: https://leetcode.com/problems/daily-temperatures/
 function dailyTemperatures(temps) {
   const n = temps.length, ans = Array(n).fill(0), stack = []; // stack holds indices waiting for warmer day
   for (let i = 0; i < n; i++) {
@@ -49,8 +58,8 @@ For each bar, I need the first shorter bar on the left and on the right — that
 [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Increasing stack — width between previous smaller bars
-// LC: https://leetcode.com/problems/largest-rectangle-in-histogram/
 function largestRectangleArea(heights) {
   const stack = [-1]; // sentinel — width extends to left edge
   let best = 0;
@@ -74,7 +83,7 @@ Map se next greater nikalo. Stack decreasing rakho, pop hote hi answer pata chal
 [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
 
 ```js
-// LC: https://leetcode.com/problems/next-greater-element-i/
+// Time: O(n) · Space: O(n)
 function nextGreaterElement(nums1, nums2) {
   // build next-greater map for every value in nums2
   const mp=new Map(), st=[];
@@ -94,7 +103,7 @@ Har din ka span = kitne consecutive peeche wale days price <= aaj. Stack me [pri
 [Online Stock Span](https://leetcode.com/problems/online-stock-span/)
 
 ```js
-// LC: https://leetcode.com/problems/online-stock-span/
+// Time: O(n) · Space: O(n)
 function StockSpanner() { this.st=[]; } // [price, span]
 StockSpanner.prototype.next = function(price) {
   // pop stack while current price is lower — discount days
@@ -112,9 +121,9 @@ Stack se pits dhoondo. Har pop ke baad bounded height nikal ke water jodo.
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // water = min(leftMax,rightMax) - height
 // Two pointers — water limited by the shorter wall
-// LC: https://leetcode.com/problems/trapping-rain-water/
 var trap = function(height) {
   let left = 0;
   let right = height.length - 1;

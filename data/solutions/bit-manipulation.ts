@@ -18,6 +18,7 @@ export const BIT_MANIPULATION_SOLUTIONS: SolutionGroup = {
 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 \`\`\`js
+// Time: O(1) · Space: O(1)
 /**
  * @param {number} n - a positive integer
  * @return {number}
@@ -47,6 +48,7 @@ var hammingWeight = function(n) {
 [Missing Number](https://leetcode.com/problems/missing-number/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -73,6 +75,7 @@ var missingNumber = function(nums) {
 [Reverse Bits](https://leetcode.com/problems/reverse-bits/)
 
 \`\`\`js
+// Time: O(1) · Space: O(1)
 /**
  * @param {number} n - a positive integer
  * @return {number} - a positive integer
@@ -107,6 +110,7 @@ var reverseBits = function(n) {
 [Sort Integers By Number of 1 Bits](https://leetcode.com/problems/sort-integers-by-the-number-of-1-bits/)
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 /**
  * @param {number[]} arr
  * @return {number[]}
@@ -148,6 +152,7 @@ function numberOfOnes(n){
 [Power of Two](https://leetcode.com/problems/power-of-two/)
 
 \`\`\`js
+// Time: O(1) · Space: O(1)
 /**
  * @param {number} n
  * @return {boolean}
@@ -172,6 +177,7 @@ var isPowerOfTwo = function(n) {
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number} n
  * @return {number[]}
@@ -211,6 +217,7 @@ function numberOfOnes(n){
 [Sum of Two Integers](https://leetcode.com/problems/sum-of-two-integers/)
 
 \`\`\`js
+// Time: O(1) · Space: O(1)
 /**
  * @param {number} a
  * @param {number} b

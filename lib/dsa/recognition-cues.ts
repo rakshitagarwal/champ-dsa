@@ -36,6 +36,16 @@ export const DSA_RECOGNITION_CUES: Record<string, string[]> = {
     "Last in first out feels like the call stack",
     "Not next-greater (that is monotonic stack)",
   ],
+  queue: [
+    "BFS levels, time window of recent events, FIFO order",
+    "Deque: sliding window maximum / monotonic queue of indices",
+    "Circular buffer with head + count + modulo",
+  ],
+  stack: [
+    "Brackets, nesting, undo, evaluate RPN",
+    "push / pop / peek — LIFO",
+    "Next greater → Monotonic Stack page instead",
+  ],
   "monotonic-stack": [
     "For each day/bar, when is the next bigger or next smaller?",
     "Histogram area, daily temperatures, next greater element",

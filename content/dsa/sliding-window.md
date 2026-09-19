@@ -6,6 +6,16 @@
 
 **How it works:** Variable-size: `right` badhao, `while(invalid) left shrink`, best record. Fixed k: `right` add, `i ≥ k` par `left-k` hatao, monotonic deque ka front = max. Time `O(n)`, space `O(1)` + freq map/deque.
 
+## Study notes
+
+- **Pehchan:** *contiguous* substring/subarray + constraint (unique chars, ≤k distinct, cover `t`, sum/window size).
+- **Template:** expand `right` → update state → shrink `left` while invalid → update answer.
+- **Fixed vs variable:** fixed k → add/remove one each step; variable → while-loop shrink.
+- **State:** Set/Map/counter — jab `map.get(c)===0` delete key (distinct count).
+- **Deque variant:** sliding window maximum — see Queue page.
+- **Traps:** forget shrink; answer update inside vs outside while; off-by-one length `right-left+1`.
+- **Checklist:** contiguous? what breaks window? what do I store in map?
+
 ```js
 // Sliding window skeleton — variable size
 // expand right; shrink left while window invalid
@@ -33,8 +43,8 @@ If I see a letter that is already inside the window, jump `left` just past the o
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
+// Time: O(n) · Space: O(min(n,Σ))
 // window: shrink when char repeats
-// LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
 var lengthOfLongestSubstring = function(s) {
   let longestStr = 0;
   let set = new Set();
@@ -66,8 +76,8 @@ Grow until `t` is fully covered (`missing === 0`). Then shrink from the left as 
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 ```js
+// Time: O(n) · Space: O(Σ)
 // Sliding window — smallest that still covers t
-// LC: https://leetcode.com/problems/minimum-window-substring/
 var minWindow = function(s, t) {
   let map = new Map();
 
@@ -120,7 +130,7 @@ Deque of indexes, values decreasing. Front is always the max of the current wind
 [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
 
 ```js
-// LC: https://leetcode.com/problems/sliding-window-maximum/
+// Time: O(n) · Space: O(n)
 function maxSlidingWindow(nums, k) {
   const q = []; // indexes, nums decreasing
   const out = [];
@@ -144,7 +154,7 @@ Window me sabse zyada frequent char `maxF`, window size - maxF <= k to valid. Na
 [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-repeating-character-replacement/
+// Time: O(n) · Space: O(1)
 var characterReplacement = function(s, k) {
   let map = {};
 
@@ -183,7 +193,7 @@ var characterReplacement = function(s, k) {
 [Permutation in String](https://leetcode.com/problems/permutation-in-string/)
 
 ```js
-// LC: https://leetcode.com/problems/permutation-in-string/
+// Time: O(n) · Space: O(n)
 function checkInclusion(s1, s2) {
   // build frequency target from s1
   if (s1.length > s2.length) return false;
@@ -207,7 +217,7 @@ Size `k` ki window me max sum / k. Fixed sliding window.
 [Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
 
 ```js
-// LC: https://leetcode.com/problems/maximum-average-subarray-i/
+// Time: O(n) · Space: O(n)
 function findMaxAverage(nums, k) {
   // seed sum of the first fixed-size window
   let sum=0; for(let i=0;i<k;i++) sum+=nums[i];

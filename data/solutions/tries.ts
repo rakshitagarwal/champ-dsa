@@ -18,6 +18,7 @@ export const TRIES_SOLUTIONS: SolutionGroup = {
 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 \`\`\`js
+// Time: O(L) · Space: O(ΣL)
 /**
  * Initialize your data structure here.
  */
@@ -92,6 +93,7 @@ Trie.prototype.startsWith = function(prefix) {
 [Design Add And Search Word Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
 
 \`\`\`js
+// Time: O(L) · Space: O(ΣL)
 var WordDictionary = function() {
     this.trie = {};
 };

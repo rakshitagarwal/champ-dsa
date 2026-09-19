@@ -18,6 +18,7 @@ export const TREES_SOLUTIONS: SolutionGroup = {
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -59,6 +60,7 @@ var isSameTree = function(p, q) {
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -106,6 +108,7 @@ var maxDepth = function(root) {
 [Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -157,6 +160,7 @@ var minDepth = function(root) {
 [Path Sum](https://leetcode.com/problems/path-sum/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -202,6 +206,7 @@ var hasPathSum = function(root, targetSum) {
 [Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -252,6 +257,7 @@ var binaryTreePaths = function(root) {
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -286,6 +292,7 @@ var invertTree = function(root) {
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 \`\`\`js
+// Time: O(h) · Space: O(1)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val) {
@@ -324,6 +331,7 @@ var lowestCommonAncestor = function(root, p, q) {
 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -363,6 +371,7 @@ var isSymmetric = function(root) {
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -409,6 +418,7 @@ var diameterOfBinaryTree = function(root) {
 [Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -451,6 +461,7 @@ var rangeSumBST = function(root, low, high) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -491,6 +502,7 @@ var getLonelyNodes = function(root) {
 [Subtree of Another Subtree](https://leetcode.com/problems/subtree-of-another-tree/)
 
 \`\`\`js
+// Time: O(n·m) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -538,6 +550,7 @@ var isSubtree = function(root, subRoot) {
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -581,6 +594,7 @@ var isValidBST = function(root) {
 [Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -634,6 +648,7 @@ var sumNumbers = function(root) {
 [Path Sum II](https://leetcode.com/problems/path-sum-ii/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -684,6 +699,7 @@ var pathSum = function(root, targetSum) {
 [Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
 
 \`\`\`js
+// Time: O(n) · Space: O(w)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -733,6 +749,7 @@ var rightSideView = function(root) {
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 \`\`\`js
+// Time: O(n) · Space: O(w)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -781,6 +798,7 @@ var levelOrder = function(root) {
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 \`\`\`js
+// Time: O(h+k) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -827,6 +845,7 @@ function findKth(arr, k){
 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val) {
@@ -872,6 +891,7 @@ var lowestCommonAncestor = function(root, p, q) {
 [Deepest Leaves Sum](https://leetcode.com/problems/deepest-leaves-sum/)
 
 \`\`\`js
+// Time: O(n) · Space: O(w)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -918,6 +938,7 @@ var deepestLeavesSum = function(root) {
 [Balance a Binary Search Tree](https://leetcode.com/problems/balance-a-binary-search-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -971,6 +992,7 @@ function buildTree(arr){
 [Find Leaves of a Binary Tree](https://leetcode.com/problems/find-leaves-of-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1021,6 +1043,7 @@ var findLeaves = function(root) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1066,6 +1089,7 @@ var verticalOrder = function(root) {
 [N Array Tree Level Order Traversal](https://leetcode.com/problems/n-ary-tree-level-order-traversal/)
 
 \`\`\`js
+// Time: O(n) · Space: O(w)
 /**
  * // Definition for a Node.
  * function Node(val,children) {
@@ -1118,6 +1142,7 @@ var levelOrder = function(root) {
 [Count Good Nodes In Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1165,6 +1190,7 @@ var goodNodes = function(root) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1212,6 +1238,7 @@ var longestConsecutive = function(root) {
 [Binary Tree Zigzag Level Order Traversal](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)
 
 \`\`\`js
+// Time: O(n) · Space: O(w)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1265,6 +1292,7 @@ var zigzagLevelOrder = function(root) {
 [Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)
 
 \`\`\`js
+// Time: O(n+e) · Space: O(n)
 /**
  * @param {number[][]} rooms
  * @return {boolean}
@@ -1302,6 +1330,7 @@ var canVisitAllRooms = function(rooms) {
 [Construct Binary Tree From Preorder And Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -1351,6 +1380,7 @@ var buildTree = function(preorder, inorder) {
 [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 \`\`\`js
+// Time: O(n) · Space: O(h)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {

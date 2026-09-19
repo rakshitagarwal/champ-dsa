@@ -18,6 +18,7 @@ export const HEAPS_SOLUTIONS: SolutionGroup = {
 [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 /**
  * @param {number[]} stones
  * @return {number}
@@ -47,6 +48,7 @@ var lastStoneWeight = function(stones) {
 *Concept task — iska koi LeetCode link nahi hai.*
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 // Hinglish: MinHeap class yaad karo — ek-ek step comment dekho
 // Concept task — iska koi LeetCode link nahi hai
 class MinHeap {
@@ -93,6 +95,7 @@ class MinHeap {
 [Minimum Cost To Connect Sticks](https://leetcode.com/problems/minimum-cost-to-connect-sticks/)
 
 \`\`\`js
+// Time: O(n log n) · Space: O(n)
 /**
  * @param {number[]} sticks
  * @return {number}
@@ -126,6 +129,7 @@ var connectSticks = function(sticks) {
 [Kth Smallest Element in a Sorted Matrix](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)
 
 \`\`\`js
+// Time: O(k log k) · Space: O(k)
 /**
  * @param {number[][]} matrix
  * @param {number} k

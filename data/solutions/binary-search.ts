@@ -18,7 +18,7 @@ export const BINARY_SEARCH_SOLUTIONS: SolutionGroup = {
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/search-insert-position/
+// Time: O(log n) · Space: O(1)
 var searchInsert = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -52,8 +52,8 @@ var searchInsert = function(nums, target) {
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 \`\`\`js
+// Time: O(log n) · Space: O(1)
 // Binary search — find target
-// LC: https://leetcode.com/problems/binary-search/
 var search = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -85,7 +85,7 @@ var search = function(nums, target) {
 [Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/guess-number-higher-or-lower/
+// Time: O(log n) · Space: O(1)
 var guessNumber = function(n) {
   let left = 1;
   let right = n;
@@ -116,8 +116,8 @@ var guessNumber = function(n) {
 [Find Minimum In Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 \`\`\`js
+// Time: O(log n) · Space: O(1)
 // Binary search — min of rotated
-// LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
 var findMin = function(nums) {
   let left = 0;
   let right = nums.length - 1;
@@ -147,8 +147,8 @@ var findMin = function(nums) {
 [Search in Rotated Sorted Array ](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 \`\`\`js
+// Time: O(log n) · Space: O(1)
 // Binary search — rotated, pick the sorted side
-// LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
 var search = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -191,7 +191,7 @@ var search = function(nums, target) {
 [Find First And Last Position Of Element In Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
+// Time: O(log n) · Space: O(1)
 var searchRange = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -244,7 +244,7 @@ var searchRange = function(nums, target) {
 [Find Median From Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/find-median-from-data-stream/
+// Time: O(log n) · Space: O(n)
 var MedianFinder = function() {
   this.arr = [];
 };

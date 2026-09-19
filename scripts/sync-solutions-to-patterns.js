@@ -218,13 +218,20 @@ function countLineComments(code) {
   return (code.match(/^\s*\/\//gm) || []).length;
 }
 
-function withTeachingComments(slug, code, lcUrl, contentFile) {
+function withTeachingComments(slug, code, _lcUrl, contentFile) {
+  // Keep Time/Space as first line; never re-add LC URL comments.
+  let lines = code.replace(/\r\n/g, "\n").split("\n");
+  lines = lines.filter(
+    (l) => !/^\s*\/\/\s*LC:\s*https?:\/\/leetcode\.com/i.test(l),
+  );
+  while (lines.length && lines[0].trim() === "") lines.shift();
+
   const header = [];
-  if (!code.includes("leetcode.com/problems/")) {
-    header.push(`// LC: ${lcUrl}`);
+  if (!(lines[0] && /^\s*\/\/\s*Time:\s*O/i.test(lines[0]))) {
+    header.push("// Time: O(n) · Space: O(n)");
   }
+
   let extras = EXTRA_COMMENTS[slug] || [];
-  // Topic-specific insight overrides for shared slugs
   if (slug === "combination-sum" && contentFile === "backtracking.md") {
     extras = ["// choose → explore → unchoose; reuse allowed via same index"];
   }
@@ -234,16 +241,19 @@ function withTeachingComments(slug, code, lcUrl, contentFile) {
   if (slug === "counting-bits" && contentFile === "dp.md") {
     extras = ["// offset = last power of 2; dp[i] = 1 + dp[i-offset]"];
   }
-  if (countLineComments(code) < 2) {
+
+  const bodyForCount = lines.join("\n");
+  const commentCount = (bodyForCount.match(/^\s*\/\//gm) || []).length;
+  if (commentCount < 2) {
     for (const c of extras) {
-      if (!code.includes(c.slice(3))) header.push(c);
+      if (!bodyForCount.includes(c.slice(3))) header.push(c);
     }
-  } else if (extras[0] && countLineComments(code) < 4) {
+  } else if (extras[0] && commentCount < 4) {
     const insight = extras[0];
-    if (!code.includes(insight.slice(3))) header.push(insight);
+    if (!bodyForCount.includes(insight.slice(3))) header.push(insight);
   }
-  const prefix = header.filter((l) => !code.split("\n").includes(l)).join("\n");
-  return prefix ? `${prefix}\n${code}` : code;
+
+  return [...header.filter((l) => !lines.includes(l)), ...lines].join("\n");
 }
 
 function syncFile(filePath, bodiesBySlug) {

@@ -6,6 +6,15 @@
 
 **How it works:** Array wala binary heap `heapPush` (upar bubble) aur `heapPop` (neeche bubble). Top-K smallest ke liye max-heap size K. K lists merge: har head push, sabse chhota pop karke uska `next` push. Time `O(n log K)`, space `O(K)`.
 
+## Study notes
+
+- **Min-heap:** parent ≤ kids; peek = smallest. **Max-heap:** opposite (or negate values).
+- **Top K:** keep heap size K; throw away worse than Kth.
+- **Two heaps:** running median — max-heap low half, min-heap high half.
+- **JS:** no built-in PQ in interviews — bring push/pop helpers (this page) or library if allowed.
+- **Traps:** wrong comparator; forget re-balance sizes for median.
+- **Checklist:** K fixed? need min or max? merge streams?
+
 ```js
 // Heap skeleton — copy into interview (min-heap default)
 // sift up after push; sift down after pop
@@ -133,8 +142,8 @@ Min-heap of size k. The top is the kth largest. Everything smaller got popped.
 [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Min-heap of size k — root is the kth largest among seen elements
-// LC: https://leetcode.com/problems/kth-largest-element-in-an-array/
 function findKthLargest(nums, k) {
   const h = [];
   for (const x of nums) {
@@ -152,8 +161,8 @@ Count first. Then a min-heap of `[freq, num]` of size k.
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
+// Time: O(n log k) · Space: O(n)
 // count → heap/bucket of size k
-// LC: https://leetcode.com/problems/top-k-frequent-elements/
 var topKFrequent = function(nums, k) {
   let map = {};
   let bucket = [];
@@ -191,8 +200,8 @@ Two heaps: max-heap for the smaller half, min-heap for the bigger half. Size dif
 [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ```js
+// Time: O(log n) · Space: O(n)
 // two heaps: low max / high min
-// LC: https://leetcode.com/problems/find-median-from-data-stream/
 var MedianFinder = function() {
   this.arr = [];
 };
@@ -234,7 +243,7 @@ Put every list head in a min-heap. Pop the smallest, push its `.next`. Dummy tai
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 ```js
-// LC: https://leetcode.com/problems/merge-k-sorted-lists/
+// Time: O(n log k) · Space: O(k)
 var mergeKLists = function(lists) {
   while (lists.length > 1) {
     let list1 = lists.shift();
@@ -280,8 +289,8 @@ Distance se min-heap. Top K nikal lo.
 [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Sort by squared distance — avoids sqrt; interview shortcut vs size-k heap
-// LC: https://leetcode.com/problems/k-closest-points-to-origin/
 function kClosest(points, k) {
   points.sort((a,b)=> (a[0]*a[0]+a[1]*a[1]) - (b[0]*b[0]+b[1]*b[1])); // Nearest points first
   return points.slice(0,k); // First k entries are answer
@@ -296,7 +305,7 @@ Har baar 2 sabse heavy lo, takrao, bacha to wapas daalo. Max-heap.
 [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
 
 ```js
-// LC: https://leetcode.com/problems/last-stone-weight/
+// Time: O(n log n) · Space: O(n)
 // max-heap smash until ≤1 stone
 /**
  * @param {number[]} stones

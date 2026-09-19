@@ -6,6 +6,15 @@
 
 **How it works:** Meaning define karo, recurrence likho `dp[i] = f(pichhle states)`, base set karo, loop chalao. 2D me `dp[i][j]`. Agar recurrence local hai to space optimize karke last row hi rakho. Time aksar `O(n * choices)`, space `O(n)`.
 
+## Study notes
+
+- **Always:** write `dp[state]` in English first ("ways to reach i", "min coins for amount").
+- **Top-down:** recurse + `memo[key]`. **Bottom-up:** loop in dependency order.
+- **Families:** 1D (stairs/robber/decode), knapsack/coins, grid, LCS/LIS/edit, interval DP.
+- **Vs greedy:** if local choice may fail → DP.
+- **Traps:** wrong base; loop order (reuse coin: outer amount vs outer coin); Infinity sentinel.
+- **Checklist:** overlapping subproblems? optimal substructure? state vars?
+
 ```js
 // DP skeleton — bottom-up tabulation
 // define dp[i] in English first, then fill the table in order
@@ -50,7 +59,7 @@ Ways to reach i = ways to i-1 + ways to i-2.
 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 ```js
-// LC: https://leetcode.com/problems/climbing-stairs/
+// Time: O(n) · Space: O(n)
 // dp[i] = dp[i-1] + dp[i-2] (1 or 2 steps)
 /**
  * @param {number} n
@@ -81,8 +90,8 @@ var climbStairs = function(n) {
 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // dp[i] = min cost to stand on step i (can start at 0 or 1 for free)
-// LC: https://leetcode.com/problems/min-cost-climbing-stairs/
 function minCostClimbingStairs(cost) {
   const n = cost.length;
   let a = 0, b = 0; // dp at i-2 and i-1
@@ -102,7 +111,7 @@ At each house: rob it (then I skipped the previous) or skip it. Two variables ar
 [House Robber](https://leetcode.com/problems/house-robber/)
 
 ```js
-// LC: https://leetcode.com/problems/house-robber/
+// Time: O(n) · Space: O(n)
 // take nums[i]+dp[i-2], or skip → dp[i-1]
 /**
  * @param {number[]} nums
@@ -137,7 +146,7 @@ Ghar gol me hain, pehla aur aakhri saath nahi loot sakte. Do cases: [0..n-2] aur
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 ```js
-// LC: https://leetcode.com/problems/house-robber-ii/
+// Time: O(n) · Space: O(n)
 // circular: exclude first house vs exclude last
 /**
  * @param {number[]} nums
@@ -177,7 +186,7 @@ var rob = function(nums) {
 [Decode Ways](https://leetcode.com/problems/decode-ways/)
 
 ```js
-// LC: https://leetcode.com/problems/decode-ways/
+// Time: O(n) · Space: O(n)
 // try one digit (1-9) and two digits (10-26)
 /**
  * @param {string} s
@@ -214,7 +223,7 @@ var numDecodings = function(s) {
 [Word Break](https://leetcode.com/problems/word-break/)
 
 ```js
-// LC: https://leetcode.com/problems/word-break/
+// Time: O(n²) · Space: O(n)
 var wordBreak = function(s, wordDict) {
   let visited = new Set();
   let set = new Set(wordDict);
@@ -261,7 +270,7 @@ var wordBreak = function(s, wordDict) {
 [Coin Change](https://leetcode.com/problems/coin-change/)
 
 ```js
-// LC: https://leetcode.com/problems/coin-change/
+// Time: O(amount·coins) · Space: O(amount)
 // dp[sum] = fewest coins to make sum
 /**
  * @param {number[]} coins
@@ -293,8 +302,8 @@ Kitne tareeke se amount banao? Order nahi count karna, coin loop bahar.
 [Coin Change II](https://leetcode.com/problems/coin-change-2/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Count combos: outer coin loop avoids permutations of same multiset
-// LC: https://leetcode.com/problems/coin-change-2/
 function change(amount, coins) {
   const dp = Array(amount + 1).fill(0);
   dp[0] = 1;
@@ -312,8 +321,8 @@ Can I pick a subset that sums to total/2? 0/1 knapsack on a boolean array.
 [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Subset sum to target/2; reverse loop = each number used once
-// LC: https://leetcode.com/problems/partition-equal-subset-sum/
 function canPartition(nums) {
   const total = nums.reduce((a, b) => a + b, 0);
   if (total % 2) return false;
@@ -334,8 +343,8 @@ Har number ke aage + ya - lagake target banao — kitne tareeke? Subset-sum me b
 [Target Sum](https://leetcode.com/problems/target-sum/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Subset sum count: P - N = target => sum(P) = (total + target) / 2
-// LC: https://leetcode.com/problems/target-sum/
 function findTargetSumWays(nums, target) {
   const total = nums.reduce((a, b) => a + b, 0);
   if ((total + target) % 2 !== 0 || total < Math.abs(target)) return 0;
@@ -368,7 +377,7 @@ function findTargetSumWays(nums, target) {
 [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-common-subsequence/
+// Time: O(m·n) · Space: O(m·n)
 // match → diag+1; else max(up, left)
 /**
  * @param {string} text1
@@ -403,8 +412,8 @@ var longestCommonSubsequence = function(text1, text2) {
 [Edit Distance](https://leetcode.com/problems/edit-distance/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // dp[i][j] = edit distance between a[0..i-1] and b[0..j-1]
-// LC: https://leetcode.com/problems/edit-distance/
 function minDistance(a, b) {
   const m = a.length, n = b.length;
   const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -427,8 +436,8 @@ function minDistance(a, b) {
 [Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // LPS length = LCS(s, reverse(s))
-// LC: https://leetcode.com/problems/longest-palindromic-subsequence/
 function longestPalindromeSubseq(s) {
   const t=[...s].reverse().join("");
   const n=s.length, dp=Array.from({length:n+1},()=>Array(n+1).fill(0));
@@ -459,7 +468,7 @@ Only right and down. `dp[c] += dp[c - 1]` while scanning a row.
 [Unique Paths](https://leetcode.com/problems/unique-paths/)
 
 ```js
-// LC: https://leetcode.com/problems/unique-paths/
+// Time: O(m·n) · Space: O(m·n)
 // only right/down; cell = above + left
 /**
  * @param {number} m
@@ -489,8 +498,8 @@ Har cell pe `grid + min(upar, left)`. Pehli row/col seedha accumulate hoti hai.
 [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // dp[r][c] = min path sum to (r,c) moving only right/down
-// LC: https://leetcode.com/problems/minimum-path-sum/
 function minPathSum(grid) {
   const m = grid.length, n = grid[0].length;
   const dp = Array.from({ length: m }, () => Array(n).fill(0));
@@ -525,7 +534,7 @@ function minPathSum(grid) {
 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-increasing-subsequence/
+// Time: O(n²) · Space: O(n)
 // dp[i] = LIS ending at i
 /**
  * @param {number[]} nums
@@ -559,8 +568,8 @@ Interval DP. `dp[l][r]` = best coins bursting balloons strictly inside (l, r). L
 [Burst Balloons](https://leetcode.com/problems/burst-balloons/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // dp[l][r] = max coins bursting balloons strictly between l and r (exclusive)
-// LC: https://leetcode.com/problems/burst-balloons/
 function maxCoins(nums) {
   const a = [1, ...nums, 1]; // boundary sentinels
   const n = a.length;

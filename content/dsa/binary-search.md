@@ -6,6 +6,15 @@
 
 **How it works:** Half-open `[lo, hi)` invariant rakho. `mid = lo + ((hi-lo)>>1)`. Agar `good(mid)` to `hi = mid` warna `lo = mid+1`. Exact value ke liye `lo <= hi` wala equality check. Time `O(log n)`, space `O(1)`.
 
+## Study notes
+
+- **Two uses:** (1) find value in sorted array, (2) binary search the **answer** (min speed/capacity) when `feasible(mid)` monotonic.
+- **Invariant:** decide closed `[l,r]` vs half-open `[l,r)` — stick to one; bug = infinite loop / off-by-one.
+- **mid:** `lo + ((hi-lo)>>1)` — overflow-safe style.
+- **Rotated array:** identify sorted half; decide which half holds target.
+- **Traps:** `hi = mid` vs `mid-1`; duplicate bounds; float answers rare in LC ints.
+- **Checklist:** is predicate monotonic? what does `lo` mean when loop ends?
+
 ```js
 // Binary search skeleton — first true (lower bound / answer search)
 // halve search space; test monotonic predicate
@@ -35,9 +44,9 @@ Classic. Mid too small, search right. Too big, search left.
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 ```js
+// Time: O(log n) · Space: O(1)
 // mid; go left/right on sorted array
 // Binary search — find target
-// LC: https://leetcode.com/problems/binary-search/
 var search = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -65,9 +74,9 @@ One half is always sorted. If target lives in the sorted half, go there. Else th
 [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 ```js
+// Time: O(log n) · Space: O(1)
 // find sorted half; discard other
 // Binary search — rotated, pick the sorted side
-// LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
 var search = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -106,9 +115,9 @@ If mid is greater than the right end, the min is to the right of mid. Else min i
 [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 ```js
+// Time: O(log n) · Space: O(1)
 // pivot = unsorted side
 // Binary search — min of rotated
-// LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
 var findMin = function(nums) {
   let left = 0;
   let right = nums.length - 1;
@@ -134,8 +143,8 @@ I binary search the speed. `hours(k)` = how long Koko needs at speed k. First k 
 [Koko Eating Bananas](https://leetcode.com/problems/koko-eating-bananas/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Binary search — on the answer
-// LC: https://leetcode.com/problems/koko-eating-bananas/
 function minEatingSpeed(piles, h) {
   let lo = 1, hi = Math.max(...piles);
   const hours = (k) => piles.reduce((s, p) => s + Math.ceil(p / k), 0);
@@ -155,8 +164,8 @@ Same as Koko. Smallest capacity such that I can ship in `days` days. Greedy: fil
 [Capacity To Ship Packages Within D Days](https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Binary search — on capacity
-// LC: https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/
 function shipWithinDays(weights, days) {
   let lo = Math.max(...weights), hi = weights.reduce((a, b) => a + b, 0);
   const need = (cap) => {
@@ -186,8 +195,8 @@ I binary search the cut on the shorter array so left parts have the same count (
 [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Binary search — partition the shorter array
-// LC: https://leetcode.com/problems/median-of-two-sorted-arrays/
 function findMedianSortedArrays(a, b) {
   // Always binary search on the shorter array
   if (a.length > b.length) return findMedianSortedArrays(b, a);
@@ -220,7 +229,7 @@ Halve n. If n is odd, multiply by x one extra time. Negative n → 1 / pow(x, -n
 [Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
 ```js
-// LC: https://leetcode.com/problems/powx-n/
+// Time: O(log n) · Space: O(log n)
 function myPow(x, n) {
   if (n === 0) return 1;
   if (n < 0) return 1 / myPow(x, -n);
@@ -236,8 +245,8 @@ Target kahan insert hoga wahi lower_bound hai. Binary search se `lo` hi answer.
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 ```js
+// Time: O(log n) · Space: O(1)
 // lower_bound via binary search
-// LC: https://leetcode.com/problems/search-insert-position/
 var searchInsert = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;
@@ -267,7 +276,7 @@ Lower bound aur upper bound ka khel. Do binary search.
 [Find First and Last Position](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 ```js
-// LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
+// Time: O(log n) · Space: O(1)
 var searchRange = function(nums, target) {
   let left = 0;
   let right = nums.length - 1;

@@ -6,6 +6,14 @@
 
 **How it works:** Tricks: (1) **Dummy node** `dummy.next = head` jab head badal sakta ho; (2) **Fast/slow** — fast 2 kadam, slow 1 — middle/cycle ke liye; (3) **`n` ka gap** do pointers me end se N-th ke liye. Time `O(n)`, space `O(1)`.
 
+## Study notes
+
+- **Dummy** when head may change (delete first, merge).
+- **Floyd:** slow/fast meet ⇒ cycle; reset one to head for entrance.
+- **Reverse:** `prev/curr/next` three pointers.
+- **Traps:** lose `next` before rewire; null checks; off-by-one on nth-from-end.
+- **Checklist:** need dummy? cycle possible? modify in place?
+
 ```js
 // Linked list skeleton — traverse and rewire
 // next save do, fir wire badlo
@@ -36,9 +44,9 @@ Save next, point curr at prev, slide everyone forward. New head is the last `pre
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // prev/curr/next rewires
 // Linked list — reverse
-// LC: https://leetcode.com/problems/reverse-linked-list/
 var reverseList = function(head) {
   let prev = null;
 
@@ -60,9 +68,9 @@ Dummy tail. Always take the smaller head. Stick the leftover list on the end.
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // dummy head; take smaller each step
 // Linked list — merge with dummy
-// LC: https://leetcode.com/problems/merge-two-sorted-lists/
 var mergeTwoLists = function(list1, list2) {
   let dummy = new ListNode(0);
   let head = dummy;
@@ -95,7 +103,7 @@ Fast and slow meet inside the cycle. Put one pointer back at the head. Walk both
 [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
 
 ```js
-// LC: https://leetcode.com/problems/linked-list-cycle-ii/
+// Time: O(n) · Space: O(n)
 function detectCycle(head) {
   let slow = head, fast = head;
   while (fast && fast.next) {
@@ -121,8 +129,8 @@ Dummy, then a gap of n between two pointers. When the front hits the end, the ba
 [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // Linked list — gap of n
-// LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
 var removeNthFromEnd = function(head, n) {
   let dummy = new ListNode(0);
   dummy.next = head;
@@ -151,8 +159,8 @@ Map old node → new node. First pass: copy values. Second pass: copy `.next` an
 [Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Two-pass clone: allocate all nodes, then wire next and random via map
-// LC: https://leetcode.com/problems/copy-list-with-random-pointer/
 function copyRandomList(head) {
   if (!head) return null;
   const map = new Map(); // Original node -> deep copy node
@@ -179,8 +187,8 @@ Fast 2x, slow 1x. Fast khatam to slow middle par.
 [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // slow/fast; slow lands mid
-// LC: https://leetcode.com/problems/middle-of-the-linked-list/
 var middleNode = function(head) {
   let slow = head;
   let fast = head;
@@ -201,7 +209,7 @@ Middle dhoondo, second half reverse karo, fir dono half compare karo.
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
 ```js
-// LC: https://leetcode.com/problems/palindrome-linked-list/
+// Time: O(n) · Space: O(1)
 var isPalindrome = function(head) {
   let fast = head;
   let slow = head;
@@ -246,7 +254,7 @@ Do pointers, end par dusri list pe switch karo. Milenge to intersection.
 [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
 
 ```js
-// LC: https://leetcode.com/problems/intersection-of-two-linked-lists/
+// Time: O(n) · Space: O(n)
 function getIntersectionNode(headA, headB) {
   let a=headA, b=headB;
   while (a!==b) {

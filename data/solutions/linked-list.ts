@@ -18,8 +18,8 @@ export const LINKED_LIST_SOLUTIONS: SolutionGroup = {
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Linked list — merge with dummy
-// LC: https://leetcode.com/problems/merge-two-sorted-lists/
 var mergeTwoLists = function(list1, list2) {
   let dummy = new ListNode(0);
   let head = dummy;
@@ -56,8 +56,8 @@ var mergeTwoLists = function(list1, list2) {
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Linked list — reverse
-// LC: https://leetcode.com/problems/reverse-linked-list/
 var reverseList = function(head) {
   let prev = null;
 
@@ -83,7 +83,7 @@ var reverseList = function(head) {
 [Middle of Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/middle-of-the-linked-list/
+// Time: O(n) · Space: O(1)
 var middleNode = function(head) {
   let slow = head;
   let fast = head;
@@ -108,7 +108,7 @@ var middleNode = function(head) {
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/palindrome-linked-list/
+// Time: O(n) · Space: O(1)
 var isPalindrome = function(head) {
   let fast = head;
   let slow = head;
@@ -157,7 +157,7 @@ function reverse(root) {
 [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/linked-list-cycle/
+// Time: O(n) · Space: O(1)
 var hasCycle = function(head) {
   if (!head) return false;
 
@@ -189,8 +189,8 @@ var hasCycle = function(head) {
 [Remove Nth Node From End Of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Linked list — gap of n
-// LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
 var removeNthFromEnd = function(head, n) {
   let dummy = new ListNode(0);
   dummy.next = head;
@@ -223,7 +223,7 @@ var removeNthFromEnd = function(head, n) {
 [Swap Nodes In Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/swap-nodes-in-pairs/
+// Time: O(n) · Space: O(1)
 var swapPairs = function(head) {
   let dummy = new ListNode(-1);
   dummy.next = head;
@@ -256,7 +256,7 @@ var swapPairs = function(head) {
 [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/add-two-numbers/
+// Time: O(max(m,n)) · Space: O(1)
 var addTwoNumbers = function(l1, l2) {
   let List = new ListNode(0);
   let head = List;
@@ -301,7 +301,7 @@ var addTwoNumbers = function(l1, l2) {
 [Rotate List](https://leetcode.com/problems/rotate-list/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/rotate-list/
+// Time: O(n) · Space: O(1)
 var rotateRight = function(head, k) {
   if (head === null) return head;
 
@@ -340,7 +340,7 @@ var rotateRight = function(head, k) {
 [Reorder List](https://leetcode.com/problems/reorder-list/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/reorder-list/
+// Time: O(n) · Space: O(1)
 var reorderList = function(head) {
   // find mid
   let slow = head;
@@ -387,7 +387,7 @@ var reorderList = function(head) {
 [Remove Duplicates from Unsorted Linked List](https://leetcode.com/problems/remove-duplicates-from-an-unsorted-linked-list/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/remove-duplicates-from-an-unsorted-linked-list/
+// Time: O(n) · Space: O(n)
 var deleteDuplicatesUnsorted = function(head) {
   let clone = head;
   let freqMap = {};
@@ -427,7 +427,7 @@ var deleteDuplicatesUnsorted = function(head) {
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/merge-k-sorted-lists/
+// Time: O(n log k) · Space: O(k)
 var mergeKLists = function(lists) {
   while (lists.length > 1) {
     let list1 = lists.shift();

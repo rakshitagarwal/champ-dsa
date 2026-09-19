@@ -6,6 +6,15 @@
 
 **How it works:** `insert(word)` har char par node walk/create; `search(word)` ko `isEnd` chahiye; `startsWith(prefix)` bas walk success chahiye. Board search me DFS trie edges follow karke words collect. Time `O(L)` per op, space `O(total chars)`.
 
+## Study notes
+
+- **Node:** `children` map + `isEnd` (or `end` flag).
+- **insert / search / startsWith** — three standard APIs.
+- **Wildcard `.`:** try every child (Design Add/Search Words).
+- **Word Search II:** trie + board DFS; prune dead ends.
+- **Traps:** mark `isEnd` only at last char; mutate board without restore.
+- **Checklist:** prefix share? many queries on same dict?
+
 ```js
 // Trie skeleton — node + insert / search / startsWith
 // for each character, create or walk to the next trie node
@@ -34,7 +43,7 @@ function startsWith(pref) {
 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/implement-trie-prefix-tree/
+// Time: O(L) · Space: O(ΣL)
 // children map; end flag
 /**
  * Initialize your data structure here.
@@ -106,7 +115,7 @@ Build a trie of all words. DFS the board. Follow trie edges. When `end` is set, 
 [Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 ```js
-// LC: https://leetcode.com/problems/word-search-ii/
+// Time: O(m·n·4^L) · Space: O(ΣL)
 /**
  * @param {character[][]} board
  * @param {string[]} words
@@ -167,7 +176,7 @@ Trie me `.` wildcard search bhi chahiye. DFS se har child try karo.
 [Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
 
 ```js
-// LC: https://leetcode.com/problems/design-add-and-search-words-data-structure/
+// Time: O(L) · Space: O(ΣL)
 // '.' branches to every child
 var WordDictionary = function() {
     this.trie = {};
@@ -237,7 +246,7 @@ Sab prefixes wale words me se sabse lamba (lexicographically chhota tie me). Tri
 [Longest Word in Dictionary](https://leetcode.com/problems/longest-word-in-dictionary/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-word-in-dictionary/
+// Time: O(n) · Space: O(n)
 function longestWord(words) {
   // set in saare words
   const set=new Set(words);

@@ -18,6 +18,7 @@ export const GRAPHS_SOLUTIONS: SolutionGroup = {
 [Toeplitz Matrix](https://leetcode.com/problems/toeplitz-matrix/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(1)
 /**
  * @param {number[][]} matrix
  * @return {boolean}
@@ -46,6 +47,7 @@ var isToeplitzMatrix = function(matrix) {
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 \`\`\`js
+// Time: O(n+e) · Space: O(n)
 /**
  * // Definition for a Node.
  * function Node(val, neighbors) {
@@ -92,6 +94,7 @@ var cloneGraph = function(node) {
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 \`\`\`js
+// Time: O(v+e) · Space: O(v+e)
 /**
  * @param {number} numCourses
  * @param {number[][]} prerequisites
@@ -154,6 +157,7 @@ var canFinish = function(numCourses, prerequisites) {
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number}
@@ -188,6 +192,7 @@ var longestConsecutive = function(nums) {
 [Find If Path Exists in Graph](https://leetcode.com/problems/find-if-path-exists-in-graph/)
 
 \`\`\`js
+// Time: O(v+e) · Space: O(v)
 var validPath = function(n, edges, source, destination) {
     let graph = new Map();
     let visited = new Set();
@@ -238,6 +243,7 @@ var validPath = function(n, edges, source, destination) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(v+e) · Space: O(v)
 /**
  * @param {number} n
  * @param {number[][]} edges
@@ -289,6 +295,7 @@ var countComponents = function(n, edges) {
 [All Paths From Source To Target](https://leetcode.com/problems/all-paths-from-source-to-target/)
 
 \`\`\`js
+// Time: O(2ⁿ·n) · Space: O(n)
 /**
  * @param {number[][]} graph
  * @return {number[][]}
@@ -328,6 +335,7 @@ var allPathsSourceTarget = function(graph) {
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 \`\`\`js
+// Time: O(n²) · Space: O(n)
 /**
  * @param {number[][]} isConnected
  * @return {number}
@@ -392,6 +400,7 @@ var findCircleNum = function(isConnected) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
+// Time: O(v+e) · Space: O(v)
 /**
  * @param {number} n
  * @param {number[][]} edges
@@ -456,6 +465,7 @@ var validTree = function(n, edges) {
 [Open The Lock](https://leetcode.com/problems/open-the-lock/)
 
 \`\`\`js
+// Time: O(10⁴) · Space: O(10⁴)
 /**
  * @param {string[]} deadends
  * @param {string} target
@@ -509,6 +519,7 @@ const possibleCombo = (str) => {
 [Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
 
 \`\`\`js
+// Time: O(C) · Space: O(1)
 function findOrder(dict, N, K) {
     let adj = {};
     

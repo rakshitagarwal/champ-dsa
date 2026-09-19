@@ -6,6 +6,15 @@
 
 **How it works:** `find(x)` root tak jata hai aur rasta flat karta hai (`p[x]=p[p[x]]`). `union(a,b)` chhote rank wale root ko bade ke neeche lagata hai. Agar `find(a)===find(b)` to pehle se connected → cycle. Time `O(α(n))` amortized, space `O(n)`.
 
+## Study notes
+
+- **APIs:** `find(x)`, `union(a,b)` → bool (false if already same = cycle for undirected).
+- **Optimizations:** path compression + union by rank/size — almost `O(1)`.
+- **Use cases:** connected components, redundant edge, Kruskal MST, accounts merge.
+- **Init:** `parent[i]=i`, `rank[i]=0`.
+- **Traps:** forget path compression; union without find roots; 0- vs 1-index nodes.
+- **Vs BFS components:** DSU better when many merge queries / edge stream.
+
 ```js
 // Union-Find skeleton — path compression + union by rank
 // boss dhoondo, rasta smaller do, rank from append
@@ -31,8 +40,8 @@ Add edges one by one. The first edge whose ends are already connected is the ext
 [Redundant Connection](https://leetcode.com/problems/redundant-connection/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // First edge connecting already-connected nodes is redundant
-// LC: https://leetcode.com/problems/redundant-connection/
 function findRedundantConnection(edges) {
   const n = edges.length;
   const p = Array.from({ length: n + 1 }, (_, i) => i);
@@ -50,8 +59,8 @@ Manhattan edges between every pair. Sort cheap → expensive. Kruskal: union if 
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Kruskal MST on complete graph (Manhattan edges)
-// LC: https://leetcode.com/problems/min-cost-to-connect-all-points/
 function minCostConnectPoints(points) {
   const n = points.length;
   const edges = [];
@@ -84,7 +93,7 @@ Union-Find se bhi provinces gin sakte hain. Connected cities ko union karo.
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 ```js
-// LC: https://leetcode.com/problems/number-of-provinces/
+// Time: O(n²) · Space: O(n)
 /**
  * @param {number[][]} isConnected
  * @return {number}
@@ -142,8 +151,8 @@ Same email wale accounts merge karo. Email ko node, account ke emails ko union k
 [Accounts Merge](https://leetcode.com/problems/accounts-merge/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Union emails within same account; merge DSU components
-// LC: https://leetcode.com/problems/accounts-merge/
 function accountsMerge(accounts) {
   const id=new Map(); let eid=0;
   for(const acc of accounts) for(let i=1;i<acc.length;i++) if(!id.has(acc[i])) id.set(acc[i], eid++);

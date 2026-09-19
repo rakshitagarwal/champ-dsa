@@ -6,6 +6,14 @@
 
 **How it works:** XOR se pairs cancel hote hain; `n & (n-1)` loop `O(popcount)` me bits gin leta hai; bit DP `dp[i] = dp[i>>1] + (i&1)`. Time `O(n)` ya `O(1)` per op, space `O(1)`.
 
+## Study notes
+
+- **Cheat identities:** `x^x=0`, `x^0=x`, `n&(n-1)` clear lowest 1, `(n&(n-1))===0` (+ `n>0`) ⇒ power of two.
+- **JS:** `>>>` unsigned right shift; `|0` / `>>>0` for 32-bit.
+- **XOR trick:** single number, missing number (index^value).
+- **Traps:** signed `>>` vs `>>>`; forget `n>0` for power of two.
+- **Checklist:** need count bits, cancel pairs, or flags?
+
 ```js
 // Bit skeleton — core identities
 // XOR from duplicate cancel, & from Bit manipulation
@@ -31,8 +39,8 @@ XOR everything. Pairs die. The leftover is the single number.
 [Single Number](https://leetcode.com/problems/single-number/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Bits — XOR cancels pairs
-// LC: https://leetcode.com/problems/single-number/
 function singleNumber(nums) {
   // Start at 0 — XOR identity element
   let x = 0;
@@ -50,7 +58,7 @@ While n is not 0, drop the lowest 1 with `n &= n - 1` and count.
 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 ```js
-// LC: https://leetcode.com/problems/number-of-1-bits/
+// Time: O(1) · Space: O(1)
 // count set bits with & / >>>
 /**
  * @param {number} n - a positive integer
@@ -77,7 +85,7 @@ var hammingWeight = function(n) {
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 ```js
-// LC: https://leetcode.com/problems/counting-bits/
+// Time: O(n) · Space: O(n)
 // for each i, count 1-bits with & 1 and >>>
 /**
  * @param {number} n
@@ -114,7 +122,7 @@ XOR all indexes with all values. The missing index never cancels. Or `n*(n+1)/2 
 [Missing Number](https://leetcode.com/problems/missing-number/)
 
 ```js
-// LC: https://leetcode.com/problems/missing-number/
+// Time: O(n) · Space: O(1)
 // XOR index^value; missing index remains
 /**
  * @param {number[]} nums
@@ -138,7 +146,7 @@ Positive, and only one bit set: `n > 0 && (n & (n - 1)) === 0`.
 [Power of Two](https://leetcode.com/problems/power-of-two/)
 
 ```js
-// LC: https://leetcode.com/problems/power-of-two/
+// Time: O(1) · Space: O(1)
 // exactly one bit set (and n > 0)
 /**
  * @param {number} n
@@ -160,7 +168,7 @@ Har number 3 baar, ek single. Bits count mod 3 se nikalo.
 [Single Number II](https://leetcode.com/problems/single-number-ii/)
 
 ```js
-// LC: https://leetcode.com/problems/single-number-ii/
+// Time: O(n) · Space: O(n)
 function singleNumberII(nums) {
   let ans=0;
   // Reconstruct answer bit-by-bit
@@ -181,7 +189,7 @@ function singleNumberII(nums) {
 [Reverse Bits](https://leetcode.com/problems/reverse-bits/)
 
 ```js
-// LC: https://leetcode.com/problems/reverse-bits/
+// Time: O(1) · Space: O(1)
 // take LSB, place toward MSB side
 /**
  * @param {number} n - a positive integer
@@ -213,7 +221,7 @@ Do numbers me kitne bits alag? XOR karke set bits gino.
 [Hamming Distance](https://leetcode.com/problems/hamming-distance/)
 
 ```js
-// LC: https://leetcode.com/problems/hamming-distance/
+// Time: O(n) · Space: O(n)
 function hammingDistance(x, y) {
   // XOR in 1 = alag
   let z = x ^ y, cnt=0;

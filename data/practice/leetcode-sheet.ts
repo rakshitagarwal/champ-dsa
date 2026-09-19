@@ -1,9 +1,12 @@
+import { isPremiumLcSlug } from "@/data/practice/premium-slugs";
+
 export type LcDifficulty = "easy" | "medium" | "hard";
 
 export type LcProblem = {
   title: string;
   slug: string;
   difficulty: LcDifficulty;
+  premium?: boolean;
 };
 
 export type LcSubsection = {
@@ -21,7 +24,12 @@ export type LcGroup = {
 };
 
 function p(title: string, slug: string, difficulty: LcDifficulty): LcProblem {
-  return { title, slug, difficulty };
+  return {
+    title,
+    slug,
+    difficulty,
+    ...(isPremiumLcSlug(slug) ? { premium: true } : {}),
+  };
 }
 
 /**

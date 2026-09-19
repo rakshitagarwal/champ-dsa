@@ -6,6 +6,15 @@
 
 **How it works:** `a[0]-b[0]` se sort. Last merged interval `last` rakho. Har `cur` ke liye agar `cur[0] <= last[1]` to overlap → `last[1] = max(last[1], cur[1])`; warna push `cur`. Insert me "pehle wale" copy, "overlap wale" merge, "baad wale" copy. Time `O(n log n)` sort + `O(n)` sweep, space `O(n)`.
 
+## Study notes
+
+- **Pehchan:** list of `[start,end]`; merge / insert / erase overlaps / min rooms.
+- **Sort key:** merge → by start; non-overlap count → often by **end**.
+- **Overlap test:** `a.start <= b.end && b.start <= a.end` (closed); half-open careful.
+- **Meeting rooms II:** sort starts & ends; sweep line / min-heap of ends.
+- **Traps:** sort forgotten; mutate last incorrectly; inclusive ends.
+- **Checklist:** sort by start or end? what is "overlap"?
+
 ```js
 // Sorting skeleton
 // first sort do
@@ -28,7 +37,7 @@ Sort by start. Overlap means `start <= lastEnd`. Then the new end is the max of 
 [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 ```js
-// LC: https://leetcode.com/problems/merge-intervals/
+// Time: O(n log n) · Space: O(n)
 // sort by start; merge when overlap
 /**
  * @param {number[][]} intervals
@@ -63,7 +72,7 @@ Walk existing intervals. Copy the ones that end before the new start. Merge ever
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 ```js
-// LC: https://leetcode.com/problems/insert-interval/
+// Time: O(n) · Space: O(n)
 // add non-overlap left/right; merge middle
 /**
  * @param {number[][]} intervals
@@ -106,7 +115,7 @@ Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy r
 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 ```js
-// LC: https://leetcode.com/problems/non-overlapping-intervals/
+// Time: O(n log n) · Space: O(1)
 // sort by end; greedily keep earliest end
 /**
  * @param {number[][]} intervals
@@ -138,7 +147,7 @@ Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
 [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
 ```js
-// LC: https://leetcode.com/problems/meeting-rooms/
+// Time: O(n log n) · Space: O(1)
 // sort starts/ends; check adjacent overlap
 /**
  * @param {number[][]} intervals
@@ -168,7 +177,7 @@ var canAttendMeetings = function(intervals) {
 [Sort Colors](https://leetcode.com/problems/sort-colors/)
 
 ```js
-// LC: https://leetcode.com/problems/sort-colors/
+// Time: O(n) · Space: O(n)
 function sortColors(nums) {
   // 0 left, 2 right
   let lo=0, mid=0, hi=nums.length-1;

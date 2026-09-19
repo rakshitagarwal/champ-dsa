@@ -18,7 +18,7 @@ export const MATRIX_SOLUTIONS: SolutionGroup = {
 [Flood Fill](https://leetcode.com/problems/flood-fill/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/flood-fill/
+// Time: O(m·n) · Space: O(m·n)
 var floodFill = function(image, sr, sc, color) {
   const original = image[sr][sc];
 
@@ -58,7 +58,7 @@ var floodFill = function(image, sr, sc, color) {
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/set-matrix-zeroes/
+// Time: O(m·n) · Space: O(1)
 var setZeroes = function(matrix) {
   let zeroPos = [];
 
@@ -95,7 +95,7 @@ var setZeroes = function(matrix) {
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/spiral-matrix/
+// Time: O(m·n) · Space: O(1)
 var spiralOrder = function(matrix) {
   let left = 0;
   let top = 0;
@@ -141,7 +141,7 @@ var spiralOrder = function(matrix) {
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/rotate-image/
+// Time: O(n²) · Space: O(1)
 var rotate = function(matrix) {
   // transpose
   for (let i = 0; i < matrix.length; i++) {
@@ -174,8 +174,8 @@ var rotate = function(matrix) {
 [Word Search](https://leetcode.com/problems/word-search/)
 
 \`\`\`js
+// Time: O(m·n·4^L) · Space: O(L)
 // Backtracking — grid DFS
-// LC: https://leetcode.com/problems/word-search/
 var exist = function(board, word) {
   for (let r = 0; r < board.length; r++) {
     for (let c = 0; c < board[0].length; c++) {
@@ -225,7 +225,7 @@ var exist = function(board, word) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// LC: https://leetcode.com/problems/walls-and-gates/ (Premium)
+// Time: O(m·n) · Space: O(m·n)
 var wallsAndGates = function(rooms) {
   const WALL = -1;
   const GATE = 0;
@@ -279,7 +279,7 @@ var wallsAndGates = function(rooms) {
 [Diagonal Traverse](https://leetcode.com/problems/diagonal-traverse/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/diagonal-traverse/
+// Time: O(m·n) · Space: O(1)
 var findDiagonalOrder = function(mat) {
   if (mat.length === 1) return mat.flat();
 
@@ -313,8 +313,8 @@ var findDiagonalOrder = function(mat) {
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 // Graph DFS — from oceans inland
-// LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
 var pacificAtlantic = function(heights) {
   let m = heights.length;
   let n = heights[0].length;
@@ -383,8 +383,8 @@ var pacificAtlantic = function(heights) {
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 // Graph DFS — flood fill
-// LC: https://leetcode.com/problems/number-of-islands/
 var numIslands = function(grid) {
   let count = 0;
 
@@ -436,7 +436,7 @@ var numIslands = function(grid) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// LC: https://leetcode.com/problems/minimum-knight-moves/ (Premium)
+// Time: O(max(|x|,|y|)²) · Space: O(max(|x|,|y|)²)
 var minKnightMoves = function(x, y) {
   let dir = [
     [-2, -1], [-1, -2], [1, -2], [2, -1], [2, 1], [1, 2], [-1, 2], [-2, 1],
@@ -482,7 +482,7 @@ var minKnightMoves = function(x, y) {
 [Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/shortest-path-in-binary-matrix/
+// Time: O(n²) · Space: O(n²)
 var shortestPathBinaryMatrix = function(grid) {
   if (grid[0][0] === 1) return -1;
 
@@ -529,6 +529,7 @@ var shortestPathBinaryMatrix = function(grid) {
 [0 1 Matrix](https://leetcode.com/problems/01-matrix/)
 
 \`\`\`js
+// Time: O(m·n) · Space: O(m·n)
 /**
  * @param {number[][]} mat
  * @return {number[][]}
@@ -583,6 +584,7 @@ var updateMatrix = function(mat) {
 [Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 \`\`\`js
+// Time: O(m·n·4^L) · Space: O(ΣL)
 /**
  * @param {character[][]} board
  * @param {string[]} words

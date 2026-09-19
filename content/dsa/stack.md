@@ -6,6 +6,14 @@
 
 **How it works:** Open push, close par matching pop; empty/mismatch check. Min-stack ke liye parallel minima stack rakho. Time `O(n)`, space `O(n)`.
 
+## Study notes
+
+- **Pehchan:** nesting, matching pairs, undo, "last unresolved thing".
+- **JS:** `push` / `pop` / `at(-1)` for peek — `O(1)`.
+- **Vs Monotonic Stack:** plain stack = brackets/DFS; monotonic = next greater/smaller (alag page).
+- **Traps:** forget empty check before pop; leftover opens at end; map closer→opener carefully.
+- **Checklist:** what goes on stack (char / index / pair)? when pop?
+
 ```js
 // Stack skeleton — brackets / nesting
 // stack: push openers; pop and match closers
@@ -25,9 +33,9 @@ Push every opener. On a closer, the top must be its match. Stack empty at the en
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // stack push opens; pop must match close
 // Stack — match open/close
-// LC: https://leetcode.com/problems/valid-parentheses/
 var isValid = function(s) {
   let stack = [];
 
@@ -56,7 +64,7 @@ I keep a second stack of the min after each push. Pop both together. `getMin` is
 [Min Stack](https://leetcode.com/problems/min-stack/)
 
 ```js
-// LC: https://leetcode.com/problems/min-stack/
+// Time: O(n) · Space: O(n)
 function MinStack() {
   this.vals = [];
   this.mins = [];
@@ -85,7 +93,7 @@ Stack me number push, operator aaye to top 2 pop karke compute karke wapas push 
 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
 ```js
-// LC: https://leetcode.com/problems/evaluate-reverse-polish-notation/
+// Time: O(n) · Space: O(n)
 function evalRPN(tokens) {
   // evaluate RPN with operand stack
   const st=[];
@@ -108,7 +116,7 @@ Monotonic decreasing stack se next warmer day ka wait nikalo. (Monotonic page se
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
 ```js
-// LC: https://leetcode.com/problems/daily-temperatures/
+// Time: O(n) · Space: O(n)
 function dailyTemperatures(temps) {
   // monotonic stack — keep decreasing values
   const n=temps.length, ans=Array(n).fill(0), st=[];
@@ -129,7 +137,7 @@ Asteroid left/right move karte hain. Stack me rakho, opposite direction aaye to 
 [Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
 
 ```js
-// LC: https://leetcode.com/problems/asteroid-collision/
+// Time: O(n) · Space: O(n)
 function asteroidCollision(asteroids) {
   // stack holds asteroids that survive so far
   const st=[];
@@ -154,7 +162,7 @@ Do stack lo — ek me push, doosre se pop. Pop/peek pe doosra khaali ho to pehle
 [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
 
 ```js
-// LC: https://leetcode.com/problems/implement-queue-using-stacks/
+// Time: O(n) · Space: O(n)
 function MyQueue() {
   // inSt: enqueue side; outSt: dequeue side (FIFO at pop end)
   this.inSt = [];

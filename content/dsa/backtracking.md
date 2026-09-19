@@ -6,6 +6,15 @@
 
 **How it works:** Recursive `choose → explore → unchoose` (push → recurse → pop). Ek `path` rakho current partial solution ke liye aur `ans` me save karo. Har call me check karo — valid hai to record, invalid hai to prune/return, fir loop se next choices try karo. Time aksar exponential `O(k^n)` par pruning branches kaat deta hai; space `O(n)` depth + path.
 
+## Study notes
+
+- **Template:** `path.push` → recurse → `path.pop` (never forget undo).
+- **Variants:** subsets (include/skip), permutations (used[]), combinations (start index), grid DFS (mark/unmark cell).
+- **Prune early** when remain < 0 / placement illegal.
+- **Duplicates:** sort + skip same value at same depth (`i>start && nums[i]===nums[i-1]`).
+- **Traps:** mutate path into `ans` without `[...path]` copy; wrong start index (reuse vs not).
+- **Checklist:** what is a choice? when is path complete? how undo?
+
 ```js
 // Backtracking skeleton — choose / explore / unchoose
 // take a choice, recurse forward, then undo (backtrack)
@@ -31,10 +40,10 @@ Every prefix of the path is a subset. Recurse with `i + 1` so I do not reuse an 
 [Subsets](https://leetcode.com/problems/subsets/)
 
 ```js
+// Time: O(n·2ⁿ) · Space: O(n)
 // include or skip each element
 // Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — subsets
-// LC: https://leetcode.com/problems/subsets/
 function subsets(nums) {
   const ans = [];
   const dfs = (start, path) => {
@@ -57,7 +66,7 @@ I may reuse the same coin, so I recurse on `i` not `i + 1`. Stop when remain is 
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 ```js
-// LC: https://leetcode.com/problems/combination-sum/
+// Time: O(n·2ⁿ) · Space: O(target)
 // choose → explore → unchoose; reuse allowed via same index
 /**
  * @param {number[]} candidates
@@ -94,7 +103,7 @@ var combinationSum = function(candidates, target) {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 ```js
-// LC: https://leetcode.com/problems/permutations/
+// Time: O(n·n!) · Space: O(n)
 // choose → explore → unchoose every unused index
 /**
  * @param {number[]} nums
@@ -124,8 +133,8 @@ I can add `(` if I still have some. I can add `)` if closes < opens. When the st
 [Generate Parentheses](https://leetcode.com/problems/generate-parentheses/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Add '(' if budget left; add ')' only if it would close an unmatched '('
-// LC: https://leetcode.com/problems/generate-parentheses/
 function generateParenthesis(n) {
   const ans = [];
   const dfs = (s, open, close) => {
@@ -148,9 +157,9 @@ DFS from every cell. Mark the cell, try 4 directions, unmark. If I consume the w
 [Word Search](https://leetcode.com/problems/word-search/)
 
 ```js
+// Time: O(m·n·4^L) · Space: O(L)
 // DFS from each cell; mark visited
 // Backtracking — grid DFS
-// LC: https://leetcode.com/problems/word-search/
 var exist = function(board, word) {
   for (let r = 0; r < board.length; r++) {
     for (let c = 0; c < board[0].length; c++) {
@@ -193,7 +202,7 @@ One queen per row. `cols`, `diag`, `anti` sets. Place, recurse next row, remove.
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 ```js
-// LC: https://leetcode.com/problems/n-queens/
+// Time: O(n!) · Space: O(n)
 var solveNQueens = function(n) {
     
     if(n.length === 1) return [["Q"]];
@@ -256,7 +265,7 @@ Duplicate numbers ke saath subsets, duplicate subsets avoid karo. Sort karke `i>
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
 ```js
-// LC: https://leetcode.com/problems/subsets-ii/
+// Time: O(n·2ⁿ) · Space: O(n)
 // skip duplicates after sort
 /**
  * @param {number[]} nums
@@ -290,8 +299,8 @@ Har coin ek baar, duplicate combos nahi. Sort + skip `i>start && same`.
 [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Each number once; sort + skip dupes like subsets II
-// LC: https://leetcode.com/problems/combination-sum-ii/
 function combinationSum2(candidates, target) {
   candidates.sort((a,b)=>a-b);
   const ans=[];
@@ -317,8 +326,8 @@ String ko tukdon me kaato jahan har tukda palindrome ho. Backtrack se cut try ka
 [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Try every palindrome prefix; recurse on the suffix
-// LC: https://leetcode.com/problems/palindrome-partitioning/
 function partition(s) {
   const isPal=(l,r)=>{ while(l<r){ if(s[l++]!==s[r--]) return false; } return true; };
   const ans=[];
@@ -343,7 +352,7 @@ Phone digits se saare letter combos. Har digit ke letters pe loop.
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 
 ```js
-// LC: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+// Time: O(4ⁿ·n) · Space: O(n)
 // map digit → letters; build all suffixes
 /**
  * @param {string} digits

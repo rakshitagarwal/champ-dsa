@@ -1,21 +1,68 @@
 # Recursion
 
-**Definition:** Recursion matlab function ka khud ko chhoti problem pe call karna — base case ruke, recursive step kaam baante. Sochne ka tareeka: "pehla kadam main lo, baaki recursion sambhal lega" (trust the recursion). Har recursive function me do hisse farz hain: base case (rukna kahan hai) aur progress (problem chhota ho raha hai ya nahi).
+**Definition:** Recursion matlab function ka khud ko **chhoti problem** pe call karna. Do hisse farz hain: **base case** (rukna kahan) aur **progress** (har call problem chhoti karti hai). Soch: "pehla kadam main lo, baaki recursion sambhal lega" — *trust the recursion*.
 
-**When to use:** Problem khud jaisi chhoti problems me tute (factorial, power, tree traversal), backtracking/DP ki neev chahiye ho, ya linked list/tree naturally recursive ho. "Khud ko call" dikhe to recursion socho.
+**When to use:** Problem khud-jaisi subproblems me tute (pow, factorial), trees/linked lists naturally recursive hon, ya backtracking/DP ki neev chahiye ho. "Khud ko call" dikhe to recursion socho.
 
-**How it works:** Base case check karo, chhota subproblem banao, uska answer use karke bada answer jodo. Call stack yaad rakhta hai kahan wapas aana hai — isliye deep recursion me stack overflow hota hai. Time aksar branches^depth, space recursion depth.
+**How it works:** Base check → chhota subproblem banao → uska answer combine karke return. Call stack frames yaad rakhta hai. Deep recursion → stack overflow; kabhi iterative/stack se simulate. Time aksar `branches^depth`, space = recursion depth.
+
+## Study notes
+
+### Mental model
+1. **Base case pehle likho** — empty, `n===0`, `node===null`.
+2. **Assume** recursive call sahi jawab laati hai (induction).
+3. **Combine** — current step + sub-answer.
+4. **Guarantee progress** — `n-1`, `i+1`, `node.left` — warna infinite loop.
+
+### Recursion vs iteration
+- Recursion: clear for trees/divide-conquer; hidden `O(depth)` stack.
+- Iteration: explicit stack/queue; often same idea (DFS with stack = recursion).
+
+### Tail vs tree recursion
+- **Linear / tail-ish:** ek recursive call (pow half, list walk).
+- **Tree recursion:** do+ calls (fib, tree left+right) — overlapping → socho memo/DP.
+
+### Complexity
+- Time: kitni leaves / nodes visit × kaam per call.
+- Space: max call-stack depth (balanced tree `O(log n)`, skewed `O(n)`).
+
+### Traps
+- Base case missing / wrong.
+- Mutating shared array without undo (backtracking need `pop`).
+- Returning wrong type (`undefined` leak).
+- Negative `n` / empty input.
+
+### Checklist before coding
+- Base cases list (null, 0, 1, empty).
+- What shrinks each call?
+- What do I return upward?
+- Need memo? (same args dubara)
 
 ```js
-// Recursion skeleton — base case, smaller subproblem, combine
-// define base case, smaller subproblem, and how to combine results
+// Recursion skeleton — base, smaller problem, combine
 function solve(n) {
-  if (isBase(n)) return baseVal; // base case — stop Recursion here
-  const smaller = solve(n - 1); // delegate to smaller subproblem
-  return combine(n, smaller); // combine subproblem result with current work
+  if (isBase(n)) return baseVal; // stop
+  const smaller = solve(shrink(n)); // trust recursion
+  return combine(n, smaller);
 }
 
-// memo table — each call has its own stack frame
+// Tree recursion skeleton
+function dfs(node) {
+  if (!node) return base;
+  const L = dfs(node.left);
+  const R = dfs(node.right);
+  return combine(node.val, L, R);
+}
+
+// Backtracking-shaped recursion (choose / explore / undo)
+function bt(path) {
+  if (done(path)) { ans.push([...path]); return; }
+  for (const x of choices) {
+    path.push(x);      // choose
+    bt(path);          // explore
+    path.pop();        // undo
+  }
+}
 ```
 
 ## Pow(x, n)
@@ -25,7 +72,7 @@ Naive me n multiplications. Fast power me aadha karo: `x^n = (x^(n/2))^2`, odd h
 [Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
 ```js
-// LC: https://leetcode.com/problems/powx-n/
+// Time: O(log n) · Space: O(log n)
 function myPow(x, n) {
   if (n === 0) return 1;
   if (n < 0) return 1 / myPow(x, -n);
@@ -41,7 +88,7 @@ Row `n` pichhli row se banti hai: `0 → 01`, `1 → 10`. Kth symbol ke liye par
 [K-th Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar/)
 
 ```js
-// LC: https://leetcode.com/problems/k-th-symbol-in-grammar/
+// Time: O(n) · Space: O(n)
 function kthGrammar(n, k) {
   if (n === 1) return 0;
   const parent = kthGrammar(n - 1, Math.ceil(k / 2)); // find parent bit in row above
@@ -52,35 +99,21 @@ function kthGrammar(n, k) {
 
 ## Merge Two Sorted Lists (Recursive)
 
-Dono heads me chhota lo, uska `next` baaki ka merge hai. Base: ek list khatm to doosri pakdao.
+Dono heads me chhota lo, uska `next` baaki ka merge hai. Base: ek list khatm to doosri pakdao. (Neeche iterative version bhi — same idea.)
 
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```js
-// dummy head; take smaller each step
-// Linked list — merge with dummy
-// LC: https://leetcode.com/problems/merge-two-sorted-lists/
-var mergeTwoLists = function(list1, list2) {
-  let dummy = new ListNode(0);
-  let head = dummy;
-
-  while (list1 && list2) {
-    if (list1.val <= list2.val) {
-      dummy.next = list1;
-      list1 = list1.next;
-    } else {
-      dummy.next = list2;
-      list2 = list2.next;
-    }
-    dummy = dummy.next;
+// Time: O(n) · Space: O(1)
+// Recursive idea: smaller head.next = merge(rest)
+function mergeTwoLists(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  if (a.val <= b.val) {
+    a.next = mergeTwoLists(a.next, b);
+    return a;
   }
-
-  if (list1 !== null) {
-    dummy.next = list1;
-  } else {
-    dummy.next = list2;
-  }
-
-  return head.next;
-};
+  b.next = mergeTwoLists(a, b.next);
+  return b;
+}
 ```

@@ -6,6 +6,15 @@
 
 **How it works:** Ek pass me `pref` banao. "count subarrays sum == k" ke liye `seen` map rakho — `need = cur - k`, `ans += seen.get(need)`. Time `O(n)`, space `O(n)` (bare range ke liye `O(1)`).
 
+## Study notes
+
+- **Identity:** `sum(l..r) = pref[r+1] - pref[l]` with `pref[0]=0`.
+- **Hash combo:** subarray sum = k → count prior prefixes `cur - k` (negatives OK; sliding window fails).
+- **Product except self:** prefix × suffix, no division.
+- **2D:** `sum(r1,c1,r2,c2)` inclusion-exclusion on 2D prefix.
+- **Traps:** off-by-one on pref length `n+1`; forget `seen.set(0,1)`; mutate nums in place carefully.
+- **Checklist:** many range queries? sum/product of contiguous? hashing needed?
+
 ```js
 // Prefix skeleton — build and query
 // build running totals, then answer ranges in O(1)
@@ -30,9 +39,9 @@ Left-to-right: product of everything before `i`. Right-to-left: product of every
 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // prefix * suffix without division
 // Prefix / suffix products
-// LC: https://leetcode.com/problems/product-of-array-except-self/
 var productExceptSelf = function(nums) {
   let res = [];
   let start = 1;
@@ -60,8 +69,8 @@ Not on the PDF list, but this is the other half of prefix sums. `count += how ma
 [Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Prefix + map
-// LC: https://leetcode.com/problems/subarray-sum-equals-k/
 function subarraySum(nums, k) {
   const seen = new Map([[0, 1]]);
   let sum = 0, count = 0;
@@ -81,7 +90,7 @@ Baar-baar range sum pucha jayega. Prefix banao, fir `sum(l,r)=pref[r+1]-pref[l]`
 [Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
 
 ```js
-// LC: https://leetcode.com/problems/range-sum-query-immutable/
+// Time: O(n) · Space: O(n)
 function NumArray(nums) {
   // build prefix array
   this.pref = [0];
@@ -99,7 +108,7 @@ Pivot jahan left sum == right sum. Total sum se left nikalte jao.
 [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
 
 ```js
-// LC: https://leetcode.com/problems/find-pivot-index/
+// Time: O(n) · Space: O(n)
 function pivotIndex(nums) {
   // total sum
   const total = nums.reduce((a,b)=>a+b, 0);
@@ -119,7 +128,7 @@ function pivotIndex(nums) {
 [Contiguous Array](https://leetcode.com/problems/contiguous-array/)
 
 ```js
-// LC: https://leetcode.com/problems/contiguous-array/
+// Time: O(n) · Space: O(n)
 function findMaxLength(nums) {
   // prefix 0 at index −1 — empty prefix has equal 0s and 1s
   const first = new Map([[0,-1]]); // prefix sum 0 seen at index −1 (empty prefix)

@@ -1,6 +1,10 @@
 /** Lightweight markdown → HTML for revision notes (server-only). */
 
 import { highlightCode } from "@/lib/notes/highlight-code";
+import {
+  isPremiumLcSlug,
+  premiumSlugFromLeetcodeUrl,
+} from "@/data/practice/premium-slugs";
 
 function escapeHtml(s: string): string {
   return s
@@ -18,6 +22,9 @@ export function slugifyHeading(text: string): string {
     .replace(/\s+/g, "-");
 }
 
+const PREMIUM_BADGE_HTML =
+  ' <span class="ml-1.5 inline rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">Premium</span>';
+
 function inlineFormat(text: string): string {
   let s = escapeHtml(text);
   s = s.replace(/`([^`]+)`/g, '<code class="note-inline-code">$1</code>');
@@ -31,10 +38,12 @@ function inlineFormat(text: string): string {
       return `<figure class="note-figure"><img src="${src}" alt="${alt}"${titleAttr} loading="lazy" /><figcaption>${alt}</figcaption></figure>`;
     },
   );
-  s = s.replace(
-    /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
-  );
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, href: string) => {
+    const slug = premiumSlugFromLeetcodeUrl(href);
+    const badge =
+      slug && isPremiumLcSlug(slug) ? PREMIUM_BADGE_HTML : "";
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>${badge}`;
+  });
   return s;
 }
 

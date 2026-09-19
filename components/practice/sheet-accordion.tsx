@@ -61,6 +61,11 @@ function ProblemRow({ problem }: { problem: LcProblem }) {
           <ExternalLink className="h-3 w-3" />
           LeetCode
         </a>
+        {problem.premium ? (
+          <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+            Premium
+          </span>
+        ) : null}
         {youtubeUrl ? (
           <a
             href={youtubeUrl}

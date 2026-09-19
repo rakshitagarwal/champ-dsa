@@ -18,8 +18,8 @@ export const STACK_SOLUTIONS: SolutionGroup = {
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 \`\`\`js
+// Time: O(n) · Space: O(n)
 // Stack — match open/close
-// LC: https://leetcode.com/problems/valid-parentheses/
 var isValid = function(s) {
   let stack = [];
 
@@ -52,7 +52,7 @@ var isValid = function(s) {
 [Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/
+// Time: O(n) · Space: O(n)
 var removeDuplicates = function(s) {
   let stack = [];
 
@@ -75,7 +75,7 @@ var removeDuplicates = function(s) {
 [Simplify Path](https://leetcode.com/problems/simplify-path/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/simplify-path/
+// Time: O(n) · Space: O(n)
 var simplifyPath = function(path) {
   let stack = [];
   path = path.split("/");
@@ -105,7 +105,7 @@ var simplifyPath = function(path) {
 [Remove All Adjacent Duplicates in String 2](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/
+// Time: O(n) · Space: O(n)
 var removeDuplicates = function(s, k) {
   let stack = [];
 

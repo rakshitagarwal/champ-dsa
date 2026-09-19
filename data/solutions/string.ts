@@ -18,7 +18,7 @@ export const STRING_SOLUTIONS: SolutionGroup = {
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/valid-palindrome/
+// Time: O(n) · Space: O(1)
 var isPalindrome = function(s) {
   let cleanStr = cleanUp(s);
   return isPal(cleanStr);
@@ -66,7 +66,7 @@ function isPal(str) {
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/valid-anagram/
+// Time: O(n) · Space: O(1)
 var isAnagram = function(s, t) {
   if (s.length !== t.length) return false;
 
@@ -109,7 +109,7 @@ var isAnagram = function(s, t) {
 [Robot Return to Origin](https://leetcode.com/problems/robot-return-to-origin/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/robot-return-to-origin/
+// Time: O(n) · Space: O(1)
 var judgeCircle = function(moves) {
   let x = 0;
   let y = 0;
@@ -138,7 +138,7 @@ var judgeCircle = function(moves) {
 [Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/length-of-last-word/
+// Time: O(n) · Space: O(1)
 var lengthOfLastWord = function(s) {
   // 2
   let i = s.length - 1;
@@ -166,7 +166,7 @@ var lengthOfLastWord = function(s) {
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/group-anagrams/
+// Time: O(n·k log k) · Space: O(n·k)
 var groupAnagrams = function(strs) {
   let sorted = strs.map((str) => str.split("").sort().join(""));
 
@@ -195,7 +195,7 @@ var groupAnagrams = function(strs) {
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/longest-palindromic-substring/
+// Time: O(n²) · Space: O(1)
 var longestPalindrome = function(s) {
   let longest = "";
 
@@ -233,7 +233,7 @@ var longestPalindrome = function(s) {
 [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/palindromic-substrings/
+// Time: O(n²) · Space: O(1)
 var countSubstrings = function(s) {
   let count = 0;
 
@@ -273,7 +273,7 @@ var countSubstrings = function(s) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// LC: https://leetcode.com/problems/encode-and-decode-strings/ (Premium)
+// Time: O(n) · Space: O(n)
 var encode = function(strs) {
   if (!strs.length) return null;
   return strs.join("-encodeStr");
@@ -296,7 +296,7 @@ var decode = function(s) {
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+// Time: O(n) · Space: O(min(n,Σ))
 var lengthOfLongestSubstring = function(s) {
   let longestStr = 0;
   let set = new Set();
@@ -332,7 +332,7 @@ var lengthOfLongestSubstring = function(s) {
 [Longest Repeated Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/longest-repeating-character-replacement/
+// Time: O(n) · Space: O(1)
 var characterReplacement = function(s, k) {
   let map = {};
 
@@ -375,7 +375,7 @@ var characterReplacement = function(s, k) {
 [Word Break](https://leetcode.com/problems/word-break/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/word-break/
+// Time: O(n²) · Space: O(n)
 var wordBreak = function(s, wordDict) {
   let visited = new Set();
   let set = new Set(wordDict);
@@ -412,7 +412,7 @@ var wordBreak = function(s, wordDict) {
 [String To Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/string-to-integer-atoi/
+// Time: O(n) · Space: O(1)
 var myAtoi = function(s) {
   let index = 0;
   let isNeg = false;
@@ -462,7 +462,7 @@ var myAtoi = function(s) {
 [Break A Palindrome](https://leetcode.com/problems/break-a-palindrome/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/break-a-palindrome/
+// Time: O(n) · Space: O(n)
 var breakPalindrome = function(palindrome) {
   if (palindrome.length === 1) return "";
 
@@ -491,7 +491,7 @@ var breakPalindrome = function(palindrome) {
 [Find the Index of First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/
+// Time: O(n·m) · Space: O(1)
 var strStr = function(haystack, needle) {
   if (haystack === needle || needle === "") {
     return 0;
@@ -521,8 +521,8 @@ var strStr = function(haystack, needle) {
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 \`\`\`js
+// Time: O(n) · Space: O(Σ)
 // Sliding window — smallest that still covers t
-// LC: https://leetcode.com/problems/minimum-window-substring/
 var minWindow = function(s, t) {
   let map = new Map();
 
@@ -579,8 +579,8 @@ var minWindow = function(s, t) {
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 \`\`\`js
+// Time: O(n·L²) · Space: O(n·L)
 // Graph BFS — one letter at a time
-// LC: https://leetcode.com/problems/word-ladder/
 var ladderLength = function(beginWord, endWord, wordList) {
   let set = new Set(wordList);
   let queue = [[beginWord, 1]];

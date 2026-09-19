@@ -18,7 +18,7 @@ export const TWO_POINTER_SOLUTIONS: SolutionGroup = {
 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/palindrome-number/
+// Time: O(log n) · Space: O(1)
 var isPalindrome = function(x) {
   if (x < 0) return false;
 
@@ -50,8 +50,8 @@ var isPalindrome = function(x) {
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Arrays — compact then fill
-// LC: https://leetcode.com/problems/move-zeroes/
 var moveZeroes = function(nums) {
   let left = 0;
   let right = 0;
@@ -77,7 +77,7 @@ var moveZeroes = function(nums) {
 [Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/valid-palindrome-ii/
+// Time: O(n) · Space: O(1)
 var validPalindrome = function(s) {
   let left = 0;
   let right = s.length - 1;
@@ -117,7 +117,7 @@ function isPal(s, left, right) {
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/container-with-most-water/
+// Time: O(n) · Space: O(1)
 var maxArea = function(height) {
   let left = 0;
   let right = height.length - 1;
@@ -150,7 +150,7 @@ var maxArea = function(height) {
 [3Sum](https://leetcode.com/problems/3sum/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/3sum/
+// Time: O(n²) · Space: O(1)
 var threeSum = function(nums) {
   if (nums.length === 0) return [];
 
@@ -196,8 +196,8 @@ var threeSum = function(nums) {
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Two pointers — opposite ends
-// LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
 var twoSum = function(numbers, target) {
   let left = 0;
   let right = numbers.length - 1;
@@ -225,7 +225,7 @@ var twoSum = function(numbers, target) {
 [4Sum](https://leetcode.com/problems/4sum/)
 
 \`\`\`js
-// LC: https://leetcode.com/problems/4sum/
+// Time: O(n³) · Space: O(1)
 var fourSum = function(nums, target) {
   nums.sort((a, b) => a - b);
   let res = [];
@@ -271,8 +271,8 @@ var fourSum = function(nums, target) {
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 \`\`\`js
+// Time: O(n) · Space: O(1)
 // Two pointers — water limited by the shorter wall
-// LC: https://leetcode.com/problems/trapping-rain-water/
 var trap = function(height) {
   let left = 0;
   let right = height.length - 1;

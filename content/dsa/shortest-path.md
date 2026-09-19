@@ -22,8 +22,8 @@ Dijkstra: always pick the unvisited node with smallest time. Relax its edges. An
 [Network Delay Time](https://leetcode.com/problems/network-delay-time/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Single-source shortest paths from node k
-// LC: https://leetcode.com/problems/network-delay-time/
 function networkDelayTime(times, n, k) {
   // Build adjacency list: u -> [v, weight]
   const g = Array.from({ length: n + 1 }, () => []);
@@ -60,7 +60,6 @@ function networkDelayTime(times, n, k) {
 Same Dijkstra, min-heap se `O((V+E) log V)`. Purani heap entry dikhe to skip karo (`d !== dist[u]`).
 
 ```js
-// LC: https://leetcode.com/problems/network-delay-time/ (heap fast)
 // Dijkstra with heap — O((V+E) log V)
 function networkDelayTimeHeap(times, n, k){
   // build adjacency list from edges
@@ -92,8 +91,8 @@ At most K stops = at most K+1 edges. Bellman-Ford: copy dist, relax every flight
 [Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Bellman-Ford with exactly K+1 edge hops max
-// LC: https://leetcode.com/problems/cheapest-flights-within-k-stops/
 function findCheapestPrice(n, flights, src, dst, k) {
   // dist[v] = cheapest cost to v with current hop budget
   let dist = Array(n).fill(Infinity);
@@ -137,8 +136,8 @@ Har `k` ko intermediate banao: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][
 [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Floyd-Warshall all-pairs shortest paths
-// LC: https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/
 function findTheCity(n, edges, distanceThreshold){
   const dist = Array.from({length:n}, ()=>Array(n).fill(Infinity));
   for(let i=0;i<n;i++) dist[i][i]=0;

@@ -6,6 +6,15 @@
 
 **How it works:** Do tareeke — Kahn (BFS): in-degree gino, 0 wale queue me, nikal ke neighbors unlock karo. DFS: visit ke baad stack me push, reverse karo. Cycle check: Kahn me `taken != n`, DFS me grey-node revisit (back-edge). Time `O(V+E)`.
 
+## Study notes
+
+- **Only on DAG.** Cycle ⇒ no topo order (return false / empty).
+- **Kahn (BFS):** indegree[]; queue zeros; process; `--indeg[v]===0` enqueue; if processed count `< n` → cycle.
+- **DFS:** 3 colors (0/1/2); grey revisit = cycle; push on finish; reverse stack = order.
+- **Alien Dictionary:** build graph from consecutive word diffs, then topo.
+- **Traps:** wrong edge direction (prereq → course); multiple valid orders OK.
+- **Checklist:** directed? need any order or detect cycle only?
+
 ```js
 // Topological skeleton (Kahn)
 // Kahn: enqueue all indegree-zero nodes
@@ -24,7 +33,7 @@ Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each take
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 ```js
-// LC: https://leetcode.com/problems/course-schedule/
+// Time: O(v+e) · Space: O(v+e)
 // cycle in prereq graph ⇒ false
 /**
  * @param {number} numCourses
@@ -84,8 +93,8 @@ Topo order wapas bhi karna hai, sirf possible/impossible nahi. Kahn me nikalte t
 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Kahn topological sort returns one valid order
-// LC: https://leetcode.com/problems/course-schedule-ii/
 function findOrder(numCourses, prerequisites) {
   const g = Array.from({length:numCourses}, ()=>[]);
   const indeg = Array(numCourses).fill(0);

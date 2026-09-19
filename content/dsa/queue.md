@@ -1,26 +1,65 @@
 # Queue
 
-**Definition:** Queue FIFO hai (first-in, first-out) — line, tail se enqueue head se dequeue, `O(1)`. Ordering aur levels sambhalta hai — BFS, task order, sliding window.
+**Definition:** Queue **FIFO** hai (first-in, first-out) — line: peeche se enqueue, aage se dequeue, ideal `O(1)`. Ordering aur levels sambhalta hai — BFS, task order, sliding time windows. **Deque** (double-ended queue) dono ends se add/remove karta hai — sliding window maximum, monotonic queue.
 
-**When to use:** BFS levels, recent calls jaisa time window, task scheduling, ya do queue se stack banana. Fixed size ho to circular queue banao.
+**When to use:** BFS levels, recent-calls jaisa time window, task scheduling, stack-via-queues, circular buffer. Window ka max/min chahiye to **deque of indices**.
 
-**How it works:** JS me array `push`/`shift` se queue banti hai (shift `O(n)` hai, bade input pe head pointer ya deque use karo). Circular queue me head + count + modulo se ghoomo. Time `O(n)`, space `O(n)`.
+**How it works:** JS me `push` + `shift` se queue (shift `O(n)` — bade n pe head index ya proper deque). Circular queue: `head + count + % k`. Deque: back pe badhte indices, front se stale/chhote nikaalo.
+
+## Study notes
+
+### Queue vs Stack vs Deque
+| Structure | Order | Typical use |
+| --- | --- | --- |
+| Stack | LIFO | brackets, DFS, undo |
+| Queue | FIFO | BFS levels, order |
+| Deque | both ends | window max, mono queue |
+
+### BFS level loop (must memorize)
+```js
+const q = [start];
+while (q.length) {
+  const size = q.length; // current level width
+  for (let i = 0; i < size; i++) {
+    const node = q.shift();
+    // visit neighbors → q.push
+  }
+  // steps++ here if counting levels
+}
+```
+
+### Deque pattern (sliding window maximum)
+- Store **indices**, not values.
+- Back: while last index's value ≤ current, pop (monotonic decreasing).
+- Front: if index out of window `i-k`, pop.
+- Front = current max.
+
+### Traps
+- `shift()` in tight loops is `O(n)` — mention in interview; for LC often OK.
+- Forget `visited` in BFS → infinite.
+- Circular queue: confuse full vs empty without `count`.
 
 ```js
 // Queue skeleton — enqueue at back, dequeue from front (FIFO)
-// queue: enqueue at back, dequeue from front
 const q = [start];
 while (q.length) {
-  const x = q.shift(); // pop from outStack — amortized O(1) dequeue
-  // ... kaam ...
-  for (const nxt of neighbors(x)) q.push(nxt); // enqueue neighbor at back
+  const x = q.shift();
+  for (const nxt of neighbors(x)) q.push(nxt);
 }
 
-// Circular queue skeleton — fixed size, modulo from ghoomo
-// ring buffer: head index + count modulo capacity
+// Deque skeleton — sliding window maximum (indices)
+const dq = []; // indices, values decreasing toward front
+for (let i = 0; i < n; i++) {
+  while (dq.length && nums[dq.at(-1)] <= nums[i]) dq.pop();
+  dq.push(i);
+  if (dq[0] <= i - k) dq.shift(); // left of window
+  if (i >= k - 1) ans.push(nums[dq[0]]);
+}
+
+// Circular queue skeleton — fixed size, modulo
 const a = Array(k).fill(0);
 let head = 0, count = 0;
-const idx = (head + count) % k; // next enqueue slot at (head+count) % k
+const enqIdx = (head + count) % k;
 ```
 ## Number of Recent Calls
 
@@ -29,7 +68,7 @@ const idx = (head + count) % k; // next enqueue slot at (head+count) % k
 [Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
 
 ```js
-// LC: https://leetcode.com/problems/number-of-recent-calls/
+// Time: O(n) · Space: O(n)
 function RecentCounter() {
   // BFS uses a FIFO queue
   this.q = [];
@@ -48,7 +87,7 @@ Ek queue lo — push ke baad purane sab ghuma ke piche daal do, taaki naya aage 
 [Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/)
 
 ```js
-// LC: https://leetcode.com/problems/implement-stack-using-queues/
+// Time: O(n) · Space: O(n)
 function MyStack() {
   this.q = [];
 }
@@ -75,7 +114,7 @@ Fixed size `k` — head + count rakho, index `% k` se ghoomo. Full/empty ka fara
 [Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
 
 ```js
-// LC: https://leetcode.com/problems/design-circular-queue/
+// Time: O(n) · Space: O(n)
 function MyCircularQueue(k) {
   this.a = Array(k).fill(0);
   this.head = 0;

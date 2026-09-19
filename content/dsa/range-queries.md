@@ -24,7 +24,7 @@ Fenwick on the array. Update = delta at index. Range = prefix(right) - prefix(le
 [Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)
 
 ```js
-// LC: https://leetcode.com/problems/range-sum-query-mutable/
+// Time: O(n) · Space: O(n)
 function NumArray(nums) {
   this.n = nums.length;
   this.nums = nums.slice();
@@ -55,7 +55,7 @@ Merge sort the indexes. When I take a value from the right half, it is smaller t
 [Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
 
 ```js
-// LC: https://leetcode.com/problems/count-of-smaller-numbers-after-self/
+// Time: O(n) · Space: O(n)
 function countSmaller(nums) {
   const n = nums.length;
   const idx = Array.from({ length: n }, (_, i) => i);
@@ -95,7 +95,7 @@ function countSmaller(nums) {
 [Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)
 
 ```js
-// LC: https://leetcode.com/problems/range-sum-query-2d-immutable/
+// Time: O(n) · Space: O(n)
 function NumMatrix(matrix){
   // build 2D prefix sums
   const R=matrix.length, C=matrix[0].length;
@@ -117,7 +117,7 @@ NumMatrix.prototype.sumRegion=function(r1,c1,r2,c2){
 [Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)
 
 ```js
-// LC: https://leetcode.com/problems/reverse-pairs/
+// Time: O(n) · Space: O(n)
 function reversePairs(nums){
   let ans=0;
   const mergeSort=(l,r)=>{

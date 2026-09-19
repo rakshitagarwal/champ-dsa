@@ -18,6 +18,7 @@ export const BACKTRACKING_SOLUTIONS: SolutionGroup = {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 \`\`\`js
+// Time: O(n·n!) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number[][]}
@@ -50,6 +51,7 @@ var permute = function(nums, arr = [], res = []) {
 [Combinations](https://leetcode.com/problems/combinations/)
 
 \`\`\`js
+// Time: O(C(n,k)·k) · Space: O(k)
 /**
  * @param {number} n
  * @param {number} k
@@ -90,9 +92,9 @@ var combine = function(n, k) {
 [Subsets](https://leetcode.com/problems/subsets/)
 
 \`\`\`js
+// Time: O(n·2ⁿ) · Space: O(n)
 // Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — subsets
-// LC: https://leetcode.com/problems/subsets/
 function subsets(nums) {
   const ans = [];
   const dfs = (start, path) => {
@@ -119,6 +121,7 @@ function subsets(nums) {
 [Combination Sum III](https://leetcode.com/problems/combination-sum-iii/)
 
 \`\`\`js
+// Time: O(C(9,k)) · Space: O(k)
 /**
  * @param {number} k
  * @param {number} n
@@ -163,6 +166,7 @@ var combinationSum3 = function(k, n) {
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
 \`\`\`js
+// Time: O(n·2ⁿ) · Space: O(n)
 /**
  * @param {number[]} nums
  * @return {number[][]}
@@ -199,6 +203,7 @@ var subsetsWithDup = function(nums) {
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 \`\`\`js
+// Time: O(n·2ⁿ) · Space: O(target)
 /**
  * @param {number[]} candidates
  * @param {number} target
@@ -238,6 +243,7 @@ var combinationSum = function(candidates, target) {
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 
 \`\`\`js
+// Time: O(4ⁿ·n) · Space: O(n)
 /**
  * @param {string} digits
  * @return {string[]}
@@ -286,6 +292,7 @@ var letterCombinations = function(digits, start = 0) {
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 \`\`\`js
+// Time: O(n!) · Space: O(n)
 var solveNQueens = function(n) {
     
     if(n.length === 1) return [["Q"]];
@@ -352,6 +359,7 @@ var solveNQueens = function(n) {
 [N-Queens II](https://leetcode.com/problems/n-queens-ii/)
 
 \`\`\`js
+// Time: O(n!) · Space: O(n)
 var totalNQueens = function(n) {
     
     let col = new Set();
@@ -408,6 +416,7 @@ var totalNQueens = function(n) {
 [Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
 
 \`\`\`js
+// Time: O(9^(empty)) · Space: O(1)
 /**
  * @param {character[][]} board
  * @return {void} Do not return anything, modify board in-place instead.

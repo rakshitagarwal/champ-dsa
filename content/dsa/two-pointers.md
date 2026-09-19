@@ -6,6 +6,14 @@
 
 **How it works:** Opposite-ends sorted/pair ke liye (jo side behtar jawab nahi de sakti use hatao); same-direction / center-expand palindrome ke liye. Kabhi peeche nahi — `O(n)`, `O(1)` space.
 
+## Study notes
+
+- **3 flavors:** (1) opposite ends on sorted, (2) slow/fast same direction (remove dups / middle), (3) expand around center (palindrome).
+- **Move rule:** sum too small → `left++`; too big → `right--`. Never both blindly.
+- **Vs sliding window:** two pointers often *not* maintaining a "window validity" map — just a decision from ends/center.
+- **Traps:** unsorted input for pair-sum (sort pehle, ya hashing); infinite loop if pointer na badhe; 3Sum me skip duplicates.
+- **Checklist:** sorted? what makes left/right move? indices 0- or 1-based return?
+
 ```js
 // Two pointers skeleton — opposite ends (sorted array)
 // compare sum to target; move left if too small, right if too large
@@ -31,8 +39,8 @@ Sorted, so if the sum is too small I need a bigger left. Too big, smaller right.
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // Two pointers — opposite ends
-// LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
 var twoSum = function(numbers, target) {
   let left = 0;
   let right = numbers.length - 1;
@@ -56,7 +64,7 @@ Every palindrome has a center. I expand while left and right match. Do it for od
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 ```js
-// LC: https://leetcode.com/problems/longest-palindromic-substring/
+// Time: O(n²) · Space: O(1)
 var longestPalindrome = function(s) {
   let longest = "";
 
@@ -90,9 +98,9 @@ Water at `i` is min(tallest on left, tallest on right) minus height[i]. Two poin
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // water = min(leftMax,rightMax) - height
 // Two pointers — water limited by the shorter wall
-// LC: https://leetcode.com/problems/trapping-rain-water/
 var trap = function(height) {
   let left = 0;
   let right = height.length - 1;
@@ -124,8 +132,8 @@ Move the pointer at the shorter wall — only that side can improve area. Track 
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // area = min(h)*width; move shorter side
-// LC: https://leetcode.com/problems/container-with-most-water/
 var maxArea = function(height) {
   let left = 0;
   let right = height.length - 1;
@@ -154,8 +162,8 @@ Sort, fix index `i`, then two-pointer 2-sum on the rest. Skip duplicate triplets
 [3Sum](https://leetcode.com/problems/3sum/)
 
 ```js
+// Time: O(n²) · Space: O(1)
 // sort + fix i; two pointers for the pair
-// LC: https://leetcode.com/problems/3sum/
 var threeSum = function(nums) {
   if (nums.length === 0) return [];
 
@@ -197,8 +205,8 @@ Keep only letters and digits, lowercase, then two pointers from both ends.
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
+// Time: O(n) · Space: O(1)
 // two pointers; skip non-alnum
-// LC: https://leetcode.com/problems/valid-palindrome/
 var isPalindrome = function(s) {
   let cleanStr = cleanUp(s);
   return isPal(cleanStr);

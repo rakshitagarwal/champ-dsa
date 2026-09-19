@@ -6,6 +6,15 @@
 
 **How it works:** Compare karke left/right jao — chhota hai to left, bada hai to right. Validate karne ke liye min/max bounds saath le jao (`lo < node.val < hi`). Inorder (left-node-right) hamesha sorted deta hai. Time `O(h)`, balanced me `O(log n)`.
 
+## Study notes
+
+- **Invariant:** all left < node < all right (strict for LC validate).
+- **Validate:** pass `(lo, hi)` bounds, not only parent compare.
+- **Kth smallest:** inorder count (or augment tree).
+- **LCA in BST:** both sides → node; else go left or right.
+- **Traps:** duplicates policy; skewed tree `O(n)`; confuse with heap.
+- **See also:** Trees page for general DFS/BFS.
+
 ```js
 // BST skeleton — search
 function searchBST(root, val) {
@@ -32,7 +41,7 @@ Har node `(lo, hi)` seema me hona chahiye. Left me jaao to `hi = node.val`, righ
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/validate-binary-search-tree/
+// Time: O(n) · Space: O(h)
 // keep valid (low, high) range
 /**
  * Definition for a binary tree node.
@@ -73,7 +82,7 @@ Inorder traversal sorted order deta hai — kth visit hi jawab hai. Iterative st
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+// Time: O(h+k) · Space: O(h)
 // inorder; count to k
 /**
  * Definition for a binary tree node.
@@ -117,7 +126,7 @@ BST property use karo — dono chhote to left, dono bade to right, warna yehi no
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ```js
-// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
+// Time: O(h) · Space: O(1)
 /**
  * Definition for a binary tree node.
  * function TreeNode(val) {
@@ -152,8 +161,8 @@ Node dhoondho, phir 3 cases: leaf (hatao), ek child (child jodo), do children (s
 [Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
 
 ```js
+// Time: O(n) · Space: O(n)
 // Recurse to target; three delete cases at match
-// LC: https://leetcode.com/problems/delete-node-in-a-bst/
 function deleteNode(root, key) {
   if (!root) return null; // Key not in tree
   if (key < root.val) root.left = deleteNode(root.left, key); // Search left subtree
