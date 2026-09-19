@@ -166,18 +166,22 @@ var lengthOfLastWord = function(s) {
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/group-anagrams/
-function groupAnagrams(strs) {
-  // Hinglish: step 1 — map banao
-  const map = new Map();
-  for (const w of strs) {
-    const key = [...w].sort().join(""); // Hinglish: sort = group key
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(w); // Hinglish: group me daalo
+var groupAnagrams = function(strs) {
+  let sorted = strs.map((str) => str.split("").sort().join(""));
+
+  let map = {};
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (!map[sorted[i]]) {
+      map[sorted[i]] = [strs[i]];
+    } else {
+      map[sorted[i]].push(strs[i]);
+    }
   }
-  return [...map.values()];
-}
+
+  return Object.values(map);
+};
 \`\`\``,
     },
     {
@@ -191,22 +195,31 @@ function groupAnagrams(strs) {
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
-function longestPalindrome(s) {
-  // Hinglish: step 1 — expand helper
-  const expand = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-    return [l + 1, r - l - 1]; // Hinglish: start + length
-  };
-  let start = 0, len = 0;
+var longestPalindrome = function(s) {
+  let longest = "";
+
+  function isPal(s, left, right) {
+    while (left >= 0 && right < s.length && s[left] === s[right]) {
+      left--;
+      right++;
+    }
+    return s.slice(left + 1, right);
+  }
+
   for (let i = 0; i < s.length; i++) {
-    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) { // Hinglish: odd + even
-      if (ln > len) { start = st; len = ln; } // Hinglish: lamba mila
+    let oddPal = isPal(s, i, i);
+    let evenPal = isPal(s, i, i + 1);
+
+    let longestPal = oddPal.length > evenPal.length ? oddPal : evenPal;
+
+    if (longestPal.length > longest.length) {
+      longest = longestPal;
     }
   }
-  return s.slice(start, start + len);
-}
+
+  return longest;
+};
 \`\`\``,
     },
     {
@@ -220,17 +233,30 @@ function longestPalindrome(s) {
 [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
 
 \`\`\`js
-// Hinglish: expand karke gino — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindromic-substrings/
-function countSubstrings(s) {
-  // Hinglish: step 1 — counter lo
-  let ans = 0;
-  const expand = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) { ans++; l--; r++; } // Hinglish: mila to gino
-  };
-  for (let i = 0; i < s.length; i++) { expand(i, i); expand(i, i + 1); } // Hinglish: odd + even
-  return ans;
-}
+var countSubstrings = function(s) {
+  let count = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    let left = i;
+    let right = i;
+
+    // odd
+    helper(left, right);
+    // even
+    helper(left, right + 1);
+  }
+
+  function helper(left, right) {
+    while (left >= 0 && right <= s.length - 1 && s[left] === s[right]) {
+      count++;
+      left--;
+      right++;
+    }
+  }
+
+  return count;
+};
 \`\`\``,
     },
     {
@@ -247,27 +273,16 @@ function countSubstrings(s) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: lambai likh ke jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/encode-and-decode-strings/ (Premium)
-function encode(strs) {
-  // Hinglish: step 1 — len#str jodo
-  let out = "";
-  for (const s of strs) out += s.length + "#" + s;
-  return out;
-}
-function decode(s) {
-  // Hinglish: step 1 — len padho, utna kaato
-  const out = [];
-  let i = 0;
-  while (i < s.length) {
-    let j = i;
-    while (s[j] !== "#") j++;
-    const len = Number(s.slice(i, j));
-    out.push(s.slice(j + 1, j + 1 + len));
-    i = j + 1 + len;
-  }
-  return out;
-}
+var encode = function(strs) {
+  if (!strs.length) return null;
+  return strs.join("-encodeStr");
+};
+
+var decode = function(s) {
+  if (s === null) return [];
+  return s.split("-encodeStr");
+};
 \`\`\``,
     },
     {
@@ -281,21 +296,29 @@ function decode(s) {
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
-function lengthOfLongestSubstring(s) {
-  // Hinglish: step 1 — window + map lo
-  const last = new Map();
-  let l = 0, best = 0;
-  for (let r = 0; r < s.length; r++) {
-    if (last.has(s[r]) && last.get(s[r]) >= l) {
-      l = last.get(s[r]) + 1; // Hinglish: repeat hatao, jump karo
+var lengthOfLongestSubstring = function(s) {
+  let longestStr = 0;
+  let set = new Set();
+
+  let left = 0;
+  let right = 0;
+
+  while (right < s.length) {
+    let letter = s[right];
+
+    if (!set.has(letter)) {
+      set.add(letter);
+      longestStr = Math.max(longestStr, set.size);
+      right++;
+    } else {
+      set.delete(s[left]);
+      left++;
     }
-    last.set(s[r], r);
-    best = Math.max(best, r - l + 1); // Hinglish: best update
   }
-  return best;
-}
+
+  return longestStr;
+};
 \`\`\``,
     },
     {
@@ -309,22 +332,36 @@ function lengthOfLongestSubstring(s) {
 [Longest Repeated Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/longest-repeating-character-replacement/
-function characterReplacement(s, k) {
-  // Hinglish: freq map + max count
-  const freq={}; let left=0, maxF=0, best=0;
-  for (let right=0; right<s.length; right++) {
-    const ch=s[right];
-    freq[ch]=(freq[ch]||0)+1;
-    maxF = Math.max(maxF, freq[ch]); // Hinglish: ab tak ka max freq
-    while ((right-left+1) - maxF > k) { // Hinglish: zyada replacement lage to shrink
-      freq[s[left]]--; left++;
+var characterReplacement = function(s, k) {
+  let map = {};
+
+  let topFrequency = 0;
+  let longest = 0;
+
+  let left = 0;
+  let right = 0;
+
+  while (right < s.length) {
+    let rightChar = s[right];
+
+    map[rightChar] = map[rightChar] + 1 || 1;
+
+    topFrequency = Math.max(topFrequency, map[rightChar]);
+
+    while ((right - left + 1) - topFrequency > k) {
+      let leftChar = s[left];
+      map[leftChar]--;
+      left++;
     }
-    best = Math.max(best, right-left+1);
+
+    longest = Math.max(longest, right - left + 1);
+
+    right++;
   }
-  return best;
-}
+
+  return longest;
+};
 \`\`\``,
     },
     {
@@ -338,24 +375,30 @@ function characterReplacement(s, k) {
 [Word Break](https://leetcode.com/problems/word-break/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — prefix can be segmented
 // LC: https://leetcode.com/problems/word-break/
-function wordBreak(s, wordDict) {
-  // Hinglish: step 1 — base case check karo
-  const dict = new Set(wordDict);
-  const dp = Array(s.length + 1).fill(false);
-  dp[0] = true;
-  for (let i = 1; i <= s.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (dp[j] && dict.has(s.slice(j, i))) {
-        dp[i] = true;
-        break;
+var wordBreak = function(s, wordDict) {
+  let visited = new Set();
+  let set = new Set(wordDict);
+  let queue = [0];
+
+  while (queue.length) {
+    let current = queue.shift();
+
+    if (!visited.has(current)) {
+      for (let i = current + 1; i <= s.length; i++) {
+        if (set.has(s.slice(current, i))) {
+          if (i === s.length) {
+            return true;
+          }
+          queue.push(i);
+        }
       }
+      visited.add(current);
     }
   }
-  return dp[s.length];
-}
+
+  return false;
+};
 \`\`\``,
     },
     {
@@ -369,24 +412,43 @@ function wordBreak(s, wordDict) {
 [String To Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/)
 
 \`\`\`js
-// Hinglish: tartib se padho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/string-to-integer-atoi/
-function myAtoi(s) {
-  // Hinglish: step 1 — space hatao
-  let i = 0;
-  while (i < s.length && s[i] === " ") i++;
-  let sign = 1;
-  if (s[i] === "+" || s[i] === "-") { sign = s[i] === "-" ? -1 : 1; i++; } // Hinglish: sign dekho
-  let num = 0;
-  const LIM = 2147483648;
-  while (i < s.length && s[i] >= "0" && s[i] <= "9") {
-    num = num * 10 + Number(s[i]); // Hinglish: jodte jao
-    if (sign * num <= -LIM) return -LIM; // Hinglish: neeche clamp
-    if (sign * num >= LIM - 1 && sign === 1) return LIM - 1; // Hinglish: upar clamp
-    i++;
+var myAtoi = function(s) {
+  let index = 0;
+  let isNeg = false;
+  let res = 0;
+
+  for (let i = index; i < s.length; i++) {
+    if (s[i] === " ") {
+      index++;
+    } else {
+      break;
+    }
   }
-  return sign * num;
-}
+
+  if (s[index] === "-" || s[index] === "+") {
+    isNeg = s[index] === "-";
+    index++;
+  }
+
+  for (let i = index; i < s.length; i++) {
+    let num = s.charCodeAt(i) - 48;
+    if (num < 0 || num > 9) break;
+
+    res *= 10;
+    res += num;
+  }
+
+  if (isNeg) {
+    res = -res;
+  }
+
+  let min = -(2 ** 31);
+  let max = 2 ** 31 - 1;
+
+  let minima = Math.min(max, res);
+  return Math.max(minima, min);
+};
 \`\`\``,
     },
     {
@@ -400,18 +462,22 @@ function myAtoi(s) {
 [Break A Palindrome](https://leetcode.com/problems/break-a-palindrome/)
 
 \`\`\`js
-// Hinglish: pehla badlo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/break-a-palindrome/
-function breakPalindrome(palindrome) {
-  // Hinglish: step 1 — chhota check karo
+var breakPalindrome = function(palindrome) {
   if (palindrome.length === 1) return "";
-  const a = [...palindrome];
-  for (let i = 0; i < Math.floor(a.length / 2); i++) {
-    if (a[i] !== "a") { a[i] = "a"; return a.join(""); } // Hinglish: pehla non-a badlo
+
+  let arr = palindrome.split("");
+
+  for (let i = 0; i < Math.floor(arr.length / 2); i++) {
+    if (arr[i] !== "a") {
+      arr[i] = "a";
+      return arr.join("");
+    }
   }
-  a[a.length - 1] = "b"; // Hinglish: sab a hain to aakhri badlo
-  return a.join("");
-}
+
+  arr[arr.length - 1] = "b";
+  return arr.join("");
+};
 \`\`\``,
     },
     {
@@ -425,20 +491,23 @@ function breakPalindrome(palindrome) {
 [Find the Index of First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
 
 \`\`\`js
-// Hinglish: har jagah try karo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/
-function strStr(haystack, needle) {
-  // Hinglish: step 1 — lambai lo
-  const n = haystack.length, m = needle.length;
-  for (let i = 0; i + m <= n; i++) {
-    let ok = true;
-    for (let j = 0; j < m; j++) {
-      if (haystack[i + j] !== needle[j]) { ok = false; break; } // Hinglish: mismatch
-    }
-    if (ok) return i; // Hinglish: mil gaya
+var strStr = function(haystack, needle) {
+  if (haystack === needle || needle === "") {
+    return 0;
   }
+
+  for (let i = 0; i < haystack.length; i++) {
+    if (haystack[i] === needle[0]) {
+      let sub = haystack.substring(i, i + needle.length);
+      if (sub === needle) {
+        return i;
+      }
+    }
+  }
+
   return -1;
-}
+};
 \`\`\``,
     },
     {
@@ -452,32 +521,51 @@ function strStr(haystack, needle) {
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 \`\`\`js
-// Hinglish: window slide karo — ek-ek step comment dekho
 // Sliding window — smallest that still covers t
 // LC: https://leetcode.com/problems/minimum-window-substring/
-function minWindow(s, t) {
-  // Hinglish: step 1 — base case check karo
-  const need = new Map();
-  for (const ch of t) need.set(ch, (need.get(ch) || 0) + 1);
-  let missing = need.size, left = 0, best = "";
-  for (let right = 0; right < s.length; right++) {
-    const r = s[right];
-    if (need.has(r)) {
-      need.set(r, need.get(r) - 1);
-      if (need.get(r) === 0) missing--;
+var minWindow = function(s, t) {
+  let map = new Map();
+
+  for (let letter of t) {
+    if (!map.has(letter)) {
+      map.set(letter, 1);
+    } else {
+      map.set(letter, map.get(letter) + 1);
     }
-    while (missing === 0) {
-      if (!best || right - left + 1 < best.length) best = s.slice(left, right + 1);
-      const l = s[left];
-      if (need.has(l)) {
-        need.set(l, need.get(l) + 1);
-        if (need.get(l) > 0) missing++;
+  }
+
+  let left = 0;
+  let right = 0;
+  let len = Infinity;
+  let count = map.size;
+  let minWindow = "";
+
+  while (right < s.length) {
+    let rLetter = s[right];
+    if (map.has(rLetter)) {
+      map.set(rLetter, map.get(rLetter) - 1);
+      if (map.get(rLetter) === 0) count--;
+    }
+
+    right++;
+
+    while (count === 0) {
+      if (right - left < len) {
+        len = right - left;
+        minWindow = s.slice(left, right);
+      }
+
+      let lLetter = s[left];
+      if (map.has(lLetter)) {
+        map.set(lLetter, map.get(lLetter) + 1);
+        if (map.get(lLetter) > 0) count++;
       }
       left++;
     }
   }
-  return best;
-}
+
+  return minWindow;
+};
 \`\`\``,
     },
     {
@@ -491,28 +579,34 @@ function minWindow(s, t) {
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph BFS — one letter at a time
 // LC: https://leetcode.com/problems/word-ladder/
-function ladderLength(beginWord, endWord, wordList) {
-  const set = new Set(wordList);
-  if (!set.has(endWord)) return 0;
-  const q = [[beginWord, 1]];
-  const seen = new Set([beginWord]);
-  while (q.length) {
-    const [word, d] = q.shift();
-    if (word === endWord) return d;
-    for (let i = 0; i < word.length; i++) {
-      for (let c = 97; c <= 122; c++) {
-        const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
-        if (!set.has(next) || seen.has(next)) continue;
-        seen.add(next); // Hinglish: visit mark
-        q.push([next, d + 1]);
+var ladderLength = function(beginWord, endWord, wordList) {
+  let set = new Set(wordList);
+  let queue = [[beginWord, 1]];
+
+  while (queue.length) {
+    let [currWord, count] = queue.shift();
+
+    if (currWord === endWord) {
+      return count;
+    }
+
+    for (let i = 0; i < 26; i++) {
+      for (let j = 0; j < currWord.length; j++) {
+        let letter = String.fromCharCode(97 + i);
+        let newWord = currWord.slice(0, j) + letter + currWord.slice(j + 1);
+
+        if (set.has(newWord)) {
+          queue.push([newWord, count + 1]);
+          set.delete(newWord);
+        }
       }
     }
   }
+
   return 0;
-}
+};
 \`\`\``,
     },
       ],

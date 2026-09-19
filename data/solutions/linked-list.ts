@@ -18,26 +18,31 @@ export const LINKED_LIST_SOLUTIONS: SolutionGroup = {
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — merge with dummy
 // LC: https://leetcode.com/problems/merge-two-sorted-lists/
-function mergeTwoLists(l1, l2) {
-  // Hinglish: step 1 — base case check karo
-  const dummy = { val: 0, next: null };
-  let tail = dummy;
-  while (l1 && l2) {
-    if (l1.val < l2.val) {
-      tail.next = l1;
-      l1 = l1.next;
+var mergeTwoLists = function(list1, list2) {
+  let dummy = new ListNode(0);
+  let head = dummy;
+
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      dummy.next = list1;
+      list1 = list1.next;
     } else {
-      tail.next = l2;
-      l2 = l2.next;
+      dummy.next = list2;
+      list2 = list2.next;
     }
-    tail = tail.next;
+    dummy = dummy.next;
   }
-  tail.next = l1 || l2;
-  return dummy.next;
-}
+
+  if (list1 !== null) {
+    dummy.next = list1;
+  } else {
+    dummy.next = list2;
+  }
+
+  return head.next;
+};
 \`\`\``,
     },
     {
