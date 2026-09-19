@@ -18,18 +18,25 @@ export const TWO_POINTER_SOLUTIONS: SolutionGroup = {
 [Palindrome Number](https://leetcode.com/problems/palindrome-number/)
 
 \`\`\`js
-// Hinglish: aadha palto — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindrome-number/
-function isPalindrome(x) {
-  // Hinglish: step 1 — negative aur zero-end hatao
-  if (x < 0 || (x % 10 === 0 && x !== 0)) return false;
-  let rev = 0;
-  while (x > rev) {
-    rev = rev * 10 + (x % 10); // Hinglish: peeche jodo
-    x = Math.floor(x / 10); // Hinglish: aage ghatao
+var isPalindrome = function(x) {
+  if (x < 0) return false;
+
+  x = x.toString();
+
+  let left = 0;
+  let right = x.length - 1;
+
+  while (left < right) {
+    if (x[left] !== x[right]) {
+      return false;
+    }
+    left++;
+    right--;
   }
-  return x === rev || x === Math.floor(rev / 10); // Hinglish: odd me beech wala extra
-}
+
+  return true;
+};
 \`\`\``,
     },
     {
@@ -43,17 +50,20 @@ function isPalindrome(x) {
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // Arrays — compact then fill
 // LC: https://leetcode.com/problems/move-zeroes/
-function moveZeroes(nums) {
-  // Hinglish: step 1 — base case check karo
-  let write = 0;
-  for (let read = 0; read < nums.length; read++) {
-    if (nums[read] !== 0) nums[write++] = nums[read];
+var moveZeroes = function(nums) {
+  let left = 0;
+  let right = 0;
+
+  while (right < nums.length) {
+    if (nums[right] !== 0) {
+      [nums[left], nums[right]] = [nums[right], nums[left]];
+      left++;
+    }
+    right++;
   }
-  while (write < nums.length) nums[write++] = 0;
-}
+};
 \`\`\``,
     },
     {
@@ -67,19 +77,31 @@ function moveZeroes(nums) {
 [Valid Palindrome II](https://leetcode.com/problems/valid-palindrome-ii/)
 
 \`\`\`js
-// Hinglish: ek delete allowed — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-palindrome-ii/
-function validPalindrome(s) {
-  // Hinglish: step 1 — range check helper
-  const isPal = (l, r) => {
-    while (l < r) { if (s[l] !== s[r]) return false; l++; r--; }
-    return true;
-  };
-  let l = 0, r = s.length - 1;
-  while (l < r) {
-    if (s[l] !== s[r]) return isPal(l + 1, r) || isPal(l, r - 1); // Hinglish: ek hatao
-    l++; r--;
+var validPalindrome = function(s) {
+  let left = 0;
+  let right = s.length - 1;
+
+  while (left < right) {
+    if (s[left] !== s[right]) {
+      return isPal(s, left + 1, right) || isPal(s, left, right - 1);
+    }
+    left++;
+    right--;
   }
+
+  return true;
+};
+
+function isPal(s, left, right) {
+  while (left < right) {
+    if (s[left] !== s[right]) {
+      return false;
+    }
+    left++;
+    right--;
+  }
+
   return true;
 }
 \`\`\``,
@@ -95,19 +117,26 @@ function validPalindrome(s) {
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/container-with-most-water/
-function maxArea(height) {
-  // Hinglish: dono end se start
-  let l=0, r=height.length-1, best=0;
-  while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l); // Hinglish: current area
-    best = Math.max(best, area);
-    if (height[l] < height[r]) l++; // Hinglish: chhoti height hatayi, badi ka chance
-    else r--;
+var maxArea = function(height) {
+  let left = 0;
+  let right = height.length - 1;
+  let maxima = 0;
+
+  while (left < right) {
+    let width = right - left;
+    let maxArea = Math.min(height[left], height[right]) * width;
+    maxima = Math.max(maxima, maxArea);
+
+    if (height[left] <= height[right]) {
+      left++;
+    } else {
+      right--;
+    }
   }
-  return best;
-}
+
+  return maxima;
+};
 \`\`\``,
     },
     {
@@ -121,24 +150,39 @@ function maxArea(height) {
 [3Sum](https://leetcode.com/problems/3sum/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/3sum/
-function threeSum(nums) {
-  // Hinglish: pehle sort
-  nums.sort((a,b)=>a-b);
-  const ans=[];
-  for (let i=0;i<nums.length-2;i++) {
-    if (i>0 && nums[i]===nums[i-1]) continue; // Hinglish: duplicate i skip
-    let l=i+1, r=nums.length-1;
-    while (l<r) {
-      const sum = nums[i]+nums[l]+nums[r];
-      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // Hinglish: mila to dono move + duplicate skip
-      else if (sum<0) l++; // Hinglish: chhota to left badhao
-      else r--;
+var threeSum = function(nums) {
+  if (nums.length === 0) return [];
+
+  nums = nums.sort((a, b) => a - b);
+  let res = [];
+
+  for (let i = 0; i < nums.length - 2; i++) {
+    // stop duplicates from occuring
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+
+    let j = i + 1;
+    let k = nums.length - 1;
+
+    while (j < k) {
+      let sum = nums[i] + nums[j] + nums[k];
+      if (sum === 0) {
+        res.push([nums[i], nums[j], nums[k]]);
+        // stop duplicates
+        while (nums[j] === nums[j + 1]) j++;
+        while (nums[k] === nums[k + 1]) k--;
+        j++;
+        k--;
+      } else if (sum < 0) {
+        j++;
+      } else {
+        k--;
+      }
     }
   }
-  return ans;
-}
+
+  return res;
+};
 \`\`\``,
     },
     {
@@ -152,18 +196,22 @@ function threeSum(nums) {
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // Two pointers — opposite ends
 // LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
-function twoSum(numbers, target) {
-  let left = 0, right = numbers.length - 1;
-  while (left < right) { // Hinglish: do pointer chalao
-    const sum = numbers[left] + numbers[right];
-    if (sum === target) return [left + 1, right + 1];
-    if (sum < target) left++; // Hinglish: left badhao
-    else right--; // Hinglish: right ghatao
+var twoSum = function(numbers, target) {
+  let left = 0;
+  let right = numbers.length - 1;
+
+  while (left < right) {
+    if (numbers[left] + numbers[right] === target) {
+      return [left + 1, right + 1];
+    } else if (numbers[left] + numbers[right] < target) {
+      left++;
+    } else {
+      right--;
+    }
   }
-}
+};
 \`\`\``,
     },
     {
@@ -177,31 +225,39 @@ function twoSum(numbers, target) {
 [4Sum](https://leetcode.com/problems/4sum/)
 
 \`\`\`js
-// Hinglish: do fix + two pointers — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/4sum/
-function fourSum(nums, target) {
-  // Hinglish: step 1 — sort karo
+var fourSum = function(nums, target) {
   nums.sort((a, b) => a - b);
-  const out = [], n = nums.length;
-  for (let i = 0; i < n - 3; i++) {
-    if (i > 0 && nums[i] === nums[i - 1]) continue; // Hinglish: duplicate skip
-    for (let j = i + 1; j < n - 2; j++) {
-      if (j > i + 1 && nums[j] === nums[j - 1]) continue;
-      let l = j + 1, r = n - 1;
-      while (l < r) {
-        const s = nums[i] + nums[j] + nums[l] + nums[r];
-        if (s === target) {
-          out.push([nums[i], nums[j], nums[l], nums[r]]);
-          l++; r--;
-          while (l < r && nums[l] === nums[l - 1]) l++; // Hinglish: duplicate skip
-          while (l < r && nums[r] === nums[r + 1]) r--;
-        } else if (s < target) l++;
-        else r--;
+  let res = [];
+
+  if (nums.length < 4) return [];
+
+  for (let i = 0; i < nums.length - 3; i++) {
+    for (let j = i + 1; j < nums.length - 2; j++) {
+      let k = j + 1;
+      let l = nums.length - 1;
+
+      while (k < l) {
+        let sum = nums[i] + nums[j] + nums[k] + nums[l];
+
+        if (sum === target) {
+          res.push([nums[i], nums[j], nums[k], nums[l]]);
+          while (nums[k] === nums[k + 1]) k++;
+          while (nums[l] === nums[l - 1]) l--;
+          k++;
+          l--;
+        } else if (sum < target) {
+          k++;
+        } else {
+          l--;
+        }
       }
+      while (nums[j] === nums[j + 1]) j++;
     }
+    while (nums[i] === nums[i + 1]) i++;
   }
-  return out;
-}
+  return res;
+};
 \`\`\``,
     },
     {
@@ -215,25 +271,30 @@ function fourSum(nums, target) {
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 \`\`\`js
-// Hinglish: do pointer chalao — ek-ek step comment dekho
 // Two pointers — water limited by the shorter wall
 // LC: https://leetcode.com/problems/trapping-rain-water/
-function trap(height) {
-  let left = 0, right = height.length - 1;
-  let leftMax = 0, rightMax = 0, water = 0;
-  while (left < right) { // Hinglish: do pointer chalao
+var trap = function(height) {
+  let left = 0;
+  let right = height.length - 1;
+  let leftMax = 0;
+  let rightMax = 0;
+  let trappedWater = 0;
+
+  while (left < right) {
+    leftMax = Math.max(leftMax, height[left]);
+    rightMax = Math.max(rightMax, height[right]);
+
     if (height[left] < height[right]) {
-      leftMax = Math.max(leftMax, height[left]);
-      water += leftMax - height[left];
-      left++; // Hinglish: left badhao
+      trappedWater += leftMax - height[left];
+      left++;
     } else {
-      rightMax = Math.max(rightMax, height[right]);
-      water += rightMax - height[right];
-      right--; // Hinglish: right ghatao
+      trappedWater += rightMax - height[right];
+      right--;
     }
   }
-  return water;
-}
+
+  return trappedWater;
+};
 \`\`\``,
     },
       ],

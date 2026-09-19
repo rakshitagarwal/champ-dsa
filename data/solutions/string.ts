@@ -18,18 +18,39 @@ export const STRING_SOLUTIONS: SolutionGroup = {
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-palindrome/
-function isPalindrome(s) {
-  // Hinglish: step 1 — dono pointer lo
-  const isAlphaNum = (c) => /[a-z0-9]/i.test(c);
-  let l = 0, r = s.length - 1;
-  while (l < r) {
-    while (l < r && !isAlphaNum(s[l])) l++; // Hinglish: kachra skip
-    while (l < r && !isAlphaNum(s[r])) r--;
-    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false; // Hinglish: mismatch
-    l++; r--;
+var isPalindrome = function(s) {
+  let cleanStr = cleanUp(s);
+  return isPal(cleanStr);
+};
+
+function cleanUp(str) {
+  let char = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let newS = "";
+
+  for (let i = 0; i < str.length; i++) {
+    let lCase = str[i].toLowerCase();
+
+    if (char.indexOf(lCase) !== -1) {
+      newS += lCase;
+    }
   }
+
+  return newS;
+}
+
+function isPal(str) {
+  let left = 0;
+  let right = str.length - 1;
+
+  while (left < right) {
+    if (str[left] !== str[right]) {
+      return false;
+    }
+    left++;
+    right--;
+  }
+
   return true;
 }
 \`\`\``,
@@ -45,18 +66,36 @@ function isPalindrome(s) {
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 \`\`\`js
-// Hinglish: string scan — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/valid-anagram/
-function isAnagram(s, t) {
-  // Hinglish: step 1 — lambai check karo
+var isAnagram = function(s, t) {
   if (s.length !== t.length) return false;
-  const f = Array(26).fill(0);
+
+  let map = {};
+
   for (let i = 0; i < s.length; i++) {
-    f[s.charCodeAt(i) - 97]++; // Hinglish: pehle ka +1
-    f[t.charCodeAt(i) - 97]--; // Hinglish: doosre ka -1
+    let letter = s[i];
+
+    if (!map[letter]) {
+      map[letter] = 1;
+    } else {
+      map[letter]++;
+    }
   }
-  return f.every((x) => x === 0); // Hinglish: sab zero to anagram
-}
+
+  for (let i = 0; i < t.length; i++) {
+    let letter = t[i];
+
+    if (map[letter] === undefined) {
+      return false;
+    }
+    if (map[letter] < 1) {
+      return false;
+    }
+    map[letter]--;
+  }
+
+  return true;
+};
 \`\`\``,
     },
     {
@@ -70,19 +109,22 @@ function isAnagram(s, t) {
 [Robot Return to Origin](https://leetcode.com/problems/robot-return-to-origin/)
 
 \`\`\`js
-// Hinglish: disha gin lo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/robot-return-to-origin/
-function judgeCircle(moves) {
-  // Hinglish: step 1 — counters lo
-  let x = 0, y = 0;
-  for (const ch of moves) {
-    if (ch === "U") y++;
-    else if (ch === "D") y--; // Hinglish: upar-neeche
-    else if (ch === "L") x--;
-    else x++; // Hinglish: left-right
+var judgeCircle = function(moves) {
+  let x = 0;
+  let y = 0;
+
+  for (let move of moves) {
+    switch (move) {
+      case "U": y++; break;
+      case "R": x++; break;
+      case "D": y--; break;
+      case "L": x--; break;
+    }
   }
-  return x === 0 && y === 0; // Hinglish: dono zero to wapas
-}
+
+  return x === 0 && y === 0;
+};
 \`\`\``,
     },
     {
@@ -96,16 +138,21 @@ function judgeCircle(moves) {
 [Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
 
 \`\`\`js
-// Hinglish: peeche se gino — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/length-of-last-word/
-function lengthOfLastWord(s) {
-  // Hinglish: step 1 — aakhir se chalo
+var lengthOfLastWord = function(s) {
+  // 2
   let i = s.length - 1;
-  while (i >= 0 && s[i] === " ") i--; // Hinglish: peeche ke space hatao
-  let len = 0;
-  while (i >= 0 && s[i] !== " ") { len++; i--; } // Hinglish: word gino
-  return len;
-}
+  let count = 0;
+  while (i >= 0) {
+    if (s[i] == " " && count > 0) {
+      return count;
+    } else if (s[i] != " ") {
+      count++;
+    }
+    i--;
+  }
+  return count;
+};
 \`\`\``,
     },
     {

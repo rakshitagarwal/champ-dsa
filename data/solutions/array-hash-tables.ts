@@ -18,17 +18,18 @@ export const ARRAY_HASH_TABLES_SOLUTIONS: SolutionGroup = {
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
-function maxProfit(prices) {
-  // Hinglish: sabse kam price yaad rakho
-  let best = 0, minPrice = Infinity;
-  for (const p of prices) {
-    minPrice = Math.min(minPrice, p); // Hinglish: sasta mila to update
-    best = Math.max(best, p - minPrice); // Hinglish: bech ke dekho profit
+var maxProfit = function(prices) {
+  let curMin = prices[0];
+  let curMax = 0;
+
+  for (let i = 0; i < prices.length; i++) {
+    curMin = Math.min(prices[i], curMin);
+    curMax = Math.max(curMax, prices[i] - curMin);
   }
-  return best;
-}
+
+  return curMax;
+};
 \`\`\``,
     },
     {
@@ -42,17 +43,11 @@ function maxProfit(prices) {
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/contains-duplicate/
-function containsDuplicate(nums) {
-  // Hinglish: set me pehle se hai kya?
-  const seen = new Set();
-  for (const x of nums) {
-    if (seen.has(x)) return true; // Hinglish: duplicate mil gaya
-    seen.add(x); // Hinglish: yaad rakho
-  }
-  return false;
-}
+var containsDuplicate = function(nums) {
+  let set = new Set(nums);
+  return set.size !== nums.length;
+};
 \`\`\``,
     },
     {
@@ -66,19 +61,39 @@ function containsDuplicate(nums) {
 [Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/)
 
 \`\`\`js
-// Hinglish: pichhli row se banao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/pascals-triangle/
-function generate(numRows) {
-  // Hinglish: step 1 — pehli row lo
-  const out = [[1]];
-  for (let r = 1; r < numRows; r++) {
-    const row = [1];
-    for (let c = 1; c < r; c++) row.push(out[r - 1][c - 1] + out[r - 1][c]); // Hinglish: upar dono jodo
-    row.push(1);
-    out.push(row);
+var generate = function(numRows) {
+  let res = [];
+
+  if (numRows >= 1) res.push([1]);
+  if (numRows >= 2) res.push([1, 1]);
+
+  // logic
+  for (let i = 2; i < numRows; i++) {
+    let first = 1;
+    let last = 1;
+
+    let prevArr = res[i - 1];
+
+    if (prevArr.length === 2) {
+      res.push([first, first + last, last]);
+    } else {
+      let left = 0;
+      let right = 1;
+      let add = [];
+
+      while (right < prevArr.length) {
+        add.push(prevArr[left] + prevArr[right]);
+        left++;
+        right++;
+      }
+
+      res.push([first, ...add, last]);
+    }
   }
-  return out;
-}
+
+  return res;
+};
 \`\`\``,
     },
     {
@@ -95,17 +110,18 @@ function generate(numRows) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: time yaad rakho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/logger-rate-limiter/ (Premium)
-function Logger() {
-  // Hinglish: step 1 — map lo
-  this.last = new Map();
-}
-Logger.prototype.shouldPrintMessage = function (timestamp, message) {
-  if (this.last.has(message) && timestamp - this.last.get(message) < 10) {
-    return false; // Hinglish: 10 sec nahi hue
+var Logger = function() {
+  this.map = new Map();
+};
+
+Logger.prototype.shouldPrintMessage = function(timestamp, message) {
+  if (this.map.has(message)) {
+    if (timestamp < this.map.get(message) + 10) {
+      return false;
+    }
   }
-  this.last.set(message, timestamp); // Hinglish: time note karo
+  this.map.set(message, timestamp);
   return true;
 };
 \`\`\``,
@@ -121,18 +137,22 @@ Logger.prototype.shouldPrintMessage = function (timestamp, message) {
 [Monotonic Array](https://leetcode.com/problems/monotonic-array/)
 
 \`\`\`js
-// Hinglish: disha check karo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/monotonic-array/
-function isMonotonic(nums) {
-  // Hinglish: step 1 — flags lo
-  let up = false, down = false;
-  for (let i = 1; i < nums.length; i++) {
-    if (nums[i] > nums[i - 1]) up = true; // Hinglish: upar gaya
-    if (nums[i] < nums[i - 1]) down = true; // Hinglish: neeche gaya
-    if (up && down) return false; // Hinglish: dono hue to gadbad
+var isMonotonic = function(nums) {
+  let increasing = true;
+  let decreasing = true;
+
+  for (let i = 0; i < nums.length - 1; i++) {
+    if (nums[i] > nums[i + 1]) {
+      increasing = false;
+    }
+    if (nums[i] < nums[i + 1]) {
+      decreasing = false;
+    }
   }
-  return true;
-}
+
+  return increasing || decreasing;
+};
 \`\`\``,
     },
     {
@@ -146,18 +166,33 @@ function isMonotonic(nums) {
 [Roman to Integer](https://leetcode.com/problems/roman-to-integer/)
 
 \`\`\`js
-// Hinglish: aage dekh ke jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/roman-to-integer/
-function romanToInt(s) {
-  // Hinglish: step 1 — map banao
-  const v = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
-  let ans = 0;
+var romanToInt = function(s) {
+  const symbols = {
+    I: 1,
+    V: 5,
+    X: 10,
+    L: 50,
+    C: 100,
+    D: 500,
+    M: 1000,
+  };
+
+  let total = 0;
+
   for (let i = 0; i < s.length; i++) {
-    if (i + 1 < s.length && v[s[i]] < v[s[i + 1]]) ans -= v[s[i]]; // Hinglish: chhota pehle to ghatao
-    else ans += v[s[i]]; // Hinglish: nahi to jodo
+    let curr = s[i];
+    let next = s[i + 1];
+
+    if (symbols[curr] < symbols[next]) {
+      total -= symbols[curr];
+    } else {
+      total += symbols[curr];
+    }
   }
-  return ans;
-}
+
+  return total;
+};
 \`\`\``,
     },
     {
@@ -171,17 +206,20 @@ function romanToInt(s) {
 [Minimum Value to Get Positive Step by Step Sum](https://leetcode.com/problems/minimum-value-to-get-positive-step-by-step-sum/)
 
 \`\`\`js
-// Hinglish: sabse neecha dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-value-to-get-positive-step-by-step-sum/
-function minStartValue(nums) {
-  // Hinglish: step 1 — prefix chalao
-  let sum = 0, mn = 0;
-  for (const x of nums) {
-    sum += x;
-    if (sum < mn) mn = sum; // Hinglish: sabse neecha yaad rakho
+var minStartValue = function(nums) {
+  let sumUp = 0;
+  let minSum = 1;
+
+  for (let num of nums) {
+    sumUp += num;
+    minSum = Math.min(sumUp, minSum);
   }
-  return 1 - mn; // Hinglish: itna start do ki 1 se neeche na jaye
-}
+
+  if (minSum > 0) return 1;
+
+  return -1 * minSum + 1;
+};
 \`\`\``,
     },
     {
@@ -198,24 +236,35 @@ function minStartValue(nums) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: top 5 ka average — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/high-five/ (Premium)
-function highFive(items) {
-  // Hinglish: step 1 — id se jodo
-  const map = new Map();
-  for (const [id, score] of items) {
-    if (!map.has(id)) map.set(id, []);
-    map.get(id).push(score);
+var highFive = function(items) {
+  let scoresMap = {};
+
+  for (let [id, score] of items) {
+    if (!scoresMap[id]) {
+      scoresMap[id] = [score];
+    } else {
+      scoresMap[id].push(score);
+    }
   }
-  const out = [];
-  for (const [id, scores] of map) {
-    scores.sort((a, b) => b - a); // Hinglish: bada pehle
-    let s = 0;
-    for (let i = 0; i < 5; i++) s += scores[i];
-    out.push([id, Math.floor(s / 5)]); // Hinglish: average nikalo
-  }
-  return out;
-}
+
+  let res = [];
+
+  Object.keys(scoresMap).map((key) => {
+    let values = scoresMap[key];
+    values = values.sort((a, b) => b - a);
+
+    let topFive = 0;
+    for (let i = 0; i < 5; i++) {
+      topFive += values[i];
+    }
+
+    let av = Math.floor(topFive / 5);
+    res.push([key, av]);
+  });
+
+  return res;
+};
 \`\`\``,
     },
     {
@@ -229,17 +278,21 @@ function highFive(items) {
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
 // Hashing — complement
 // LC: https://leetcode.com/problems/two-sum/
-function twoSum(nums, target) {
-  const seen = new Map();
+var twoSum = function(nums, target) {
+  let map = new Map();
+
   for (let i = 0; i < nums.length; i++) {
-    const need = target - nums[i];
-    if (seen.has(need)) return [seen.get(need), i]; // Hinglish: saathi mila kya?
-    seen.set(nums[i], i); // Hinglish: yaad rakho
+    const compliment = target - nums[i];
+
+    if (map.has(compliment)) {
+      return [i, map.get(compliment)];
+    } else {
+      map.set(nums[i], i);
+    }
   }
-}
+};
 \`\`\``,
     },
     {
@@ -253,14 +306,10 @@ function twoSum(nums, target) {
 [Power of Three](https://leetcode.com/problems/power-of-three/)
 
 \`\`\`js
-// Hinglish: divide karte jao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/power-of-three/
-function isPowerOfThree(n) {
-  // Hinglish: step 1 — chhota ya zero hatao
-  if (n < 1) return false;
-  while (n % 3 === 0) n = Math.floor(n / 3); // Hinglish: 3 se kaato
-  return n === 1; // Hinglish: 1 bacha to power hai
-}
+var isPowerOfThree = function(n) {
+  return n > 0 && (3 ** 19) % n === 0;
+};
 \`\`\``,
     },
     {
@@ -274,13 +323,11 @@ function isPowerOfThree(n) {
 [Power of Four](https://leetcode.com/problems/power-of-four/)
 
 \`\`\`js
-// Hinglish: do shart lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/power-of-four/
-function isPowerOfFour(n) {
-  // Hinglish: step 1 — power of two check karo
-  if (n <= 0 || (n & (n - 1)) !== 0) return false; // Hinglish: single bit hona chahiye
-  return (n & 1431655765) !== 0; // Hinglish: 1 odd position pe hona chahiye
-}
+var isPowerOfFour = function(n) {
+  // log 2 is even return true;
+  return n > 0 && Math.log2(n) % 2 === 0;
+};
 \`\`\``,
     },
     {
@@ -294,24 +341,26 @@ function isPowerOfFour(n) {
 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 \`\`\`js
-// Hinglish: prefix jod — ek-ek step comment dekho
 // Prefix / suffix products
 // LC: https://leetcode.com/problems/product-of-array-except-self/
-function productExceptSelf(nums) {
-  // Hinglish: step 1 — base case check karo
-  const n = nums.length, out = Array(n).fill(1);
-  let left = 1;
-  for (let i = 0; i < n; i++) {
-    out[i] *= left;
-    left *= nums[i];
+var productExceptSelf = function(nums) {
+  let res = [];
+  let start = 1;
+
+  for (let i = 0; i < nums.length; i++) {
+    res.push(start);
+    start = start * nums[i];
   }
-  let right = 1;
-  for (let i = n - 1; i >= 0; i--) {
-    out[i] *= right;
-    right *= nums[i];
+
+  let start2 = 1;
+
+  for (let i = nums.length - 1; i >= 0; i--) {
+    res[i] = start2 * res[i];
+    start2 = start2 * nums[i];
   }
-  return out;
-}
+
+  return res;
+};
 \`\`\``,
     },
     {
@@ -325,16 +374,19 @@ function productExceptSelf(nums) {
 [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
 
 \`\`\`js
-// Hinglish: chadhai becho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
-function maxProfit(prices) {
-  // Hinglish: step 1 — din gin lo
-  let ans = 0;
+var maxProfit = function(prices) {
+  let total = 0;
+
   for (let i = 1; i < prices.length; i++) {
-    if (prices[i] > prices[i - 1]) ans += prices[i] - prices[i - 1]; // Hinglish: upar gaya to kamao
+    if (prices[i] > prices[i - 1]) {
+      let diff = prices[i] - prices[i - 1];
+      total += diff;
+    }
   }
-  return ans;
-}
+
+  return total;
+};
 \`\`\``,
     },
     {
@@ -348,21 +400,25 @@ function maxProfit(prices) {
 [Zigzag Conversion](https://leetcode.com/problems/zigzag-conversion/)
 
 \`\`\`js
-// Hinglish: upar-neeche chalao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/zigzag-conversion/
-function convert(s, numRows) {
-  // Hinglish: step 1 — ek row ho to wapas do
-  if (numRows === 1) return s;
-  const rows = Array.from({ length: numRows }, () => "");
-  let r = 0, dir = 1;
-  for (const ch of s) {
-    rows[r] += ch; // Hinglish: is row me daalo
-    if (r === 0) dir = 1;
-    if (r === numRows - 1) dir = -1; // Hinglish: disha palto
-    r += dir;
+var convert = function(s, numRows) {
+  if (numRows === 1 || s.length < numRows) return s;
+
+  let direction = false;
+  let count = 0;
+
+  let arr = new Array(numRows).fill("");
+
+  for (let i = 0; i < s.length; i++) {
+    let curr = s[i];
+
+    arr[count] += curr;
+    if (count === 0 || count >= numRows - 1) direction = !direction;
+    direction ? count++ : count--;
   }
-  return rows.join("");
-}
+
+  return arr.join("");
+};
 \`\`\``,
     },
     {
@@ -376,48 +432,35 @@ function convert(s, numRows) {
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// Heap — by frequency
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
-function topKFrequent(nums, k) {
-  const freq = new Map();
-  for (const x of nums) freq.set(x, (freq.get(x) || 0) + 1);
-  const h = [];
-  const less = (a, b) => a[0] < b[0];
-  for (const [num, f] of freq) {
-    heapPush(h, [f, num], less); // Hinglish: heap me daalo
-    if (h.length > k) heapPop(h, less); // Hinglish: sabse chhota nikala
-  }
-  return h.map(([, num]) => num);
-}
+var topKFrequent = function(nums, k) {
+  let map = {};
+  let bucket = [];
+  let result = [];
 
-// Heap helpers — har solution ke saath (min-heap default)
-// Hinglish: push karke upar bubble, pop karke neeche bubble
-function heapPush(h, val, less = (a, b) => a < b) {
-  h.push(val);
-  let i = h.length - 1;
-  while (i > 0) {
-    const p = (i - 1) >> 1;
-    if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
-    i = p;
+  for (let i = 0; i < nums.length; i++) {
+    if (!map[nums[i]]) {
+      map[nums[i]] = 1;
+    } else {
+      map[nums[i]]++;
+    }
   }
-}
-function heapPop(h, less = (a, b) => a < b) {
-  const top = h[0], last = h.pop();
-  if (!h.length) return top;
-  h[0] = last;
-  let i = 0;
-  while (true) {
-    let m = i, l = i * 2 + 1, r = l + 1;
-    if (l < h.length && less(h[l], h[m])) m = l;
-    if (r < h.length && less(h[r], h[m])) m = r;
-    if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
-    i = m;
+
+  for (let [num, freq] of Object.entries(map)) {
+    if (!bucket[freq]) {
+      bucket[freq] = new Set().add(num);
+    } else {
+      bucket[freq] = bucket[freq].add(num);
+    }
   }
-  return top;
-}
+
+  for (let i = bucket.length - 1; i >= 0; i--) {
+    if (bucket[i]) result.push(...bucket[i]);
+    if (result.length === k) break;
+  }
+
+  return result;
+};
 \`\`\``,
     },
     {
@@ -431,23 +474,18 @@ function heapPop(h, less = (a, b) => a < b) {
 [Can Place Flowers](https://leetcode.com/problems/can-place-flowers/)
 
 \`\`\`js
-// Hinglish: padosi check karke lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/can-place-flowers/
-function canPlaceFlowers(flowerbed, n) {
-  // Hinglish: step 1 — har jagah check karo
-  for (let i = 0; i < flowerbed.length; i++) {
-    if (flowerbed[i] === 0) {
-      const left = i === 0 || flowerbed[i - 1] === 0; // Hinglish: left khaali?
-      const right = i === flowerbed.length - 1 || flowerbed[i + 1] === 0; // Hinglish: right khaali?
-      if (left && right) {
-        flowerbed[i] = 1; // Hinglish: lagao
-        n--;
-        if (n === 0) return true;
-      }
+var canPlaceFlowers = function(flowerbed, n) {
+  let i = 0;
+  while (i < flowerbed.length && n !== 0) {
+    if (flowerbed[i] === 0 && flowerbed[i - 1] !== 1 && flowerbed[i + 1] !== 1) {
+      n--;
+      i++;
     }
+    i++;
   }
-  return n <= 0;
-}
+  return n === 0;
+};
 \`\`\``,
     },
     {
@@ -461,16 +499,25 @@ function canPlaceFlowers(flowerbed, n) {
 [Find the Winner of the Circular Game](https://leetcode.com/problems/find-the-winner-of-the-circular-game/)
 
 \`\`\`js
-// Hinglish: formula lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/find-the-winner-of-the-circular-game/
-function findTheWinner(n, k) {
-  // Hinglish: step 1 — chhote se banao
-  let winner = 0; // Hinglish: 1 bande me wahi jeetta (0-indexed)
-  for (let i = 2; i <= n; i++) {
-    winner = (winner + k) % i; // Hinglish: circle badhne pe jagah badlo
+var findTheWinner = function(n, k) {
+  let queue = [];
+
+  for (let i = 1; i <= n; i++) {
+    queue.push(i);
   }
-  return winner + 1; // Hinglish: 1-indexed wapas do
-}
+
+  while (queue.length > 1) {
+    let toRemove = k - 1;
+    while (toRemove > 0) {
+      queue.push(queue.shift());
+      toRemove--;
+    }
+    queue.shift();
+  }
+
+  return queue.shift();
+};
 \`\`\``,
     },
       ],

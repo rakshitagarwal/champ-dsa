@@ -18,18 +18,27 @@ export const BINARY_SEARCH_SOLUTIONS: SolutionGroup = {
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/search-insert-position/
-function searchInsert(nums, target) {
-  // Hinglish: lower bound
-  let lo=0, hi=nums.length;
-  while (lo<hi) {
-    const mid = lo + ((hi-lo)>>1);
-    if (nums[mid] < target) lo=mid+1; // Hinglish: chhota to right
-    else hi=mid; // Hinglish: bada/equal to left me rakho
+var searchInsert = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target) {
+      return mid;
+    }
+
+    if (nums[mid] > target) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
   }
-  return lo;
-}
+
+  return left;
+};
 \`\`\``,
     },
     {
@@ -43,20 +52,26 @@ function searchInsert(nums, target) {
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — find target
 // LC: https://leetcode.com/problems/binary-search/
-function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
-  let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) {
-    const mid = lo + ((hi - lo) >> 1);
+var search = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
     if (nums[mid] === target) return mid;
-    if (nums[mid] < target) lo = mid + 1;
-    else hi = mid - 1;
+
+    if (nums[mid] > target) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
   }
+
   return -1;
-}
+};
 \`\`\``,
     },
     {
@@ -70,20 +85,24 @@ function search(nums, target) {
 [Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)
 
 \`\`\`js
-// Hinglish: guess pe disha — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/guess-number-higher-or-lower/
-function guessNumber(n) {
-  // Hinglish: step 1 — range lo
-  let lo = 1, hi = n;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    const g = guess(mid); // Hinglish: -1 chhota, 1 bada, 0 mil gaya
-    if (g === 0) return mid;
-    if (g < 0) hi = mid - 1; // Hinglish: guess bada tha
-    else lo = mid + 1; // Hinglish: guess chhota tha
+var guessNumber = function(n) {
+  let left = 1;
+  let right = n;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    let ans = guess(mid);
+    if (ans === 0) return mid;
+    if (ans === -1) {
+      right = mid - 1;
+    }
+    if (ans === 1) {
+      left = mid + 1;
+    }
   }
-  return lo;
-}
+};
 \`\`\``,
     },
     {
@@ -97,19 +116,24 @@ function guessNumber(n) {
 [Find Minimum In Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — min of rotated
 // LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
-function findMin(nums) {
-  // Hinglish: step 1 — base case check karo
-  let lo = 0, hi = nums.length - 1;
-  while (lo < hi) {
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] > nums[hi]) lo = mid + 1;
-    else hi = mid;
+var findMin = function(nums) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left < right) {
+    let mid = Math.floor((right + left) / 2);
+
+    if (nums[right] < nums[mid]) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
   }
-  return nums[lo];
-}
+
+  return nums[left];
+};
 \`\`\``,
     },
     {
@@ -123,25 +147,37 @@ function findMin(nums) {
 [Search in Rotated Sorted Array ](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // Binary search — rotated, pick the sorted side
 // LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
-function search(nums, target) {
-  // Hinglish: step 1 — base case check karo
-  let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) {
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] === target) return mid;
-    if (nums[lo] <= nums[mid]) {
-      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
-      else lo = mid + 1;
+var search = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target) {
+      return mid;
+    }
+
+    // which side is sorted
+    if (nums[right] > nums[mid]) {
+      if (target > nums[mid] && target <= nums[right]) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
     } else {
-      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
-      else hi = mid - 1;
+      if (target < nums[mid] && target >= nums[left]) {
+        right = mid - 1;
+      } else {
+        left = mid + 1;
+      }
     }
   }
+
   return -1;
-}
+};
 \`\`\``,
     },
     {
@@ -155,22 +191,46 @@ function search(nums, target) {
 [Find First And Last Position Of Element In Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 \`\`\`js
-// Hinglish: aadha kaat ke dhoondo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
-function searchRange(nums, target) {
-  // Hinglish: first >= target
-  const lower = ()=>{
-    let lo=0, hi=nums.length;
-    while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<target) lo=mid+1; else hi=mid; }
-    return lo;
-  };
-  const l = lower();
-  if (l===nums.length || nums[l]!==target) return [-1,-1]; // Hinglish: mila hi nahi
-  // Hinglish: first > target -1 = last
-  let lo=0, hi=nums.length;
-  while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<=target) lo=mid+1; else hi=mid; }
-  return [l, lo-1];
-}
+var searchRange = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+  let leftBound = -1;
+  let rightBound = -1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target && nums[mid - 1] !== target) {
+      leftBound = mid;
+    }
+
+    if (nums[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  left = 0;
+  right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target && nums[mid + 1] !== target) {
+      rightBound = mid;
+    }
+
+    if (nums[mid] <= target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  return [leftBound, rightBound];
+};
 \`\`\``,
     },
     {
@@ -184,50 +244,39 @@ function searchRange(nums, target) {
 [Find Median From Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// Heap — two heaps
 // LC: https://leetcode.com/problems/find-median-from-data-stream/
-function MedianFinder() {
-  this.lo = []; // max-heap of smaller half (store negated)
-  this.hi = []; // min-heap of larger half
-}
-MedianFinder.prototype.addNum = function (num) {
-  heapPush(this.lo, -num); // Hinglish: heap me daalo
-  heapPush(this.hi, -heapPop(this.lo)); // Hinglish: sabse chhota nikala
-  if (this.hi.length > this.lo.length) heapPush(this.lo, -heapPop(this.hi)); // Hinglish: sabse chhota nikala
-};
-MedianFinder.prototype.findMedian = function () {
-  if (this.lo.length > this.hi.length) return -this.lo[0];
-  return (-this.lo[0] + this.hi[0]) / 2;
+var MedianFinder = function() {
+  this.arr = [];
 };
 
-// Heap helpers — har solution ke saath (min-heap default)
-// Hinglish: push karke upar bubble, pop karke neeche bubble
-function heapPush(h, val, less = (a, b) => a < b) {
-  h.push(val);
-  let i = h.length - 1;
-  while (i > 0) {
-    const p = (i - 1) >> 1;
-    if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
-    i = p;
+MedianFinder.prototype.addNum = function(num) {
+  let left = 0;
+  let right = this.arr.length - 1;
+
+  while (left <= right) {
+    let mid = Math.floor((right + left) / 2);
+
+    if (this.arr[mid] < num) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
   }
-}
-function heapPop(h, less = (a, b) => a < b) {
-  const top = h[0], last = h.pop();
-  if (!h.length) return top;
-  h[0] = last;
-  let i = 0;
-  while (true) {
-    let m = i, l = i * 2 + 1, r = l + 1;
-    if (l < h.length && less(h[l], h[m])) m = l;
-    if (r < h.length && less(h[r], h[m])) m = r;
-    if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
-    i = m;
+
+  this.arr.splice(left, 0, num);
+};
+
+MedianFinder.prototype.findMedian = function() {
+  if (this.arr.length % 2 === 0) {
+    // even
+    let mid = this.arr.length / 2;
+    return (this.arr[mid] + this.arr[mid - 1]) / 2;
+  } else {
+    // odd
+    let mid = Math.floor(this.arr.length / 2);
+    return this.arr[mid];
   }
-  return top;
-}
+};
 \`\`\``,
     },
       ],

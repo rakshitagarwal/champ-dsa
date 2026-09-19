@@ -18,22 +18,27 @@ export const STACK_SOLUTIONS: SolutionGroup = {
 [Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 \`\`\`js
-// Hinglish: stack push-pop — ek-ek step comment dekho
 // Stack — match open/close
 // LC: https://leetcode.com/problems/valid-parentheses/
-function isValid(s) {
-  // Hinglish: step 1 — base case check karo
-  const stack = [];
-  const pair = { ")": "(", "]": "[", "}": "{" };
-  for (const ch of s) {
-    if (!pair[ch]) {
-      stack.push(ch);
-      continue;
+var isValid = function(s) {
+  let stack = [];
+
+  for (let i = 0; i < s.length; i++) {
+    let char = s[i];
+    if (char === "(" || char === "{" || char === "[") {
+      stack.push(char);
+    } else {
+      let prevVal = stack.pop();
+
+      if (prevVal === "(" && char !== ")") return false;
+      if (prevVal === "[" && char !== "]") return false;
+      if (prevVal === "{" && char !== "}") return false;
+      if (prevVal === undefined) return false;
     }
-    if (stack.pop() !== pair[ch]) return false;
   }
+
   return stack.length === 0;
-}
+};
 \`\`\``,
     },
     {
@@ -47,17 +52,16 @@ function isValid(s) {
 [Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
 
 \`\`\`js
-// Hinglish: same aaye to udao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/
-function removeDuplicates(s) {
-  // Hinglish: step 1 — stack lo
-  const st = [];
-  for (const ch of s) {
-    if (st.length && st[st.length - 1] === ch) st.pop(); // Hinglish: jodi ud gayi
-    else st.push(ch);
+var removeDuplicates = function(s) {
+  let stack = [];
+
+  for (let char of s) {
+    stack[stack.length - 1] === char ? stack.pop() : stack.push(char);
   }
-  return st.join("");
-}
+
+  return stack.join("");
+};
 \`\`\``,
     },
     {
@@ -71,18 +75,23 @@ function removeDuplicates(s) {
 [Simplify Path](https://leetcode.com/problems/simplify-path/)
 
 \`\`\`js
-// Hinglish: folder stack — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/simplify-path/
-function simplifyPath(path) {
-  // Hinglish: step 1 — tukde karo
-  const st = [];
-  for (const part of path.split("/")) {
-    if (part === "" || part === ".") continue; // Hinglish: bekaar chhodo
-    if (part === "..") st.pop(); // Hinglish: ek upar jao
-    else st.push(part); // Hinglish: andar jao
+var simplifyPath = function(path) {
+  let stack = [];
+  path = path.split("/");
+
+  for (let i = 0; i < path.length; i++) {
+    if (path[i] === "." || path[i] === "") {
+      continue;
+    } else if (path[i] === "..") {
+      stack.pop();
+    } else {
+      stack.push(path[i]);
+    }
   }
-  return "/" + st.join("/");
-}
+
+  return "/" + stack.join("/");
+};
 \`\`\``,
     },
     {
@@ -96,20 +105,29 @@ function simplifyPath(path) {
 [Remove All Adjacent Duplicates in String 2](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/)
 
 \`\`\`js
-// Hinglish: gin ke udao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/
-function removeDuplicates(s, k) {
-  // Hinglish: step 1 — stack lo [char, count]
-  const st = [];
-  for (const ch of s) {
-    if (st.length && st[st.length - 1][0] === ch) st[st.length - 1][1]++; // Hinglish: gin badhao
-    else st.push([ch, 1]);
-    if (st[st.length - 1][1] === k) st.pop(); // Hinglish: k hue to udao
+var removeDuplicates = function(s, k) {
+  let stack = [];
+
+  for (let i = 0; i < s.length; i++) {
+    let curr = s[i];
+
+    if (stack.length === 0 || curr !== stack[stack.length - 1][0]) {
+      stack.push([curr, 1]);
+    } else {
+      stack[stack.length - 1][1]++;
+      if (stack[stack.length - 1][1] === k) stack.pop();
+    }
   }
-  let out = "";
-  for (const [ch, c] of st) out += ch.repeat(c); // Hinglish: jod do
-  return out;
-}
+
+  let res = "";
+
+  for (let [char, count] of stack) {
+    res += char.repeat(count);
+  }
+
+  return res;
+};
 \`\`\``,
     },
       ],
