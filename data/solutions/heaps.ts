@@ -18,22 +18,22 @@ export const HEAPS_SOLUTIONS: SolutionGroup = {
 [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/last-stone-weight/
-function lastStoneWeight(stones) {
-  // Hinglish: max-heap banane ke liye sort + pop (ok for interview)
-  stones.sort((a,b)=>a-b);
-  while (stones.length>1) {
-    const b=stones.pop(), a=stones.pop(); // Hinglish: 2 bade
-    if (a!==b) {
-      const diff = b-a;
-      // Hinglish: insert sorted
-      let i=0; while(i<stones.length && stones[i]<diff) i++;
-      stones.splice(i,0,diff);
+/**
+ * @param {number[]} stones
+ * @return {number}
+ */
+var lastStoneWeight = function(stones) {
+    const heap = new MaxPriorityQueue();
+    
+    for(const stone of stones) heap.enqueue(stone);
+    
+    while(heap.size() > 1){
+        let diff = heap.dequeue().element - heap.dequeue().element;
+        if(diff > 0) heap.enqueue(diff);
     }
-  }
-  return stones[0]||0;
-}
+    
+    return heap.size() === 0 ? 0 : heap.front().element;
+};
 \`\`\``,
     },
     {
@@ -93,41 +93,26 @@ class MinHeap {
 [Minimum Cost To Connect Sticks](https://leetcode.com/problems/minimum-cost-to-connect-sticks/)
 
 \`\`\`js
-// Hinglish: chhoti jodte jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-cost-to-connect-sticks/
-function connectSticks(sticks) {
-  // Hinglish: step 1 — min-heap banao
-  const h = [...sticks];
-  const up = (i) => {
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (h[i] >= h[p]) break;
-      const t = h[i]; h[i] = h[p]; h[p] = t; i = p;
+/**
+ * @param {number[]} sticks
+ * @return {number}
+ */
+var connectSticks = function(sticks) {
+    let heap = new MinPriorityQueue();
+    let total = 0;
+    
+    for(let stick of sticks){
+        heap.enqueue(stick);
     }
-  };
-  const down = (i) => {
-    while (true) {
-      let m = i, l = i * 2 + 1, r = l + 1;
-      if (l < h.length && h[l] < h[m]) m = l;
-      if (r < h.length && h[r] < h[m]) m = r;
-      if (m === i) break;
-      const t = h[i]; h[i] = h[m]; h[m] = t; i = m;
+    
+    while(heap.size() > 1){
+        let diff = heap.dequeue().element + heap.dequeue().element;
+        total += diff;
+        heap.enqueue(diff);
     }
-  };
-  const pop = () => {
-    const top = h[0], last = h.pop();
-    if (h.length) { h[0] = last; down(0); }
-    return top;
-  };
-  for (let i = Math.floor(h.length / 2); i >= 0; i--) down(i); // Hinglish: heap banao
-  let cost = 0;
-  while (h.length > 1) {
-    const s = pop() + pop(); // Hinglish: do chhoti nikalo
-    cost += s;
-    h.push(s); up(h.length - 1); // Hinglish: jod ke wapas daalo
-  }
-  return cost;
-}
+    
+    return total;
+};
 \`\`\``,
     },
     {
@@ -141,45 +126,26 @@ function connectSticks(sticks) {
 [Kth Smallest Element in a Sorted Matrix](https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/)
 
 \`\`\`js
-// Hinglish: row heads ka heap — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/
-function kthSmallest(matrix, k) {
-  // Hinglish: step 1 — har row ka pehla daalo
-  const n = matrix.length;
-  const h = [];
-  const less = (a, b) => a[0] < b[0];
-  const push = (x) => {
-    h.push(x);
-    let i = h.length - 1;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (!less(h[i], h[p])) break;
-      const t = h[i]; h[i] = h[p]; h[p] = t; i = p;
-    }
-  };
-  const pop = () => {
-    const top = h[0], last = h.pop();
-    if (!h.length) return top;
-    h[0] = last;
-    let i = 0;
-    while (true) {
-      let m = i, l = i * 2 + 1, r = l + 1;
-      if (l < h.length && less(h[l], h[m])) m = l;
-      if (r < h.length && less(h[r], h[m])) m = r;
-      if (m === i) break;
-      const t = h[i]; h[i] = h[m]; h[m] = t; i = m;
-    }
-    return top;
-  };
-  for (let r = 0; r < n; r++) push([matrix[r][0], r, 0]); // Hinglish: [value, row, col]
-  let ans = 0;
-  for (let i = 0; i < k; i++) {
-    const [v, r, c] = pop(); // Hinglish: sabse chhota nikalo
-    ans = v;
-    if (c + 1 < n) push([matrix[r][c + 1], r, c + 1]); // Hinglish: agli daalo
-  }
-  return ans;
-}
+/**
+ * @param {number[][]} matrix
+ * @param {number} k
+ * @return {number}
+ */
+var kthSmallest = function(matrix, k) {
+    
+    let maxHeap = new MaxPriorityQueue();
+    
+    matrix.forEach((row) => {
+        row.forEach((element) => {
+            maxHeap.enqueue(element);
+            if(maxHeap.size() > k){
+                maxHeap.dequeue().element;
+            }
+        })
+    })
+    
+    return maxHeap.front().element;
+};
 \`\`\``,
     },
       ],

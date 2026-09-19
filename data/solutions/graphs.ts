@@ -46,22 +46,39 @@ var isToeplitzMatrix = function(matrix) {
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph DFS — clone with a map
-// LC: https://leetcode.com/problems/clone-graph/
-function cloneGraph(node) {
-  // Hinglish: step 1 — base case check karo
-  if (!node) return null;
-  const map = new Map();
-  const walk = (n) => {
-    if (map.has(n)) return map.get(n);
-    const copy = { val: n.val, neighbors: [] };
-    map.set(n, copy);
-    for (const nei of n.neighbors) copy.neighbors.push(walk(nei));
-    return copy;
-  };
-  return walk(node);
-}
+/**
+ * // Definition for a Node.
+ * function Node(val, neighbors) {
+ *    this.val = val === undefined ? 0 : val;
+ *    this.neighbors = neighbors === undefined ? [] : neighbors;
+ * };
+ */
+
+/**
+ * @param {Node} node
+ * @return {Node}
+ */
+var cloneGraph = function(node) {
+    let visited = {};
+    
+    function dfs(node){
+        //base cases
+        if(!node) return node;
+        if(!!visited[node.val]) return visited[node.val];
+        
+        let root = new Node(node.val);
+        visited[node.val] = root;
+        
+        //recurrence relation
+        for(let neighbor of node.neighbors){
+            root.neighbors.push(dfs(neighbor))
+        }
+        
+        return root;
+    }
+    
+    return dfs(node);
+};
 \`\`\``,
     },
     {
@@ -75,30 +92,55 @@ function cloneGraph(node) {
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
-// Graph BFS — Kahn topo
-// LC: https://leetcode.com/problems/course-schedule/
-function canFinish(numCourses, prerequisites) {
-  // Hinglish: step 1 — base case check karo
-  const graph = Array.from({ length: numCourses }, () => []);
-  const indeg = Array(numCourses).fill(0);
-  for (const [a, b] of prerequisites) {
-    graph[b].push(a);
-    indeg[a]++;
-  }
-  const q = [];
-  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
-  let taken = 0;
-  while (q.length) {
-    const u = q.shift();
-    taken++;
-    for (const v of graph[u]) {
-      indeg[v]--;
-      if (indeg[v] === 0) q.push(v);
+/**
+ * @param {number} numCourses
+ * @param {number[][]} prerequisites
+ * @return {boolean}
+ */
+var canFinish = function(numCourses, prerequisites) {
+    
+    let adjList = {};
+    let visited = new Set();
+    
+    for(let [a,b] of prerequisites){
+        if(!adjList[a]){
+            adjList[a] = [b];
+        } else {
+            adjList[a].push(b);
+        }
     }
-  }
-  return taken === numCourses;
-}
+    
+    function dfs(curr){
+        
+        if(visited.has(curr)) return false;
+        
+        if(adjList[curr] === []) return true;
+        
+        visited.add(curr);
+        
+        if(adjList[curr]){
+            for(let neigh of adjList[curr]){
+                if(!dfs(neigh)){
+                    return false;
+                }
+            }
+        }
+        
+        visited.delete(curr);
+        adjList[curr] = [];
+        return true;
+        
+    }
+    
+    for(let key in adjList){
+        
+        if(!dfs(key)){
+            return false;
+        }
+    }
+    
+    return true;
+};
 \`\`\``,
     },
     {
@@ -112,21 +154,27 @@ function canFinish(numCourses, prerequisites) {
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 \`\`\`js
-// Hinglish: map me yaad rakho — ek-ek step comment dekho
-// Hashing — only start a streak at the left edge
-// LC: https://leetcode.com/problems/longest-consecutive-sequence/
-function longestConsecutive(nums) {
-  // Hinglish: step 1 — base case check karo
-  const set = new Set(nums);
-  let best = 0;
-  for (const n of set) {
-    if (set.has(n - 1)) continue;
-    let len = 1;
-    while (set.has(n + len)) len++;
-    best = Math.max(best, len);
-  }
-  return best;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var longestConsecutive = function(nums) {
+    let set = new Set(nums);
+    let streak = 0;
+    
+    for(let num of set){
+        if(set.has(num-1)) continue;
+        let currStreak = 1;
+        
+        while(set.has(num+1)){
+            currStreak++;
+            num++;
+        }
+        streak = Math.max(streak, currStreak);
+    }
+    
+    return streak;
+};
 \`\`\``,
     },
     {
@@ -140,23 +188,40 @@ function longestConsecutive(nums) {
 [Find If Path Exists in Graph](https://leetcode.com/problems/find-if-path-exists-in-graph/)
 
 \`\`\`js
-// Hinglish: chal ke dekho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-if-path-exists-in-graph/
-function validPath(n, edges, source, destination) {
-  // Hinglish: step 1 — graph banao
-  const g = Array.from({ length: n }, () => []);
-  for (const [u, v] of edges) { g[u].push(v); g[v].push(u); }
-  const seen = new Set([source]);
-  const stack = [source];
-  while (stack.length) {
-    const u = stack.pop();
-    if (u === destination) return true; // Hinglish: pahuch gaye
-    for (const v of g[u]) {
-      if (!seen.has(v)) { seen.add(v); stack.push(v); }
+var validPath = function(n, edges, source, destination) {
+    let graph = new Map();
+    let visited = new Set();
+    
+    for(let [v,e] of edges){
+        if(graph.has(v)){
+            graph.get(v).push(e);
+        }else {
+            graph.set(v, [e]);
+        }
+        if(graph.has(e)){
+            graph.get(e).push(v);
+        }else {
+            graph.set(e, [v]);
+        }
     }
-  }
-  return false;
-}
+    
+    function dfs(vertex){
+        visited.add(vertex);
+        
+        let neighbours = graph.get(vertex);
+        
+        if(neighbours && neighbours.length > 0){
+            for(let i = 0; i<neighbours.length; i++){
+                if(!visited.has(neighbours[i])){
+                    dfs(neighbours[i])
+                }
+            }
+        }
+    }
+    
+    dfs(source);
+    return visited.has(destination)
+};
 \`\`\``,
     },
     {
@@ -173,19 +238,44 @@ function validPath(n, edges, source, destination) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: union-find gino — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/ (Premium)
-function countComponents(n, edges) {
-  // Hinglish: step 1 — har node apna parent
-  const parent = Array.from({ length: n }, (_, i) => i);
-  const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
-  let comps = n;
-  for (const [u, v] of edges) {
-    const ru = find(u), rv = find(v);
-    if (ru !== rv) { parent[ru] = rv; comps--; } // Hinglish: jude to ek kam
-  }
-  return comps;
-}
+/**
+ * @param {number} n
+ * @param {number[][]} edges
+ * @return {number}
+ */
+var countComponents = function(n, edges) {
+    let count = 0;
+    let graph = {};
+    
+    for(let i = 0; i < n; i++){
+        graph[i] = [];
+    }
+    
+    for(let [u, v] of edges){
+        graph[u].push(v);
+        graph[v].push(u);
+    }
+    
+    let visited = new Set();
+    
+    function dfs(node){
+        if(visited.has(node)) return 0;
+        visited.add(node);
+        
+        for(let n of graph[node]){
+            dfs(n);
+        }
+        
+        return 1;
+    }
+    
+    for(let key in graph){
+        key = parseInt(key);
+        count += dfs(key);
+    }
+    
+    return count;
+};
 \`\`\``,
     },
     {
@@ -199,21 +289,32 @@ function countComponents(n, edges) {
 [All Paths From Source To Target](https://leetcode.com/problems/all-paths-from-source-to-target/)
 
 \`\`\`js
-// Hinglish: path saath le jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/all-paths-from-source-to-target/ (Premium)
-function allPathsSourceTarget(graph) {
-  // Hinglish: step 1 — answer lo
-  const out = [];
-  const target = graph.length - 1;
-  const dfs = (u, path) => {
-    path.push(u);
-    if (u === target) out.push([...path]); // Hinglish: rasta mil gaya
-    else for (const v of graph[u]) dfs(v, path);
-    path.pop(); // Hinglish: wapas aao
-  };
-  dfs(0, []);
-  return out;
-}
+/**
+ * @param {number[][]} graph
+ * @return {number[][]}
+ */
+var allPathsSourceTarget = function(graph) {
+    let res = [];
+    
+    function backtrack(currNode, currArr){
+        currArr.push(currNode);
+        
+        if(currNode === graph.length-1){
+            res.push([...currArr]);
+        }
+        
+        let neighbours = graph[currNode];
+        
+        for(let n of neighbours){
+            backtrack(n, currArr);
+        }
+        
+        currArr.pop();
+    }
+    backtrack(0, []);
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -227,21 +328,54 @@ function allPathsSourceTarget(graph) {
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 \`\`\`js
-// Hinglish: find-union — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/number-of-provinces/
-function findCircleNumUF(isConnected) {
-  // Hinglish: DSU
-  const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
-  const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
-  const union=(a,b)=>{
-    a=find(a); b=find(b); if(a===b) return;
-    if(rank[a]<rank[b]) [a,b]=[b,a];
-    p[b]=a; if(rank[a]===rank[b]) rank[a]++;
-  };
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j); // Hinglish: juda to union
-  const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
-  return roots.size;
-}
+/**
+ * @param {number[][]} isConnected
+ * @return {number}
+ */
+var findCircleNum = function(isConnected) {
+    
+    let adj = {};
+    
+    for(let i = 0; i < isConnected.length; i++){
+        for(let j = 0; j < isConnected[0].length; j++){
+            
+            let val = isConnected[i][j];
+            
+            if(val === 1){
+                if(!adj[i]){
+                    adj[i] = [j];
+                } else {
+                    adj[i].push(j);
+                }
+            }
+            
+        }
+    }
+    
+    let visited = new Set();
+    let count = 0;
+    
+    for(let key in adj){
+        let keyNum = parseInt(key);
+        count += dfs(keyNum);
+    }
+    
+    function dfs(currNode){
+        if(visited.has(currNode)) return 0;
+        visited.add(currNode);
+        
+        let neighbours = adj[currNode];
+        
+        for(let n of neighbours){
+            dfs(n);
+        }
+        
+        return 1;
+    }
+    
+    return count;
+    
+};
 \`\`\``,
     },
     {
@@ -258,21 +392,57 @@ function findCircleNumUF(isConnected) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: gino phir jodo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/graph-valid-tree/ (Premium)
-function validTree(n, edges) {
-  // Hinglish: step 1 — edges gino
-  if (edges.length !== n - 1) return false; // Hinglish: tree me n-1 hi hote
-  const g = Array.from({ length: n }, () => []);
-  for (const [u, v] of edges) { g[u].push(v); g[v].push(u); }
-  const seen = new Set([0]);
-  const stack = [0];
-  while (stack.length) {
-    const u = stack.pop();
-    for (const v of g[u]) if (!seen.has(v)) { seen.add(v); stack.push(v); }
-  }
-  return seen.size === n; // Hinglish: sab pahuche to tree
-}
+/**
+ * @param {number} n
+ * @param {number[][]} edges
+ * @return {boolean}
+ */
+var validTree = function(n, edges) {
+    let adjList = {};
+    
+    for(let i = 0; i < n; i++){
+        adjList[i] = [];
+    }
+    
+    for(let [a,b] of edges){
+        adjList[a].push(b);
+        adjList[b].push(a);
+    }
+    
+    let visited = new Set();
+    
+    function checkCycle(current, parent){
+        
+        visited.add(current);
+        let neighbours = adjList[current];
+        
+        if(neighbours.length){
+            for(let neigh of neighbours){
+                if(visited.has(neigh)){
+                    if(neigh !== parent) return true; //there is a cycle
+                } else {
+                    if(checkCycle(neigh, current)){
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+        
+    }
+    
+    if(checkCycle(0, -1)) return false;
+    
+    for(let i = 0; i < n; i++){
+        if(!visited.has(i)){
+            return false;
+        }
+    }
+    
+    return true;
+    
+};
 \`\`\``,
     },
     {
@@ -286,27 +456,45 @@ function validTree(n, edges) {
 [Open The Lock](https://leetcode.com/problems/open-the-lock/)
 
 \`\`\`js
-// Hinglish: wheel ghumao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/open-the-lock/
-function openLock(deadends, target) {
-  // Hinglish: step 1 — dead set lo
-  const dead = new Set(deadends);
-  if (dead.has("0000")) return -1;
-  const q = [["0000", 0]];
-  const seen = new Set(["0000"]);
-  while (q.length) {
-    const [cur, d] = q.shift();
-    if (cur === target) return d; // Hinglish: khul gaya
-    for (let i = 0; i < 4; i++) {
-      for (const move of [1, -1]) {
-        const arr = [...cur];
-        arr[i] = String((Number(arr[i]) + move + 10) % 10); // Hinglish: wheel ghumao
-        const next = arr.join("");
-        if (!dead.has(next) && !seen.has(next)) { seen.add(next); q.push([next, d + 1]); }
-      }
+/**
+ * @param {string[]} deadends
+ * @param {string} target
+ * @return {number}
+ */
+var openLock = function(deadends, target) {
+    let deadendSet = new Set(deadends);
+    let visited = new Set(["0000"]);
+    let queue = [["0000", 0]];
+    
+    while(queue.length){
+        let [current, count] = queue.shift();
+        
+        if(current === target) return count;
+        
+        if(deadendSet.has(current)) continue;
+        
+        // create all possible combinations
+        for(let combo of possibleCombo(current)){
+            if(!visited.has(combo)){
+                visited.add(combo);
+                queue.push([combo, count+1]);
+            }
+        }
     }
-  }
-  return -1;
+    
+    return -1;
+};
+
+const possibleCombo = (str) => {
+    // Possible turns 1000, 0100, 0010, 0001, 9000, 0900, 0090, 0009
+    let ans = [];
+    
+    for(let i = 0; i < str.length; i++){
+        ans.push(str.slice(0,i) + ((+str[i] + 1) % 10) + str.slice(i+1));
+        ans.push(str.slice(0,i) + ((+str[i] + 9) % 10) + str.slice(i+1));
+    }
+    
+    return ans;
 }
 \`\`\``,
     },
@@ -321,36 +509,71 @@ function openLock(deadends, target) {
 [Alien Dictionary](https://leetcode.com/problems/alien-dictionary/)
 
 \`\`\`js
-// Hinglish: order graph + topo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/alien-dictionary/ (Premium)
-function alienOrder(words) {
-  // Hinglish: step 1 — har char ka node banao
-  const graph = new Map(), indeg = new Map();
-  for (const w of words) for (const ch of w) {
-    if (!graph.has(ch)) { graph.set(ch, new Set()); indeg.set(ch, 0); }
-  }
-  for (let i = 0; i + 1 < words.length; i++) {
-    const a = words[i], b = words[i + 1];
-    let j = 0;
-    const m = Math.min(a.length, b.length);
-    while (j < m && a[j] === b[j]) j++; // Hinglish: pehla alag char
-    if (j === m && a.length > b.length) return ""; // Hinglish: galat prefix order
-    if (j < m && !graph.get(a[j]).has(b[j])) {
-      graph.get(a[j]).add(b[j]);
-      indeg.set(b[j], indeg.get(b[j]) + 1);
+function findOrder(dict, N, K) {
+    let adj = {};
+    
+    dict.forEach(word => {
+        for(let char of word){
+            if(!adj[char]){
+                adj[char] = new Set();
+            }
+        }
+    });
+    
+    // build graph
+    for(let i = 0; i < dict.length-1; i++){
+        let w1 = dict[i];
+        let w2 = dict[i+1];
+        let minLen = Math.min(w1.length, w2.length);
+        for(let j = 0; j < minLen; j++){
+            if(w1[j] !== w2[j]){
+                adj[w1[j]].add(w2[j]);
+                break;
+            }
+        }
     }
-  }
-  const q = [...indeg.keys()].filter((ch) => indeg.get(ch) === 0);
-  let order = "";
-  while (q.length) {
-    const u = q.shift();
-    order += u;
-    for (const v of graph.get(u)) {
-      indeg.set(v, indeg.get(v) - 1);
-      if (indeg.get(v) === 0) q.push(v);
+    
+    let state = {};
+    let res = [];
+    const VISIT_STATE = {
+        VISITING: 1,
+        VISITED: 2,
     }
-  }
-  return order.length === indeg.size ? order : ""; // Hinglish: cycle to khaali
+    
+    // Perform topological sort
+    function dfs(char) {
+        
+        if(state[char] === VISIT_STATE.VISITING) {
+            return true; // cycle
+        }
+        
+        if(state[char] === VISIT_STATE.VISITED){
+            return false;
+        }
+        
+        state[char] = VISIT_STATE.VISITING;
+        
+        for(let neighChar of adj[char]){
+            if(dfs(neighChar)){
+                // cycle
+                return true;
+            }
+        }
+        
+        state[char] = VISIT_STATE.VISITED;
+        res.push(char);
+        return false;
+        
+    }
+    
+    for(let char in adj){
+        if(!state[char] && dfs(char)){
+            return "";
+        }
+    }
+    
+    res.reverse();
+    return res.join('');
 }
 \`\`\``,
     },

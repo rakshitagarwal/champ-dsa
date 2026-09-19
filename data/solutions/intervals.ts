@@ -21,16 +21,25 @@ export const INTERVALS_SOLUTIONS: SolutionGroup = {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/meeting-rooms/ (premium, lintcode 920)
-function canAttendMeetings(intervals) {
-  // Hinglish: start se sort
-  intervals.sort((a,b)=>a[0]-b[0]);
-  for (let i=1;i<intervals.length;i++) {
-    if (intervals[i][0] < intervals[i-1][1]) return false; // Hinglish: overlap to nahi kar sakte
-  }
-  return true;
-}
+/**
+ * @param {number[][]} intervals
+ * @return {boolean}
+ */
+var canAttendMeetings = function(intervals) {
+    
+    intervals.sort((a,b) => a[0] - b[0]);
+    
+    const start = 0;
+    const end = 1;
+    
+    for(let i = 0; i < intervals.length-1; i++){
+        if(intervals[i][end] > intervals[i+1][start]){
+            return false;
+        }
+    }
+    
+    return true;
+};
 \`\`\``,
     },
     {
