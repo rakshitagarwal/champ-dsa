@@ -18,17 +18,21 @@ export const GRAPHS_SOLUTIONS: SolutionGroup = {
 [Toeplitz Matrix](https://leetcode.com/problems/toeplitz-matrix/)
 
 \`\`\`js
-// Hinglish: upar-left se milao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/toeplitz-matrix/
-function isToeplitzMatrix(matrix) {
-  // Hinglish: step 1 — pehli row/col chhodo
-  for (let r = 1; r < matrix.length; r++) {
-    for (let c = 1; c < matrix[0].length; c++) {
-      if (matrix[r][c] !== matrix[r - 1][c - 1]) return false; // Hinglish: diagonal tooti
+/**
+ * @param {number[][]} matrix
+ * @return {boolean}
+ */
+var isToeplitzMatrix = function(matrix) {
+    for(let i = 0; i < matrix.length - 1; i++){
+        for(let j = 0; j < matrix[0].length - 1; j++){
+            if(matrix[i][j] !== matrix[i+1][j+1]){
+                return false;
+            }
+        }
     }
-  }
-  return true;
-}
+    
+    return true;
+};
 \`\`\``,
     },
     {

@@ -18,28 +18,25 @@ export const BACKTRACKING_SOLUTIONS: SolutionGroup = {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — permutations
-// LC: https://leetcode.com/problems/permutations/
-function permute(nums) {
-  const ans = [], used = Array(nums.length).fill(false);
-  const dfs = (path) => {
-    if (path.length === nums.length) {
-      ans.push([...path]);
-      return;
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var permute = function(nums, arr = [], res = []) {
+    
+    //base case
+    if(nums.length === 0) res.push([...arr]);
+    
+    for(let i = 0; i < nums.length; i++){
+        let rest = nums.filter((n, index) => index !== i);
+        arr.push(nums[i]);
+        permute(rest, arr, res);
+        arr.pop();
     }
-    for (let i = 0; i < nums.length; i++) {
-      if (used[i]) continue;
-      used[i] = true;
-      path.push(nums[i]); // Hinglish: choice liya
-      dfs(path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
-      used[i] = false;
-    }
-  };
-  dfs([]);
-  return ans;
-}
+    
+    return res;
+    
+};
 \`\`\``,
     },
     {
@@ -53,22 +50,33 @@ function permute(nums) {
 [Combinations](https://leetcode.com/problems/combinations/)
 
 \`\`\`js
-// Hinglish: aage badho — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/combinations/
-function combine(n, k) {
-  // Hinglish: step 1 — khaali path lo
-  const out = [];
-  const dfs = (start, path) => {
-    if (path.length === k) { out.push([...path]); return; } // Hinglish: poora bana
-    for (let i = start; i <= n; i++) {
-      path.push(i);
-      dfs(i + 1, path); // Hinglish: aage badho
-      path.pop(); // Hinglish: wapas lao
+/**
+ * @param {number} n
+ * @param {number} k
+ * @return {number[][]}
+ */
+var combine = function(n, k) {
+    let result = [];
+    
+    function dfs(index, current){
+        //base case
+        if(current.length === k){
+            result.push([...current]);
+        }
+        
+        for(let i = index; i<=n; i++){
+            current.push(i);
+            //recurse
+            dfs(i+1, current);
+            //backtrack
+            current.pop();
+        }
     }
-  };
-  dfs(1, []);
-  return out;
-}
+    
+    dfs(1, []);
+    
+    return result;
+};
 \`\`\``,
     },
     {
@@ -111,26 +119,37 @@ function subsets(nums) {
 [Combination Sum III](https://leetcode.com/problems/combination-sum-iii/)
 
 \`\`\`js
-// Hinglish: 1-9 se chuno — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/combination-sum-iii/
-function combinationSum3(k, n) {
-  // Hinglish: step 1 — khaali path lo
-  const out = [];
-  const dfs = (start, path, sum) => {
-    if (path.length === k) {
-      if (sum === n) out.push([...path]); // Hinglish: mil gaya
-      return;
+/**
+ * @param {number} k
+ * @param {number} n
+ * @return {number[][]}
+ */
+
+var combinationSum3 = function(k, n) {
+    
+    let result = [];
+    
+    function dfs(index, current, total){
+        
+        if(total < 0 || current.length > k) return;
+        
+        if(total === 0 && current.length === k){
+            result.push([...current])
+        }
+        
+        for(let i = index; i<=9; i++){
+            current.push(i);
+            dfs(i+1, current, total-i);
+            current.pop();
+        }
+        
     }
-    for (let i = start; i <= 9; i++) {
-      if (sum + i > n) break;
-      path.push(i);
-      dfs(i + 1, path, sum + i); // Hinglish: aage badho
-      path.pop(); // Hinglish: wapas lao
-    }
-  };
-  dfs(1, [], 0);
-  return out;
-}
+    dfs(1, [], n);
+    
+    return result;
+    
+    
+};
 \`\`\``,
     },
     {
@@ -144,24 +163,29 @@ function combinationSum3(k, n) {
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/subsets-ii/
-function subsetsWithDup(nums) {
-  // Hinglish: sort karke duplicate pakdo
-  nums.sort((a,b)=>a-b);
-  const ans=[];
-  const dfs=(start, path)=>{
-    ans.push([...path]); // Hinglish: har path save
-    for(let i=start;i<nums.length;i++){
-      if(i>start && nums[i]===nums[i-1]) continue; // Hinglish: duplicate skip
-      path.push(nums[i]); // Hinglish: choice liya
-      dfs(i+1, path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var subsetsWithDup = function(nums) {
+    let res = [[]];
+    
+    nums.sort((a,b) => a-b);
+    
+    function dfs(nums, res, currArr, start){
+        for(let i = start; i < nums.length; i++){
+            if(i === start || nums[i] !== nums[i-1]){
+                currArr.push(nums[i]);
+                res.push([...currArr]);
+                dfs(nums, res, currArr, i+1);
+                currArr.pop();
+            }
+        }
     }
-  };
-  dfs(0, []);
-  return ans;
-}
+    dfs(nums, res, [], 0);
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -175,26 +199,32 @@ function subsetsWithDup(nums) {
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — reuse allowed
-// LC: https://leetcode.com/problems/combination-sum/
-function combinationSum(candidates, target) {
-  const ans = [];
-  const dfs = (start, remain, path) => {
-    if (remain === 0) {
-      ans.push([...path]);
-      return;
+/**
+ * @param {number[]} candidates
+ * @param {number} target
+ * @return {number[][]}
+ */
+var combinationSum = function(candidates, target) {
+    let result = [];
+    
+    function dfs(index, currentVal, arr){
+        
+        if(currentVal < 0) return;
+        if(currentVal === 0){
+            result.push([...arr]);
+        }
+        
+        for(let i = index; i < candidates.length; i++){
+            arr.push(candidates[i]);
+            dfs(i, currentVal - candidates[i], arr);
+            arr.pop();
+        }
     }
-    if (remain < 0) return;
-    for (let i = start; i < candidates.length; i++) {
-      path.push(candidates[i]); // Hinglish: choice liya
-      dfs(i, remain - candidates[i], path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
-    }
-  };
-  dfs(0, target, []);
-  return ans;
-}
+    dfs(0, target, []);
+    
+    return result;
+    
+};
 \`\`\``,
     },
     {
@@ -208,30 +238,59 @@ function combinationSum(candidates, target) {
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — place per row
-// LC: https://leetcode.com/problems/n-queens/
-function solveNQueens(n) {
-  // Hinglish: step 1 — base case check karo
-  const ans = [], board = Array.from({ length: n }, () => Array(n).fill("."));
-  const cols = new Set(), diag = new Set(), anti = new Set();
-  const dfs = (r) => {
-    if (r === n) {
-      ans.push(board.map((row) => row.join("")));
-      return;
+var solveNQueens = function(n) {
+    
+    if(n.length === 1) return [["Q"]];
+    
+    let col = new Set();
+    let posDiag = new Set();
+    let negDiag = new Set();
+    
+    let res = [];
+    let board = Array.from(Array(n), () => new Array(n).fill("."));
+    
+    //helper functions
+    const isValid = (r, c) => !(col.has(c) || posDiag.has(r+c) || negDiag.has(r-c));
+    
+    const addQueen = (r, c) => {
+        col.add(c);
+        posDiag.add(r+c);
+        negDiag.add(r-c);
+        board[r][c] = "Q";
     }
-    for (let c = 0; c < n; c++) {
-      if (cols.has(c) || diag.has(r - c) || anti.has(r + c)) continue;
-      cols.add(c); diag.add(r - c); anti.add(r + c);
-      board[r][c] = "Q";
-      dfs(r + 1);
-      board[r][c] = ".";
-      cols.delete(c); diag.delete(r - c); anti.delete(r + c);
+    
+    const removeQueen = (r, c) => {
+        col.delete(c);
+        posDiag.delete(r+c);
+        negDiag.delete(r-c);
+        board[r][c] = ".";
     }
-  };
-  dfs(0);
-  return ans;
-}
+    
+    //recursive backtracking function
+    function recurse(row){
+        
+        //base case
+        if(row === n){
+            res.push([...board].map((row) => row.join("")));
+        }
+        
+        //recurrence relation
+        for(let col = 0; col < n; col++){
+            if(isValid(row, col)){
+                addQueen(row, col);
+                //recurse
+                recurse(row+1);
+                //backtrack
+                removeQueen(row, col);
+            }
+        }
+        
+    }
+    
+    recurse(0);
+    return res;
+    
+};
 \`\`\``,
     },
     {
@@ -245,24 +304,49 @@ function solveNQueens(n) {
 [N-Queens II](https://leetcode.com/problems/n-queens-ii/)
 
 \`\`\`js
-// Hinglish: gine bina board — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/n-queens-ii/
-function totalNQueens(n) {
-  // Hinglish: step 1 — sets lo
-  let ans = 0;
-  const cols = new Set(), d1 = new Set(), d2 = new Set();
-  const dfs = (r) => {
-    if (r === n) { ans++; return; } // Hinglish: poori bhar gayi
-    for (let c = 0; c < n; c++) {
-      if (cols.has(c) || d1.has(r - c) || d2.has(r + c)) continue; // Hinglish: hamla ho raha
-      cols.add(c); d1.add(r - c); d2.add(r + c);
-      dfs(r + 1);
-      cols.delete(c); d1.delete(r - c); d2.delete(r + c); // Hinglish: wapas lao
+var totalNQueens = function(n) {
+    
+    let col = new Set();
+    let posDiag = new Set();
+    let negDiag = new Set();
+    
+    let count = 0;
+    
+    //helper functions
+    const isValid = (r, c) => !(col.has(c) || posDiag.has(r+c) || negDiag.has(r-c));
+    
+    const addQueen = (r, c) => {
+        col.add(c);
+        posDiag.add(r+c);
+        negDiag.add(r-c);
     }
-  };
-  dfs(0);
-  return ans;
-}
+    
+    const removeQueen = (r, c) => {
+        col.delete(c);
+        posDiag.delete(r+c);
+        negDiag.delete(r-c);
+    }
+    
+    //backtracking function
+    
+    function recurse(row){
+        //base case
+        if(row === n){
+            count++;
+        }
+        
+        for(let col = 0; col < n; col++){
+            if(isValid(row, col)){
+                addQueen(row, col);
+                count = recurse(row + 1, count);
+                removeQueen(row, col);
+            }
+        }
+        return count;
+    }
+    return recurse(0);
+    
+};
 \`\`\``,
     },
     {
@@ -276,37 +360,70 @@ function totalNQueens(n) {
 [Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
 
 \`\`\`js
-// Hinglish: try karo wapas aao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sudoku-solver/
-function solveSudoku(board) {
-  // Hinglish: step 1 — valid check helper
-  const ok = (r, c, v) => {
-    for (let i = 0; i < 9; i++) {
-      if (board[r][i] === v || board[i][c] === v) return false; // Hinglish: row/col me hai
-      const br = 3 * Math.floor(r / 3) + Math.floor(i / 3);
-      const bc = 3 * Math.floor(c / 3) + (i % 3);
-      if (board[br][bc] === v) return false; // Hinglish: box me hai
-    }
-    return true;
-  };
-  const dfs = () => {
-    for (let r = 0; r < 9; r++) {
-      for (let c = 0; c < 9; c++) {
-        if (board[r][c] !== ".") continue;
-        for (let v = 1; v <= 9; v++) {
-          const ch = String(v);
-          if (ok(r, c, ch)) {
-            board[r][c] = ch;
-            if (dfs()) return true; // Hinglish: aage badho
-            board[r][c] = "."; // Hinglish: wapas lao
-          }
+/**
+ * @param {character[][]} board
+ * @return {void} Do not return anything, modify board in-place instead.
+ */
+
+const EMPTY = ".";
+
+const possibleNumbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+var solveSudoku = function(board) {
+    let emptySpaces = [];
+    
+    for(let i = 0; i < board.length; i++){
+        for(let j = 0; j < board.length; j++){
+            if(board[i][j] === EMPTY){
+                emptySpaces.push({row: i, col: j})
+            }
         }
-        return false;
-      }
     }
+    
+    function recurse(emptySpaceIndex){
+        
+        //base case - end
+        if(emptySpaceIndex >= emptySpaces.length){
+            return true;
+        }
+        
+        const {row, col} = emptySpaces[emptySpaceIndex];
+        
+        for(let i = 0; i < possibleNumbers.length; i++){
+            let num = possibleNumbers[i];
+            
+            if(isValid(num, row, col, board)){
+                board[row][col] = num;
+                
+                if(recurse(emptySpaceIndex + 1)){
+                    return true;
+                }
+                
+                board[row][col] = EMPTY;
+            }
+        }
+        
+        return false;
+        
+    }
+    
+    recurse(0);
+}
+
+function isValid(number, row, col, board){
+    
+    //check col, row, 3x3 matrix
+    
+    for(let i = 0; i < board.length; i++){
+        const boxRow = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+        const boxCol = 3 * Math.floor(col / 3) + (i % 3);
+        
+        if(board[row][i] === number || board[i][col] === number || board[boxRow][boxCol] === number){
+            return false;
+        }
+    }
+    
     return true;
-  };
-  dfs();
 }
 \`\`\``,
     },
@@ -321,22 +438,41 @@ function solveSudoku(board) {
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
-function letterCombinations(digits) {
-  // Hinglish: empty to []
-  if(!digits) return [];
-  const mp={2:"abc",3:"def",4:"ghi",5:"jkl",6:"mno",7:"pqrs",8:"tuv",9:"wxyz"};
-  const ans=[];
-  const dfs=(i, path)=>{
-    if(i===digits.length){ ans.push(path); return; } // Hinglish: pura ban gaya
-    for(const ch of mp[digits[i]]){
-      dfs(i+1, path+ch); // Hinglish: har letter try
+/**
+ * @param {string} digits
+ * @return {string[]}
+ */
+var letterCombinations = function(digits, start = 0) {
+    
+    const map = {
+        '2': ['a','b','c'],
+        '3': ['d','e','f'],
+        '4': ['g','h','i'],
+        '5': ['j','k','l'],
+        '6': ['m','n','o'],
+        '7': ['p','q','r', 's'],
+        '8': ['t','u','v'],
+        '9': ['w','x','y','z'],
+    };
+    
+    if(digits === "") return [];
+    if(start >= digits.length) return [''];
+    
+    const digit = digits[start];
+    const letters = map[digit];
+    const combinations = [];
+    
+    const suffixCombinations = letterCombinations(digits, start + 1);
+    
+    for(const letter of letters){
+        for(const suffix of suffixCombinations){
+            combinations.push(letter + suffix);
+        }
     }
-  };
-  dfs(0, "");
-  return ans;
-}
+    
+    return combinations;
+    
+};
 \`\`\``,
     },
       ],
