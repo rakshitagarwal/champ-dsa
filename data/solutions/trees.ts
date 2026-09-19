@@ -918,27 +918,45 @@ var deepestLeavesSum = function(root) {
 [Balance a Binary Search Tree](https://leetcode.com/problems/balance-a-binary-search-tree/)
 
 \`\`\`js
-// Hinglish: nikalo phir banao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/balance-a-binary-search-tree/
-function balanceBST(root) {
-  // Hinglish: step 1 — inorder nikalo
-  const vals = [];
-  const inorder = (node) => {
-    if (!node) return;
-    inorder(node.left);
-    vals.push(node.val);
-    inorder(node.right);
-  };
-  inorder(root);
-  const build = (l, r) => {
-    if (l > r) return null;
-    const m = (l + r) >> 1; // Hinglish: beech root banao
-    const node = { val: vals[m], left: null, right: null };
-    node.left = build(l, m - 1);
-    node.right = build(m + 1, r);
-    return node;
-  };
-  return build(0, vals.length - 1);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {TreeNode}
+ */
+var balanceBST = function(root) {
+    let arr = [];
+    inOrder(root, arr);
+    return buildTree(arr);
+};
+
+function inOrder(root, arr){
+    if(!root) return;
+    
+    inOrder(root.left, arr);
+    arr.push(root.val);
+    inOrder(root.right, arr);
+}
+
+function buildTree(arr){
+    if(arr.length === 0) return null;
+    
+    let mid = Math.floor(arr.length / 2);
+    let head = new TreeNode(arr[mid]);
+    
+    let left = arr.slice(0, mid);
+    let right = arr.slice(mid+1);
+    
+    head.left = buildTree(left);
+    head.right = buildTree(right);
+    
+    return head;
 }
 \`\`\``,
     },
@@ -953,21 +971,40 @@ function balanceBST(root) {
 [Find Leaves of a Binary Tree](https://leetcode.com/problems/find-leaves-of-binary-tree/)
 
 \`\`\`js
-// Hinglish: height se group karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-leaves-of-binary-tree/
-function findLeaves(root) {
-  // Hinglish: step 1 — groups lo
-  const out = [];
-  const dfs = (node) => {
-    if (!node) return -1;
-    const h = 1 + Math.max(dfs(node.left), dfs(node.right)); // Hinglish: height nikalo
-    if (out.length === h) out.push([]);
-    out[h - 1].push(node.val); // Hinglish: height wale group me daalo
-    return h;
-  };
-  dfs(root);
-  return out;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var findLeaves = function(root) {
+    let res = {};
+    
+    function dfs(root){
+        if(!root) return 0;
+        
+        let left = dfs(root.left);
+        let right = dfs(root.right);
+        let depth = Math.max(left, right);
+        
+        if(!res[depth]){
+            res[depth] = [root.val];
+        } else {
+            res[depth].push(root.val);
+        }
+        
+        return depth + 1;
+    }
+    dfs(root);
+    
+    return Object.values(res);
+};
 \`\`\``,
     },
     {
@@ -984,27 +1021,38 @@ function findLeaves(root) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: column number do — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-tree-vertical-order-traversal/ (Premium)
-function verticalOrder(root) {
-  // Hinglish: step 1 — khaali ho to khaali do
-  if (!root) return [];
-  const cols = new Map();
-  const q = [[root, 0]];
-  let mn = 0, mx = 0;
-  while (q.length) {
-    const [node, c] = q.shift();
-    if (!cols.has(c)) cols.set(c, []);
-    cols.get(c).push(node.val); // Hinglish: BFS order me daalo
-    if (c < mn) mn = c;
-    if (c > mx) mx = c;
-    if (node.left) q.push([node.left, c - 1]); // Hinglish: left column kam
-    if (node.right) q.push([node.right, c + 1]);
-  }
-  const out = [];
-  for (let c = mn; c <= mx; c++) out.push(cols.get(c)); // Hinglish: left se right nikalo
-  return out;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var verticalOrder = function(root) {
+    if(!root) return [];
+    let queue = [[root, 0]];
+    let map = {};
+    
+    while(queue.length){
+        const [node, level] = queue.shift();
+        
+        if(!map[level]){
+            map[level] = [node.val];
+        } else {
+            map[level].push(node.val);
+        }
+        
+        if(node.left) queue.push([node.left, level-1]);
+        if(node.right) queue.push([node.right, level+1]);
+    }
+    
+    return Object.keys(map).sort((a,b) => a-b).map((k) => map[k]);
+};
 \`\`\``,
     },
     {
@@ -1018,24 +1066,45 @@ function verticalOrder(root) {
 [N Array Tree Level Order Traversal](https://leetcode.com/problems/n-ary-tree-level-order-traversal/)
 
 \`\`\`js
-// Hinglish: level dar level — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/n-ary-tree-level-order-traversal/
-function levelOrder(root) {
-  // Hinglish: step 1 — khaali check karo
-  if (!root) return [];
-  const out = [];
-  let q = [root];
-  while (q.length) {
-    const next = [], level = [];
-    for (const node of q) {
-      level.push(node.val);
-      for (const ch of node.children) next.push(ch); // Hinglish: saare bachche daalo
+/**
+ * // Definition for a Node.
+ * function Node(val,children) {
+ *    this.val = val;
+ *    this.children = children;
+ * };
+ */
+
+/**
+ * @param {Node|null} root
+ * @return {number[][]}
+ */
+var levelOrder = function(root) {
+    
+    if(!root) return [];
+    
+    let queue = [root];
+    
+    let res = [];
+    
+    while(queue.length){
+        let level = [];
+        let levelSize = queue.length;
+        while(levelSize){
+            let current = queue.shift();
+            
+            for(let i = 0; i < current.children.length; i++){
+                if(current.children[i]) queue.push(current.children[i]);
+            }
+            
+            level.push(current.val);
+            levelSize--;
+        }
+        res.push(level);
     }
-    out.push(level);
-    q = next;
-  }
-  return out;
-}
+    
+    return res;
+    
+};
 \`\`\``,
     },
     {
@@ -1049,20 +1118,37 @@ function levelOrder(root) {
 [Count Good Nodes In Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)
 
 \`\`\`js
-// Hinglish: max saath le jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/count-good-nodes-in-binary-tree/
-function goodNodes(root) {
-  // Hinglish: step 1 — count lo
-  let ans = 0;
-  const dfs = (node, mx) => {
-    if (!node) return;
-    if (node.val >= mx) { ans++; mx = node.val; } // Hinglish: record toda to good
-    dfs(node.left, mx);
-    dfs(node.right, mx);
-  };
-  dfs(root, -Infinity);
-  return ans;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var goodNodes = function(root) {
+    let count = 0;
+    let max = root.val;
+    
+    function dfs(root, max){
+        if(root === null) return;
+        
+        if(root.val >= max){
+            max = Math.max(max, root.val);
+            count++;
+        }
+        
+        dfs(root.left, max);
+        dfs(root.right, max);
+    }
+    dfs(root, max);
+    
+    return count;
+};
 \`\`\``,
     },
     {
@@ -1079,21 +1165,40 @@ function goodNodes(root) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: chain badhao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-tree-longest-consecutive-sequence/ (Premium)
-function longestConsecutive(root) {
-  // Hinglish: step 1 — best lo
-  let best = 0;
-  const dfs = (node, parentVal, len) => {
-    if (!node) return;
-    const cur = node.val === parentVal + 1 ? len + 1 : 1; // Hinglish: jude to badhao
-    if (cur > best) best = cur;
-    dfs(node.left, node.val, cur);
-    dfs(node.right, node.val, cur);
-  };
-  dfs(root, null, 0);
-  return best;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var longestConsecutive = function(root) {
+    let max = -Infinity;
+    let prev = -Infinity;
+    let count = 0;
+    
+    function dfs(root, count, prev){
+        if(root === null) return;
+        
+        if(root.val-1 === prev){
+            count++;
+        } else {
+            count = 1;
+        }
+        
+        max = Math.max(max, count);
+        dfs(root.left, count, root.val);
+        dfs(root.right, count, root.val);
+    }
+    dfs(root, count, prev);
+    
+    return max === -Infinity ? 0 : max;
+};
 \`\`\``,
     },
     {
@@ -1107,29 +1212,46 @@ function longestConsecutive(root) {
 [Binary Tree Zigzag Level Order Traversal](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)
 
 \`\`\`js
-// Hinglish: ek seedha ek ulta — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/
-function zigzagLevelOrder(root) {
-  // Hinglish: step 1 — queue lo
-  if (!root) return [];
-  const out = [];
-  let q = [root], flip = false;
-  while (q.length) {
-    const level = [];
-    const n = q.length;
-    const next = [];
-    for (let i = 0; i < n; i++) {
-      const node = q[i];
-      level.push(node.val);
-      if (node.left) next.push(node.left);
-      if (node.right) next.push(node.right);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var zigzagLevelOrder = function(root) {
+    if(!root) return [];
+    const queue = [root];
+    
+    const res = [];
+    let depth = 0;
+    
+    while(queue.length){
+        const level = [];
+        let levelSize = queue.length;
+        while(levelSize){
+            const current = queue.shift();
+            
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+            
+            if(depth % 2 === 0){
+                level.push(current.val);
+            } else {
+                level.unshift(current.val);
+            }
+            levelSize--;
+        }
+        res.push(level);
+        depth++;
     }
-    out.push(flip ? level.reverse() : level); // Hinglish: alternate ulta
-    flip = !flip;
-    q = next;
-  }
-  return out;
-}
+    return res;
+};
 \`\`\``,
     },
     {
@@ -1143,20 +1265,30 @@ function zigzagLevelOrder(root) {
 [Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)
 
 \`\`\`js
-// Hinglish: chaabi se kamra — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/keys-and-rooms/
-function canVisitAllRooms(rooms) {
-  // Hinglish: step 1 — dekhe hue yaad rakho
-  const seen = new Set([0]);
-  const stack = [0];
-  while (stack.length) {
-    const r = stack.pop();
-    for (const k of rooms[r]) {
-      if (!seen.has(k)) { seen.add(k); stack.push(k); } // Hinglish: nayi chaabi naya kamra
+/**
+ * @param {number[][]} rooms
+ * @return {boolean}
+ */
+var canVisitAllRooms = function(rooms) {
+    let visited = new Set();
+    let keyList = new Set();
+    
+    function dfs(currRoom, currKeys){
+        if(visited.has(currRoom)) return;
+        visited.add(currRoom);
+        
+        for(let key of rooms[currRoom]){
+            currKeys.add(key);
+        }
+        
+        for(let key of currKeys){
+            dfs(key, currKeys);
+        }
     }
-  }
-  return seen.size === rooms.length;
-}
+    dfs(0, keyList);
+    
+    return visited.size === rooms.length;
+};
 \`\`\``,
     },
     {
@@ -1170,24 +1302,42 @@ function canVisitAllRooms(rooms) {
 [Construct Binary Tree From Preorder And Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 \`\`\`js
-// Hinglish: root pakdo, baanto, recurse — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
-function buildTree(preorder, inorder) {
-  // Hinglish: step 1 — inorder positions yaad rakho
-  const pos = new Map();
-  inorder.forEach((v, i) => pos.set(v, i));
-  let pre = 0;
-  const build = (l, r) => {
-    if (l > r) return null;
-    const rootVal = preorder[pre++]; // Hinglish: pehla root hai
-    const m = pos.get(rootVal); // Hinglish: inorder me baantne ki jagah
-    const root = { val: rootVal, left: null, right: null };
-    root.left = build(l, m - 1);
-    root.right = build(m + 1, r);
-    return root;
-  };
-  return build(0, inorder.length - 1);
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {number[]} preorder
+ * @param {number[]} inorder
+ * @return {TreeNode}
+ */
+var buildTree = function(preorder, inorder) {
+    
+    function recurse(pStart, pEnd, inStart, inEnd){
+        
+        //base case
+        if(pStart > pEnd || inStart > inEnd) return null;
+        
+        let rootVal = preorder[pStart];
+        let inIndex = inorder.indexOf(rootVal);
+        let nLeft = inIndex - inStart;
+        
+        let root = new TreeNode(rootVal);
+        
+        root.left = recurse(pStart+1, pStart+nLeft, inStart, inIndex-1);
+        root.right = recurse(pStart+1+nLeft, pEnd, inIndex+1, inEnd);
+        
+        return root;
+        
+    }
+    
+    return recurse(0, preorder.length-1, 0, inorder.length-1);
+    
+};
 \`\`\``,
     },
     {
@@ -1201,22 +1351,40 @@ function buildTree(preorder, inorder) {
 [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — gain I can offer my parent vs path that bends here
-// LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
-function maxPathSum(root) {
-  // Hinglish: step 1 — base case check karo
-  let best = -Infinity;
-  const gain = (node) => {
-    if (!node) return 0;
-    const L = Math.max(0, gain(node.left));
-    const R = Math.max(0, gain(node.right));
-    best = Math.max(best, node.val + L + R);
-    return node.val + Math.max(L, R);
-  };
-  gain(root);
-  return best;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var maxPathSum = function(root) {
+    
+    let max = -Infinity;
+    
+    function dfs(root){
+        
+        if(!root) return 0;
+        
+        let left = Math.max(0,dfs(root.left));
+        let right = Math.max(0,dfs(root.right));
+        let curMax = left + root.val + right;
+        
+        max = Math.max(curMax, max);
+        
+        return root.val + Math.max(left, right);
+        
+    }
+    
+    dfs(root);
+    return max;
+    
+};
 \`\`\``,
     },
       ],

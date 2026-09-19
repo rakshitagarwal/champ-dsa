@@ -18,37 +18,67 @@ export const TRIES_SOLUTIONS: SolutionGroup = {
 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
-// Trie — insert / search / prefix
-// LC: https://leetcode.com/problems/implement-trie-prefix-tree/
-function Trie() {
-  // Hinglish: step 1 — base case check karo
-  this.root = { kids: Object.create(null), end: false };
-}
-Trie.prototype.insert = function (word) {
-  let cur = this.root;
-  for (const ch of word) {
-    if (!cur.kids[ch]) cur.kids[ch] = { kids: Object.create(null), end: false };
-    cur = cur.kids[ch];
-  }
-  cur.end = true;
+/**
+ * Initialize your data structure here.
+ */
+var Trie = function() {
+    this.root = {};
 };
-Trie.prototype.search = function (word) {
-  let cur = this.root;
-  for (const ch of word) {
-    if (!cur.kids[ch]) return false;
-    cur = cur.kids[ch];
-  }
-  return !!cur.end;
+
+/**
+ * Inserts a word into the trie.
+ * @param {string} word
+ * @return {void}
+ */
+Trie.prototype.insert = function(word) {
+    let node = this.root;
+    
+    for(let c of word){
+        if(node[c] == null) node[c] = {};
+        node = node[c];
+    }
+    node.isWord = true;
 };
-Trie.prototype.startsWith = function (prefix) {
-  let cur = this.root;
-  for (const ch of prefix) {
-    if (!cur.kids[ch]) return false;
-    cur = cur.kids[ch];
-  }
-  return true;
+
+/**
+ * @return {boolean}
+ */
+Trie.prototype.traverse = function(word) {
+    let node = this.root;
+    
+    for(let c of word){
+        node = node[c];
+        if(node == null) return null;
+    }
+    return node;
 };
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+Trie.prototype.search = function(word) {
+    let node = this.traverse(word);
+    
+    return node !== null && node.isWord === true;
+};
+
+/**
+ * @param {string} prefix
+ * @return {boolean}
+ */
+Trie.prototype.startsWith = function(prefix) {
+    let node = this.traverse(prefix);
+    return node !== null;
+};
+
+/**
+ * Your Trie object will be instantiated and called as such:
+ * var obj = new Trie()
+ * obj.insert(word)
+ * var param_2 = obj.search(word)
+ * var param_3 = obj.startsWith(prefix)
+ */
 \`\`\``,
     },
     {
@@ -62,26 +92,65 @@ Trie.prototype.startsWith = function (prefix) {
 [Design Add And Search Word Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/design-add-and-search-words-data-structure/
-function WordDictionary(){ this.root={kids:{}, end:false}; }
-WordDictionary.prototype.addWord=function(word){
-  // Hinglish: insert
-  let cur=this.root;
-  for(const ch of word){ if(!cur.kids[ch]) cur.kids[ch]={kids:{}, end:false}; cur=cur.kids[ch]; }
-  cur.end=true; // Hinglish: khatam
+var WordDictionary = function() {
+    this.trie = {};
 };
-WordDictionary.prototype.search=function(word){
-  // Hinglish: DFS
-  const dfs=(node,i)=>{
-    if(i===word.length) return node.end;
-    const ch=word[i];
-    if(ch==='.'){ for(const kid in node.kids) if(dfs(node.kids[kid], i+1)) return true; return false; } // Hinglish: har rasta try
-    if(!node.kids[ch]) return false;
-    return dfs(node.kids[ch], i+1);
-  };
-  return dfs(this.root,0);
+
+/**
+ * @param {string} word
+ * @return {void}
+ */
+WordDictionary.prototype.addWord = function(word) {
+    let node = this.trie;
+    for(let char of word){
+        if(node[char] == null) node[char] = {};
+        node = node[char];
+    }
+    node.isEnd = true;
 };
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+WordDictionary.prototype.dfs = function(word, trie, index) {
+    
+    //base case
+    if(word.length === index){
+        return trie.isEnd ? true : false;
+    }
+    
+    let char = word[index];
+    
+    if(char === "."){
+        for(let key in trie){
+            if(key === "isEnd") continue;
+            if(this.dfs(word, trie[key], index+1)) return true;
+        }
+    } else {
+        if(trie[char] != null){
+            return this.dfs(word, trie[char], index+1);
+        }
+    }
+    
+    return false;
+    
+};
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+WordDictionary.prototype.search = function(word) {
+    return this.dfs(word, this.trie, 0);
+};
+
+/**
+ * Your WordDictionary object will be instantiated and called as such:
+ * var obj = new WordDictionary()
+ * obj.addWord(word)
+ * var param_2 = obj.search(word)
+ */
 \`\`\``,
     },
       ],
