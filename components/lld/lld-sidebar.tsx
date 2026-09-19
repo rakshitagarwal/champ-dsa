@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Lightbulb, MapPin, PenTool, ScrollText } from "lucide-react";
+import { BookOpen, Layers, MapPin, Package, PenTool, ScrollText, Zap } from "lucide-react";
 import { LLD_GROUPS } from "@/data/lld/topics";
 import type { LldTopicWithNum } from "@/data/lld/topics";
 import { cn } from "@/lib/utils";
@@ -42,9 +42,13 @@ export function LldSidebar({ docs, className }: Props) {
               ? BookOpen
               : group.id === "principles"
                 ? ScrollText
-                : group.id === "patterns"
-                  ? Lightbulb
-                  : group.id === "design"
+                : group.id === "creational"
+                  ? Package
+                  : group.id === "structural"
+                    ? Layers
+                    : group.id === "behavioral"
+                      ? Zap
+                      : group.id === "design"
                     ? PenTool
                     : group.id === "questions"
                       ? MapPin
