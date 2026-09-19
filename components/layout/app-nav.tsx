@@ -22,7 +22,7 @@ const navLinks: {
   exact?: boolean;
 }[] = [
   { href: "/patterns", label: "DSA Patterns", icon: BookOpen },
-  { href: "/practice", label: "Solve", icon: PenLine },
+  { href: "/practice", label: "DSA Sheet", icon: PenLine },
   { href: "/solutions", label: "Solutions", icon: ScrollText },
   { href: "/tips", label: "Tips & Tricks", icon: Lightbulb },
   { href: "/compiler", label: "Compiler", icon: Code2 },

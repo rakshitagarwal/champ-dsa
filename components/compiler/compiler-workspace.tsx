@@ -27,7 +27,7 @@ const LANGUAGE_META: Record<
     label: "JavaScript",
     fileName: "index.js",
     monacoLanguage: "javascript",
-    hint: "Run JavaScript with console output — separate from Solve visualization",
+    hint: "Run JavaScript with console output — separate from the DSA Sheet",
   },
   python: {
     label: "Python",

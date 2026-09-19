@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, ExternalLink, Search } from "lucide-react";
+import { BookOpen, ExternalLink, Play, Search } from "lucide-react";
 import {
   PRACTICE_SHEET,
   getAllPracticeProblems,
@@ -11,6 +11,7 @@ import {
   type LcDifficulty,
   type LcProblem,
 } from "@/data/practice/leetcode-sheet";
+import { algojsYoutubeUrl } from "@/data/practice/algojs-youtube-solutions";
 import {
   loadPracticeExpandedSub,
   savePracticeExpandedSub,
@@ -32,27 +33,47 @@ const DIFFICULTY_CLASS: Record<LcDifficulty, string> = {
 };
 
 function ProblemRow({ problem }: { problem: LcProblem }) {
+  const youtubeUrl = algojsYoutubeUrl(problem.slug);
+
   return (
-    <a
-      href={leetcodeUrl(problem.slug)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
-    >
-      <span className="font-medium">{problem.title}</span>
-      <span className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-          <ExternalLink className="h-3 w-3" />
-          LeetCode
-        </span>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 transition-colors hover:border-primary/40 hover:bg-primary/5">
+      <a
+        href={leetcodeUrl(problem.slug)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="min-w-0 flex-1 font-medium hover:text-primary"
+      >
+        {problem.title}
+      </a>
+      <span className="flex shrink-0 flex-wrap items-center gap-2">
         <Badge
           variant="outline"
-          className={cn("shrink-0 capitalize", DIFFICULTY_CLASS[problem.difficulty])}
+          className={cn("capitalize", DIFFICULTY_CLASS[problem.difficulty])}
         >
           {problem.difficulty}
         </Badge>
+        <a
+          href={leetcodeUrl(problem.slug)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          <ExternalLink className="h-3 w-3" />
+          LeetCode
+        </a>
+        {youtubeUrl ? (
+          <a
+            href={youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          >
+            <Play className="h-3 w-3 fill-current" />
+            Solution
+          </a>
+        ) : null}
       </span>
-    </a>
+    </div>
   );
 }
 

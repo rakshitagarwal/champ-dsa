@@ -8,8 +8,8 @@ const SECTIONS = [
   },
   {
     href: "/practice",
-    title: "Practice",
-    description: "LeetCode problems grouped by pattern.",
+    title: "DSA Sheet",
+    description: "LeetCode problems with AlgoJS video solutions.",
   },
   {
     href: "/solutions",

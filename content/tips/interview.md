@@ -65,7 +65,7 @@ If they only hire Senior at 7 YOE, take SDE-2 and win inside. Do not argue the J
 
 | Round | What "good" looks like | Prep |
 |-------|------------------------|------|
-| DSA | Talk, brute force, then cut. JS is fine if they allow it | [Patterns](/patterns) + [Solve](/practice) |
+| DSA | Talk, brute force, then cut. JS is fine if they allow it | [Patterns](/patterns) + [DSA Sheet](/practice) |
 | System design | Requirements, APIs, boxes, **one** deep dive | [System Design](/system-design) — Bitly, WhatsApp, rate limiter first |
 | Hiring manager | Ownership, conflict, 90-day plan | Stories above |
 | Bar raiser / skip | Honesty on gaps, how you debug | Incident story |

@@ -27,7 +27,7 @@ const ACTIONS: Record<TipsTabSlug, QuickAction[]> = {
   ],
   interview: [
     { label: "DSA Patterns", href: "/patterns", icon: BookOpen },
-    { label: "Solve", href: "/practice", icon: Code2 },
+    { label: "DSA Sheet", href: "/practice", icon: Code2 },
     { label: "HLD", href: "/hld", icon: Network },
   ],
   email: [{ label: "Browse companies", href: "/companies", icon: Building2 }],

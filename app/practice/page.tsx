@@ -10,13 +10,13 @@ export default function PracticePage() {
     <div className="w-full space-y-10 px-4 py-8 lg:px-10">
       <header className="max-w-4xl">
         <div className="mt-4">
-          <Badge>Solve</Badge>
+          <Badge>DSA Sheet</Badge>
         </div>
-        <h1 className="mt-3 text-4xl font-bold">LeetCode sheet ({count})</h1>
+        <h1 className="mt-3 text-4xl font-bold">DSA Sheet ({count})</h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
           Popular interview problems, grouped like the DSA pattern notes. Open a
-          problem on LeetCode. For how the pattern works — with JS examples —
-          use{" "}
+          problem on LeetCode, or watch the AlgoJS video solution when available.
+          For how the pattern works — with JS examples — use{" "}
           <Link href="/patterns" className="text-primary hover:underline">
             DSA Patterns
           </Link>
