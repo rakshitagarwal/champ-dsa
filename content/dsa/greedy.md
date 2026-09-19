@@ -31,14 +31,20 @@ I track the farthest index I can still reach. If I walk past that, I am stuck.
 
 ```js
 // LC: https://leetcode.com/problems/jump-game/
-function canJump(nums) {
-  let reach = 0; // Farthest index reachable from index 0 so far
-  for (let i = 0; i < nums.length; i++) {
-    if (i > reach) return false; // Stepped past what any prior jump could reach
-    reach = Math.max(reach, i + nums[i]); // From i, extend furthest landing
-  }
-  return true; // Last index is within reach
-}
+// move target left when i can reach it
+/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var canJump = function(nums) {
+    let target = nums.length - 1;
+    for (let i = nums.length - 1; i >= 0; i--) {
+        if (i + nums[i] >= target) {
+            target = i;
+        }
+    }
+    return target === 0;
+};
 ```
 
 ## Jump Game II

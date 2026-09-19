@@ -24,28 +24,57 @@ Edge `b → a` means b before a. Count in-degree. Queue everyone at 0. Each take
 [Course Schedule](https://leetcode.com/problems/course-schedule/)
 
 ```js
-// Kahn topo: cycle exists iff not all courses get indegree 0
 // LC: https://leetcode.com/problems/course-schedule/
-function canFinish(numCourses, prerequisites) {
-  const graph = Array.from({ length: numCourses }, () => []);
-  const indeg = Array(numCourses).fill(0);
-  for (const [a, b] of prerequisites) {
-    graph[b].push(a); // b must be taken before a
-    indeg[a]++;
-  }
-  const q = [];
-  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
-  let taken = 0;
-  while (q.length) {
-    const u = q.shift();
-    taken++;
-    for (const v of graph[u]) {
-      indeg[v]--;
-      if (indeg[v] === 0) q.push(v);
+// cycle in prereq graph ⇒ false
+/**
+ * @param {number} numCourses
+ * @param {number[][]} prerequisites
+ * @return {boolean}
+ */
+var canFinish = function(numCourses, prerequisites) {
+    
+    let adjList = {};
+    let visited = new Set();
+    
+    for(let [a,b] of prerequisites){
+        if(!adjList[a]){
+            adjList[a] = [b];
+        } else {
+            adjList[a].push(b);
+        }
     }
-  }
-  return taken === numCourses;
-}
+    
+    function dfs(curr){
+        
+        if(visited.has(curr)) return false;
+        
+        if(adjList[curr] === []) return true;
+        
+        visited.add(curr);
+        
+        if(adjList[curr]){
+            for(let neigh of adjList[curr]){
+                if(!dfs(neigh)){
+                    return false;
+                }
+            }
+        }
+        
+        visited.delete(curr);
+        adjList[curr] = [];
+        return true;
+        
+    }
+    
+    for(let key in adjList){
+        
+        if(!dfs(key)){
+            return false;
+        }
+    }
+    
+    return true;
+};
 ```
 
 ## Course Schedule II (Order Return)

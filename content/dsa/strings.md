@@ -56,17 +56,40 @@ Dono siron se aao, alphanumeric nahi to skip, case ignore karke compare.
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
+// two pointers; skip non-alnum
 // LC: https://leetcode.com/problems/valid-palindrome/
-function isPalindrome(s) {
-  // two pointers from both ends toward center
-  const isAlphaNum = (c) => /[a-z0-9]/i.test(c);
-  let l = 0, r = s.length - 1;
-  while (l < r) {
-    while (l < r && !isAlphaNum(s[l])) l++; // skip non-alphanumeric characters
-    while (l < r && !isAlphaNum(s[r])) r--;
-    if (s[l].toLowerCase() !== s[r].toLowerCase()) return false; // mismatch
-    l++; r--;
+var isPalindrome = function(s) {
+  let cleanStr = cleanUp(s);
+  return isPal(cleanStr);
+};
+
+function cleanUp(str) {
+  let char = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let newS = "";
+
+  for (let i = 0; i < str.length; i++) {
+    let lCase = str[i].toLowerCase();
+
+    if (char.indexOf(lCase) !== -1) {
+      newS += lCase;
+    }
   }
+
+  return newS;
+}
+
+function isPal(str) {
+  let left = 0;
+  let right = str.length - 1;
+
+  while (left < right) {
+    if (str[left] !== str[right]) {
+      return false;
+    }
+    left++;
+    right--;
+  }
+
   return true;
 }
 ```
@@ -78,17 +101,37 @@ Dono ke letter counts barabar hon to anagram. Ek ka +1, doosre ka -1 — sab zer
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
+// count chars; must match
 // LC: https://leetcode.com/problems/valid-anagram/
-function isAnagram(s, t) {
-  // lengths must match for an anagram
+var isAnagram = function(s, t) {
   if (s.length !== t.length) return false;
-  const f = Array(26).fill(0);
+
+  let map = {};
+
   for (let i = 0; i < s.length; i++) {
-    f[s.charCodeAt(i) - 97]++; // first of +1
-    f[t.charCodeAt(i) - 97]--; // doosre of -1
+    let letter = s[i];
+
+    if (!map[letter]) {
+      map[letter] = 1;
+    } else {
+      map[letter]++;
+    }
   }
-  return f.every((x) => x === 0); // sab zero to anagram
-}
+
+  for (let i = 0; i < t.length; i++) {
+    let letter = t[i];
+
+    if (map[letter] === undefined) {
+      return false;
+    }
+    if (map[letter] < 1) {
+      return false;
+    }
+    map[letter]--;
+  }
+
+  return true;
+};
 ```
 
 ## Group Anagrams
@@ -98,17 +141,23 @@ Sorted word hi group ki key hai — anagram sort karke same bante hain. Map me k
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
+// key = sorted letters
 // LC: https://leetcode.com/problems/group-anagrams/
-function groupAnagrams(strs) {
-  // step 1 — build the map
-  const map = new Map();
-  for (const w of strs) {
-    const key = [...w].sort().join(""); // sort = group key
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(w); // group in push into heap
+var groupAnagrams = function(strs) {
+  let sorted = strs.map((str) => str.split("").sort().join(""));
+
+  let map = {};
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (!map[sorted[i]]) {
+      map[sorted[i]] = [strs[i]];
+    } else {
+      map[sorted[i]].push(strs[i]);
+    }
   }
-  return [...map.values()];
-}
+
+  return Object.values(map);
+};
 ```
 
 ## Longest Substring Without Repeating Characters
@@ -118,20 +167,30 @@ Window badhao, repeat aaye to left se hatao. Map me last index rakho taaki left 
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
+// window: shrink when char repeats
 // LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
-function lengthOfLongestSubstring(s) {
-  // step 1 — window + map lo
-  const last = new Map();
-  let l = 0, best = 0;
-  for (let r = 0; r < s.length; r++) {
-    if (last.has(s[r]) && last.get(s[r]) >= l) {
-      l = last.get(s[r]) + 1; // repeat remove, jump do
+var lengthOfLongestSubstring = function(s) {
+  let longestStr = 0;
+  let set = new Set();
+
+  let left = 0;
+  let right = 0;
+
+  while (right < s.length) {
+    let letter = s[right];
+
+    if (!set.has(letter)) {
+      set.add(letter);
+      longestStr = Math.max(longestStr, set.size);
+      right++;
+    } else {
+      set.delete(s[left]);
+      left++;
     }
-    last.set(s[r], r);
-    best = Math.max(best, r - l + 1); // window is valid — track longest length
   }
-  return best;
-}
+
+  return longestStr;
+};
 ```
 
 ## Longest Palindromic Substring
@@ -142,19 +201,28 @@ Har center (odd + even) se expand karo, sabse lamba rakho. `O(n²)` time, `O(1)`
 
 ```js
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
-function longestPalindrome(s) {
-  // Expand while chars match; return start index and length
-  const expand = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-    return [l + 1, r - l - 1];
-  };
-  let start = 0, len = 0;
+var longestPalindrome = function(s) {
+  let longest = "";
+
+  function isPal(s, left, right) {
+    while (left >= 0 && right < s.length && s[left] === s[right]) {
+      left--;
+      right++;
+    }
+    return s.slice(left + 1, right);
+  }
+
   for (let i = 0; i < s.length; i++) {
-    // Try odd-length (i,i) and even-length (i,i+1) centers
-    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) {
-      if (ln > len) { start = st; len = ln; }
+    let oddPal = isPal(s, i, i);
+    let evenPal = isPal(s, i, i + 1);
+
+    let longestPal = oddPal.length > evenPal.length ? oddPal : evenPal;
+
+    if (longestPal.length > longest.length) {
+      longest = longestPal;
     }
   }
-  return s.slice(start, start + len);
-}
+
+  return longest;
+};
 ```

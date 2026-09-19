@@ -37,12 +37,42 @@ Depth is 1 plus the deeper child. Empty tree is 0.
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 ```js
-// Post-order DFS — depth = 1 + max depth of subtrees
 // LC: https://leetcode.com/problems/maximum-depth-of-binary-tree/
-function maxDepth(root) {
-  if (!root) return 0; // Empty tree has depth 0
-  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right)); // Count edges path through root
-}
+// 1 + max(left, right)
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var maxDepth = function(root) {
+    if(!root) {
+        return 0;
+    }
+    
+    let depth = 0;
+    let queue = [root];
+    
+    while(queue.length){
+        let len = queue.length;
+        
+        for(let i = 0; i < len; i++){
+            let current = queue.shift();
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+        }
+        
+        depth++
+    }
+    
+    return depth;
+};
 ```
 
 ## Binary Tree Level Order Traversal
@@ -52,23 +82,43 @@ Queue. Snapshot length. Those nodes are one level.
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 ```js
-// BFS with level size snapshot — each batch is one level
 // LC: https://leetcode.com/problems/binary-tree-level-order-traversal/
-function levelOrder(root) {
-  if (!root) return [];
-  const out = [], queue = [root];
-  while (queue.length) {
-    const level = [], n = queue.length; // Fix level width before processing
-    for (let i = 0; i < n; i++) {
-      const node = queue.shift();
-      level.push(node.val);
-      if (node.left) queue.push(node.left);
-      if (node.right) queue.push(node.right);
+// BFS queue by levels
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var levelOrder = function(root) {
+    if(root === null) return [];
+    
+    let res = [];
+    let queue = [root];
+    
+    while(queue.length){
+        let levelArr = [];
+        let levelSize = queue.length;
+        while(levelSize){
+            let current = queue.shift();
+            
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+            
+            levelArr.push(current.val);
+            levelSize--;
+        }
+        res.push(levelArr);
     }
-    out.push(level);
-  }
-  return out;
-}
+    
+    return res;
+};
 ```
 
 ## Diameter of Binary Tree
@@ -78,20 +128,41 @@ Longest path (edges) between any two nodes. At each node I take left height + ri
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 ```js
-// Diameter at node = left height + right height (edges); track global max
 // LC: https://leetcode.com/problems/diameter-of-binary-tree/
-function diameterOfBinaryTree(root) {
-  let best = 0; // Best diameter seen (in edges)
-  const height = (node) => {
-    if (!node) return 0;
-    const L = height(node.left);
-    const R = height(node.right);
-    best = Math.max(best, L + R); // Path through this node as bend point
-    return 1 + Math.max(L, R); // Height upward to parent
-  };
-  height(root);
-  return best;
-}
+// longest path through a node
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var diameterOfBinaryTree = function(root) {
+    let maxD = 0;
+    
+    function dfs(node){
+        
+        if(!node) return 0;
+        
+        let left = dfs(node.left);
+        let right = dfs(node.right);
+        let currD = left + right;
+        
+        maxD = Math.max(currD, maxD);
+        
+        return Math.max(left+1, right+1)
+        
+    }
+    dfs(root);
+    
+    return maxD;
+    
+};
 ```
 
 ## Lowest Common Ancestor of a Binary Tree
@@ -101,15 +172,40 @@ If the node is p or q, return it. Recurse. If both sides return something, I am 
 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 ```js
-// Post-order LCA — first ancestor where p and q split to different subtrees
 // LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
-function lowestCommonAncestor(root, p, q) {
-  if (!root || root === p || root === q) return root; // Hit target or empty
-  const L = lowestCommonAncestor(root.left, p, q);
-  const R = lowestCommonAncestor(root.right, p, q);
-  if (L && R) return root; // p and q found in different subtrees — LCA is root
-  return L || R; // Propagate the non-null side upward
-}
+// if split across sides → node is LCA
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {TreeNode}
+ */
+var lowestCommonAncestor = function(root, p, q) {
+    
+    function dfs(node){
+        
+        //base cases
+        if(node === null) return null;
+        if(node === p || node === q) return node;
+        
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+        
+        if(left && right) return node;
+        return left || right;
+        
+    }
+    
+    return dfs(root);
+    
+};
 ```
 
 ## Binary Tree Maximum Path Sum
@@ -119,20 +215,42 @@ A path can bend at a node (left + node + right). I return to my parent only a on
 [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 ```js
-// At each node: best bending path vs one-sided gain returned to parent
 // LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
-function maxPathSum(root) {
-  let best = -Infinity;
-  const gain = (node) => {
-    if (!node) return 0;
-    const L = Math.max(0, gain(node.left)); // Ignore negative contributions
-    const R = Math.max(0, gain(node.right));
-    best = Math.max(best, node.val + L + R); // Path that turns at this node
-    return node.val + Math.max(L, R); // Extend only one side upward
-  };
-  gain(root);
-  return best;
-}
+// gain = val + max(0, child gain)
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var maxPathSum = function(root) {
+    
+    let max = -Infinity;
+    
+    function dfs(root){
+        
+        if(!root) return 0;
+        
+        let left = Math.max(0,dfs(root.left));
+        let right = Math.max(0,dfs(root.right));
+        let curMax = left + root.val + right;
+        
+        max = Math.max(curMax, max);
+        
+        return root.val + Math.max(left, right);
+        
+    }
+    
+    dfs(root);
+    return max;
+    
+};
 ```
 
 ## Serialize and Deserialize Binary Tree
@@ -180,14 +298,37 @@ Not “left < me < right” only on kids — the whole left subtree must stay in
 
 ```js
 // LC: https://leetcode.com/problems/validate-binary-search-tree/
-function isValidBST(root) {
-  const check = (node, lo, hi) => {
-    if (!node) return true; // Empty subtree is valid
-    if (node.val <= lo || node.val >= hi) return false; // Violates range bounds
-    return check(node.left, lo, node.val) && check(node.right, node.val, hi); // Tighten bounds per side
-  };
-  return check(root, -Infinity, Infinity);
-}
+// keep valid (low, high) range
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+var isValidBST = function(root) {
+    
+    function recurse(root, min, max){
+        
+        //base cases
+        if(root === null) return true;
+        
+        if((root.val >= max || root.val <= min)){
+            return false;
+        }
+        
+        //recurrence relation
+        return recurse(root.left, min, root.val) && recurse(root.right, root.val, max);
+        
+    }
+    return recurse(root, -Infinity, Infinity)
+    
+};
 ```
 
 ## Kth Smallest Element in a BST
@@ -197,17 +338,40 @@ Inorder of a BST is sorted. Walk left, then me (count++), then right. Stop at k.
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// Inorder on BST yields sorted order — stop at kth pop
 // LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
-function kthSmallest(root, k) {
-  const st = [];
-  let node = root;
-  while (node || st.length) {
-    while (node) { st.push(node); node = node.left; } // Go to smallest unvisited in this branch
-    node = st.pop(); // Next inorder node
-    if (--k === 0) return node.val; // k exhausted — this is answer
-    node = node.right; // Explore larger values
-  }
+// inorder; count to k
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} k
+ * @return {number}
+ */
+var kthSmallest = function(root, k) {
+    let arr = [];
+    inOrder(root, arr);
+    
+    return findKth(arr, k)
+};
+
+function inOrder(root, arr){
+    if(!root) return;
+    
+    inOrder(root.left, arr);
+    arr.push(root.val);
+    inOrder(root.right, arr);
+}
+
+function findKth(arr, k){
+    for(let i = 0; i < arr.length; i++){
+        if(i === k - 1) return arr[i];
+    }
 }
 ```
 
@@ -218,13 +382,29 @@ Har node ke left/right swap karo. Recursion se dono subtree invert.
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 ```js
-// Swap children at every node after recursively inverting subtrees
 // LC: https://leetcode.com/problems/invert-binary-tree/
-function invertTree(root) {
-  if (!root) return null;
-  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Mirror left/right
-  return root;
-}
+// swap children; recurse
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {TreeNode}
+ */
+var invertTree = function(root) {
+    
+    if(root) {
+        [root.left, root.right] = [invertTree(root.right), invertTree(root.left)];
+    }
+    
+    return root;
+    
+};
 ```
 
 ## Same Tree
@@ -234,14 +414,36 @@ Dono trees ka structure aur value same hai kya? Dono null to true, ek null to fa
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
 ```js
-// Structural DFS compare — values and shape must match
 // LC: https://leetcode.com/problems/same-tree/
-function isSameTree(p, q) {
-  if (!p && !q) return true; // Both absent — match
-  if (!p || !q) return false; // One missing — mismatch
-  if (p.val!==q.val) return false; // Value mismatch at this node
-  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Recurse both subtrees
-}
+// both null / values equal / recurse kids
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {boolean}
+ */
+var isSameTree = function(p, q) {
+    
+    //base cases
+    if(p === null && q === null) return true;
+    if(p === null || q === null) return false;
+    
+    if(p.val === q.val){
+        
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+        
+    }
+    
+    return false;
+    
+};
 ```
 
 ## Subtree of Another Tree
@@ -251,16 +453,40 @@ function isSameTree(p, q) {
 [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
 
 ```js
-// Try subRoot match at every node — sameTree check at each candidate root
 // LC: https://leetcode.com/problems/subtree-of-another-tree/
-function isSubtree(root, subRoot) {
-  const same=(a,b)=>{
-    if(!a&&!b) return true;
-    if(!a||!b||a.val!==b.val) return false;
-    return same(a.left,b.left) && same(a.right,b.right);
-  };
-  if (!root) return false;
-  if (same(root, subRoot)) return true; // subRoot equals tree rooted here
-  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Search other positions
-}
+// isSame at every node of root
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} subRoot
+ * @return {boolean}
+ */
+var isSubtree = function(root, subRoot) {
+    
+    function isSame(root1, root2){
+        if(!root1 && !root2) return true;
+        if(!root1 || !root2 || root1.val !== root2.val) return false;
+        
+        return isSame(root1.left, root2.left) && isSame(root1.right, root2.right);
+    }
+    
+    function dfs(node){
+        if(!node) return false;
+        
+        if(isSame(node, subRoot)){
+            return true;
+        }
+        
+        return dfs(node.left) || dfs(node.right);
+    }
+    
+    return dfs(root);
+};
 ```

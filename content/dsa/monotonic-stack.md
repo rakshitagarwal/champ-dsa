@@ -112,21 +112,29 @@ Stack se pits dhoondo. Har pop ke baad bounded height nikal ke water jodo.
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
-// LC: https://leetcode.com/problems/trapping-rain-water/ (stack variant, two-pointer solution also works)
-function trap(height) {
-  // monotonic stack — keep decreasing values
-  let ans=0; const st=[];
-  for (let i=0;i<height.length;i++) {
-    while(st.length && height[i] > height[st.at(-1)]) {
-      const mid=st.pop();
-      if (!st.length) break;
-      const left=st.at(-1);
-      const h = Math.min(height[left], height[i]) - height[mid]; // bounded height
-      const w = i - left - 1;
-      ans += h * w;
+// water = min(leftMax,rightMax) - height
+// Two pointers — water limited by the shorter wall
+// LC: https://leetcode.com/problems/trapping-rain-water/
+var trap = function(height) {
+  let left = 0;
+  let right = height.length - 1;
+  let leftMax = 0;
+  let rightMax = 0;
+  let trappedWater = 0;
+
+  while (left < right) {
+    leftMax = Math.max(leftMax, height[left]);
+    rightMax = Math.max(rightMax, height[right]);
+
+    if (height[left] < height[right]) {
+      trappedWater += leftMax - height[left];
+      left++;
+    } else {
+      trappedWater += rightMax - height[right];
+      right--;
     }
-    st.push(i);
   }
-  return ans;
-}
+
+  return trappedWater;
+};
 ```

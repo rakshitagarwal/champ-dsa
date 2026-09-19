@@ -33,14 +33,37 @@ Har node `(lo, hi)` seema me hona chahiye. Left me jaao to `hi = node.val`, righ
 
 ```js
 // LC: https://leetcode.com/problems/validate-binary-search-tree/
-function isValidBST(root) {
-  const check = (node, lo, hi) => {
-    if (!node) return true; // Empty subtree is valid
-    if (node.val <= lo || node.val >= hi) return false; // Violates range bounds
-    return check(node.left, lo, node.val) && check(node.right, node.val, hi); // Tighten bounds per side
-  };
-  return check(root, -Infinity, Infinity);
-}
+// keep valid (low, high) range
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+var isValidBST = function(root) {
+    
+    function recurse(root, min, max){
+        
+        //base cases
+        if(root === null) return true;
+        
+        if((root.val >= max || root.val <= min)){
+            return false;
+        }
+        
+        //recurrence relation
+        return recurse(root.left, min, root.val) && recurse(root.right, root.val, max);
+        
+    }
+    return recurse(root, -Infinity, Infinity)
+    
+};
 ```
 
 ## Kth Smallest Element in a BST
@@ -50,17 +73,40 @@ Inorder traversal sorted order deta hai — kth visit hi jawab hai. Iterative st
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 ```js
-// Inorder on BST yields sorted order — stop at kth pop
 // LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
-function kthSmallest(root, k) {
-  const st = [];
-  let node = root;
-  while (node || st.length) {
-    while (node) { st.push(node); node = node.left; } // Go to smallest unvisited in this branch
-    node = st.pop(); // Next inorder node
-    if (--k === 0) return node.val; // k exhausted — this is answer
-    node = node.right; // Explore larger values
-  }
+// inorder; count to k
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} k
+ * @return {number}
+ */
+var kthSmallest = function(root, k) {
+    let arr = [];
+    inOrder(root, arr);
+    
+    return findKth(arr, k)
+};
+
+function inOrder(root, arr){
+    if(!root) return;
+    
+    inOrder(root.left, arr);
+    arr.push(root.val);
+    inOrder(root.right, arr);
+}
+
+function findKth(arr, k){
+    for(let i = 0; i < arr.length; i++){
+        if(i === k - 1) return arr[i];
+    }
 }
 ```
 
@@ -71,16 +117,32 @@ BST property use karo — dono chhote to left, dono bade to right, warna yehi no
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ```js
-// Walk down: first node where p and q split across subtrees is LCA
 // LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
-function lowestCommonAncestor(root, p, q) {
-  let node = root;
-  while (node) {
-    if (p.val < node.val && q.val < node.val) node = node.left; // Both strictly left
-    else if (p.val > node.val && q.val > node.val) node = node.right; // Both strictly right
-    else return node; // One on each side or equal to node — split here
-  }
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {TreeNode}
+ */
+var lowestCommonAncestor = function(root, p, q) {
+    
+    if(p.val < root.val && q.val < root.val){
+        return lowestCommonAncestor(root.left, p, q);
+    } else if(p.val > root.val && q.val > root.val){
+        return lowestCommonAncestor(root.right, p, q);
+    } else {
+        return root;
+    }
+    
+};
 ```
 
 ## Delete Node in a BST

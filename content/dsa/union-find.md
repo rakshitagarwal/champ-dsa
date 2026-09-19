@@ -85,18 +85,54 @@ Union-Find se bhi provinces gin sakte hain. Connected cities ko union karo.
 
 ```js
 // LC: https://leetcode.com/problems/number-of-provinces/
-function findCircleNumUF(isConnected) {
-  const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
-  const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
-  const union=(a,b)=>{
-    a=find(a); b=find(b); if(a===b) return;
-    if(rank[a]<rank[b]) [a,b]=[b,a];
-    p[b]=a; if(rank[a]===rank[b]) rank[a]++;
-  };
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j);
-  const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
-  return roots.size;
-}
+/**
+ * @param {number[][]} isConnected
+ * @return {number}
+ */
+var findCircleNum = function(isConnected) {
+    
+    let adj = {};
+    
+    for(let i = 0; i < isConnected.length; i++){
+        for(let j = 0; j < isConnected[0].length; j++){
+            
+            let val = isConnected[i][j];
+            
+            if(val === 1){
+                if(!adj[i]){
+                    adj[i] = [j];
+                } else {
+                    adj[i].push(j);
+                }
+            }
+            
+        }
+    }
+    
+    let visited = new Set();
+    let count = 0;
+    
+    for(let key in adj){
+        let keyNum = parseInt(key);
+        count += dfs(keyNum);
+    }
+    
+    function dfs(currNode){
+        if(visited.has(currNode)) return 0;
+        visited.add(currNode);
+        
+        let neighbours = adj[currNode];
+        
+        for(let n of neighbours){
+            dfs(n);
+        }
+        
+        return 1;
+    }
+    
+    return count;
+    
+};
 ```
 
 ## Accounts Merge

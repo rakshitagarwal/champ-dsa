@@ -58,14 +58,21 @@ Copy every non-zero forward. Then fill the tail with zeroes. Order of the real n
 [Move Zeroes](https://leetcode.com/problems/move-zeroes/)
 
 ```js
+// write non-zeros forward; fill zeros
+// Arrays — compact then fill
 // LC: https://leetcode.com/problems/move-zeroes/
-function moveZeroes(nums) {
-  let write = 0;
-  for (let read = 0; read < nums.length; read++) {
-    if (nums[read] !== 0) nums[write++] = nums[read];
+var moveZeroes = function(nums) {
+  let left = 0;
+  let right = 0;
+
+  while (right < nums.length) {
+    if (nums[right] !== 0) {
+      [nums[left], nums[right]] = [nums[right], nums[left]];
+      left++;
+    }
+    right++;
   }
-  while (write < nums.length) nums[write++] = 0;
-}
+};
 ```
 
 ## Rotate Array
@@ -99,14 +106,26 @@ Kadane: keep a running sum. If it goes negative, drop it and start at the next n
 
 ```js
 // LC: https://leetcode.com/problems/maximum-subarray/
-function maxSubArray(nums) {
-  let run = 0, best = -Infinity;
-  for (const x of nums) {
-    run = Math.max(x, run + x); // restart or continue
-    best = Math.max(best, run);
-  }
-  return best;
-}
+// Kadane: extend or restart at nums[i]
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSubArray = function(nums) {
+
+    let currMax = nums[0];
+    let maxima = nums[0];
+
+    for(let i = 1; i < nums.length; i++){
+
+        currMax = Math.max(nums[i], currMax + nums[i]);
+        maxima = Math.max(maxima, currMax);
+
+    }
+
+    return maxima;
+
+};
 ```
 
 ## Best Time to Buy and Sell Stock
@@ -116,16 +135,19 @@ Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek 
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 ```js
+// track min buy; max profit
 // LC: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
-function maxProfit(prices) {
-  // track cheapest buy price seen so far
-  let best = 0, minPrice = Infinity;
-  for (const p of prices) {
-    minPrice = Math.min(minPrice, p); // new minimum buy price
-    best = Math.max(best, p - minPrice); // sell today — update best profit
+var maxProfit = function(prices) {
+  let curMin = prices[0];
+  let curMax = 0;
+
+  for (let i = 0; i < prices.length; i++) {
+    curMin = Math.min(prices[i], curMin);
+    curMax = Math.max(curMax, prices[i] - curMin);
   }
-  return best;
-}
+
+  return curMax;
+};
 ```
 
 ## Remove Duplicates from Sorted Array

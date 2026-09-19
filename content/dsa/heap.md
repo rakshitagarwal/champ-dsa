@@ -152,19 +152,36 @@ Count first. Then a min-heap of `[freq, num]` of size k.
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
-// Heap — by frequency
+// count → heap/bucket of size k
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
-function topKFrequent(nums, k) {
-  const freq = new Map();
-  for (const x of nums) freq.set(x, (freq.get(x) || 0) + 1);
-  const h = [];
-  const less = (a, b) => a[0] < b[0];
-  for (const [num, f] of freq) {
-    heapPush(h, [f, num], less); // push value into heap
-    if (h.length > k) heapPop(h, less); // pop smallest entry (evict from size-K heap)
+var topKFrequent = function(nums, k) {
+  let map = {};
+  let bucket = [];
+  let result = [];
+
+  for (let i = 0; i < nums.length; i++) {
+    if (!map[nums[i]]) {
+      map[nums[i]] = 1;
+    } else {
+      map[nums[i]]++;
+    }
   }
-  return h.map(([, num]) => num);
-}
+
+  for (let [num, freq] of Object.entries(map)) {
+    if (!bucket[freq]) {
+      bucket[freq] = new Set().add(num);
+    } else {
+      bucket[freq] = bucket[freq].add(num);
+    }
+  }
+
+  for (let i = bucket.length - 1; i >= 0; i--) {
+    if (bucket[i]) result.push(...bucket[i]);
+    if (result.length === k) break;
+  }
+
+  return result;
+};
 ```
 
 ## Find Median from Data Stream
@@ -174,48 +191,40 @@ Two heaps: max-heap for the smaller half, min-heap for the bigger half. Size dif
 [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
 
 ```js
-// Two heaps partition numbers — lo holds lower half, hi holds upper half
+// two heaps: low max / high min
 // LC: https://leetcode.com/problems/find-median-from-data-stream/
-function MedianFinder() {
-  this.lo = []; // Max-heap of smaller half (store negated values)
-  this.hi = []; // Min-heap of larger half
-}
-MedianFinder.prototype.addNum = function (num) {
-  heapPush(this.lo, -num); // Always push into lower half first
-  heapPush(this.hi, -heapPop(this.lo)); // Balance: move max of lo to hi
-  if (this.hi.length > this.lo.length) heapPush(this.lo, -heapPop(this.hi)); // lo must be >= hi size
-};
-MedianFinder.prototype.findMedian = function () {
-  if (this.lo.length > this.hi.length) return -this.lo[0]; // Odd count — extra in lo
-  return (-this.lo[0] + this.hi[0]) / 2; // Even count — average of both tops
+var MedianFinder = function() {
+  this.arr = [];
 };
 
-// Shared min-heap helpers (default comparator)
-function heapPush(h, val, less = (a, b) => a < b) {
-  h.push(val);
-  let i = h.length - 1;
-  while (i > 0) {
-    const p = (i - 1) >> 1;
-    if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
-    i = p;
+MedianFinder.prototype.addNum = function(num) {
+  let left = 0;
+  let right = this.arr.length - 1;
+
+  while (left <= right) {
+    let mid = Math.floor((right + left) / 2);
+
+    if (this.arr[mid] < num) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
   }
-}
-function heapPop(h, less = (a, b) => a < b) {
-  const top = h[0], last = h.pop();
-  if (!h.length) return top;
-  h[0] = last;
-  let i = 0;
-  while (true) {
-    let m = i, l = i * 2 + 1, r = l + 1;
-    if (l < h.length && less(h[l], h[m])) m = l;
-    if (r < h.length && less(h[r], h[m])) m = r;
-    if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
-    i = m;
+
+  this.arr.splice(left, 0, num);
+};
+
+MedianFinder.prototype.findMedian = function() {
+  if (this.arr.length % 2 === 0) {
+    // even
+    let mid = this.arr.length / 2;
+    return (this.arr[mid] + this.arr[mid - 1]) / 2;
+  } else {
+    // odd
+    let mid = Math.floor(this.arr.length / 2);
+    return this.arr[mid];
   }
-  return top;
-}
+};
 ```
 
 ## Merge k Sorted Lists
@@ -225,48 +234,42 @@ Put every list head in a min-heap. Pop the smallest, push its `.next`. Dummy tai
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 ```js
-// Min-heap of list heads — same pattern as merge two sorted lists
 // LC: https://leetcode.com/problems/merge-k-sorted-lists/
-function mergeKLists(lists) {
-  const h = [];
-  const less = (a, b) => a.val < b.val;
-  for (const node of lists) if (node) heapPush(h, node, less); // Seed heap with each list head
-  const dummy = { val: 0, next: null };
-  let tail = dummy;
-  while (h.length) {
-    const node = heapPop(h, less); // Smallest current head
-    tail.next = node;
-    tail = node;
-    if (node.next) heapPush(h, node.next, less); // Push next node from that list
-  }
-  return dummy.next;
-}
+var mergeKLists = function(lists) {
+  while (lists.length > 1) {
+    let list1 = lists.shift();
+    let list2 = lists.shift();
 
-// Array-based min-heap helpers (default numeric compare)
-function heapPush(h, val, less = (a, b) => a < b) {
-  h.push(val);
-  let i = h.length - 1;
-  while (i > 0) {
-    const p = (i - 1) >> 1;
-    if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]]; // Bubble up while child is smaller
-    i = p;
+    let merged = mergeLists(list1, list2);
+
+    lists.push(merged);
   }
-}
-function heapPop(h, less = (a, b) => a < b) {
-  const top = h[0], last = h.pop();
-  if (!h.length) return top;
-  h[0] = last;
-  let i = 0;
-  while (true) {
-    let m = i, l = i * 2 + 1, r = l + 1;
-    if (l < h.length && less(h[l], h[m])) m = l;
-    if (r < h.length && less(h[r], h[m])) m = r;
-    if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]]; // Bubble down with smaller child
-    i = m;
+
+  return lists[0] || null;
+};
+
+function mergeLists(list1, list2) {
+  let dummy = new ListNode(0);
+  let head = dummy;
+
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      dummy.next = list1;
+      list1 = list1.next;
+    } else {
+      dummy.next = list2;
+      list2 = list2.next;
+    }
+    dummy = dummy.next;
   }
-  return top;
+
+  if (list1 === null) {
+    dummy.next = list2;
+  } else {
+    dummy.next = list1;
+  }
+
+  return head.next;
 }
 ```
 
@@ -293,18 +296,22 @@ Har baar 2 sabse heavy lo, takrao, bacha to wapas daalo. Max-heap.
 [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
 
 ```js
-// Simulate collisions — sorted array + pop two largest (interview-friendly)
 // LC: https://leetcode.com/problems/last-stone-weight/
-function lastStoneWeight(stones) {
-  stones.sort((a,b)=>a-b); // Ascending — pop from end for max
-  while (stones.length>1) {
-    const b=stones.pop(), a=stones.pop(); // Two heaviest stones
-    if (a!==b) {
-      const diff = b-a; // Smaller smashed; remainder re-enters pile
-      let i=0; while(i<stones.length && stones[i]<diff) i++; // Binary search position
-      stones.splice(i,0,diff); // Keep array sorted for next max pops
+// max-heap smash until ≤1 stone
+/**
+ * @param {number[]} stones
+ * @return {number}
+ */
+var lastStoneWeight = function(stones) {
+    const heap = new MaxPriorityQueue();
+    
+    for(const stone of stones) heap.enqueue(stone);
+    
+    while(heap.size() > 1){
+        let diff = heap.dequeue().element - heap.dequeue().element;
+        if(diff > 0) heap.enqueue(diff);
     }
-  }
-  return stones[0]||0; // Zero or one stone left
-}
+    
+    return heap.size() === 0 ? 0 : heap.front().element;
+};
 ```

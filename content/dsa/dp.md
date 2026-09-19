@@ -50,18 +50,28 @@ Ways to reach i = ways to i-1 + ways to i-2.
 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 ```js
-// dp[i] = ways to reach step i; recurrence dp[i]=dp[i-1]+dp[i-2]
 // LC: https://leetcode.com/problems/climbing-stairs/
-function climbStairs(n) {
-  if (n <= 2) return n;
-  let a = 1, b = 2; // dp[1], dp[2]
-  for (let i = 3; i <= n; i++) {
-    const c = a + b;
-    a = b;
-    b = c;
-  }
-  return b;
-}
+// dp[i] = dp[i-1] + dp[i-2] (1 or 2 steps)
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var climbStairs = function(n) {
+    let dp = [];
+    dp[1] = 1;
+    dp[2] = 2;
+
+    for(let i = 3; i<=n; i++){
+
+        //optimal substructure
+        dp[i] = dp[i-1] + dp[i-2];
+
+    }
+
+    return dp[n];
+
+
+};
 ```
 
 ### Min Cost Climbing Stairs
@@ -92,17 +102,32 @@ At each house: rob it (then I skipped the previous) or skip it. Two variables ar
 [House Robber](https://leetcode.com/problems/house-robber/)
 
 ```js
-// prev1 = best if we end at prev house; prev2 = best two houses back
 // LC: https://leetcode.com/problems/house-robber/
-function rob(nums) {
-  let prev2 = 0, prev1 = 0;
-  for (const x of nums) {
-    const cur = Math.max(prev1, prev2 + x); // rob x vs skip x
-    prev2 = prev1;
-    prev1 = cur;
-  }
-  return prev1;
-}
+// take nums[i]+dp[i-2], or skip → dp[i-1]
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var rob = function(nums) {
+
+    if(nums.length === 0) return 0;
+    if(nums.length === 1) return nums[0];
+
+    let dp = Array(nums + 1).fill(0);
+
+    //base cases
+    dp[0] = nums[0];
+    dp[1] = Math.max(nums[0], nums[1]);
+
+    for(let i = 2; i < nums.length; i++){
+
+        dp[i] = Math.max(nums[i]+dp[i-2], dp[i-1]);
+    }
+
+    return dp[dp.length-1];
+
+
+};
 ```
 
 ### House Robber II (Circular)
@@ -112,17 +137,37 @@ Ghar gol me hain, pehla aur aakhri saath nahi loot sakte. Do cases: [0..n-2] aur
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 ```js
-// Circular: max of robbing [0..n-2] or [1..n-1] (one end excluded)
 // LC: https://leetcode.com/problems/house-robber-ii/
-function rob2(nums) {
-  if(nums.length===1) return nums[0];
-  const robRange=(l,r)=>{
-    let prev2=0, prev1=0;
-    for(let i=l;i<=r;i++){ const cur=Math.max(prev1, prev2+nums[i]); prev2=prev1; prev1=cur; }
-    return prev1;
-  };
-  return Math.max(robRange(0, nums.length-2), robRange(1, nums.length-1));
-}
+// circular: exclude first house vs exclude last
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var rob = function(nums) {
+
+    if(nums.length === 1) return nums[0];
+    if(nums.length === 2) return Math.max(nums[0], nums[1]);
+
+    let dp1 = new Array(nums.length);
+    let dp2 = new Array(nums.length);
+
+    robTwice(0, nums.length-2, dp1, nums);
+    robTwice(1, nums.length-1, dp2, nums);
+
+    function robTwice(i, numsLen, dp, nums){
+        dp[i] = nums[i];
+        dp[i+1] = Math.max(dp[i], nums[i+1]);
+
+        for(let j = i+2; j<=numsLen; j++){
+            dp[j] = Math.max(dp[j-1], dp[j-2]+nums[j]);
+        }
+    }
+
+    //dp1 [1,2,4, _]
+    //dp2 [_, 2,3,3]
+
+    return Math.max(dp1[nums.length-2], dp2[nums.length-1]);
+};
 ```
 
 ### Decode Ways
@@ -132,21 +177,34 @@ function rob2(nums) {
 [Decode Ways](https://leetcode.com/problems/decode-ways/)
 
 ```js
-// dp[i] = ways to decode prefix s[0..i-1]
 // LC: https://leetcode.com/problems/decode-ways/
-function numDecodings(s) {
-  const n = s.length;
-  const dp = Array(n + 1).fill(0);
-  dp[0] = 1; // empty prefix
-  for (let i = 1; i <= n; i++) {
-    if (s[i - 1] !== "0") dp[i] += dp[i - 1]; // single digit 1-9
-    if (i >= 2) {
-      const two = Number(s.slice(i - 2, i));
-      if (two >= 10 && two <= 26) dp[i] += dp[i - 2]; // two digit 10-26
+// try one digit (1-9) and two digits (10-26)
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var numDecodings = function(s) {
+
+    if(s[0] == '0') return 0;
+
+    let dp = new Array(s.length+1).fill(0);
+
+    dp[0] = 1;
+    dp[1] = 1;
+
+    for(let i = 2; i<=s.length; i++){
+
+        let single = +s[i-1];
+        let double = +(s[i-2] + s[i-1]);
+
+        if(single >= 1 && single <= 9) dp[i] += dp[i-1];
+        if(double >= 10 && double <= 26) dp[i] += dp[i-2];
+
     }
-  }
-  return dp[n];
-}
+
+    return dp[s.length];
+
+};
 ```
 
 ### Word Break
@@ -156,22 +214,30 @@ function numDecodings(s) {
 [Word Break](https://leetcode.com/problems/word-break/)
 
 ```js
-// dp[i] = can s[0..i-1] be segmented into dictionary words
 // LC: https://leetcode.com/problems/word-break/
-function wordBreak(s, wordDict) {
-  const dict = new Set(wordDict);
-  const dp = Array(s.length + 1).fill(false);
-  dp[0] = true;
-  for (let i = 1; i <= s.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (dp[j] && dict.has(s.slice(j, i))) {
-        dp[i] = true; // last word is s[j..i-1]
-        break;
+var wordBreak = function(s, wordDict) {
+  let visited = new Set();
+  let set = new Set(wordDict);
+  let queue = [0];
+
+  while (queue.length) {
+    let current = queue.shift();
+
+    if (!visited.has(current)) {
+      for (let i = current + 1; i <= s.length; i++) {
+        if (set.has(s.slice(current, i))) {
+          if (i === s.length) {
+            return true;
+          }
+          queue.push(i);
+        }
       }
+      visited.add(current);
     }
   }
-  return dp[s.length];
-}
+
+  return false;
+};
 ```
 
 ## 2. Knapsack & Subset Problems (Choice-Based DP)
@@ -195,18 +261,29 @@ function wordBreak(s, wordDict) {
 [Coin Change](https://leetcode.com/problems/coin-change/)
 
 ```js
-// dp[a] = min coins to make amount a (unbounded coin reuse)
 // LC: https://leetcode.com/problems/coin-change/
-function coinChange(coins, amount) {
-  const dp = Array(amount + 1).fill(Infinity);
-  dp[0] = 0;
-  for (let a = 1; a <= amount; a++) {
-    for (const c of coins) {
-      if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);
+// dp[sum] = fewest coins to make sum
+/**
+ * @param {number[]} coins
+ * @param {number} amount
+ * @return {number}
+ */
+var coinChange = function(coins, amount) {
+    let dp = Array(amount+1).fill(Infinity);
+    
+    //base case
+    dp[0] = 0;
+    
+    for(let curAmount = 1; curAmount<=amount; curAmount++){
+        for(let coin of coins){
+            if(curAmount - coin >= 0){
+                dp[curAmount] = Math.min(dp[curAmount], 1 + dp[curAmount - coin])
+            }
+        }
     }
-  }
-  return dp[amount] === Infinity ? -1 : dp[amount];
-}
+    
+    return dp[amount] > amount ? -1 : dp[amount];
+};
 ```
 
 ### Coin Change II (Number of Ways)
@@ -291,19 +368,32 @@ function findTargetSumWays(nums, target) {
 [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 ```js
-// dp[i][j] = LCS length of a[0..i-1] and b[0..j-1]
 // LC: https://leetcode.com/problems/longest-common-subsequence/
-function longestCommonSubsequence(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
-      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+// match → diag+1; else max(up, left)
+/**
+ * @param {string} text1
+ * @param {string} text2
+ * @return {number}
+ */
+var longestCommonSubsequence = function(text1, text2) {
+    let m = text1.length;
+    let n = text2.length;
+    
+    let dp = Array.from(Array(m+1), () => new Array(n+1).fill(0));
+    
+    for(let i = 1; i<=m; i++){
+        for(let j = 1; j<=n; j++){
+            
+            if(text1[i-1] === text2[j-1]){
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
     }
-  }
-  return dp[m][n];
-}
+    
+    return dp[m][n];
+};
 ```
 
 ### Edit Distance
@@ -369,15 +459,27 @@ Only right and down. `dp[c] += dp[c - 1]` while scanning a row.
 [Unique Paths](https://leetcode.com/problems/unique-paths/)
 
 ```js
-// dp[c] = paths to cell in current row; only right/down moves
 // LC: https://leetcode.com/problems/unique-paths/
-function uniquePaths(m, n) {
-  const dp = Array(n).fill(1); // first row all 1
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) dp[c] += dp[c - 1]; // from left + from above
-  }
-  return dp[n - 1];
-}
+// only right/down; cell = above + left
+/**
+ * @param {number} m
+ * @param {number} n
+ * @return {number}
+ */
+var uniquePaths = function(m, n) {
+    let dp = Array.from(Array(m), () => new Array(n));
+    
+    for(let i = 0; i < dp.length; i++) dp[i][0] = 1;
+    for(let i = 0; i < dp[0].length; i++) dp[0][i] = 1;
+    
+    for(let i = 1; i < dp.length; i++){
+        for(let j = 1; j < dp[0].length; j++){
+            dp[i][j] = dp[i-1][j] + dp[i][j-1];
+        }
+    }
+    
+    return dp[m-1][n-1];
+};
 ```
 
 ### Minimum Path Sum
@@ -423,19 +525,27 @@ function minPathSum(grid) {
 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 ```js
-// dp[i] = LIS length ending at index i
 // LC: https://leetcode.com/problems/longest-increasing-subsequence/
-function lengthOfLIS(nums) {
-  const dp = Array(nums.length).fill(1);
-  let best = 1;
-  for (let i = 0; i < nums.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+// dp[i] = LIS ending at i
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var lengthOfLIS = function(nums) {
+
+    let dp = new Array(nums.length).fill(1);
+
+    for(let i = 1; i<=nums.length; i++){
+        for(let j=i; j>=0; j--){
+            if(nums[i] > nums[j]){
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
     }
-    best = Math.max(best, dp[i]);
-  }
-  return best;
-}
+
+    return Math.max(...dp);
+
+};
 ```
 
 ## Beyond: Interval DP

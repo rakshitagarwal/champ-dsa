@@ -29,18 +29,31 @@ Sort by start. Overlap means `start <= lastEnd`. Then the new end is the max of 
 
 ```js
 // LC: https://leetcode.com/problems/merge-intervals/
-function merge(intervals) {
-  // Empty input is handled by caller; we need at least one interval to seed output
-  intervals.sort((a, b) => a[0] - b[0]); // Overlaps only matter after sorting by start
-  const out = [intervals[0]]; // First interval starts the merged list
-  for (let i = 1; i < intervals.length; i++) {
-    const last = out[out.length - 1]; // Current merged interval at the tail
-    const [s, e] = intervals[i]; // Candidate interval to place or merge
-    if (s <= last[1]) last[1] = Math.max(last[1], e); // Overlap: extend end only
-    else out.push([s, e]); // Disjoint: append as a new interval
-  }
-  return out;
-}
+// sort by start; merge when overlap
+/**
+ * @param {number[][]} intervals
+ * @return {number[][]}
+ */
+var merge = function(intervals) {
+    const start = 0;
+    const end = 1;
+    
+    intervals = intervals.sort((a,b) => a[start] - b[start]);
+    
+    let previous = intervals[0];
+    let res = [previous];
+    
+    for(let current of intervals){
+        if(current[start] <= previous[end]){
+            previous[end] = Math.max(previous[end], current[end]);
+        } else {
+            res.push(current);
+            previous = current;
+        }
+    }
+    
+    return res;
+};
 ```
 
 ## Insert Interval
@@ -50,22 +63,40 @@ Walk existing intervals. Copy the ones that end before the new start. Merge ever
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 ```js
-// Three phases: before, merge overlap, after — no full resort needed
 // LC: https://leetcode.com/problems/insert-interval/
-function insert(intervals, newInterval) {
-  const out = [];
-  let i = 0, n = intervals.length;
-  let [ns, ne] = newInterval; // Mutable bounds while merging overlaps
-  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // Wholly before new interval
-  while (i < n && intervals[i][0] <= ne) {
-    ns = Math.min(ns, intervals[i][0]); // Expand merged start left if needed
-    ne = Math.max(ne, intervals[i][1]); // Expand merged end right if needed
-    i++; // Consume overlapping interval
-  }
-  out.push([ns, ne]); // Single merged block for new + overlaps
-  while (i < n) out.push(intervals[i++]); // Remaining intervals after merged block
-  return out;
-}
+// add non-overlap left/right; merge middle
+/**
+ * @param {number[][]} intervals
+ * @param {number[]} newInterval
+ * @return {number[][]}
+ */
+var insert = function(intervals, newInterval) {
+    let res = [];
+    let i = 0;
+    
+    const start = 0;
+    const end = 1;
+    
+    while(i < intervals.length && intervals[i][end] < newInterval[start]){
+        res.push(intervals[i]);
+        i++;
+    }
+    
+    while(i < intervals.length && intervals[i][start] <= newInterval[end]){
+        newInterval[start] = Math.min(newInterval[start], intervals[i][start]);
+        newInterval[end] = Math.max(newInterval[end], intervals[i][end]);
+        i++;
+    }
+    
+    res.push(newInterval);
+    
+    while(i < intervals.length){
+        res.push(intervals[i]);
+        i++;
+    }
+    
+    return res;
+};
 ```
 
 ## Non-overlapping Intervals
@@ -76,15 +107,28 @@ Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy r
 
 ```js
 // LC: https://leetcode.com/problems/non-overlapping-intervals/
-function eraseOverlapIntervals(intervals) {
-  intervals.sort((a,b)=>a[1]-b[1]); // Sort by end time ascending
-  let kept = 0, lastEnd = -Infinity; // lastEnd = end of last kept interval
-  for (const [s,e] of intervals) {
-    if (s >= lastEnd) { kept++; lastEnd = e; } // No overlap with kept set — keep it
-    // else skip: this interval overlaps something we already kept
-  }
-  return intervals.length - kept; // Removals = total minus kept
-}
+// sort by end; greedily keep earliest end
+/**
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+var eraseOverlapIntervals = function(intervals) {
+    intervals.sort((a,b) => a[1] - b[1]);
+    
+    let count = 0;
+    let prev = 0;
+    
+    for(let i=1; i<intervals.length; i++){
+        let current = intervals[i];
+        if(current[0] < intervals[prev][1]){
+            count++;
+        } else {
+            prev = i;
+        }
+    }
+    
+    return count;
+};
 ```
 
 ## Meeting Rooms (Can Attend All Meetings)
@@ -94,15 +138,27 @@ Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
 [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
 ```js
-// Sort by start; any start before previous end means double-booking
-// LC: https://leetcode.com/problems/meeting-rooms/ (premium, lintcode 920)
-function canAttendMeetings(intervals) {
-  intervals.sort((a,b)=>a[0]-b[0]); // Earliest meetings first
-  for (let i=1;i<intervals.length;i++) {
-    if (intervals[i][0] < intervals[i-1][1]) return false; // Overlap: cannot attend all
-  }
-  return true; // No overlap found
-}
+// LC: https://leetcode.com/problems/meeting-rooms/
+// sort starts/ends; check adjacent overlap
+/**
+ * @param {number[][]} intervals
+ * @return {boolean}
+ */
+var canAttendMeetings = function(intervals) {
+    
+    intervals.sort((a,b) => a[0] - b[0]);
+    
+    const start = 0;
+    const end = 1;
+    
+    for(let i = 0; i < intervals.length-1; i++){
+        if(intervals[i][end] > intervals[i+1][start]){
+            return false;
+        }
+    }
+    
+    return true;
+};
 ```
 
 ## Sort Colors (Dutch Flag)

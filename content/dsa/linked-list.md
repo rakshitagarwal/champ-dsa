@@ -36,18 +36,21 @@ Save next, point curr at prev, slide everyone forward. New head is the last `pre
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 ```js
-// Iterative reverse — three pointers rewire next links in one pass
+// prev/curr/next rewires
+// Linked list — reverse
 // LC: https://leetcode.com/problems/reverse-linked-list/
-function reverseList(head) {
-  let prev = null, curr = head; // prev = reversed prefix tail
-  while (curr) {
-    const next = curr.next; // Save rest of original list before breaking link
-    curr.next = prev; // Point current node backward
-    prev = curr; // Reversed prefix grows by one
-    curr = next; // Walk forward in original list
+var reverseList = function(head) {
+  let prev = null;
+
+  while (head) {
+    let nextNode = head.next;
+    head.next = prev;
+    prev = head;
+    head = nextNode;
   }
-  return prev; // New head is old tail
-}
+
+  return prev;
+};
 ```
 
 ## Merge Two Sorted Lists
@@ -57,24 +60,32 @@ Dummy tail. Always take the smaller head. Stick the leftover list on the end.
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```js
-// Dummy head avoids special-casing the merged list's first node
+// dummy head; take smaller each step
+// Linked list — merge with dummy
 // LC: https://leetcode.com/problems/merge-two-sorted-lists/
-function mergeTwoLists(l1, l2) {
-  const dummy = { val: 0, next: null };
-  let tail = dummy; // tail builds the output list
-  while (l1 && l2) {
-    if (l1.val < l2.val) {
-      tail.next = l1; // Attach smaller head
-      l1 = l1.next; // Advance that list
+var mergeTwoLists = function(list1, list2) {
+  let dummy = new ListNode(0);
+  let head = dummy;
+
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      dummy.next = list1;
+      list1 = list1.next;
     } else {
-      tail.next = l2;
-      l2 = l2.next;
+      dummy.next = list2;
+      list2 = list2.next;
     }
-    tail = tail.next; // Move output tail forward
+    dummy = dummy.next;
   }
-  tail.next = l1 || l2; // Append remaining sorted suffix
-  return dummy.next;
-}
+
+  if (list1 !== null) {
+    dummy.next = list1;
+  } else {
+    dummy.next = list2;
+  }
+
+  return head.next;
+};
 ```
 
 ## Linked List Cycle II
@@ -110,18 +121,27 @@ Dummy, then a gap of n between two pointers. When the front hits the end, the ba
 [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 ```js
+// Linked list — gap of n
 // LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
-function removeNthFromEnd(head, n) {
-  const dummy = { val: 0, next: head }; // Dummy handles deleting the head
-  let front = dummy, back = dummy;
-  for (let i = 0; i < n + 1; i++) front = front.next; // Create gap of n nodes between pointers
-  while (front) {
-    front = front.next; // Move both until front hits null
-    back = back.next; // back ends at predecessor of target
+var removeNthFromEnd = function(head, n) {
+  let dummy = new ListNode(0);
+  dummy.next = head;
+  let left = dummy;
+  let right = head;
+
+  while (right && n > 0) {
+    right = right.next;
+    n -= 1;
   }
-  back.next = back.next.next; // Skip nth-from-end node
+
+  while (right) {
+    left = left.next;
+    right = right.next;
+  }
+
+  left.next = left.next.next;
   return dummy.next;
-}
+};
 ```
 
 ## Copy List with Random Pointer
@@ -159,16 +179,19 @@ Fast 2x, slow 1x. Fast khatam to slow middle par.
 [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
 ```js
-// Fast/slow — when fast reaches end, slow is at middle (or second middle)
+// slow/fast; slow lands mid
 // LC: https://leetcode.com/problems/middle-of-the-linked-list/
-function middleNode(head) {
-  let slow=head, fast=head;
+var middleNode = function(head) {
+  let slow = head;
+  let fast = head;
+
   while (fast && fast.next) {
-    slow=slow.next; // One step per iteration
-    fast=fast.next.next; // Two steps — fast hits end twice as fast
+    fast = fast.next.next;
+    slow = slow.next;
   }
-  return slow; // Middle node for even length is second of the two middles
-}
+
+  return slow;
+};
 ```
 
 ## Palindrome Linked List
@@ -178,16 +201,41 @@ Middle dhoondo, second half reverse karo, fir dono half compare karo.
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
 ```js
-// O(n) time O(1) space — find mid, reverse second half, compare halves
 // LC: https://leetcode.com/problems/palindrome-linked-list/
-function isPalindrome(head) {
-  let slow=head, fast=head;
-  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; } // slow at second half start
-  let prev=null, cur=slow;
-  while (cur) { const nxt=cur.next; cur.next=prev; prev=cur; cur=nxt; } // Reverse from slow onward
-  let p1=head, p2=prev; // p1 first half, p2 reversed second half
-  while (p2) { if (p1.val!==p2.val) return false; p1=p1.next; p2=p2.next; } // Mirror compare
+var isPalindrome = function(head) {
+  let fast = head;
+  let slow = head;
+
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+
+  fast = head;
+  slow = reverse(slow);
+
+  while (slow) {
+    if (fast.val !== slow.val) {
+      return false;
+    }
+    slow = slow.next;
+    fast = fast.next;
+  }
+
   return true;
+};
+
+function reverse(root) {
+  let prev = null;
+
+  while (root) {
+    let ref = root.next;
+    root.next = prev;
+    prev = root;
+    root = ref;
+  }
+
+  return prev;
 }
 ```
 

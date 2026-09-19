@@ -34,42 +34,69 @@ function startsWith(pref) {
 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
 
 ```js
-// Trie — insert / search / prefix
 // LC: https://leetcode.com/problems/implement-trie-prefix-tree/
-function Trie() {
-  // Root has no letters; children map lives on kids
-  this.root = { kids: Object.create(null), end: false };
-}
-Trie.prototype.insert = function (word) {
-  // Walk from root, creating missing edges as we go
-  let cur = this.root;
-  for (const ch of word) {
-    // Lazy-create child node for this character
-    if (!cur.kids[ch]) cur.kids[ch] = { kids: Object.create(null), end: false };
-    cur = cur.kids[ch];
-  }
-  // Mark full word — search requires this flag
-  cur.end = true;
+// children map; end flag
+/**
+ * Initialize your data structure here.
+ */
+var Trie = function() {
+    this.root = {};
 };
-Trie.prototype.search = function (word) {
-  let cur = this.root;
-  for (const ch of word) {
-    // Missing edge means word not in trie
-    if (!cur.kids[ch]) return false;
-    cur = cur.kids[ch];
-  }
-  // Prefix walk ok but must be a complete word
-  return !!cur.end;
+
+/**
+ * Inserts a word into the trie.
+ * @param {string} word
+ * @return {void}
+ */
+Trie.prototype.insert = function(word) {
+    let node = this.root;
+    
+    for(let c of word){
+        if(node[c] == null) node[c] = {};
+        node = node[c];
+    }
+    node.isWord = true;
 };
-Trie.prototype.startsWith = function (prefix) {
-  let cur = this.root;
-  for (const ch of prefix) {
-    if (!cur.kids[ch]) return false;
-    cur = cur.kids[ch];
-  }
-  // Any path that reaches here is a valid prefix
-  return true;
+
+/**
+ * @return {boolean}
+ */
+Trie.prototype.traverse = function(word) {
+    let node = this.root;
+    
+    for(let c of word){
+        node = node[c];
+        if(node == null) return null;
+    }
+    return node;
 };
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+Trie.prototype.search = function(word) {
+    let node = this.traverse(word);
+    
+    return node !== null && node.isWord === true;
+};
+
+/**
+ * @param {string} prefix
+ * @return {boolean}
+ */
+Trie.prototype.startsWith = function(prefix) {
+    let node = this.traverse(prefix);
+    return node !== null;
+};
+
+/**
+ * Your Trie object will be instantiated and called as such:
+ * var obj = new Trie()
+ * obj.insert(word)
+ * var param_2 = obj.search(word)
+ * var param_3 = obj.startsWith(prefix)
+ */
 ```
 
 ## Word Search II
@@ -79,45 +106,57 @@ Build a trie of all words. DFS the board. Follow trie edges. When `end` is set, 
 [Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 ```js
-// Trie + DFS on the grid
 // LC: https://leetcode.com/problems/word-search-ii/
-function findWords(board, words) {
-  // Store matched word at terminal node (not just a boolean)
-  const root = { kids: Object.create(null), word: null };
-  for (const w of words) {
-    let cur = root;
-    for (const ch of w) {
-      if (!cur.kids[ch]) cur.kids[ch] = { kids: Object.create(null), word: null };
-      cur = cur.kids[ch];
+/**
+ * @param {character[][]} board
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var findWords = function(board, words) {
+    let result = [];
+    let root = buildTrie(words);
+    
+    for(let i = 0; i < board.length; i++){
+        for(let j = 0; j < board[0].length; j++){
+            dfs(root, i, j, result, board)
+        }
     }
-    cur.word = w;
-  }
-  const rows = board.length, cols = board[0].length, ans = [];
-  const dfs = (r, c, node) => {
-    const ch = board[r][c];
-    const next = node.kids[ch];
-    // No trie edge for this cell letter — prune
-    if (!next) return;
-    if (next.word) {
-      ans.push(next.word);
-      // Clear so same word is not collected again on other paths
-      next.word = null;
+    
+    return result;
+};
+
+function dfs(node, i, j, result, board){
+    if(node.word){
+        result.push(node.word);
+        node.word = null;
     }
-    // Mark visited for this DFS path
-    board[r][c] = "#";
-    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nr = r + dr, nc = c + dc;
-      if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || board[nr][nc] === "#") continue;
-      dfs(nr, nc, next);
+    
+    if(i < 0 || j < 0 || i > board.length-1 || j > board[0].length-1) return;
+    if(!node[board[i][j]]) return;
+    
+    let c = board[i][j];
+    board[i][j] = '#';
+    dfs(node[c], i+1, j, result, board);
+    dfs(node[c], i-1, j, result, board);
+    dfs(node[c], i, j+1, result, board);
+    dfs(node[c], i, j-1, result, board);
+    board[i][j] = c;
+}
+
+function buildTrie(words){
+    let root = {};
+    
+    for(let word of words){
+        let currNode = root;
+        
+        for(let char of word){
+            if(!currNode[char]) currNode[char] = {};
+            currNode = currNode[char];
+        }
+        currNode.word = word;
     }
-    // Restore cell when backtracking
-    board[r][c] = ch;
-  };
-  // Start DFS from every cell
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) dfs(r, c, root);
-  }
-  return ans;
+    
+    return root;
 }
 ```
 
@@ -129,29 +168,66 @@ Trie me `.` wildcard search bhi chahiye. DFS se har child try karo.
 
 ```js
 // LC: https://leetcode.com/problems/design-add-and-search-words-data-structure/
-function WordDictionary(){ this.root={kids:{}, end:false}; }
-WordDictionary.prototype.addWord=function(word){
-  // Standard trie insert — same as LC 208
-  let cur=this.root;
-  for(const ch of word){
-    if(!cur.kids[ch]) cur.kids[ch]={kids:{}, end:false};
-    cur=cur.kids[ch];
-  }
-  cur.end=true;
+// '.' branches to every child
+var WordDictionary = function() {
+    this.trie = {};
 };
-WordDictionary.prototype.search=function(word){
-  // DFS on trie; index i tracks position in query
-  const dfs=(node,i)=>{
-    // Consumed entire string — success only if word ends here
-    if(i===word.length) return node.end;
-    const ch=word[i];
-    // Dot matches any single letter — try every child branch
-    if(ch==='.'){ for(const kid in node.kids) if(dfs(node.kids[kid], i+1)) return true; return false; }
-    if(!node.kids[ch]) return false;
-    return dfs(node.kids[ch], i+1);
-  };
-  return dfs(this.root,0);
+
+/**
+ * @param {string} word
+ * @return {void}
+ */
+WordDictionary.prototype.addWord = function(word) {
+    let node = this.trie;
+    for(let char of word){
+        if(node[char] == null) node[char] = {};
+        node = node[char];
+    }
+    node.isEnd = true;
 };
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+WordDictionary.prototype.dfs = function(word, trie, index) {
+    
+    //base case
+    if(word.length === index){
+        return trie.isEnd ? true : false;
+    }
+    
+    let char = word[index];
+    
+    if(char === "."){
+        for(let key in trie){
+            if(key === "isEnd") continue;
+            if(this.dfs(word, trie[key], index+1)) return true;
+        }
+    } else {
+        if(trie[char] != null){
+            return this.dfs(word, trie[char], index+1);
+        }
+    }
+    
+    return false;
+    
+};
+
+/**
+ * @param {string} word
+ * @return {boolean}
+ */
+WordDictionary.prototype.search = function(word) {
+    return this.dfs(word, this.trie, 0);
+};
+
+/**
+ * Your WordDictionary object will be instantiated and called as such:
+ * var obj = new WordDictionary()
+ * obj.addWord(word)
+ * var param_2 = obj.search(word)
+ */
 ```
 
 ## Longest Word in Dictionary

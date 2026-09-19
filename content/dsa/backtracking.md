@@ -31,16 +31,18 @@ Every prefix of the path is a subset. Recurse with `i + 1` so I do not reuse an 
 [Subsets](https://leetcode.com/problems/subsets/)
 
 ```js
-// Backtracking: every prefix of path is a valid subset
+// include or skip each element
+// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
+// Backtracking — subsets
 // LC: https://leetcode.com/problems/subsets/
 function subsets(nums) {
   const ans = [];
   const dfs = (start, path) => {
-    ans.push([...path]); // snapshot current subset before branching
+    ans.push([...path]);
     for (let i = start; i < nums.length; i++) {
-      path.push(nums[i]); // include nums[i] in the subset
-      dfs(i + 1, path); // only pick indices after i (no reuse)
-      path.pop(); // undo choice for next sibling branch
+      path.push(nums[i]); // Hinglish: choice liya
+      dfs(i + 1, path);
+      path.pop(); // Hinglish: wapas hataya (backtrack)
     }
   };
   dfs(0, []);
@@ -55,25 +57,34 @@ I may reuse the same coin, so I recurse on `i` not `i + 1`. Stop when remain is 
 [Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 ```js
-// Recurse on i (not i+1) because the same coin may be reused
 // LC: https://leetcode.com/problems/combination-sum/
-function combinationSum(candidates, target) {
-  const ans = [];
-  const dfs = (start, remain, path) => {
-    if (remain === 0) {
-      ans.push([...path]); // exact target hit
-      return;
+// choose → explore → unchoose; reuse allowed via same index
+/**
+ * @param {number[]} candidates
+ * @param {number} target
+ * @return {number[][]}
+ */
+var combinationSum = function(candidates, target) {
+    let result = [];
+    
+    function dfs(index, currentVal, arr){
+        
+        if(currentVal < 0) return;
+        if(currentVal === 0){
+            result.push([...arr]);
+        }
+        
+        for(let i = index; i < candidates.length; i++){
+            arr.push(candidates[i]);
+            dfs(i, currentVal - candidates[i], arr);
+            arr.pop();
+        }
     }
-    if (remain < 0) return; // overshoot, prune
-    for (let i = start; i < candidates.length; i++) {
-      path.push(candidates[i]);
-      dfs(i, remain - candidates[i], path); // stay at i to allow reuse
-      path.pop();
-    }
-  };
-  dfs(0, target, []);
-  return ans;
-}
+    dfs(0, target, []);
+    
+    return result;
+    
+};
 ```
 
 ## Permutations
@@ -83,27 +94,27 @@ function combinationSum(candidates, target) {
 [Permutations](https://leetcode.com/problems/permutations/)
 
 ```js
-// used[i] tracks which indices are already in the current permutation
 // LC: https://leetcode.com/problems/permutations/
-function permute(nums) {
-  const ans = [], used = Array(nums.length).fill(false);
-  const dfs = (path) => {
-    if (path.length === nums.length) {
-      ans.push([...path]); // full permutation built
-      return;
+// choose → explore → unchoose every unused index
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var permute = function(nums, arr = [], res = []) {
+    
+    //base case
+    if(nums.length === 0) res.push([...arr]);
+    
+    for(let i = 0; i < nums.length; i++){
+        let rest = nums.filter((n, index) => index !== i);
+        arr.push(nums[i]);
+        permute(rest, arr, res);
+        arr.pop();
     }
-    for (let i = 0; i < nums.length; i++) {
-      if (used[i]) continue; // each index at most once
-      used[i] = true;
-      path.push(nums[i]);
-      dfs(path);
-      path.pop();
-      used[i] = false; // free index for other positions
-    }
-  };
-  dfs([]);
-  return ans;
-}
+    
+    return res;
+    
+};
 ```
 
 ## Generate Parentheses
@@ -137,31 +148,42 @@ DFS from every cell. Mark the cell, try 4 directions, unmark. If I consume the w
 [Word Search](https://leetcode.com/problems/word-search/)
 
 ```js
-// Grid DFS with in-place visited mark (#), restore on backtrack
+// DFS from each cell; mark visited
+// Backtracking — grid DFS
 // LC: https://leetcode.com/problems/word-search/
-function exist(board, word) {
-  const rows = board.length, cols = board[0].length;
-  const dfs = (r, c, i) => {
-    if (i === word.length) return true; // matched full word
-    if (r < 0 || c < 0 || r >= rows || c >= cols) return false;
-    if (board[r][c] !== word[i]) return false;
-    const ch = board[r][c];
-    board[r][c] = "#"; // mark cell used on this path
-    const ok =
-      dfs(r + 1, c, i + 1) ||
-      dfs(r - 1, c, i + 1) ||
-      dfs(r, c + 1, i + 1) ||
-      dfs(r, c - 1, i + 1);
-    board[r][c] = ch; // unmark for other paths
-    return ok;
-  };
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (dfs(r, c, 0)) return true; // try every start cell
+var exist = function(board, word) {
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[0].length; c++) {
+      if (board[r][c] === word[0] && dfs(r, c, 0)) return true;
     }
   }
   return false;
-}
+
+  function dfs(r, c, i) {
+    if (word.length === i) return true;
+    if (
+      r >= board.length ||
+      r < 0 ||
+      c < 0 ||
+      c >= board[0].length ||
+      board[r][c] !== word[i]
+    )
+      return false;
+
+    board[r][c] = "#";
+
+    if (
+      dfs(r + 1, c, i + 1) ||
+      dfs(r - 1, c, i + 1) ||
+      dfs(r, c + 1, i + 1) ||
+      dfs(r, c - 1, i + 1)
+    )
+      return true;
+
+    board[r][c] = word[i];
+    return false;
+  }
+};
 ```
 
 ## N-Queens
@@ -171,28 +193,60 @@ One queen per row. `cols`, `diag`, `anti` sets. Place, recurse next row, remove.
 [N-Queens](https://leetcode.com/problems/n-queens/)
 
 ```js
-// One queen per row; track column and both diagonal directions
 // LC: https://leetcode.com/problems/n-queens/
-function solveNQueens(n) {
-  const ans = [], board = Array.from({ length: n }, () => Array(n).fill("."));
-  const cols = new Set(), diag = new Set(), anti = new Set();
-  const dfs = (r) => {
-    if (r === n) {
-      ans.push(board.map((row) => row.join("")));
-      return;
+var solveNQueens = function(n) {
+    
+    if(n.length === 1) return [["Q"]];
+    
+    let col = new Set();
+    let posDiag = new Set();
+    let negDiag = new Set();
+    
+    let res = [];
+    let board = Array.from(Array(n), () => new Array(n).fill("."));
+    
+    //helper functions
+    const isValid = (r, c) => !(col.has(c) || posDiag.has(r+c) || negDiag.has(r-c));
+    
+    const addQueen = (r, c) => {
+        col.add(c);
+        posDiag.add(r+c);
+        negDiag.add(r-c);
+        board[r][c] = "Q";
     }
-    for (let c = 0; c < n; c++) {
-      if (cols.has(c) || diag.has(r - c) || anti.has(r + c)) continue; // attack line
-      cols.add(c); diag.add(r - c); anti.add(r + c);
-      board[r][c] = "Q";
-      dfs(r + 1);
-      board[r][c] = ".";
-      cols.delete(c); diag.delete(r - c); anti.delete(r + c);
+    
+    const removeQueen = (r, c) => {
+        col.delete(c);
+        posDiag.delete(r+c);
+        negDiag.delete(r-c);
+        board[r][c] = ".";
     }
-  };
-  dfs(0);
-  return ans;
-}
+    
+    //recursive backtracking function
+    function recurse(row){
+        
+        //base case
+        if(row === n){
+            res.push([...board].map((row) => row.join("")));
+        }
+        
+        //recurrence relation
+        for(let col = 0; col < n; col++){
+            if(isValid(row, col)){
+                addQueen(row, col);
+                //recurse
+                recurse(row+1);
+                //backtrack
+                removeQueen(row, col);
+            }
+        }
+        
+    }
+    
+    recurse(0);
+    return res;
+    
+};
 ```
 
 ## Subsets II (Duplicates)
@@ -202,23 +256,31 @@ Duplicate numbers ke saath subsets, duplicate subsets avoid karo. Sort karke `i>
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
 ```js
-// Sort + skip equal values at same depth to avoid duplicate subsets
 // LC: https://leetcode.com/problems/subsets-ii/
-function subsetsWithDup(nums) {
-  nums.sort((a,b)=>a-b); // duplicates become adjacent
-  const ans=[];
-  const dfs=(start, path)=>{
-    ans.push([...path]);
-    for(let i=start;i<nums.length;i++){
-      if(i>start && nums[i]===nums[i-1]) continue; // same value already tried at this level
-      path.push(nums[i]);
-      dfs(i+1, path);
-      path.pop();
+// skip duplicates after sort
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var subsetsWithDup = function(nums) {
+    let res = [[]];
+    
+    nums.sort((a,b) => a-b);
+    
+    function dfs(nums, res, currArr, start){
+        for(let i = start; i < nums.length; i++){
+            if(i === start || nums[i] !== nums[i-1]){
+                currArr.push(nums[i]);
+                res.push([...currArr]);
+                dfs(nums, res, currArr, i+1);
+                currArr.pop();
+            }
+        }
     }
-  };
-  dfs(0, []);
-  return ans;
-}
+    dfs(nums, res, [], 0);
+    
+    return res;
+};
 ```
 
 ## Combination Sum II
@@ -281,19 +343,41 @@ Phone digits se saare letter combos. Har digit ke letters pe loop.
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 
 ```js
-// DFS over digit index; try every letter mapped to that digit
 // LC: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
-function letterCombinations(digits) {
-  if(!digits) return [];
-  const mp={2:"abc",3:"def",4:"ghi",5:"jkl",6:"mno",7:"pqrs",8:"tuv",9:"wxyz"};
-  const ans=[];
-  const dfs=(i, path)=>{
-    if(i===digits.length){ ans.push(path); return; }
-    for(const ch of mp[digits[i]]){
-      dfs(i+1, path+ch); // append letter and move to next digit
+// map digit → letters; build all suffixes
+/**
+ * @param {string} digits
+ * @return {string[]}
+ */
+var letterCombinations = function(digits, start = 0) {
+    
+    const map = {
+        '2': ['a','b','c'],
+        '3': ['d','e','f'],
+        '4': ['g','h','i'],
+        '5': ['j','k','l'],
+        '6': ['m','n','o'],
+        '7': ['p','q','r', 's'],
+        '8': ['t','u','v'],
+        '9': ['w','x','y','z'],
+    };
+    
+    if(digits === "") return [];
+    if(start >= digits.length) return [''];
+    
+    const digit = digits[start];
+    const letters = map[digit];
+    const combinations = [];
+    
+    const suffixCombinations = letterCombinations(digits, start + 1);
+    
+    for(const letter of letters){
+        for(const suffix of suffixCombinations){
+            combinations.push(letter + suffix);
+        }
     }
-  };
-  dfs(0, "");
-  return ans;
-}
+    
+    return combinations;
+    
+};
 ```

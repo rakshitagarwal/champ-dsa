@@ -43,28 +43,40 @@ Boundaries rakho (top/bottom/left/right), ek-ek layer nikalo, har side ke baad s
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 ```js
+// peel layers: right→down→left→up
 // LC: https://leetcode.com/problems/spiral-matrix/
-function spiralOrder(matrix) {
-  // layer-by-layer spiral with top/bottom/left/right
-  const out = [];
-  let top = 0, bottom = matrix.length - 1;
-  let left = 0, right = matrix[0].length - 1;
-  while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) out.push(matrix[top][c]); // traverse top row left → right
+var spiralOrder = function(matrix) {
+  let left = 0;
+  let top = 0;
+  let right = matrix[0].length - 1;
+  let bottom = matrix.length - 1;
+  let size = matrix.length * matrix[0].length;
+  let nums = [];
+
+  while (nums.length < size) {
+    for (let i = left; i <= right && nums.length < size; i++) {
+      nums.push(matrix[top][i]);
+    }
     top++;
-    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]); // traverse right column top → bottom
-    right--; // move right pointer leftward
-    if (top <= bottom) {
-      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]); // traverse bottom row right → left
-      bottom--;
+
+    for (let i = top; i <= bottom && nums.length < size; i++) {
+      nums.push(matrix[i][right]);
     }
-    if (left <= right) {
-      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]); // traverse left column bottom → top
-      left++; // shrink or move left pointer rightward
+    right--;
+
+    for (let i = right; i >= left && nums.length < size; i--) {
+      nums.push(matrix[bottom][i]);
     }
+    bottom--;
+
+    for (let i = bottom; i >= top && nums.length < size; i--) {
+      nums.push(matrix[i][left]);
+    }
+    left++;
   }
-  return out;
-}
+
+  return nums;
+};
 ```
 
 ## Rotate Image
@@ -74,17 +86,27 @@ Transpose karo (r,c) ↔ (c,r), phir har row reverse. In-place, extra space nahi
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 ```js
-// Transpose then reverse each row — 90° clockwise in-place
+// transpose then reverse each row
 // LC: https://leetcode.com/problems/rotate-image/
-function rotate(matrix) {
-  const n = matrix.length;
-  for (let r = 0; r < n; r++) {
-    for (let c = r + 1; c < n; c++) {
-      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]]; // swap across diagonal (transpose)
+var rotate = function(matrix) {
+  // transpose
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = i; j < matrix.length; j++) {
+      let temp = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = temp;
     }
   }
-  for (const row of matrix) row.reverse(); // reverse each row in place
-}
+
+  // reverse elements and move inwards
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix.length / 2; j++) {
+      let temp = matrix[i][j];
+      matrix[i][j] = matrix[i][matrix.length - 1 - j];
+      matrix[i][matrix.length - 1 - j] = temp;
+    }
+  }
+};
 ```
 
 ## Set Matrix Zeroes
@@ -94,26 +116,31 @@ Jis cell me 0 ho, uski poori row+col zero karo. O(1) space ke liye pehli row/col
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 ```js
-// Mark zeros in row0/col0, then apply — O(1) extra space
+// mark zeros; second pass write
 // LC: https://leetcode.com/problems/set-matrix-zeroes/
-function setZeroes(matrix) {
-  const rows = matrix.length, cols = matrix[0].length;
-  let firstRowZero = false, firstColZero = false;
-  for (let c = 0; c < cols; c++) if (matrix[0][c] === 0) firstRowZero = true;
-  for (let r = 0; r < rows; r++) if (matrix[r][0] === 0) firstColZero = true;
-  for (let r = 1; r < rows; r++) {
-    for (let c = 1; c < cols; c++) {
-      if (matrix[r][c] === 0) { matrix[r][0] = 0; matrix[0][c] = 0; } // mark row0/col0 when a zero is seen
+var setZeroes = function(matrix) {
+  let zeroPos = [];
+
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === 0) {
+        zeroPos.push([i, j]);
+      }
     }
   }
-  for (let r = 1; r < rows; r++) {
-    for (let c = 1; c < cols; c++) {
-      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0; // use markers to zero entire row/column
+
+  for (let i = 0; i < zeroPos.length; i++) {
+    const [row, col] = zeroPos[i];
+
+    for (let r = 0; r < matrix.length; r++) {
+      matrix[r][col] = 0;
+    }
+
+    for (let c = 0; c < matrix[0].length; c++) {
+      matrix[row][c] = 0;
     }
   }
-  if (firstRowZero) for (let c = 0; c < cols; c++) matrix[0][c] = 0;
-  if (firstColZero) for (let r = 0; r < rows; r++) matrix[r][0] = 0;
-}
+};
 ```
 
 ## Search a 2D Matrix

@@ -36,16 +36,22 @@ I would remember each number’s index. When `target - nums[i]` is already in th
 [Two Sum](https://leetcode.com/problems/two-sum/)
 
 ```js
-// Complement lookup in one pass
+// map value → index; look for complement
+// Hashing — complement
 // LC: https://leetcode.com/problems/two-sum/
-function twoSum(nums, target) {
-  const seen = new Map(); // value -> index
+var twoSum = function(nums, target) {
+  let map = new Map();
+
   for (let i = 0; i < nums.length; i++) {
-    const need = target - nums[i]; // partner we still need
-    if (seen.has(need)) return [seen.get(need), i]; // found pair
-    seen.set(nums[i], i); // remember index for later
+    const compliment = target - nums[i];
+
+    if (map.has(compliment)) {
+      return [i, map.get(compliment)];
+    } else {
+      map.set(nums[i], i);
+    }
   }
-}
+};
 ```
 
 ## Group Anagrams
@@ -55,17 +61,23 @@ Same letters sorted become the same key. Bucket words by that key.
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
 ```js
-// Map key = sorted letters (canonical anagram form)
+// key = sorted letters
 // LC: https://leetcode.com/problems/group-anagrams/
-function groupAnagrams(strs) {
-  const groups = new Map();
-  for (const s of strs) {
-    const key = [...s].sort().join(""); // anagrams share the same key
-    if (!groups.has(key)) groups.set(key, []); // start a new bucket
-    groups.get(key).push(s); // append word to its anagram group
+var groupAnagrams = function(strs) {
+  let sorted = strs.map((str) => str.split("").sort().join(""));
+
+  let map = {};
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (!map[sorted[i]]) {
+      map[sorted[i]] = [strs[i]];
+    } else {
+      map[sorted[i]].push(strs[i]);
+    }
   }
-  return [...groups.values()]; // one array per distinct key
-}
+
+  return Object.values(map);
+};
 ```
 
 ## Valid Anagram
@@ -75,18 +87,37 @@ Count letters of `s`, subtract letters of `t`. If anything is left, they are not
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
 ```js
-// Frequency map — increment s, decrement t
+// count chars; must match
 // LC: https://leetcode.com/problems/valid-anagram/
-function isAnagram(s, t) {
-  if (s.length !== t.length) return false; // different lengths cannot match
-  const count = Object.create(null);
-  for (const ch of s) count[ch] = (count[ch] || 0) + 1; // tally letters in s
-  for (const ch of t) {
-    if (!count[ch]) return false; // t uses a letter s did not have
-    count[ch]--; // cancel one occurrence from s's count
+var isAnagram = function(s, t) {
+  if (s.length !== t.length) return false;
+
+  let map = {};
+
+  for (let i = 0; i < s.length; i++) {
+    let letter = s[i];
+
+    if (!map[letter]) {
+      map[letter] = 1;
+    } else {
+      map[letter]++;
+    }
   }
-  return true; // all counts hit zero when counts match
-}
+
+  for (let i = 0; i < t.length; i++) {
+    let letter = t[i];
+
+    if (map[letter] === undefined) {
+      return false;
+    }
+    if (map[letter] < 1) {
+      return false;
+    }
+    map[letter]--;
+  }
+
+  return true;
+};
 ```
 
 ## Longest Consecutive Sequence
@@ -96,19 +127,28 @@ Put everything in a set. Only start counting at a number that has no `n - 1`. Th
 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
 
 ```js
-// Only start counting at streak left edge (no n-1 in set)
 // LC: https://leetcode.com/problems/longest-consecutive-sequence/
-function longestConsecutive(nums) {
-  const set = new Set(nums); // O(1) membership for neighbors
-  let best = 0;
-  for (const n of set) {
-    if (set.has(n - 1)) continue; // not a streak start — skip
-    let len = 1;
-    while (set.has(n + len)) len++; // walk n+1, n+2, … while present
-    best = Math.max(best, len); // track longest run seen
-  }
-  return best;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var longestConsecutive = function(nums) {
+    let set = new Set(nums);
+    let streak = 0;
+    
+    for(let num of set){
+        if(set.has(num-1)) continue;
+        let currStreak = 1;
+        
+        while(set.has(num+1)){
+            currStreak++;
+            num++;
+        }
+        streak = Math.max(streak, currStreak);
+    }
+    
+    return streak;
+};
 ```
 
 ## Contains Duplicate
@@ -118,16 +158,12 @@ Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing 
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
 ```js
-// Set membership — duplicate on second sighting
+// set: if already seen → duplicate
 // LC: https://leetcode.com/problems/contains-duplicate/
-function containsDuplicate(nums) {
-  const seen = new Set();
-  for (const x of nums) {
-    if (seen.has(x)) return true; // already in set — duplicate exists
-    seen.add(x); // first time seeing x
-  }
-  return false; // all elements unique
-}
+var containsDuplicate = function(nums) {
+  let set = new Set(nums);
+  return set.size !== nums.length;
+};
 ```
 
 ## Valid Sudoku
@@ -163,20 +199,34 @@ Frequency gino, fir heap / bucket se top K nikalo. Hashing + heap combo ka class
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 
 ```js
-// Count freq, then bucket sort by frequency index
+// count → heap/bucket of size k
 // LC: https://leetcode.com/problems/top-k-frequent-elements/
-function topKFrequent(nums, k) {
-  const freq = new Map();
-  for (const x of nums) freq.set(x, (freq.get(x)||0)+1); // tally each value
-  const bucket = Array(nums.length+1).fill(0).map(()=>[]); // index = frequency
-  for (const [num, f] of freq) bucket[f].push(num); // all nums with freq f
-  const ans = [];
-  for (let f=bucket.length-1; f>=0 && ans.length < k; f--) { // highest freq first
-    for (const n of bucket[f]) {
-      ans.push(n);
-      if (ans.length===k) break; // collected k elements
+var topKFrequent = function(nums, k) {
+  let map = {};
+  let bucket = [];
+  let result = [];
+
+  for (let i = 0; i < nums.length; i++) {
+    if (!map[nums[i]]) {
+      map[nums[i]] = 1;
+    } else {
+      map[nums[i]]++;
     }
   }
-  return ans;
-}
+
+  for (let [num, freq] of Object.entries(map)) {
+    if (!bucket[freq]) {
+      bucket[freq] = new Set().add(num);
+    } else {
+      bucket[freq] = bucket[freq].add(num);
+    }
+  }
+
+  for (let i = bucket.length - 1; i >= 0; i--) {
+    if (bucket[i]) result.push(...bucket[i]);
+    if (result.length === k) break;
+  }
+
+  return result;
+};
 ```

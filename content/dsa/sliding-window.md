@@ -33,18 +33,30 @@ If I see a letter that is already inside the window, jump `left` just past the o
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
 ```js
+// window: shrink when char repeats
 // LC: https://leetcode.com/problems/longest-substring-without-repeating-characters/
-function lengthOfLongestSubstring(s) {
-  const last = new Map();
-  let left = 0, best = 0;
-  for (let right = 0; right < s.length; right++) { // expand window with right pointer
-    const ch = s[right];
-    if (last.has(ch) && last.get(ch) >= left) left = last.get(ch) + 1; // duplicate inside window — jump left past last occurrence
-    last.set(ch, right);
-    best = Math.max(best, right - left + 1); // window is valid — track longest length
+var lengthOfLongestSubstring = function(s) {
+  let longestStr = 0;
+  let set = new Set();
+
+  let left = 0;
+  let right = 0;
+
+  while (right < s.length) {
+    let letter = s[right];
+
+    if (!set.has(letter)) {
+      set.add(letter);
+      longestStr = Math.max(longestStr, set.size);
+      right++;
+    } else {
+      set.delete(s[left]);
+      left++;
+    }
   }
-  return best;
-}
+
+  return longestStr;
+};
 ```
 
 ## Minimum Window Substring
@@ -54,29 +66,51 @@ Grow until `t` is fully covered (`missing === 0`). Then shrink from the left as 
 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 ```js
+// Sliding window — smallest that still covers t
 // LC: https://leetcode.com/problems/minimum-window-substring/
-function minWindow(s, t) {
-  const need = new Map();
-  for (const ch of t) need.set(ch, (need.get(ch) || 0) + 1);
-  let missing = need.size, left = 0, best = ""; // missing = count of t chars not yet satisfied in window
-  for (let right = 0; right < s.length; right++) { // expand window with right pointer
-    const r = s[right];
-    if (need.has(r)) {
-      need.set(r, need.get(r) - 1); // include r toward required counts
-      if (need.get(r) === 0) missing--; // this letter fully satisfied
-    }
-    while (missing === 0) { // window covers all of t — try to shrink
-      if (!best || right - left + 1 < best.length) best = s.slice(left, right + 1); // record smallest valid window
-      const l = s[left];
-      if (need.has(l)) {
-        need.set(l, need.get(l) + 1); // remove l from window counts
-        if (need.get(l) > 0) missing++; // t is no longer fully covered
-      }
-      left++; // shrink from the left
+var minWindow = function(s, t) {
+  let map = new Map();
+
+  for (let letter of t) {
+    if (!map.has(letter)) {
+      map.set(letter, 1);
+    } else {
+      map.set(letter, map.get(letter) + 1);
     }
   }
-  return best;
-}
+
+  let left = 0;
+  let right = 0;
+  let len = Infinity;
+  let count = map.size;
+  let minWindow = "";
+
+  while (right < s.length) {
+    let rLetter = s[right];
+    if (map.has(rLetter)) {
+      map.set(rLetter, map.get(rLetter) - 1);
+      if (map.get(rLetter) === 0) count--;
+    }
+
+    right++;
+
+    while (count === 0) {
+      if (right - left < len) {
+        len = right - left;
+        minWindow = s.slice(left, right);
+      }
+
+      let lLetter = s[left];
+      if (map.has(lLetter)) {
+        map.set(lLetter, map.get(lLetter) + 1);
+        if (map.get(lLetter) > 0) count++;
+      }
+      left++;
+    }
+  }
+
+  return minWindow;
+};
 ```
 
 ## Sliding Window Maximum
@@ -111,20 +145,35 @@ Window me sabse zyada frequent char `maxF`, window size - maxF <= k to valid. Na
 
 ```js
 // LC: https://leetcode.com/problems/longest-repeating-character-replacement/
-function characterReplacement(s, k) {
-  // freq map + max count
-  const freq={}; let left=0, maxF=0, best=0;
-  for (let right=0; right<s.length; right++) {
-    const ch=s[right];
-    freq[ch]=(freq[ch]||0)+1;
-    maxF = Math.max(maxF, freq[ch]); // dominant character count in current window
-    while ((right-left+1) - maxF > k) { // too many swaps needed — shrink from the left
-      freq[s[left]]--; left++;
+var characterReplacement = function(s, k) {
+  let map = {};
+
+  let topFrequency = 0;
+  let longest = 0;
+
+  let left = 0;
+  let right = 0;
+
+  while (right < s.length) {
+    let rightChar = s[right];
+
+    map[rightChar] = map[rightChar] + 1 || 1;
+
+    topFrequency = Math.max(topFrequency, map[rightChar]);
+
+    while ((right - left + 1) - topFrequency > k) {
+      let leftChar = s[left];
+      map[leftChar]--;
+      left++;
     }
-    best = Math.max(best, right-left+1);
+
+    longest = Math.max(longest, right - left + 1);
+
+    right++;
   }
-  return best;
-}
+
+  return longest;
+};
 ```
 
 ## Permutation in String

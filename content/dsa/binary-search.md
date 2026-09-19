@@ -35,18 +35,27 @@ Classic. Mid too small, search right. Too big, search left.
 [Binary Search](https://leetcode.com/problems/binary-search/)
 
 ```js
+// mid; go left/right on sorted array
 // Binary search — find target
 // LC: https://leetcode.com/problems/binary-search/
-function search(nums, target) {
-  let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) { // classic BS on inclusive [lo, hi]
-    const mid = lo + ((hi - lo) >> 1);
+var search = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
     if (nums[mid] === target) return mid;
-    if (nums[mid] < target) lo = mid + 1;
-    else hi = mid - 1;
+
+    if (nums[mid] > target) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
   }
+
   return -1;
-}
+};
 ```
 
 ## Search in Rotated Sorted Array
@@ -56,23 +65,38 @@ One half is always sorted. If target lives in the sorted half, go there. Else th
 [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
 
 ```js
+// find sorted half; discard other
 // Binary search — rotated, pick the sorted side
 // LC: https://leetcode.com/problems/search-in-rotated-sorted-array/
-function search(nums, target) {
-  let lo = 0, hi = nums.length - 1;
-  while (lo <= hi) { // classic BS on inclusive [lo, hi]
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] === target) return mid;
-    if (nums[lo] <= nums[mid]) {
-      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;
-      else lo = mid + 1;
+var search = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target) {
+      return mid;
+    }
+
+    // which side is sorted
+    if (nums[right] > nums[mid]) {
+      if (target > nums[mid] && target <= nums[right]) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
     } else {
-      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;
-      else hi = mid - 1;
+      if (target < nums[mid] && target >= nums[left]) {
+        right = mid - 1;
+      } else {
+        left = mid + 1;
+      }
     }
   }
+
   return -1;
-}
+};
 ```
 
 ## Find Minimum in Rotated Sorted Array
@@ -82,17 +106,25 @@ If mid is greater than the right end, the min is to the right of mid. Else min i
 [Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
 
 ```js
+// pivot = unsorted side
 // Binary search — min of rotated
 // LC: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
-function findMin(nums) {
-  let lo = 0, hi = nums.length - 1;
-  while (lo < hi) { // binary search on half-open [lo, hi)
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] > nums[hi]) lo = mid + 1;
-    else hi = mid;
+var findMin = function(nums) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left < right) {
+    let mid = Math.floor((right + left) / 2);
+
+    if (nums[right] < nums[mid]) {
+      left = mid + 1;
+    } else {
+      right = mid;
+    }
   }
-  return nums[lo];
-}
+
+  return nums[left];
+};
 ```
 
 ## Koko Eating Bananas
@@ -204,17 +236,28 @@ Target kahan insert hoga wahi lower_bound hai. Binary search se `lo` hi answer.
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
 ```js
+// lower_bound via binary search
 // LC: https://leetcode.com/problems/search-insert-position/
-function searchInsert(nums, target) {
-  // first index where nums[i] >= target
-  let lo=0, hi=nums.length;
-  while (lo<hi) {
-    const mid = lo + ((hi-lo)>>1);
-    if (nums[mid] < target) lo=mid+1; // target larger than mid — search right half
-    else hi=mid; // mid is candidate — shrink hi to keep it
+var searchInsert = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target) {
+      return mid;
+    }
+
+    if (nums[mid] > target) {
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
   }
-  return lo;
-}
+
+  return left;
+};
 ```
 
 ## Find First and Last Position of Element in Sorted Array
@@ -225,18 +268,43 @@ Lower bound aur upper bound ka khel. Do binary search.
 
 ```js
 // LC: https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/
-function searchRange(nums, target) {
-  // lower_bound: first position not less than target
-  const lower = ()=>{
-    let lo=0, hi=nums.length;
-    while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<target) lo=mid+1; else hi=mid; }
-    return lo;
-  };
-  const l = lower();
-  if (l===nums.length || nums[l]!==target) return [-1,-1]; // target absent — return [-1,-1]
-  // upper_bound minus one = last occurrence
-  let lo=0, hi=nums.length;
-  while(lo<hi){ const mid=lo+((hi-lo)>>1); if(nums[mid]<=target) lo=mid+1; else hi=mid; }
-  return [l, lo-1];
-}
+var searchRange = function(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+  let leftBound = -1;
+  let rightBound = -1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target && nums[mid - 1] !== target) {
+      leftBound = mid;
+    }
+
+    if (nums[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  left = 0;
+  right = nums.length - 1;
+
+  while (left <= right) {
+    let mid = left + Math.floor((right - left) / 2);
+
+    if (nums[mid] === target && nums[mid + 1] !== target) {
+      rightBound = mid;
+    }
+
+    if (nums[mid] <= target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  return [leftBound, rightBound];
+};
 ```

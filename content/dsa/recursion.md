@@ -57,22 +57,30 @@ Dono heads me chhota lo, uska `next` baaki ka merge hai. Base: ek list khatm to 
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 
 ```js
-// Dummy head avoids special-casing the merged list's first node
+// dummy head; take smaller each step
+// Linked list — merge with dummy
 // LC: https://leetcode.com/problems/merge-two-sorted-lists/
-function mergeTwoLists(l1, l2) {
-  const dummy = { val: 0, next: null };
-  let tail = dummy; // tail builds the output list
-  while (l1 && l2) {
-    if (l1.val < l2.val) {
-      tail.next = l1; // Attach smaller head
-      l1 = l1.next; // Advance that list
+var mergeTwoLists = function(list1, list2) {
+  let dummy = new ListNode(0);
+  let head = dummy;
+
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      dummy.next = list1;
+      list1 = list1.next;
     } else {
-      tail.next = l2;
-      l2 = l2.next;
+      dummy.next = list2;
+      list2 = list2.next;
     }
-    tail = tail.next; // Move output tail forward
+    dummy = dummy.next;
   }
-  tail.next = l1 || l2; // Append remaining sorted suffix
-  return dummy.next;
-}
+
+  if (list1 !== null) {
+    dummy.next = list1;
+  } else {
+    dummy.next = list2;
+  }
+
+  return head.next;
+};
 ```

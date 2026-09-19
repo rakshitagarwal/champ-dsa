@@ -30,22 +30,27 @@ Left-to-right: product of everything before `i`. Right-to-left: product of every
 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
 
 ```js
+// prefix * suffix without division
 // Prefix / suffix products
 // LC: https://leetcode.com/problems/product-of-array-except-self/
-function productExceptSelf(nums) {
-  const n = nums.length, out = Array(n).fill(1);
-  let left = 1;
-  for (let i = 0; i < n; i++) {
-    out[i] *= left;
-    left *= nums[i];
+var productExceptSelf = function(nums) {
+  let res = [];
+  let start = 1;
+
+  for (let i = 0; i < nums.length; i++) {
+    res.push(start);
+    start = start * nums[i];
   }
-  let right = 1;
-  for (let i = n - 1; i >= 0; i--) {
-    out[i] *= right;
-    right *= nums[i];
+
+  let start2 = 1;
+
+  for (let i = nums.length - 1; i >= 0; i--) {
+    res[i] = start2 * res[i];
+    start2 = start2 * nums[i];
   }
-  return out;
-}
+
+  return res;
+};
 ```
 
 ## Subarray Sum Equals K

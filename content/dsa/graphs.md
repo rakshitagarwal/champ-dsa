@@ -36,26 +36,44 @@ Each unvisited `"1"` is a new island. DFS (or BFS) paints the whole blob to `"0"
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 ```js
-// Each DFS from land sinks the whole connected component
+// flood-fill each unvisited land
+// Graph DFS — flood fill
 // LC: https://leetcode.com/problems/number-of-islands/
-function numIslands(grid) {
-  const rows = grid.length, cols = grid[0].length;
-  const dfs = (r, c) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== "1") return;
-    grid[r][c] = "0"; // mark visited by turning land to water
-    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
-  };
-  let n = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === "1") {
-        n++; // new island component
-        dfs(r, c);
+var numIslands = function(grid) {
+  let count = 0;
+
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === "1") {
+        count = count + dfs(grid, i, j);
       }
     }
   }
-  return n;
-}
+
+  function dfs(grid, row, col) {
+    // base cases
+    if (
+      row < 0 ||
+      row > grid.length - 1 ||
+      col < 0 ||
+      col > grid[row].length - 1 ||
+      grid[row][col] === "0"
+    ) {
+      return;
+    }
+
+    grid[row][col] = "0";
+
+    dfs(grid, row + 1, col);
+    dfs(grid, row - 1, col);
+    dfs(grid, row, col + 1);
+    dfs(grid, row, col - 1);
+
+    return 1;
+  }
+
+  return count;
+};
 ```
 
 ## Clone Graph
@@ -65,20 +83,41 @@ Map old node → new node. DFS: if I already cloned it, return that. Else create
 [Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 ```js
-// Map original node -> clone before recursing into neighbors
 // LC: https://leetcode.com/problems/clone-graph/
-function cloneGraph(node) {
-  if (!node) return null;
-  const map = new Map();
-  const walk = (n) => {
-    if (map.has(n)) return map.get(n); // already cloned subgraph
-    const copy = { val: n.val, neighbors: [] };
-    map.set(n, copy);
-    for (const nei of n.neighbors) copy.neighbors.push(walk(nei));
-    return copy;
-  };
-  return walk(node);
-}
+// BFS/DFS + map old node → clone
+/**
+ * // Definition for a Node.
+ * function Node(val, neighbors) {
+ *    this.val = val === undefined ? 0 : val;
+ *    this.neighbors = neighbors === undefined ? [] : neighbors;
+ * };
+ */
+
+/**
+ * @param {Node} node
+ * @return {Node}
+ */
+var cloneGraph = function(node) {
+    let visited = {};
+    
+    function dfs(node){
+        //base cases
+        if(!node) return node;
+        if(!!visited[node.val]) return visited[node.val];
+        
+        let root = new Node(node.val);
+        visited[node.val] = root;
+        
+        //recurrence relation
+        for(let neighbor of node.neighbors){
+            root.neighbors.push(dfs(neighbor))
+        }
+        
+        return root;
+    }
+    
+    return dfs(node);
+};
 ```
 
 ## Surrounded Regions
@@ -113,37 +152,63 @@ Water flows down or flat. I BFS/DFS uphill from the Pacific edge and from the At
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 ```js
-// DFS uphill from each ocean; cell must reach both Pacific and Atlantic
+// Graph DFS — from oceans inland
 // LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
-function pacificAtlantic(heights) {
-  const rows = heights.length, cols = heights[0].length;
-  const pac = Array.from({ length: rows }, () => Array(cols).fill(false));
-  const atl = Array.from({ length: rows }, () => Array(cols).fill(false));
-  const dfs = (r, c, seen, prev) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || seen[r][c]) return;
-    if (heights[r][c] < prev) return; // water flows from higher to lower
-    seen[r][c] = true;
-    dfs(r + 1, c, seen, heights[r][c]);
-    dfs(r - 1, c, seen, heights[r][c]);
-    dfs(r, c + 1, seen, heights[r][c]);
-    dfs(r, c - 1, seen, heights[r][c]);
-  };
-  for (let r = 0; r < rows; r++) {
-    dfs(r, 0, pac, 0); // Pacific left edge
-    dfs(r, cols - 1, atl, 0); // Atlantic right edge
-  }
-  for (let c = 0; c < cols; c++) {
-    dfs(0, c, pac, 0); // Pacific top edge
-    dfs(rows - 1, c, atl, 0); // Atlantic bottom edge
-  }
-  const out = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (pac[r][c] && atl[r][c]) out.push([r, c]);
+var pacificAtlantic = function(heights) {
+  let m = heights.length;
+  let n = heights[0].length;
+
+  let pacificQueue = [];
+  let atlanticQueue = [];
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === 0 || j === 0) {
+        pacificQueue.push([i, j]);
+      }
+      if (i === m - 1 || j === n - 1) {
+        atlanticQueue.push([i, j]);
+      }
     }
   }
-  return out;
-}
+
+  function bfs(queue) {
+    const isValid = (x, y) => x >= 0 && y >= 0 && x < m && y < n;
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const visited = Array.from(Array(m), () => new Array(n).fill(false));
+
+    while (queue.length) {
+      const [x, y] = queue.shift();
+      visited[x][y] = true;
+
+      for (let dir of directions) {
+        let nextX = x + dir[0];
+        let nextY = y + dir[1];
+        if (!isValid(nextX, nextY) || visited[nextX][nextY]) continue;
+        if (heights[nextX][nextY] >= heights[x][y]) {
+          queue.push([nextX, nextY]);
+        }
+      }
+    }
+
+    return visited;
+  }
+
+  const pacific = bfs(pacificQueue);
+  const atlantic = bfs(atlanticQueue);
+
+  const result = [];
+
+  for (let x = 0; x < m; x++) {
+    for (let y = 0; y < n; y++) {
+      if (pacific[x][y] && atlantic[x][y]) {
+        result.push([x, y]);
+      }
+    }
+  }
+
+  return result;
+};
 ```
 
 ## Number of Provinces
@@ -154,18 +219,54 @@ Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
 
 ```js
 // LC: https://leetcode.com/problems/number-of-provinces/
-function findCircleNumUF(isConnected) {
-  const n=isConnected.length, p=Array.from({length:n},(_,i)=>i), rank=Array(n).fill(0);
-  const find=(x)=>{ while(p[x]!==x){ p[x]=p[p[x]]; x=p[x]; } return x; };
-  const union=(a,b)=>{
-    a=find(a); b=find(b); if(a===b) return;
-    if(rank[a]<rank[b]) [a,b]=[b,a];
-    p[b]=a; if(rank[a]===rank[b]) rank[a]++;
-  };
-  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(isConnected[i][j]) union(i,j);
-  const roots=new Set(); for(let i=0;i<n;i++) roots.add(find(i));
-  return roots.size;
-}
+/**
+ * @param {number[][]} isConnected
+ * @return {number}
+ */
+var findCircleNum = function(isConnected) {
+    
+    let adj = {};
+    
+    for(let i = 0; i < isConnected.length; i++){
+        for(let j = 0; j < isConnected[0].length; j++){
+            
+            let val = isConnected[i][j];
+            
+            if(val === 1){
+                if(!adj[i]){
+                    adj[i] = [j];
+                } else {
+                    adj[i].push(j);
+                }
+            }
+            
+        }
+    }
+    
+    let visited = new Set();
+    let count = 0;
+    
+    for(let key in adj){
+        let keyNum = parseInt(key);
+        count += dfs(keyNum);
+    }
+    
+    function dfs(currNode){
+        if(visited.has(currNode)) return 0;
+        visited.add(currNode);
+        
+        let neighbours = adj[currNode];
+        
+        for(let n of neighbours){
+            dfs(n);
+        }
+        
+        return 1;
+    }
+    
+    return count;
+    
+};
 ```
 
 ## Rotting Oranges (Multi-Source BFS)
@@ -214,25 +315,32 @@ Each word is a node. Neighbors = same length, one letter off. BFS from beginWord
 [Word Ladder](https://leetcode.com/problems/word-ladder/)
 
 ```js
-// BFS on implicit graph: edges = one-letter mutations in wordList
+// Graph BFS — one letter at a time
 // LC: https://leetcode.com/problems/word-ladder/
-function ladderLength(beginWord, endWord, wordList) {
-  const set = new Set(wordList);
-  if (!set.has(endWord)) return 0; // target not reachable in dictionary
-  const q = [[beginWord, 1]];
-  const seen = new Set([beginWord]);
-  while (q.length) {
-    const [word, d] = q.shift();
-    if (word === endWord) return d; // shortest path in unweighted graph
-    for (let i = 0; i < word.length; i++) {
-      for (let c = 97; c <= 122; c++) {
-        const next = word.slice(0, i) + String.fromCharCode(c) + word.slice(i + 1);
-        if (!set.has(next) || seen.has(next)) continue;
-        seen.add(next);
-        q.push([next, d + 1]);
+var ladderLength = function(beginWord, endWord, wordList) {
+  let set = new Set(wordList);
+  let queue = [[beginWord, 1]];
+
+  while (queue.length) {
+    let [currWord, count] = queue.shift();
+
+    if (currWord === endWord) {
+      return count;
+    }
+
+    for (let i = 0; i < 26; i++) {
+      for (let j = 0; j < currWord.length; j++) {
+        let letter = String.fromCharCode(97 + i);
+        let newWord = currWord.slice(0, j) + letter + currWord.slice(j + 1);
+
+        if (set.has(newWord)) {
+          queue.push([newWord, count + 1]);
+          set.delete(newWord);
+        }
       }
     }
   }
+
   return 0;
-}
+};
 ```

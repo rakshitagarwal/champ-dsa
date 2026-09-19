@@ -50,18 +50,24 @@ While n is not 0, drop the lowest 1 with `n &= n - 1` and count.
 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 ```js
-// Bits — count set bits
 // LC: https://leetcode.com/problems/number-of-1-bits/
-function hammingWeight(n) {
-  let c = 0;
-  // Each iteration removes exactly one set bit
-  while (n) {
-    // n & (n-1) clears the lowest 1-bit
-    n &= n - 1;
-    c++;
-  }
-  return c;
-}
+// count set bits with & / >>>
+/**
+ * @param {number} n - a positive integer
+ * @return {number}
+ */
+var hammingWeight = function(n) {
+    let count = 0;
+    
+    while(n !== 0){
+        let isOne = n & 1;
+        if(isOne === 1) count++;
+        
+        n = n >>> 1;
+    }
+    
+    return count;
+};
 ```
 
 ## Counting Bits
@@ -71,15 +77,33 @@ function hammingWeight(n) {
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 ```js
-// Bits — dp from half
 // LC: https://leetcode.com/problems/counting-bits/
-function countBits(n) {
-  const dp = Array(n + 1).fill(0);
-  for (let i = 1; i <= n; i++) {
-    // Popcount(i) = popcount(i/2) plus last bit
-    dp[i] = dp[i >> 1] + (i & 1);
-  }
-  return dp;
+// for each i, count 1-bits with & 1 and >>>
+/**
+ * @param {number} n
+ * @return {number[]}
+ */
+var countBits = function(n) {
+
+    let result = [];
+
+    for(let i = 0; i <= n; i++){
+        result.push(numberOfOnes(i));
+    }
+
+    return result;
+
+};
+
+function numberOfOnes(n){
+    let count = 0;
+
+    while(n !== 0){
+        count += n & 1;
+        n = n >>> 1;
+    }
+
+    return count;
 }
 ```
 
@@ -90,13 +114,21 @@ XOR all indexes with all values. The missing index never cancels. Or `n*(n+1)/2 
 [Missing Number](https://leetcode.com/problems/missing-number/)
 
 ```js
-// Bits — XOR index with value
 // LC: https://leetcode.com/problems/missing-number/
-function missingNumber(nums) {
-  let x = nums.length;
-  for (let i = 0; i < nums.length; i++) x ^= i ^ nums[i];
-  return x;
-}
+// XOR index^value; missing index remains
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var missingNumber = function(nums) {
+    let xor = nums.length;
+    
+    for(let i = 0; i < nums.length; i++){
+        xor = xor ^ i ^ nums[i];
+    }
+    
+    return xor;
+};
 ```
 
 ## Power of Two
@@ -106,12 +138,18 @@ Positive, and only one bit set: `n > 0 && (n & (n - 1)) === 0`.
 [Power of Two](https://leetcode.com/problems/power-of-two/)
 
 ```js
-// Bits — single bit
 // LC: https://leetcode.com/problems/power-of-two/
-function isPowerOfTwo(n) {
-  // Zero and negatives are not powers of two
-  // Single-bit numbers have no other 1s after clearing lowest bit
-  return n > 0 && (n & (n - 1)) === 0;
+// exactly one bit set (and n > 0)
+/**
+ * @param {number} n
+ * @return {boolean}
+ */
+var isPowerOfTwo = function(n) {
+    
+    if(n <= 0) return false;
+    return (n & (n-1)) === 0;
+
+
 }
 ```
 
@@ -144,17 +182,28 @@ function singleNumberII(nums) {
 
 ```js
 // LC: https://leetcode.com/problems/reverse-bits/
-function reverseBits(n) {
-  let res=0;
-  for(let i=0;i<32;i++){
-    // Shift result left and append n's LSB
-    res = (res<<1) | (n & 1);
-    // Drop processed bit from n
-    n >>>= 1;
-  }
-  // Force unsigned 32-bit result
-  return res >>> 0;
-}
+// take LSB, place toward MSB side
+/**
+ * @param {number} n - a positive integer
+ * @return {number} - a positive integer
+ */
+var reverseBits = function(n) {
+    let result = 0;
+    
+    for(let i = 0; i < 32; i++){
+        let lastBit = n & 1;
+        
+        let revBit = lastBit << (31-i);
+        
+        result = result | revBit;
+        
+        n = n >>> 1;
+        
+    }
+    
+    return result >>> 0;
+    
+};
 ```
 
 ## Hamming Distance

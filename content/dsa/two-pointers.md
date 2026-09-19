@@ -31,16 +31,22 @@ Sorted, so if the sum is too small I need a bigger left. Too big, smaller right.
 [Two Sum II](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/)
 
 ```js
-// Sorted array → two pointers from both ends
-function twoSum(numbers, target) {
-  let left = 0, right = numbers.length - 1; // start at extremes
+// Two pointers — opposite ends
+// LC: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+var twoSum = function(numbers, target) {
+  let left = 0;
+  let right = numbers.length - 1;
+
   while (left < right) {
-    const sum = numbers[left] + numbers[right];
-    if (sum === target) return [left + 1, right + 1]; // 1-based answer
-    if (sum < target) left++; // need a larger value — move left rightward
-    else right--; // need a smaller value — move right leftward
+    if (numbers[left] + numbers[right] === target) {
+      return [left + 1, right + 1];
+    } else if (numbers[left] + numbers[right] < target) {
+      left++;
+    } else {
+      right--;
+    }
   }
-}
+};
 ```
 
 ## Longest Palindromic Substring
@@ -51,21 +57,30 @@ Every palindrome has a center. I expand while left and right match. Do it for od
 
 ```js
 // LC: https://leetcode.com/problems/longest-palindromic-substring/
-function longestPalindrome(s) {
-  // Expand while chars match; return start index and length
-  const expand = (l, r) => {
-    while (l >= 0 && r < s.length && s[l] === s[r]) { l--; r++; }
-    return [l + 1, r - l - 1];
-  };
-  let start = 0, len = 0;
+var longestPalindrome = function(s) {
+  let longest = "";
+
+  function isPal(s, left, right) {
+    while (left >= 0 && right < s.length && s[left] === s[right]) {
+      left--;
+      right++;
+    }
+    return s.slice(left + 1, right);
+  }
+
   for (let i = 0; i < s.length; i++) {
-    // Try odd-length (i,i) and even-length (i,i+1) centers
-    for (const [st, ln] of [expand(i, i), expand(i, i + 1)]) {
-      if (ln > len) { start = st; len = ln; }
+    let oddPal = isPal(s, i, i);
+    let evenPal = isPal(s, i, i + 1);
+
+    let longestPal = oddPal.length > evenPal.length ? oddPal : evenPal;
+
+    if (longestPal.length > longest.length) {
+      longest = longestPal;
     }
   }
-  return s.slice(start, start + len);
-}
+
+  return longest;
+};
 ```
 
 ## Trapping Rain Water
@@ -75,23 +90,31 @@ Water at `i` is min(tallest on left, tallest on right) minus height[i]. Two poin
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 ```js
+// water = min(leftMax,rightMax) - height
+// Two pointers — water limited by the shorter wall
 // LC: https://leetcode.com/problems/trapping-rain-water/
-function trap(height) {
-  let left = 0, right = height.length - 1;
-  let leftMax = 0, rightMax = 0, water = 0;
-  while (left < right) { // Main two-pointer loop
+var trap = function(height) {
+  let left = 0;
+  let right = height.length - 1;
+  let leftMax = 0;
+  let rightMax = 0;
+  let trappedWater = 0;
+
+  while (left < right) {
+    leftMax = Math.max(leftMax, height[left]);
+    rightMax = Math.max(rightMax, height[right]);
+
     if (height[left] < height[right]) {
-      leftMax = Math.max(leftMax, height[left]);
-      water += leftMax - height[left];
-      left++; // shorter left wall — its max is binding; advance left
+      trappedWater += leftMax - height[left];
+      left++;
     } else {
-      rightMax = Math.max(rightMax, height[right]);
-      water += rightMax - height[right];
-      right--; // shorter right wall — process right side; advance right
+      trappedWater += rightMax - height[right];
+      right--;
     }
   }
-  return water;
-}
+
+  return trappedWater;
+};
 ```
 
 ## Container With Most Water
@@ -101,18 +124,27 @@ Move the pointer at the shorter wall — only that side can improve area. Track 
 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
 ```js
+// area = min(h)*width; move shorter side
 // LC: https://leetcode.com/problems/container-with-most-water/
-function maxArea(height) {
-  // Start pointers at both ends of the array
-  let l=0, r=height.length-1, best=0;
-  while (l < r) {
-    const area = Math.min(height[l], height[r]) * (r - l); // width × shorter height = water held now
-    best = Math.max(best, area);
-    if (height[l] < height[r]) l++; // drop the shorter wall — only that side can improve area
-    else r--;
+var maxArea = function(height) {
+  let left = 0;
+  let right = height.length - 1;
+  let maxima = 0;
+
+  while (left < right) {
+    let width = right - left;
+    let maxArea = Math.min(height[left], height[right]) * width;
+    maxima = Math.max(maxima, maxArea);
+
+    if (height[left] <= height[right]) {
+      left++;
+    } else {
+      right--;
+    }
   }
-  return best;
-}
+
+  return maxima;
+};
 ```
 
 ## 3Sum
@@ -122,23 +154,40 @@ Sort, fix index `i`, then two-pointer 2-sum on the rest. Skip duplicate triplets
 [3Sum](https://leetcode.com/problems/3sum/)
 
 ```js
+// sort + fix i; two pointers for the pair
 // LC: https://leetcode.com/problems/3sum/
-function threeSum(nums) {
-  // sort so two-pointer / duplicate skip works
-  nums.sort((a,b)=>a-b);
-  const ans=[];
-  for (let i=0;i<nums.length-2;i++) {
-    if (i>0 && nums[i]===nums[i-1]) continue; // skip duplicate fixed first index
-    let l=i+1, r=nums.length-1;
-    while (l<r) {
-      const sum = nums[i]+nums[l]+nums[r];
-      if (sum===0) { ans.push([nums[i],nums[l],nums[r]]); l++; r--; while(l<r && nums[l]===nums[l-1]) l++; while(l<r && nums[r]===nums[r+1]) r--; } // found triplet — shrink both sides and skip duplicate l/r
-      else if (sum<0) l++; // sum below zero — need a larger middle value
-      else r--;
+var threeSum = function(nums) {
+  if (nums.length === 0) return [];
+
+  nums = nums.sort((a, b) => a - b);
+  let res = [];
+
+  for (let i = 0; i < nums.length - 2; i++) {
+    // stop duplicates from occuring
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+
+    let j = i + 1;
+    let k = nums.length - 1;
+
+    while (j < k) {
+      let sum = nums[i] + nums[j] + nums[k];
+      if (sum === 0) {
+        res.push([nums[i], nums[j], nums[k]]);
+        // stop duplicates
+        while (nums[j] === nums[j + 1]) j++;
+        while (nums[k] === nums[k + 1]) k--;
+        j++;
+        k--;
+      } else if (sum < 0) {
+        j++;
+      } else {
+        k--;
+      }
     }
   }
-  return ans;
-}
+
+  return res;
+};
 ```
 
 ## Valid Palindrome
@@ -148,15 +197,40 @@ Keep only letters and digits, lowercase, then two pointers from both ends.
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
 ```js
+// two pointers; skip non-alnum
 // LC: https://leetcode.com/problems/valid-palindrome/
-function isPalindrome(s) {
-  // normalize: lowercase letters and digits only
-  s = s.toLowerCase().replace(/[^a-z0-9]/g,"");
-  let l=0, r=s.length-1;
-  while (l<r) {
-    if (s[l]!==s[r]) return false; // characters differ — not a palindrome
-    l++; r--;
+var isPalindrome = function(s) {
+  let cleanStr = cleanUp(s);
+  return isPal(cleanStr);
+};
+
+function cleanUp(str) {
+  let char = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let newS = "";
+
+  for (let i = 0; i < str.length; i++) {
+    let lCase = str[i].toLowerCase();
+
+    if (char.indexOf(lCase) !== -1) {
+      newS += lCase;
+    }
   }
+
+  return newS;
+}
+
+function isPal(str) {
+  let left = 0;
+  let right = str.length - 1;
+
+  while (left < right) {
+    if (str[left] !== str[right]) {
+      return false;
+    }
+    left++;
+    right--;
+  }
+
   return true;
 }
 ```
