@@ -53,21 +53,30 @@ var canAttendMeetings = function(intervals) {
 [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — merge overlaps
-// LC: https://leetcode.com/problems/merge-intervals/
-function merge(intervals) {
-  // Hinglish: step 1 — base case check karo
-  intervals.sort((a, b) => a[0] - b[0]);
-  const out = [intervals[0]];
-  for (let i = 1; i < intervals.length; i++) {
-    const last = out[out.length - 1];
-    const [s, e] = intervals[i];
-    if (s <= last[1]) last[1] = Math.max(last[1], e);
-    else out.push([s, e]);
-  }
-  return out;
-}
+/**
+ * @param {number[][]} intervals
+ * @return {number[][]}
+ */
+var merge = function(intervals) {
+    const start = 0;
+    const end = 1;
+    
+    intervals = intervals.sort((a,b) => a[start] - b[start]);
+    
+    let previous = intervals[0];
+    let res = [previous];
+    
+    for(let current of intervals){
+        if(current[start] <= previous[end]){
+            previous[end] = Math.max(previous[end], current[end]);
+        } else {
+            res.push(current);
+            previous = current;
+        }
+    }
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -81,24 +90,38 @@ function merge(intervals) {
 [Insert Interval](https://leetcode.com/problems/insert-interval/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// Intervals — insert then merge
-// LC: https://leetcode.com/problems/insert-interval/
-function insert(intervals, newInterval) {
-  // Hinglish: step 1 — base case check karo
-  const out = [];
-  let i = 0, n = intervals.length;
-  let [ns, ne] = newInterval;
-  while (i < n && intervals[i][1] < ns) out.push(intervals[i++]); // before
-  while (i < n && intervals[i][0] <= ne) {
-    ns = Math.min(ns, intervals[i][0]);
-    ne = Math.max(ne, intervals[i][1]);
-    i++;
-  }
-  out.push([ns, ne]);
-  while (i < n) out.push(intervals[i++]); // after
-  return out;
-}
+/**
+ * @param {number[][]} intervals
+ * @param {number[]} newInterval
+ * @return {number[][]}
+ */
+var insert = function(intervals, newInterval) {
+    let res = [];
+    let i = 0;
+    
+    const start = 0;
+    const end = 1;
+    
+    while(i < intervals.length && intervals[i][end] < newInterval[start]){
+        res.push(intervals[i]);
+        i++;
+    }
+    
+    while(i < intervals.length && intervals[i][start] <= newInterval[end]){
+        newInterval[start] = Math.min(newInterval[start], intervals[i][start]);
+        newInterval[end] = Math.max(newInterval[end], intervals[i][end]);
+        i++;
+    }
+    
+    res.push(newInterval);
+    
+    while(i < intervals.length){
+        res.push(intervals[i]);
+        i++;
+    }
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -112,18 +135,27 @@ function insert(intervals, newInterval) {
 [Non-Overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 \`\`\`js
-// Hinglish: sort karke merge — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/non-overlapping-intervals/
-function eraseOverlapIntervals(intervals) {
-  // Hinglish: end se sort, jaldi khatam wala pehle
-  intervals.sort((a,b)=>a[1]-b[1]);
-  let kept = 0, lastEnd = -Infinity;
-  for (const [s,e] of intervals) {
-    if (s >= lastEnd) { kept++; lastEnd = e; } // Hinglish: overlap nahi to rakho
-    // warna hatao
-  }
-  return intervals.length - kept; // Hinglish: hatane wale
-}
+/**
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+var eraseOverlapIntervals = function(intervals) {
+    intervals.sort((a,b) => a[1] - b[1]);
+    
+    let count = 0;
+    let prev = 0;
+    
+    for(let i=1; i<intervals.length; i++){
+        let current = intervals[i];
+        if(current[0] < intervals[prev][1]){
+            count++;
+        } else {
+            prev = i;
+        }
+    }
+    
+    return count;
+};
 \`\`\``,
     },
     {
@@ -140,19 +172,33 @@ function eraseOverlapIntervals(intervals) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: do pointer rooms — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/meeting-rooms-ii/ (Premium)
-function minMeetingRooms(intervals) {
-  // Hinglish: step 1 — starts/ends alag sort karo
-  const starts = intervals.map((x) => x[0]).sort((a, b) => a - b);
-  const ends = intervals.map((x) => x[1]).sort((a, b) => a - b);
-  let rooms = 0, best = 0, e = 0;
-  for (let s = 0; s < starts.length; s++) {
-    if (starts[s] < ends[e]) { rooms++; best = Math.max(best, rooms); } // Hinglish: overlap to room badhao
-    else e++; // Hinglish: ek khatm, room free
-  }
-  return best;
-}
+/**
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+var minMeetingRooms = function(intervals) {
+    
+    if(!intervals || intervals.length < 1){
+        return 0;
+    }
+    
+    const starts = intervals.map((interval) => interval[0]).sort((a,b) => a-b);
+    const ends = intervals.map((interval) => interval[1]).sort((a,b) => a-b);
+    
+    let rooms = 0;
+    let end = 0;
+    
+    for(let i = 0; i<intervals.length; i++){
+        if(starts[i] < ends[end]){
+            rooms++;
+        }else {
+            end++;
+        }
+    }
+    
+    return rooms;
+    
+};
 \`\`\``,
     },
       ],

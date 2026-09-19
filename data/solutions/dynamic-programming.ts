@@ -13,21 +13,33 @@ export const DYNAMIC_PROGRAMMING_SOLUTIONS: SolutionGroup = {
       title: "Counting Bits",
       diff: "Easy",
     solutionUrl: "https://www.youtube.com/watch?v=wFGzEve9woc&t=259s&ab_channel=AlgoJS",
-      body: `\`dp[i] = dp[i >> 1] + (i & 1)\`. Even is the same as i/2. Odd is one extra 1.
+      body: `Offset = last power of 2. \`dp[i] = 1 + dp[i - offset]\`.
 
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — dp from half
-// LC: https://leetcode.com/problems/counting-bits/
-function countBits(n) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(n + 1).fill(0);
-  for (let i = 1; i <= n; i++) dp[i] = dp[i >> 1] + (i & 1);
-  return dp;
-}
-\`\`\``,
+/**
+ * @param {number} n
+ * @return {number[]}
+ */
+var countBits = function(n) {
+
+    let dp = new Array(n+1).fill(0);
+
+    let offset = 1;
+
+    for(let i = 1; i <= n; i++){
+
+        if(offset*2 === i) offset = i;
+
+        dp[i] = 1 + dp[i-offset];
+
+    }
+
+    return dp;
+
+};
+\`\`\``
     },
     {
       id: 1,
@@ -40,20 +52,26 @@ function countBits(n) {
 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — Fibonacci
-// LC: https://leetcode.com/problems/climbing-stairs/
-function climbStairs(n) {
-  // Hinglish: step 1 — base case check karo
-  if (n <= 2) return n;
-  let a = 1, b = 2;
-  for (let i = 3; i <= n; i++) {
-    const c = a + b;
-    a = b;
-    b = c;
-  }
-  return b;
-}
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var climbStairs = function(n) {
+    let dp = [];
+    dp[1] = 1;
+    dp[2] = 2;
+
+    for(let i = 3; i<=n; i++){
+
+        //optimal substructure
+        dp[i] = dp[i-1] + dp[i-2];
+
+    }
+
+    return dp[n];
+
+
+};
 \`\`\``,
     },
     {
@@ -67,18 +85,25 @@ function climbStairs(n) {
 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
 
 \`\`\`js
-// Hinglish: array ko in-place modify — ek-ek step comment dekho
-// Arrays — Kadane
-// LC: https://leetcode.com/problems/maximum-subarray/
-function maxSubArray(nums) {
-  // Hinglish: step 1 — base case check karo
-  let run = 0, best = -Infinity;
-  for (const x of nums) {
-    run = Math.max(x, run + x); // restart or continue
-    best = Math.max(best, run);
-  }
-  return best;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSubArray = function(nums) {
+
+    let currMax = nums[0];
+    let maxima = nums[0];
+
+    for(let i = 1; i < nums.length; i++){
+
+        currMax = Math.max(nums[i], currMax + nums[i]);
+        maxima = Math.max(maxima, currMax);
+
+    }
+
+    return maxima;
+
+};
 \`\`\``,
     },
     {
@@ -92,20 +117,27 @@ function maxSubArray(nums) {
 [Coin Change](https://leetcode.com/problems/coin-change/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — unbounded knapsack
-// LC: https://leetcode.com/problems/coin-change/
-function coinChange(coins, amount) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(amount + 1).fill(Infinity);
-  dp[0] = 0;
-  for (let a = 1; a <= amount; a++) {
-    for (const c of coins) {
-      if (c <= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);
+/**
+ * @param {number[]} coins
+ * @param {number} amount
+ * @return {number}
+ */
+var coinChange = function(coins, amount) {
+    let dp = Array(amount+1).fill(Infinity);
+    
+    //base case
+    dp[0] = 0;
+    
+    for(let curAmount = 1; curAmount<=amount; curAmount++){
+        for(let coin of coins){
+            if(curAmount - coin >= 0){
+                dp[curAmount] = Math.min(dp[curAmount], 1 + dp[curAmount - coin])
+            }
+        }
     }
-  }
-  return dp[amount] === Infinity ? -1 : dp[amount];
-}
+    
+    return dp[amount] > amount ? -1 : dp[amount];
+};
 \`\`\``,
     },
     {
@@ -119,19 +151,30 @@ function coinChange(coins, amount) {
 [House Robber](https://leetcode.com/problems/house-robber/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — take or skip
-// LC: https://leetcode.com/problems/house-robber/
-function rob(nums) {
-  // Hinglish: step 1 — base case check karo
-  let prev2 = 0, prev1 = 0;
-  for (const x of nums) {
-    const cur = Math.max(prev1, prev2 + x);
-    prev2 = prev1;
-    prev1 = cur;
-  }
-  return prev1;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var rob = function(nums) {
+
+    if(nums.length === 0) return 0;
+    if(nums.length === 1) return nums[0];
+
+    let dp = Array(nums + 1).fill(0);
+
+    //base cases
+    dp[0] = nums[0];
+    dp[1] = Math.max(nums[0], nums[1]);
+
+    for(let i = 2; i < nums.length; i++){
+
+        dp[i] = Math.max(nums[i]+dp[i-2], dp[i-1]);
+    }
+
+    return dp[dp.length-1];
+
+
+};
 \`\`\``,
     },
     {
@@ -145,18 +188,19 @@ function rob(nums) {
 [Jump Game](https://leetcode.com/problems/jump-game/)
 
 \`\`\`js
-// Hinglish: local best lo — ek-ek step comment dekho
-// Greedy — running max reach
-// LC: https://leetcode.com/problems/jump-game/
-function canJump(nums) {
-  // Hinglish: step 1 — base case check karo
-  let reach = 0;
-  for (let i = 0; i < nums.length; i++) {
-    if (i > reach) return false;
-    reach = Math.max(reach, i + nums[i]);
-  }
-  return true;
-}
+/**
+ * @param {number[]} nums
+ * @return {boolean}
+ */
+var canJump = function(nums) {
+    let target = nums.length - 1;
+    for (let i = nums.length - 1; i >= 0; i--) {
+        if (i + nums[i] >= target) {
+            target = i;
+        }
+    }
+    return target === 0;
+};
 \`\`\``,
     },
     {
@@ -170,17 +214,25 @@ function canJump(nums) {
 [Unique Paths](https://leetcode.com/problems/unique-paths/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — grid paths
-// LC: https://leetcode.com/problems/unique-paths/
-function uniquePaths(m, n) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(n).fill(1);
-  for (let r = 1; r < m; r++) {
-    for (let c = 1; c < n; c++) dp[c] += dp[c - 1];
-  }
-  return dp[n - 1];
-}
+/**
+ * @param {number} m
+ * @param {number} n
+ * @return {number}
+ */
+var uniquePaths = function(m, n) {
+    let dp = Array.from(Array(m), () => new Array(n));
+    
+    for(let i = 0; i < dp.length; i++) dp[i][0] = 1;
+    for(let i = 0; i < dp[0].length; i++) dp[0][i] = 1;
+    
+    for(let i = 1; i < dp.length; i++){
+        for(let j = 1; j < dp[0].length; j++){
+            dp[i][j] = dp[i-1][j] + dp[i][j-1];
+        }
+    }
+    
+    return dp[m-1][n-1];
+};
 \`\`\``,
     },
     {
@@ -194,25 +246,47 @@ function uniquePaths(m, n) {
 [Unique Paths II](https://leetcode.com/problems/unique-paths-ii/)
 
 \`\`\`js
-// Hinglish: obstacle zero karo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/unique-paths-ii/
-function uniquePathsWithObstacles(grid) {
-  // Hinglish: step 1 — rows/cols lo
-  const m = grid.length, n = grid[0].length;
-  const dp = Array.from({ length: m }, () => Array(n).fill(0));
-  for (let r = 0; r < m; r++) {
-    for (let c = 0; c < n; c++) {
-      if (grid[r][c] === 1) { dp[r][c] = 0; continue; } // Hinglish: pathar hai
-      if (r === 0 && c === 0) dp[r][c] = 1; // Hinglish: start
-      else {
-        const up = r > 0 ? dp[r - 1][c] : 0;
-        const left = c > 0 ? dp[r][c - 1] : 0;
-        dp[r][c] = up + left; // Hinglish: upar + left
-      }
+/**
+ * @param {number[][]} obstacleGrid
+ * @return {number}
+ */
+var uniquePathsWithObstacles = function(obstacleGrid) {
+    
+    let m = obstacleGrid.length;
+    let n = obstacleGrid[0].length;
+    
+    let dp = Array.from(Array(m), () => Array(n).fill(0));
+    
+    for(let i = 0; i < m; i++){
+        if(obstacleGrid[i][0] === 1){
+            dp[i][0] = 0;
+            break;
+        } else {
+            dp[i][0] = 1;
+        }
     }
-  }
-  return dp[m - 1][n - 1];
-}
+    
+    for(let j = 0; j < n; j++){
+        if(obstacleGrid[0][j] === 1){
+            dp[0][j] = 0;
+            break;
+        } else {
+            dp[0][j] = 1;
+        }
+    }
+    
+    for(let i = 1; i < m; i++){
+        for(let j = 1; j < n; j++){
+            if(obstacleGrid[i][j] === 1){
+                dp[i][j] = 0;
+            } else {
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+            }
+        }
+    }
+    
+    return dp[m-1][n-1]
+};
 \`\`\``,
     },
     {
@@ -226,21 +300,30 @@ function uniquePathsWithObstacles(grid) {
 [Longest Common Subsequence](https://leetcode.com/problems/longest-common-subsequence/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — LCS
-// LC: https://leetcode.com/problems/longest-common-subsequence/
-function longestCommonSubsequence(a, b) {
-  // Hinglish: step 1 — base case check karo
-  const m = a.length, n = b.length;
-  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
-      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+/**
+ * @param {string} text1
+ * @param {string} text2
+ * @return {number}
+ */
+var longestCommonSubsequence = function(text1, text2) {
+    let m = text1.length;
+    let n = text2.length;
+    
+    let dp = Array.from(Array(m+1), () => new Array(n+1).fill(0));
+    
+    for(let i = 1; i<=m; i++){
+        for(let j = 1; j<=n; j++){
+            
+            if(text1[i-1] === text2[j-1]){
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
     }
-  }
-  return dp[m][n];
-}
+    
+    return dp[m][n];
+};
 \`\`\``,
     },
     {
@@ -254,26 +337,36 @@ function longestCommonSubsequence(a, b) {
 [Combination Sum (DP)](https://leetcode.com/problems/combination-sum/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
-// Backtracking — reuse allowed
-// LC: https://leetcode.com/problems/combination-sum/
-function combinationSum(candidates, target) {
-  const ans = [];
-  const dfs = (start, remain, path) => {
-    if (remain === 0) {
-      ans.push([...path]);
-      return;
+/**
+ * @param {number[]} candidates
+ * @param {number} target
+ * @return {number[][]}
+ */
+var combinationSum = function(candidates, target) {
+
+    candidates.sort((a,b) => a-b);
+    let dp = [[[]]];
+
+    for(let sum = 0; sum <= target; sum++){
+        dp[sum] = [];
+        let combine = [];
+
+        for(let i = 0; i < candidates.length && candidates[i] <= sum; i++){
+            if(sum === candidates[i]){
+                combine.push([candidates[i]]);
+            } else {
+                for(let prev of dp[sum-candidates[i]]){
+                    if(candidates[i] >= prev[prev.length-1]){
+                        combine.push([...prev, candidates[i]]);
+                    }
+                }
+            }
+        }
+        dp[sum] = combine;
     }
-    if (remain < 0) return;
-    for (let i = start; i < candidates.length; i++) {
-      path.push(candidates[i]); // Hinglish: choice liya
-      dfs(i, remain - candidates[i], path);
-      path.pop(); // Hinglish: wapas hataya (backtrack)
-    }
-  };
-  dfs(0, target, []);
-  return ans;
-}
+
+    return dp[target];
+};
 \`\`\``,
     },
     {
@@ -287,21 +380,25 @@ function combinationSum(candidates, target) {
 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — LIS O(n^2)
-// LC: https://leetcode.com/problems/longest-increasing-subsequence/
-function lengthOfLIS(nums) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(nums.length).fill(1);
-  let best = 1;
-  for (let i = 0; i < nums.length; i++) {
-    for (let j = 0; j < i; j++) {
-      if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var lengthOfLIS = function(nums) {
+
+    let dp = new Array(nums.length).fill(1);
+
+    for(let i = 1; i<=nums.length; i++){
+        for(let j=i; j>=0; j--){
+            if(nums[i] > nums[j]){
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
     }
-    best = Math.max(best, dp[i]);
-  }
-  return best;
-}
+
+    return Math.max(...dp);
+
+};
 \`\`\``,
     },
     {
@@ -315,20 +412,33 @@ function lengthOfLIS(nums) {
 [Delete Operations For Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/)
 
 \`\`\`js
-// Hinglish: LCS nikaal ke ghatao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/delete-operation-for-two-strings/
-function minDistance(word1, word2) {
-  // Hinglish: step 1 — LCS table banao
-  const m = word1.length, n = word2.length;
-  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (word1[i - 1] === word2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
-      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+/**
+ * @param {string} word1
+ * @param {string} word2
+ * @return {number}
+ */
+var minDistance = function(word1, word2) {
+
+    let m = word1.length;
+    let n = word2.length;
+
+    let dp = Array.from(Array(m+1), () => new Array(n+1).fill(0));
+
+    for(let i = 1; i<=word1.length; i++){
+        for(let j = 1; j<=word2.length; j++){
+            if(word1[i-1] === word2[j-1]){
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
     }
-  }
-  return m + n - 2 * dp[m][n]; // Hinglish: jo common nahi wo delete
-}
+
+    let commonChar = dp[m][n];
+
+    return word1.length-commonChar + word2.length-commonChar
+
+};
 \`\`\``,
     },
     {
@@ -342,20 +452,31 @@ function minDistance(word1, word2) {
 [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
 
 \`\`\`js
-// Hinglish: max-min dono track — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/maximum-product-subarray/
-function maxProduct(nums) {
-  // Hinglish: step 1 — pehle se start karo
-  let best = nums[0], curMax = nums[0], curMin = nums[0];
-  for (let i = 1; i < nums.length; i++) {
-    const x = nums[i];
-    const cand = [x, curMax * x, curMin * x]; // Hinglish: teen options
-    curMax = Math.max(...cand); // Hinglish: sabse bada
-    curMin = Math.min(...cand); // Hinglish: sabse chhota (negative kaam ayega)
-    best = Math.max(best, curMax);
-  }
-  return best;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxProduct = function(nums) {
+    
+    let prevMax = nums[0];
+    let prevMin = nums[0];
+    let result = nums[0];
+    
+    for(let i = 1; i < nums.length; i++){
+        
+        let currMax = Math.max(nums[i], nums[i]*prevMax, nums[i]*prevMin);
+        let currMin = Math.min(nums[i], nums[i]*prevMax, nums[i]*prevMin);
+        
+        prevMax = currMax;
+        prevMin = currMin;
+        
+        result = Math.max(result, currMax);
+        
+    }
+    
+    return result;
+    
+};
 \`\`\``,
     },
     {
@@ -369,23 +490,32 @@ function maxProduct(nums) {
 [Decode Ways](https://leetcode.com/problems/decode-ways/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// DP — 1 or 2 digits
-// LC: https://leetcode.com/problems/decode-ways/
-function numDecodings(s) {
-  // Hinglish: step 1 — base case check karo
-  const n = s.length;
-  const dp = Array(n + 1).fill(0);
-  dp[0] = 1;
-  for (let i = 1; i <= n; i++) {
-    if (s[i - 1] !== "0") dp[i] += dp[i - 1];
-    if (i >= 2) {
-      const two = Number(s.slice(i - 2, i));
-      if (two >= 10 && two <= 26) dp[i] += dp[i - 2];
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var numDecodings = function(s) {
+
+    if(s[0] == '0') return 0;
+
+    let dp = new Array(s.length+1).fill(0);
+
+    dp[0] = 1;
+    dp[1] = 1;
+
+    for(let i = 2; i<=s.length; i++){
+
+        let single = +s[i-1];
+        let double = +(s[i-2] + s[i-1]);
+
+        if(single >= 1 && single <= 9) dp[i] += dp[i-1];
+        if(double >= 10 && double <= 26) dp[i] += dp[i-2];
+
     }
-  }
-  return dp[n];
-}
+
+    return dp[s.length];
+
+};
 \`\`\``,
     },
     {
@@ -399,18 +529,35 @@ function numDecodings(s) {
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
 \`\`\`js
-// Hinglish: dp state bharo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/house-robber-ii/
-function rob2(nums) {
-  // Hinglish: single to wahi
-  if(nums.length===1) return nums[0];
-  const robRange=(l,r)=>{
-    let prev2=0, prev1=0;
-    for(let i=l;i<=r;i++){ const cur=Math.max(prev1, prev2+nums[i]); prev2=prev1; prev1=cur; } // Hinglish: loot ya chhodo
-    return prev1;
-  };
-  return Math.max(robRange(0, nums.length-2), robRange(1, nums.length-1)); // Hinglish: pehla chhodo ya aakhri chhodo
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var rob = function(nums) {
+
+    if(nums.length === 1) return nums[0];
+    if(nums.length === 2) return Math.max(nums[0], nums[1]);
+
+    let dp1 = new Array(nums.length);
+    let dp2 = new Array(nums.length);
+
+    robTwice(0, nums.length-2, dp1, nums);
+    robTwice(1, nums.length-1, dp2, nums);
+
+    function robTwice(i, numsLen, dp, nums){
+        dp[i] = nums[i];
+        dp[i+1] = Math.max(dp[i], nums[i+1]);
+
+        for(let j = i+2; j<=numsLen; j++){
+            dp[j] = Math.max(dp[j-1], dp[j-2]+nums[j]);
+        }
+    }
+
+    //dp1 [1,2,4, _]
+    //dp2 [_, 2,3,3]
+
+    return Math.max(dp1[nums.length-2], dp2[nums.length-1]);
+};
 \`\`\``,
     },
       ],

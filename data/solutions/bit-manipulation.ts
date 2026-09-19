@@ -18,18 +18,22 @@ export const BIT_MANIPULATION_SOLUTIONS: SolutionGroup = {
 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — count set bits
-// LC: https://leetcode.com/problems/number-of-1-bits/
-function hammingWeight(n) {
-  // Hinglish: step 1 — base case check karo
-  let c = 0;
-  while (n) {
-    n &= n - 1;
-    c++;
-  }
-  return c;
-}
+/**
+ * @param {number} n - a positive integer
+ * @return {number}
+ */
+var hammingWeight = function(n) {
+    let count = 0;
+    
+    while(n !== 0){
+        let isOne = n & 1;
+        if(isOne === 1) count++;
+        
+        n = n >>> 1;
+    }
+    
+    return count;
+};
 \`\`\``,
     },
     {
@@ -43,15 +47,19 @@ function hammingWeight(n) {
 [Missing Number](https://leetcode.com/problems/missing-number/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — XOR index with value
-// LC: https://leetcode.com/problems/missing-number/
-function missingNumber(nums) {
-  // Hinglish: step 1 — base case check karo
-  let x = nums.length;
-  for (let i = 0; i < nums.length; i++) x ^= i ^ nums[i];
-  return x;
-}
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var missingNumber = function(nums) {
+    let xor = nums.length;
+    
+    for(let i = 0; i < nums.length; i++){
+        xor = xor ^ i ^ nums[i];
+    }
+    
+    return xor;
+};
 \`\`\``,
     },
     {
@@ -65,17 +73,27 @@ function missingNumber(nums) {
 [Reverse Bits](https://leetcode.com/problems/reverse-bits/)
 
 \`\`\`js
-// Hinglish: bit hatana — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/reverse-bits/
-function reverseBits(n) {
-  // Hinglish: har bit utha ke result me aage daalo
-  let res=0;
-  for(let i=0;i<32;i++){
-    res = (res<<1) | (n & 1); // Hinglish: last bit lo, left shift
-    n >>>= 1; // Hinglish: unsigned shift
-  }
-  return res >>> 0;
-}
+/**
+ * @param {number} n - a positive integer
+ * @return {number} - a positive integer
+ */
+var reverseBits = function(n) {
+    let result = 0;
+    
+    for(let i = 0; i < 32; i++){
+        let lastBit = n & 1;
+        
+        let revBit = lastBit << (31-i);
+        
+        result = result | revBit;
+        
+        n = n >>> 1;
+        
+    }
+    
+    return result >>> 0;
+    
+};
 \`\`\``,
     },
     {
@@ -89,20 +107,33 @@ function reverseBits(n) {
 [Sort Integers By Number of 1 Bits](https://leetcode.com/problems/sort-integers-by-the-number-of-1-bits/)
 
 \`\`\`js
-// Hinglish: bits gin ke sort — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sort-integers-by-the-number-of-1-bits/
-function sortByBits(arr) {
-  // Hinglish: step 1 — bit counter lo
-  const bits = (x) => {
-    let c = 0;
-    while (x > 0) { c += x & 1; x >>= 1; } // Hinglish: aakhri bit dekho
-    return c;
-  };
-  arr.sort((a, b) => {
-    const d = bits(a) - bits(b);
-    return d !== 0 ? d : a - b; // Hinglish: pehle bits, phir value
-  });
-  return arr;
+/**
+ * @param {number[]} arr
+ * @return {number[]}
+ */
+var sortByBits = function(arr) {
+    
+    let map = {};
+    
+    for(let a of arr){
+        let count = numberOfOnes(a);
+        map[a] = count;
+    }
+    
+    //sort based on map first otherwise sort based on ascending order of the integers
+    return arr.sort((a,b) => map[a]-map[b] || a-b);
+    
+};
+
+function numberOfOnes(n){
+    let count = 0;
+    
+    while(n !== 0){
+        count += n & 1;
+        n = n >>> 1;
+    }
+    
+    return count;
 }
 \`\`\``,
     },
@@ -112,21 +143,38 @@ function sortByBits(arr) {
       title: "Counting Bits",
       diff: "Medium",
     solutionUrl: "https://www.youtube.com/watch?v=wFGzEve9woc&t=259s&ab_channel=AlgoJS",
-      body: `\`dp[i] = dp[i >> 1] + (i & 1)\`. Even is the same as i/2. Odd is one extra 1.
+      body: `Har number ke 1-bits \`&\` aur \`>>>\` se gino.
 
 [Counting Bits](https://leetcode.com/problems/counting-bits/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — dp from half
-// LC: https://leetcode.com/problems/counting-bits/
-function countBits(n) {
-  // Hinglish: step 1 — base case check karo
-  const dp = Array(n + 1).fill(0);
-  for (let i = 1; i <= n; i++) dp[i] = dp[i >> 1] + (i & 1);
-  return dp;
+/**
+ * @param {number} n
+ * @return {number[]}
+ */
+var countBits = function(n) {
+
+    let result = [];
+
+    for(let i = 0; i <= n; i++){
+        result.push(numberOfOnes(i));
+    }
+
+    return result;
+
+};
+
+function numberOfOnes(n){
+    let count = 0;
+
+    while(n !== 0){
+        count += n & 1;
+        n = n >>> 1;
+    }
+
+    return count;
 }
-\`\`\``,
+\`\`\``
     },
     {
       id: 5,
@@ -139,17 +187,25 @@ function countBits(n) {
 [Sum of Two Integers](https://leetcode.com/problems/sum-of-two-integers/)
 
 \`\`\`js
-// Hinglish: bits se jod — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sum-of-two-integers/
-function getSum(a, b) {
-  // Hinglish: step 1 — carry jab tak hai chalao
-  while (b !== 0) {
-    const carry = (a & b) << 1; // Hinglish: dono 1 to carry
-    a = a ^ b; // Hinglish: bina carry jod
-    b = carry;
-  }
-  return a;
-}
+/**
+ * @param {number} a
+ * @param {number} b
+ * @return {number}
+ */
+var getSum = function(a, b) {
+
+    let carry;
+
+    while(b!==0){
+        carry = a&b;
+        a = a ^ b;
+        b = carry << 1;
+    }
+
+    return a;
+
+
+};
 \`\`\``,
     },
     {
@@ -163,12 +219,16 @@ function getSum(a, b) {
 [Power of Two](https://leetcode.com/problems/power-of-two/)
 
 \`\`\`js
-// Hinglish: XOR / bit hatana — ek-ek step comment dekho
-// Bits — single bit
-// LC: https://leetcode.com/problems/power-of-two/
-function isPowerOfTwo(n) {
-  // Hinglish: step 1 — base case check karo
-  return n > 0 && (n & (n - 1)) === 0;
+/**
+ * @param {number} n
+ * @return {boolean}
+ */
+var isPowerOfTwo = function(n) {
+    
+    if(n <= 0) return false;
+    return (n & (n-1)) === 0;
+
+
 }
 \`\`\``,
     },
