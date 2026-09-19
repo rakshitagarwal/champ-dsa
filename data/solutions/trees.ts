@@ -18,15 +18,34 @@ export const TREES_SOLUTIONS: SolutionGroup = {
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/same-tree/
-function isSameTree(p, q) {
-  // Hinglish: dono null to same
-  if (!p && !q) return true;
-  if (!p || !q) return false;
-  if (p.val!==q.val) return false; // Hinglish: value alag to false
-  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Hinglish: dono side check
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {boolean}
+ */
+var isSameTree = function(p, q) {
+    
+    //base cases
+    if(p === null && q === null) return true;
+    if(p === null || q === null) return false;
+    
+    if(p.val === q.val){
+        
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+        
+    }
+    
+    return false;
+    
+};
 \`\`\``,
     },
     {

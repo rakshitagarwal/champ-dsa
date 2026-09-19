@@ -18,21 +18,33 @@ export const MATRIX_SOLUTIONS: SolutionGroup = {
 [Flood Fill](https://leetcode.com/problems/flood-fill/)
 
 \`\`\`js
-// Hinglish: rang bharo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/flood-fill/
-function floodFill(image, sr, sc, color) {
-  // Hinglish: step 1 — purana rang lo
-  const old = image[sr][sc];
-  if (old === color) return image; // Hinglish: same hai to kuch nahi
-  const rows = image.length, cols = image[0].length;
-  const dfs = (r, c) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || image[r][c] !== old) return;
-    image[r][c] = color; // Hinglish: rang badlo
-    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
-  };
-  dfs(sr, sc);
-  return image;
-}
+var floodFill = function(image, sr, sc, color) {
+  const original = image[sr][sc];
+
+  function recurse(image, sr, sc) {
+    // check boundaries
+    if (
+      sr < 0 ||
+      sr > image.length - 1 ||
+      sc < 0 ||
+      sc > image[0].length - 1 ||
+      image[sr][sc] !== original ||
+      image[sr][sc] === color
+    )
+      return image;
+
+    image[sr][sc] = color;
+
+    recurse(image, sr + 1, sc);
+    recurse(image, sr - 1, sc);
+    recurse(image, sr, sc + 1);
+    recurse(image, sr, sc - 1);
+
+    return image;
+  }
+  return recurse(image, sr, sc);
+};
 \`\`\``,
     },
     {
@@ -46,27 +58,30 @@ function floodFill(image, sr, sc, color) {
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/set-matrix-zeroes/
-function setZeroes(matrix) {
-  // Hinglish: step 1 — rows/cols lo
-  const rows = matrix.length, cols = matrix[0].length;
-  let firstRowZero = false, firstColZero = false;
-  for (let c = 0; c < cols; c++) if (matrix[0][c] === 0) firstRowZero = true;
-  for (let r = 0; r < rows; r++) if (matrix[r][0] === 0) firstColZero = true;
-  for (let r = 1; r < rows; r++) {
-    for (let c = 1; c < cols; c++) {
-      if (matrix[r][c] === 0) { matrix[r][0] = 0; matrix[0][c] = 0; } // Hinglish: nishan lagao
+var setZeroes = function(matrix) {
+  let zeroPos = [];
+
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[0].length; j++) {
+      if (matrix[i][j] === 0) {
+        zeroPos.push([i, j]);
+      }
     }
   }
-  for (let r = 1; r < rows; r++) {
-    for (let c = 1; c < cols; c++) {
-      if (matrix[r][0] === 0 || matrix[0][c] === 0) matrix[r][c] = 0; // Hinglish: nishan to zero
+
+  for (let i = 0; i < zeroPos.length; i++) {
+    const [row, col] = zeroPos[i];
+
+    for (let r = 0; r < matrix.length; r++) {
+      matrix[r][col] = 0;
+    }
+
+    for (let c = 0; c < matrix[0].length; c++) {
+      matrix[row][c] = 0;
     }
   }
-  if (firstRowZero) for (let c = 0; c < cols; c++) matrix[0][c] = 0;
-  if (firstColZero) for (let r = 0; r < rows; r++) matrix[r][0] = 0;
-}
+};
 \`\`\``,
     },
     {
@@ -80,29 +95,39 @@ function setZeroes(matrix) {
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/spiral-matrix/
-function spiralOrder(matrix) {
-  // Hinglish: step 1 — boundaries lo
-  const out = [];
-  let top = 0, bottom = matrix.length - 1;
-  let left = 0, right = matrix[0].length - 1;
-  while (top <= bottom && left <= right) {
-    for (let c = left; c <= right; c++) out.push(matrix[top][c]); // Hinglish: upar row
+var spiralOrder = function(matrix) {
+  let left = 0;
+  let top = 0;
+  let right = matrix[0].length - 1;
+  let bottom = matrix.length - 1;
+  let size = matrix.length * matrix[0].length;
+  let nums = [];
+
+  while (nums.length < size) {
+    for (let i = left; i <= right && nums.length < size; i++) {
+      nums.push(matrix[top][i]);
+    }
     top++;
-    for (let r = top; r <= bottom; r++) out.push(matrix[r][right]); // Hinglish: right col
+
+    for (let i = top; i <= bottom && nums.length < size; i++) {
+      nums.push(matrix[i][right]);
+    }
     right--;
-    if (top <= bottom) {
-      for (let c = right; c >= left; c--) out.push(matrix[bottom][c]); // Hinglish: neeche row
-      bottom--;
+
+    for (let i = right; i >= left && nums.length < size; i--) {
+      nums.push(matrix[bottom][i]);
     }
-    if (left <= right) {
-      for (let r = bottom; r >= top; r--) out.push(matrix[r][left]); // Hinglish: left col
-      left++;
+    bottom--;
+
+    for (let i = bottom; i >= top && nums.length < size; i--) {
+      nums.push(matrix[i][left]);
     }
+    left++;
   }
-  return out;
-}
+
+  return nums;
+};
 \`\`\``,
     },
     {
@@ -116,18 +141,26 @@ function spiralOrder(matrix) {
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
 \`\`\`js
-// Hinglish: matrix ghoomo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/rotate-image/
-function rotate(matrix) {
-  // Hinglish: step 1 — transpose karo
-  const n = matrix.length;
-  for (let r = 0; r < n; r++) {
-    for (let c = r + 1; c < n; c++) {
-      [matrix[r][c], matrix[c][r]] = [matrix[c][r], matrix[r][c]]; // Hinglish: adla-badli
+var rotate = function(matrix) {
+  // transpose
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = i; j < matrix.length; j++) {
+      let temp = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = temp;
     }
   }
-  for (const row of matrix) row.reverse(); // Hinglish: har row ulta
-}
+
+  // reverse elements and move inwards
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix.length / 2; j++) {
+      let temp = matrix[i][j];
+      matrix[i][j] = matrix[i][matrix.length - 1 - j];
+      matrix[i][matrix.length - 1 - j] = temp;
+    }
+  }
+};
 \`\`\``,
     },
     {
@@ -141,33 +174,41 @@ function rotate(matrix) {
 [Word Search](https://leetcode.com/problems/word-search/)
 
 \`\`\`js
-// Hinglish: choose-explore-unchoose — ek-ek step comment dekho
 // Backtracking — grid DFS
 // LC: https://leetcode.com/problems/word-search/
-function exist(board, word) {
-  // Hinglish: step 1 — base case check karo
-  const rows = board.length, cols = board[0].length;
-  const dfs = (r, c, i) => {
-    if (i === word.length) return true;
-    if (r < 0 || c < 0 || r >= rows || c >= cols) return false;
-    if (board[r][c] !== word[i]) return false;
-    const ch = board[r][c];
-    board[r][c] = "#";
-    const ok =
-      dfs(r + 1, c, i + 1) ||
-      dfs(r - 1, c, i + 1) ||
-      dfs(r, c + 1, i + 1) ||
-      dfs(r, c - 1, i + 1);
-    board[r][c] = ch;
-    return ok;
-  };
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (dfs(r, c, 0)) return true;
+var exist = function(board, word) {
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[0].length; c++) {
+      if (board[r][c] === word[0] && dfs(r, c, 0)) return true;
     }
   }
   return false;
-}
+
+  function dfs(r, c, i) {
+    if (word.length === i) return true;
+    if (
+      r >= board.length ||
+      r < 0 ||
+      c < 0 ||
+      c >= board[0].length ||
+      board[r][c] !== word[i]
+    )
+      return false;
+
+    board[r][c] = "#";
+
+    if (
+      dfs(r + 1, c, i + 1) ||
+      dfs(r - 1, c, i + 1) ||
+      dfs(r, c + 1, i + 1) ||
+      dfs(r, c - 1, i + 1)
+    )
+      return true;
+
+    board[r][c] = word[i];
+    return false;
+  }
+};
 \`\`\``,
     },
     {
@@ -184,31 +225,47 @@ function exist(board, word) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: gates se failao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/walls-and-gates/ (Premium)
-function wallsAndGates(rooms) {
-  // Hinglish: step 1 — rows/cols lo
-  const rows = rooms.length;
-  if (!rows) return;
-  const cols = rooms[0].length;
-  const q = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (rooms[r][c] === 0) q.push([r, c]); // Hinglish: gate queue me daalo
+var wallsAndGates = function(rooms) {
+  const WALL = -1;
+  const GATE = 0;
+  const EMPTY = 2147483647;
+
+  let queue = [];
+  let dir = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+
+  for (let i = 0; i < rooms.length; i++) {
+    for (let j = 0; j < rooms[0].length; j++) {
+      if (rooms[i][j] === GATE) {
+        queue.push([i, j]);
+      }
     }
   }
-  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-  while (q.length) {
-    const [r, c] = q.shift();
-    for (const [dr, dc] of dirs) {
-      const nr = r + dr, nc = c + dc;
-      if (nr < 0 || nc < 0 || nr >= rows || nc >= cols) continue;
-      if (rooms[nr][nc] !== 2147483647) continue; // Hinglish: khaali kamra hi bharo
-      rooms[nr][nc] = rooms[r][c] + 1; // Hinglish: ek kadam aage
-      q.push([nr, nc]);
+
+  while (queue.length) {
+    let current = queue.shift();
+    let currentX = current[0];
+    let currentY = current[1];
+
+    for (let d of dir) {
+      let nextX = currentX + d[0];
+      let nextY = currentY + d[1];
+
+      if (
+        nextX < 0 ||
+        nextX > rooms.length - 1 ||
+        nextY < 0 ||
+        nextY > rooms[0].length - 1 ||
+        rooms[nextX][nextY] !== EMPTY
+      ) {
+        continue;
+      }
+
+      rooms[nextX][nextY] = rooms[currentX][currentY] + 1;
+      queue.push([nextX, nextY]);
     }
   }
-}
+};
 \`\`\``,
     },
     {
@@ -222,28 +279,27 @@ function wallsAndGates(rooms) {
 [Diagonal Traverse](https://leetcode.com/problems/diagonal-traverse/)
 
 \`\`\`js
-// Hinglish: diagonal groups banao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/diagonal-traverse/
-function findDiagonalOrder(mat) {
-  // Hinglish: step 1 — groups banao
-  const rows = mat.length, cols = mat[0].length;
-  const groups = new Map();
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const k = r + c; // Hinglish: same jod = same diagonal
-      if (!groups.has(k)) groups.set(k, []);
-      groups.get(k).push(mat[r][c]);
+var findDiagonalOrder = function(mat) {
+  if (mat.length === 1) return mat.flat();
+
+  let row = mat.length;
+  let col = mat[0].length;
+
+  let res = Array.from(Array(row + col - 1), () => new Array().fill([]));
+
+  for (let i = 0; i < row; i++) {
+    for (let j = 0; j < col; j++) {
+      if ((i + j) % 2 === 0) {
+        res[i + j].unshift(mat[i][j]);
+      } else {
+        res[i + j].push(mat[i][j]);
+      }
     }
   }
-  const out = [];
-  const keys = [...groups.keys()].sort((a, b) => a - b);
-  for (const k of keys) {
-    const arr = groups.get(k);
-    if (k % 2 === 0) arr.reverse(); // Hinglish: alternate ulta
-    for (const x of arr) out.push(x);
-  }
-  return out;
-}
+
+  return res.flat();
+};
 \`\`\``,
     },
     {
@@ -257,39 +313,63 @@ function findDiagonalOrder(mat) {
 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph DFS — from oceans inland
 // LC: https://leetcode.com/problems/pacific-atlantic-water-flow/
-function pacificAtlantic(heights) {
-  // Hinglish: step 1 — base case check karo
-  const rows = heights.length, cols = heights[0].length;
-  const pac = Array.from({ length: rows }, () => Array(cols).fill(false));
-  const atl = Array.from({ length: rows }, () => Array(cols).fill(false));
-  const dfs = (r, c, seen, prev) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || seen[r][c]) return;
-    if (heights[r][c] < prev) return;
-    seen[r][c] = true;
-    dfs(r + 1, c, seen, heights[r][c]);
-    dfs(r - 1, c, seen, heights[r][c]);
-    dfs(r, c + 1, seen, heights[r][c]);
-    dfs(r, c - 1, seen, heights[r][c]);
-  };
-  for (let r = 0; r < rows; r++) {
-    dfs(r, 0, pac, 0);
-    dfs(r, cols - 1, atl, 0);
-  }
-  for (let c = 0; c < cols; c++) {
-    dfs(0, c, pac, 0);
-    dfs(rows - 1, c, atl, 0);
-  }
-  const out = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (pac[r][c] && atl[r][c]) out.push([r, c]);
+var pacificAtlantic = function(heights) {
+  let m = heights.length;
+  let n = heights[0].length;
+
+  let pacificQueue = [];
+  let atlanticQueue = [];
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (i === 0 || j === 0) {
+        pacificQueue.push([i, j]);
+      }
+      if (i === m - 1 || j === n - 1) {
+        atlanticQueue.push([i, j]);
+      }
     }
   }
-  return out;
-}
+
+  function bfs(queue) {
+    const isValid = (x, y) => x >= 0 && y >= 0 && x < m && y < n;
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const visited = Array.from(Array(m), () => new Array(n).fill(false));
+
+    while (queue.length) {
+      const [x, y] = queue.shift();
+      visited[x][y] = true;
+
+      for (let dir of directions) {
+        let nextX = x + dir[0];
+        let nextY = y + dir[1];
+        if (!isValid(nextX, nextY) || visited[nextX][nextY]) continue;
+        if (heights[nextX][nextY] >= heights[x][y]) {
+          queue.push([nextX, nextY]);
+        }
+      }
+    }
+
+    return visited;
+  }
+
+  const pacific = bfs(pacificQueue);
+  const atlantic = bfs(atlanticQueue);
+
+  const result = [];
+
+  for (let x = 0; x < m; x++) {
+    for (let y = 0; y < n; y++) {
+      if (pacific[x][y] && atlantic[x][y]) {
+        result.push([x, y]);
+      }
+    }
+  }
+
+  return result;
+};
 \`\`\``,
     },
     {
@@ -303,28 +383,43 @@ function pacificAtlantic(heights) {
 [Number of Islands](https://leetcode.com/problems/number-of-islands/)
 
 \`\`\`js
-// Hinglish: DFS/BFS traversal — ek-ek step comment dekho
 // Graph DFS — flood fill
 // LC: https://leetcode.com/problems/number-of-islands/
-function numIslands(grid) {
-  // Hinglish: step 1 — base case check karo
-  const rows = grid.length, cols = grid[0].length;
-  const dfs = (r, c) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== "1") return;
-    grid[r][c] = "0";
-    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
-  };
-  let n = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === "1") {
-        n++;
-        dfs(r, c);
+var numIslands = function(grid) {
+  let count = 0;
+
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === "1") {
+        count = count + dfs(grid, i, j);
       }
     }
   }
-  return n;
-}
+
+  function dfs(grid, row, col) {
+    // base cases
+    if (
+      row < 0 ||
+      row > grid.length - 1 ||
+      col < 0 ||
+      col > grid[row].length - 1 ||
+      grid[row][col] === "0"
+    ) {
+      return;
+    }
+
+    grid[row][col] = "0";
+
+    dfs(grid, row + 1, col);
+    dfs(grid, row - 1, col);
+    dfs(grid, row, col + 1);
+    dfs(grid, row, col - 1);
+
+    return 1;
+  }
+
+  return count;
+};
 \`\`\``,
     },
     {
@@ -341,27 +436,39 @@ function numIslands(grid) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: ghode se BFS — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/minimum-knight-moves/ (Premium)
-function minKnightMoves(x, y) {
-  // Hinglish: step 1 — positive quadrant me lao
-  x = Math.abs(x); y = Math.abs(y);
-  const moves = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
-  const q = [[0, 0, 0]];
-  const seen = new Set(["0,0"]);
-  while (q.length) {
-    const [r, c, d] = q.shift();
-    if (r === x && c === y) return d; // Hinglish: pahuch gaye
-    for (const [dr, dc] of moves) {
-      const nr = r + dr, nc = c + dc;
-      const key = nr + "," + nc;
-      if (nr < -2 || nc < -2 || seen.has(key)) continue; // Hinglish: seema me raho
-      seen.add(key);
-      q.push([nr, nc, d + 1]);
+var minKnightMoves = function(x, y) {
+  let dir = [
+    [-2, -1], [-1, -2], [1, -2], [2, -1], [2, 1], [1, 2], [-1, 2], [-2, 1],
+  ];
+
+  let seen = new Set();
+  let queue = [[0, 0]];
+  let steps = 0;
+
+  while (queue.length) {
+    let next = [];
+    while (queue.length) {
+      let current = queue.shift();
+      let currentX = current[0];
+      let currentY = current[1];
+
+      if (currentX === x && currentY === y) return steps;
+
+      for (let d of dir) {
+        let nextX = currentX + d[0];
+        let nextY = currentY + d[1];
+
+        if (!seen.has(nextX + "," + nextY)) {
+          seen.add(nextX + "," + nextY);
+          next.push([nextX, nextY]);
+        }
+      }
     }
+    steps++;
+    queue = next;
   }
-  return -1;
-}
+};
 \`\`\``,
     },
     {
@@ -375,27 +482,40 @@ function minKnightMoves(x, y) {
 [Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
 
 \`\`\`js
-// Hinglish: 8 disha BFS — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/shortest-path-in-binary-matrix/
-function shortestPathBinaryMatrix(grid) {
-  // Hinglish: step 1 — start/end check karo
-  const n = grid.length;
-  if (grid[0][0] === 1 || grid[n - 1][n - 1] === 1) return -1;
-  const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-  const q = [[0, 0, 1]];
-  grid[0][0] = 1; // Hinglish: dekha mark karo
-  while (q.length) {
-    const [r, c, d] = q.shift();
-    if (r === n - 1 && c === n - 1) return d; // Hinglish: pahuch gaye
-    for (const [dr, dc] of dirs) {
-      const nr = r + dr, nc = c + dc;
-      if (nr < 0 || nc < 0 || nr >= n || nc >= n || grid[nr][nc] !== 0) continue;
-      grid[nr][nc] = 1;
-      q.push([nr, nc, d + 1]);
+var shortestPathBinaryMatrix = function(grid) {
+  if (grid[0][0] === 1) return -1;
+
+  let dirs = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+  let queue = [[0, 0, 1]];
+  grid[0][0] = 1;
+
+  while (queue.length) {
+    let [currX, currY, count] = queue.shift();
+
+    if (currX === grid.length - 1 && currY === grid[0].length - 1) {
+      return count;
+    }
+
+    for (let [x, y] of dirs) {
+      let [nextX, nextY] = [currX + x, currY + y];
+
+      if (
+        nextX < 0 ||
+        nextX > grid.length - 1 ||
+        nextY < 0 ||
+        nextY > grid[0].length - 1 ||
+        grid[nextX][nextY] === 1
+      )
+        continue;
+
+      queue.push([nextX, nextY, count + 1]);
+      grid[nextX][nextY] = 1;
     }
   }
+
   return -1;
-}
+};
 \`\`\``,
     },
     {
@@ -409,30 +529,47 @@ function shortestPathBinaryMatrix(grid) {
 [0 1 Matrix](https://leetcode.com/problems/01-matrix/)
 
 \`\`\`js
-// Hinglish: zero se failao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/01-matrix/
-function updateMatrix(mat) {
-  // Hinglish: step 1 — zero queue me daalo
-  const rows = mat.length, cols = mat[0].length;
-  const q = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (mat[r][c] === 0) q.push([r, c]);
-      else mat[r][c] = -1; // Hinglish: abhi pata nahi
+/**
+ * @param {number[][]} mat
+ * @return {number[][]}
+ */
+var updateMatrix = function(mat) {
+    let dirs = [[0,-1],[0,1],[1,0],[-1,0]];
+    let queue = [];
+    
+    for(let i = 0; i < mat.length; i++){
+        for(let j = 0; j < mat[0].length; j++){
+            if(mat[i][j] === 0){
+                queue.push([i, j, 0]);
+            } else {
+                mat[i][j] = Infinity;
+            }
+        }
     }
-  }
-  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-  while (q.length) {
-    const [r, c] = q.shift();
-    for (const [dr, dc] of dirs) {
-      const nr = r + dr, nc = c + dc;
-      if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || mat[nr][nc] !== -1) continue;
-      mat[nr][nc] = mat[r][c] + 1; // Hinglish: ek kadam aage
-      q.push([nr, nc]);
+    
+    //bfs
+    
+    while(queue.length){
+        let [currX, currY, dist] = queue.shift();
+        
+        if(mat[currX][currY] > dist){
+            mat[currX][currY] = dist;
+        }
+        
+        for(let [x, y] of dirs){
+            let [nextX, nextY, nextVal] = [currX+x, currY+y, dist+1];
+            
+            if(nextX < 0 || nextX > mat.length-1 || nextY < 0 || nextY > mat[0].length-1) continue;
+            
+            if(mat[nextX][nextY] === Infinity){
+                mat[nextX][nextY] = nextVal;
+                queue.push([nextX, nextY, nextVal])
+            }
+        }
     }
-  }
-  return mat;
-}
+    
+    return mat;
+};
 \`\`\``,
     },
     {
@@ -446,41 +583,56 @@ function updateMatrix(mat) {
 [Word Search II](https://leetcode.com/problems/word-search-ii/)
 
 \`\`\`js
-// Hinglish: trie walk — ek-ek step comment dekho
-// Trie + DFS on the grid
-// LC: https://leetcode.com/problems/word-search-ii/
-function findWords(board, words) {
-  // Hinglish: step 1 — base case check karo
-  const root = { kids: Object.create(null), word: null };
-  for (const w of words) {
-    let cur = root;
-    for (const ch of w) {
-      if (!cur.kids[ch]) cur.kids[ch] = { kids: Object.create(null), word: null };
-      cur = cur.kids[ch];
+/**
+ * @param {character[][]} board
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var findWords = function(board, words) {
+    let result = [];
+    let root = buildTrie(words);
+    
+    for(let i = 0; i < board.length; i++){
+        for(let j = 0; j < board[0].length; j++){
+            dfs(root, i, j, result, board)
+        }
     }
-    cur.word = w;
-  }
-  const rows = board.length, cols = board[0].length, ans = [];
-  const dfs = (r, c, node) => {
-    const ch = board[r][c];
-    const next = node.kids[ch];
-    if (!next) return;
-    if (next.word) {
-      ans.push(next.word);
-      next.word = null;
+    
+    return result;
+};
+
+function dfs(node, i, j, result, board){
+    if(node.word){
+        result.push(node.word);
+        node.word = null;
     }
-    board[r][c] = "#";
-    for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nr = r + dr, nc = c + dc;
-      if (nr < 0 || nc < 0 || nr >= rows || nc >= cols || board[nr][nc] === "#") continue;
-      dfs(nr, nc, next);
+    
+    if(i < 0 || j < 0 || i > board.length-1 || j > board[0].length-1) return;
+    if(!node[board[i][j]]) return;
+    
+    let c = board[i][j];
+    board[i][j] = '#';
+    dfs(node[c], i+1, j, result, board);
+    dfs(node[c], i-1, j, result, board);
+    dfs(node[c], i, j+1, result, board);
+    dfs(node[c], i, j-1, result, board);
+    board[i][j] = c;
+}
+
+function buildTrie(words){
+    let root = {};
+    
+    for(let word of words){
+        let currNode = root;
+        
+        for(let char of word){
+            if(!currNode[char]) currNode[char] = {};
+            currNode = currNode[char];
+        }
+        currNode.word = word;
     }
-    board[r][c] = ch;
-  };
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) dfs(r, c, root);
-  }
-  return ans;
+    
+    return root;
 }
 \`\`\``,
     },

@@ -56,20 +56,20 @@ var mergeTwoLists = function(list1, list2) {
 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — reverse
 // LC: https://leetcode.com/problems/reverse-linked-list/
-function reverseList(head) {
-  // Hinglish: step 1 — base case check karo
-  let prev = null, curr = head;
-  while (curr) {
-    const next = curr.next;
-    curr.next = prev;
-    prev = curr;
-    curr = next;
+var reverseList = function(head) {
+  let prev = null;
+
+  while (head) {
+    let nextNode = head.next;
+    head.next = prev;
+    prev = head;
+    head = nextNode;
   }
+
   return prev;
-}
+};
 \`\`\``,
     },
     {
@@ -83,14 +83,18 @@ function reverseList(head) {
 [Middle of Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/middle-of-the-linked-list/
-function middleNode(head) {
-  // Hinglish: fast double
-  let slow=head, fast=head;
-  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; } // Hinglish: slow 1, fast 2
+var middleNode = function(head) {
+  let slow = head;
+  let fast = head;
+
+  while (fast && fast.next) {
+    fast = fast.next.next;
+    slow = slow.next;
+  }
+
   return slow;
-}
+};
 \`\`\``,
     },
     {
@@ -104,19 +108,41 @@ function middleNode(head) {
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/palindrome-linked-list/
-function isPalindrome(head) {
-  // Hinglish: middle
-  let slow=head, fast=head;
-  while (fast && fast.next) { slow=slow.next; fast=fast.next.next; }
-  // Hinglish: reverse second half
-  let prev=null, cur=slow;
-  while (cur) { const nxt=cur.next; cur.next=prev; prev=cur; cur=nxt; }
-  // Hinglish: compare
-  let p1=head, p2=prev;
-  while (p2) { if (p1.val!==p2.val) return false; p1=p1.next; p2=p2.next; }
+var isPalindrome = function(head) {
+  let fast = head;
+  let slow = head;
+
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+
+  fast = head;
+  slow = reverse(slow);
+
+  while (slow) {
+    if (fast.val !== slow.val) {
+      return false;
+    }
+    slow = slow.next;
+    fast = fast.next;
+  }
+
   return true;
+};
+
+function reverse(root) {
+  let prev = null;
+
+  while (root) {
+    let ref = root.next;
+    root.next = prev;
+    prev = root;
+    root = ref;
+  }
+
+  return prev;
 }
 \`\`\``,
     },
@@ -131,18 +157,25 @@ function isPalindrome(head) {
 [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
 
 \`\`\`js
-// Hinglish: race lagao — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/linked-list-cycle/
-function hasCycle(head) {
-  // Hinglish: step 1 — dono head se
-  let slow = head, fast = head;
-  while (fast && fast.next) {
-    slow = slow.next; // Hinglish: ek kadam
-    fast = fast.next.next; // Hinglish: do kadam
-    if (slow === fast) return true; // Hinglish: mile to cycle
+var hasCycle = function(head) {
+  if (!head) return false;
+
+  let fast = head;
+  let slow = head;
+
+  while (fast) {
+    if (!fast.next) {
+      return false;
+    } else {
+      fast = fast.next.next;
+      slow = slow.next;
+    }
+    if (fast === slow) return true;
   }
+
   return false;
-}
+};
 \`\`\``,
     },
     {
@@ -156,21 +189,27 @@ function hasCycle(head) {
 [Remove Nth Node From End Of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
 
 \`\`\`js
-// Hinglish: pointer rewiring — ek-ek step comment dekho
 // Linked list — gap of n
 // LC: https://leetcode.com/problems/remove-nth-node-from-end-of-list/
-function removeNthFromEnd(head, n) {
-  // Hinglish: step 1 — base case check karo
-  const dummy = { val: 0, next: head };
-  let front = dummy, back = dummy;
-  for (let i = 0; i < n + 1; i++) front = front.next;
-  while (front) {
-    front = front.next;
-    back = back.next;
+var removeNthFromEnd = function(head, n) {
+  let dummy = new ListNode(0);
+  dummy.next = head;
+  let left = dummy;
+  let right = head;
+
+  while (right && n > 0) {
+    right = right.next;
+    n -= 1;
   }
-  back.next = back.next.next;
+
+  while (right) {
+    left = left.next;
+    right = right.next;
+  }
+
+  left.next = left.next.next;
   return dummy.next;
-}
+};
 \`\`\``,
     },
     {
@@ -184,21 +223,26 @@ function removeNthFromEnd(head, n) {
 [Swap Nodes In Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/)
 
 \`\`\`js
-// Hinglish: joda palto — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/swap-nodes-in-pairs/
-function swapPairs(head) {
-  // Hinglish: step 1 — dummy lagao
-  const dummy = { val: 0, next: head };
+var swapPairs = function(head) {
+  let dummy = new ListNode(-1);
+  dummy.next = head;
   let prev = dummy;
-  while (prev.next && prev.next.next) {
-    const a = prev.next, b = a.next; // Hinglish: joda pakdo
-    a.next = b.next;
-    b.next = a;
-    prev.next = b; // Hinglish: jod do
-    prev = a;
+
+  while (head && head.next) {
+    let p1 = head;
+    let p2 = head.next;
+
+    prev.next = p2;
+    p1.next = p2.next;
+    p2.next = p1;
+
+    prev = p1;
+    head = p1.next;
   }
+
   return dummy.next;
-}
+};
 \`\`\``,
     },
     {
@@ -212,23 +256,38 @@ function swapPairs(head) {
 [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/)
 
 \`\`\`js
-// Hinglish: jodo carry rakho — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/add-two-numbers/
-function addTwoNumbers(l1, l2) {
-  // Hinglish: step 1 — dummy lo
-  const dummy = { val: 0, next: null };
-  let tail = dummy, carry = 0;
-  while (l1 || l2 || carry) {
-    const a = l1 ? l1.val : 0, b = l2 ? l2.val : 0; // Hinglish: na ho to zero
-    const s = a + b + carry;
-    tail.next = { val: s % 10, next: null }; // Hinglish: digit jodo
-    carry = Math.floor(s / 10); // Hinglish: carry bachao
-    tail = tail.next;
-    if (l1) l1 = l1.next;
-    if (l2) l2 = l2.next;
+var addTwoNumbers = function(l1, l2) {
+  let List = new ListNode(0);
+  let head = List;
+
+  let sum = 0;
+  let carry = 0;
+
+  while (l1 !== null || l2 !== null || sum !== 0) {
+    if (l1 !== null) {
+      sum += l1.val;
+      l1 = l1.next;
+    }
+
+    if (l2 !== null) {
+      sum += l2.val;
+      l2 = l2.next;
+    }
+
+    if (sum >= 10) {
+      carry = 1;
+      sum = sum - 10;
+    }
+
+    head.next = new ListNode(sum);
+    head = head.next;
+    sum = carry;
+    carry = 0;
   }
-  return dummy.next;
-}
+
+  return List.next;
+};
 \`\`\``,
     },
     {
@@ -242,22 +301,32 @@ function addTwoNumbers(l1, l2) {
 [Rotate List](https://leetcode.com/problems/rotate-list/)
 
 \`\`\`js
-// Hinglish: gol bana ke todo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/rotate-list/
-function rotateRight(head, k) {
-  // Hinglish: step 1 — lambai nikalo
-  if (!head) return head;
-  let n = 1, tail = head;
-  while (tail.next) { tail = tail.next; n++; }
-  k = k % n; // Hinglish: extra ghoomna hatao
-  if (k === 0) return head;
-  tail.next = head; // Hinglish: gol banao
-  let steps = n - k;
-  while (steps-- > 0) tail = tail.next; // Hinglish: nayi tail tak chalo
-  const out = tail.next;
-  tail.next = null; // Hinglish: todo
-  return out;
-}
+var rotateRight = function(head, k) {
+  if (head === null) return head;
+
+  let len = 1;
+  let tail = head;
+
+  while (tail.next !== null) {
+    tail = tail.next;
+    len++;
+  }
+
+  tail.next = head;
+
+  let count = len - (k % len);
+
+  while (count > 0) {
+    head = head.next;
+    tail = tail.next;
+    count--;
+  }
+
+  tail.next = null;
+
+  return head;
+};
 \`\`\``,
     },
     {
@@ -271,25 +340,40 @@ function rotateRight(head, k) {
 [Reorder List](https://leetcode.com/problems/reorder-list/)
 
 \`\`\`js
-// Hinglish: todo-palto-jodo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/reorder-list/
-function reorderList(head) {
-  // Hinglish: step 1 — middle nikalo
-  if (!head) return;
-  let slow = head, fast = head;
-  while (fast.next && fast.next.next) { slow = slow.next; fast = fast.next.next; }
-  // Hinglish: second half reverse karo
-  let prev = null, cur = slow.next;
-  slow.next = null;
-  while (cur) { const nxt = cur.next; cur.next = prev; prev = cur; cur = nxt; }
-  // Hinglish: alternate merge karo
-  let a = head, b = prev;
-  while (b) {
-    const ta = a.next, tb = b.next;
-    a.next = b; b.next = ta;
-    a = ta; b = tb;
+var reorderList = function(head) {
+  // find mid
+  let slow = head;
+  let fast = head;
+
+  while (fast.next && fast.next.next) {
+    slow = slow.next;
+    fast = fast.next.next;
   }
-}
+
+  // break linked list
+  let curr = slow.next;
+  slow.next = null;
+
+  // reverse second linked list
+  let prev = null;
+  while (curr) {
+    let temp = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = temp;
+  }
+
+  // combine lists
+  let h1 = head;
+  let h2 = prev;
+  while (h2) {
+    let temp = h1.next;
+    h1.next = h2;
+    h1 = h2;
+    h2 = temp;
+  }
+};
 \`\`\``,
     },
     {
@@ -303,20 +387,33 @@ function reorderList(head) {
 [Remove Duplicates from Unsorted Linked List](https://leetcode.com/problems/remove-duplicates-from-an-unsorted-linked-list/)
 
 \`\`\`js
-// Hinglish: dekha to skip karo — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/remove-duplicates-from-an-unsorted-linked-list/
-function removeDuplicatesUnsorted(head) {
-  // Hinglish: step 1 — dummy + set lo
-  const dummy = { val: 0, next: head };
-  const seen = new Set();
-  let prev = dummy, cur = head;
-  while (cur) {
-    if (seen.has(cur.val)) prev.next = cur.next; // Hinglish: dobara dikha to hatao
-    else { seen.add(cur.val); prev = cur; } // Hinglish: pehli baar to rakho
-    cur = cur.next;
+var deleteDuplicatesUnsorted = function(head) {
+  let clone = head;
+  let freqMap = {};
+
+  while (clone !== null) {
+    if (!freqMap[clone.val]) {
+      freqMap[clone.val] = 1;
+    } else {
+      freqMap[clone.val]++;
+    }
+    clone = clone.next;
   }
-  return dummy.next;
-}
+
+  let prev = new ListNode(-1, head);
+  clone = prev;
+
+  while (clone !== null) {
+    // Check if have next node, and check if next node is a duplicate
+    while (clone.next && freqMap[clone.next.val] > 1) {
+      clone.next = clone.next.next;
+    }
+    clone = clone.next;
+  }
+
+  return prev.next;
+};
 \`\`\``,
     },
     {
@@ -330,50 +427,42 @@ function removeDuplicatesUnsorted(head) {
 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
 
 \`\`\`js
-// Hinglish: heap push/pop — ek-ek step comment dekho
-// Heap — k-way merge
 // LC: https://leetcode.com/problems/merge-k-sorted-lists/
-function mergeKLists(lists) {
-  const h = [];
-  const less = (a, b) => a.val < b.val;
-  for (const node of lists) if (node) heapPush(h, node, less); // Hinglish: heap me daalo
-  const dummy = { val: 0, next: null };
-  let tail = dummy;
-  while (h.length) {
-    const node = heapPop(h, less); // Hinglish: sabse chhota nikala
-    tail.next = node;
-    tail = node;
-    if (node.next) heapPush(h, node.next, less); // Hinglish: heap me daalo
-  }
-  return dummy.next;
-}
+var mergeKLists = function(lists) {
+  while (lists.length > 1) {
+    let list1 = lists.shift();
+    let list2 = lists.shift();
 
-// Heap helpers — har solution ke saath (min-heap default)
-// Hinglish: push karke upar bubble, pop karke neeche bubble
-function heapPush(h, val, less = (a, b) => a < b) {
-  h.push(val);
-  let i = h.length - 1;
-  while (i > 0) {
-    const p = (i - 1) >> 1;
-    if (!less(h[i], h[p])) break;
-    [h[i], h[p]] = [h[p], h[i]];
-    i = p;
+    let merged = mergeLists(list1, list2);
+
+    lists.push(merged);
   }
-}
-function heapPop(h, less = (a, b) => a < b) {
-  const top = h[0], last = h.pop();
-  if (!h.length) return top;
-  h[0] = last;
-  let i = 0;
-  while (true) {
-    let m = i, l = i * 2 + 1, r = l + 1;
-    if (l < h.length && less(h[l], h[m])) m = l;
-    if (r < h.length && less(h[r], h[m])) m = r;
-    if (m === i) break;
-    [h[i], h[m]] = [h[m], h[i]];
-    i = m;
+
+  return lists[0] || null;
+};
+
+function mergeLists(list1, list2) {
+  let dummy = new ListNode(0);
+  let head = dummy;
+
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      dummy.next = list1;
+      list1 = list1.next;
+    } else {
+      dummy.next = list2;
+      list2 = list2.next;
+    }
+    dummy = dummy.next;
   }
-  return top;
+
+  if (list1 === null) {
+    dummy.next = list2;
+  } else {
+    dummy.next = list1;
+  }
+
+  return head.next;
 }
 \`\`\``,
     },
