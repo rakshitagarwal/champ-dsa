@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Play } from "lucide-react";
 import type { SolutionEntry, SolutionGroup } from "@/data/solutions/types";
 import { NoteDocumentBody } from "@/components/notes/note-document-body";
 import { parseNoteSegments } from "@/lib/notes/parse-markdown";
@@ -38,6 +39,18 @@ function SolutionCard({ entry }: { entry: SolutionEntry }) {
           <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
             Premium
           </span>
+        ) : null}
+        {entry.solutionUrl ? (
+          <a
+            href={entry.solutionUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Watch video solution"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/20 dark:text-red-400"
+          >
+            <Play className="h-3.5 w-3.5" />
+            Solution
+          </a>
         ) : null}
       </div>
       <div className="note-document mt-3">

@@ -14,7 +14,7 @@ const SECTIONS = [
   {
     href: "/solutions",
     title: "Solutions",
-    description: "383 LeetCode solutions in JavaScript with comments.",
+    description: "161 LeetCode solutions in JavaScript with comments.",
   },
   {
     href: "/notes",

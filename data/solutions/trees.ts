@@ -5,154 +5,217 @@ export const TREES_SOLUTIONS: SolutionGroup = {
   title: "Trees",
   subs: [
     {
-      title: "DFS / Recursion",
+      title: "Questions",
       topics: [
     {
-      id: 104,
+      id: 0,
+      lcSlug: "same-tree",
+      title: "Same Tree",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=b3Gt9UZ_Ufw&ab_channel=AlgoJS",
+      body: `Dono trees ka structure aur value same hai kya? Dono null to true, ek null to false.
+
+[Same Tree](https://leetcode.com/problems/same-tree/)
+
+\`\`\`js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/same-tree/
+function isSameTree(p, q) {
+  // Hinglish: dono null to same
+  if (!p && !q) return true;
+  if (!p || !q) return false;
+  if (p.val!==q.val) return false; // Hinglish: value alag to false
+  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Hinglish: dono side check
+}
+\`\`\``,
+    },
+    {
+      id: 1,
       lcSlug: "maximum-depth-of-binary-tree",
       title: "Maximum Depth of Binary Tree",
       diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=vT2ySdkTn0k&ab_channel=AlgoJS",
       body: `Depth is 1 plus the deeper child. Empty tree is 0.
 
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 \`\`\`js
-// Post-order DFS — depth = 1 + max depth of subtrees
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Tree DFS
 // LC: https://leetcode.com/problems/maximum-depth-of-binary-tree/
 function maxDepth(root) {
-  if (!root) return 0; // Empty tree has depth 0
-  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right)); // Count edges path through root
+  // Hinglish: step 1 — base case check karo
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
 }
 \`\`\``,
     },
     {
-      id: 100,
-      lcSlug: "same-tree",
-      title: "Same Tree",
+      id: 2,
+      lcSlug: "minimum-depth-of-binary-tree",
+      title: "Minimum Depth of Binary Tree",
       diff: "Easy",
-      body: `Same tree iff both nodes are null, or both non-null with equal values and matching subtrees.
+    solutionUrl: "https://www.youtube.com/watch?v=hmvao4o22-w&t=160s&ab_channel=AlgoJS",
+      body: `Leaf tak sabse chhota rasta — ek bachcha missing ho to doosre se jao, min mat lo blindly.
 
-[Same Tree](https://leetcode.com/problems/same-tree/)
+[Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/)
 
 \`\`\`js
-// Structural DFS compare — values and shape must match
-// LC: https://leetcode.com/problems/same-tree/
-function isSameTree(p, q) {
-  if (!p && !q) return true; // Both absent — match
-  if (!p || !q) return false; // One missing — mismatch
-  if (p.val!==q.val) return false; // Value mismatch at this node
-  return isSameTree(p.left,q.left) && isSameTree(p.right,q.right); // Recurse both subtrees
+// Hinglish: leaf tak chhota rasta — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/minimum-depth-of-binary-tree/
+function minDepth(root) {
+  // Hinglish: step 1 — base case
+  if (!root) return 0;
+  if (!root.left) return 1 + minDepth(root.right); // Hinglish: ek taraf hi hai
+  if (!root.right) return 1 + minDepth(root.left);
+  const l = minDepth(root.left), r = minDepth(root.right);
+  return 1 + (l < r ? l : r); // Hinglish: chhota uthao
 }
 \`\`\``,
     },
     {
-      id: 226,
+      id: 3,
+      lcSlug: "path-sum",
+      title: "Path Sum",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=BKCxvtVxDrQ&ab_channel=AlgoJS",
+      body: `Root se leaf tak sum ghatate jao — leaf pe zero bache to rasta mil gaya.
+
+[Path Sum](https://leetcode.com/problems/path-sum/)
+
+\`\`\`js
+// Hinglish: sum ghatate jao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/path-sum/
+function hasPathSum(root, targetSum) {
+  // Hinglish: step 1 — base case
+  if (!root) return false;
+  if (!root.left && !root.right) return root.val === targetSum; // Hinglish: leaf pe check
+  const rest = targetSum - root.val; // Hinglish: bacha hua
+  return hasPathSum(root.left, rest) || hasPathSum(root.right, rest);
+}
+\`\`\``,
+    },
+    {
+      id: 4,
+      lcSlug: "binary-tree-paths",
+      title: "Binary Tree Paths",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=J8ZJfz8CqRo&t=184s&ab_channel=AlgoJS",
+      body: `Root se leaf tak rasta string me jodte jao — leaf pe pakdo, wapas aao.
+
+[Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/)
+
+\`\`\`js
+// Hinglish: rasta likhte jao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/binary-tree-paths/
+function binaryTreePaths(root) {
+  // Hinglish: step 1 — answer lo
+  const out = [];
+  const dfs = (node, path) => {
+    if (!node) return;
+    const cur = path === "" ? String(node.val) : path + "->" + node.val; // Hinglish: jodte jao
+    if (!node.left && !node.right) { out.push(cur); return; } // Hinglish: leaf pe pakdo
+    dfs(node.left, cur);
+    dfs(node.right, cur);
+  };
+  dfs(root, "");
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 5,
       lcSlug: "invert-binary-tree",
       title: "Invert Binary Tree",
       diff: "Easy",
-      body: `Swap left and right at every node after recursively inverting both subtrees.
+    solutionUrl: "https://www.youtube.com/watch?v=Wz-5PlBYGhA&ab_channel=AlgoJS",
+      body: `Har node ke left/right swap karo. Recursion se dono subtree invert.
 
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 \`\`\`js
-// Swap children at every node after recursively inverting subtrees
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/invert-binary-tree/
 function invertTree(root) {
+  // Hinglish: null to wapas
   if (!root) return null;
-  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Mirror left/right
+  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Hinglish: swap
   return root;
 }
 \`\`\``,
     },
     {
-      id: 101,
+      id: 6,
+      lcSlug: "lowest-common-ancestor-of-a-binary-search-tree",
+      title: "Lowest Common Ancestor of a BST",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=fehixeGZY9k&ab_channel=AlgoJS",
+      body: `BST property use karo — dono chhote to left, dono bade to right, warna yehi node LCA hai.
+
+[Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+\`\`\`js
+// Hinglish: compare karke disha — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
+function lowestCommonAncestor(root, p, q) {
+  // Hinglish: step 1 — node lo
+  let node = root;
+  while (node) {
+    if (p.val < node.val && q.val < node.val) node = node.left; // Hinglish: dono chhote
+    else if (p.val > node.val && q.val > node.val) node = node.right; // Hinglish: dono bade
+    else return node; // Hinglish: beech me phas gaya = LCA
+  }
+}
+\`\`\``,
+    },
+    {
+      id: 7,
       lcSlug: "symmetric-tree",
       title: "Symmetric Tree",
       diff: "Easy",
-      body: `Symmetric iff left.left mirrors right.right and left.right mirrors right.left.
+    solutionUrl: "https://www.youtube.com/watch?v=L8S1Ij93NY4&ab_channel=AlgoJS",
+      body: `Mirror check karo — left ka left, right ke right se mile to symmetric hai.
 
 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
 
 \`\`\`js
-// Symmetry = left subtree mirrors right — compare mirrored pairs
+// Hinglish: aaina check — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/symmetric-tree/
 function isSymmetric(root) {
+  // Hinglish: step 1 — jodi compare karo
   const same = (a, b) => {
     if (!a && !b) return true;
     if (!a || !b) return false;
     if (a.val !== b.val) return false;
-    return same(a.left, b.right) && same(a.right, b.left); // Cross-child mirror check
+    return same(a.left, b.right) && same(a.right, b.left); // Hinglish: cross compare
   };
-  return same(root, root); // Compare left and right subtrees of root
+  return same(root, root);
 }
 \`\`\``,
     },
     {
-      id: 112,
-      lcSlug: "path-sum",
-      title: "Path Sum",
-      diff: "Easy",
-      body: `Subtract node values along root-to-leaf paths; a leaf with remaining sum zero wins.
-
-[Path Sum](https://leetcode.com/problems/path-sum/)
-
-\`\`\`js
-// Root-to-leaf only — subtract node value as you descend
-// LC: https://leetcode.com/problems/path-sum/
-function hasPathSum(root, targetSum) {
-  if (!root) return false;
-  if (!root.left && !root.right) return root.val === targetSum; // Leaf must consume remaining sum
-  const rest = targetSum - root.val; // Remaining sum for children
-  return hasPathSum(root.left, rest) || hasPathSum(root.right, rest); // Either branch may work
-}
-\`\`\``,
-    },
-    {
-      id: 110,
-      lcSlug: "balanced-binary-tree",
-      title: "Balanced Binary Tree",
-      diff: "Easy",
-      body: `Return height or -1 if unbalanced; any subtree with \`|left - right| > 1\` fails.
-
-[Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/)
-
-\`\`\`js
-// Return height or -1 sentinel if any subtree unbalanced — one post-order pass
-// LC: https://leetcode.com/problems/balanced-binary-tree/
-function isBalanced(root) {
-  const height = (node) => {
-    if (!node) return 0;
-    const l = height(node.left);
-    if (l === -1) return -1; // Bubble up imbalance from left
-    const r = height(node.right);
-    if (r === -1) return -1;
-    if (Math.abs(l - r) > 1) return -1; // Current node violates balance
-    return Math.max(l, r) + 1; // Valid height at this node
-  };
-  return height(root) !== -1;
-}
-\`\`\``,
-    },
-    {
-      id: 543,
+      id: 8,
       lcSlug: "diameter-of-binary-tree",
       title: "Diameter of Binary Tree",
       diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=Q2M9GYs_kuM&t=286s&ab_channel=AlgoJS",
       body: `Longest path (edges) between any two nodes. At each node I take left height + right height, and I return height to my parent.
 
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 \`\`\`js
-// Diameter at node = left height + right height (edges); track global max
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Tree DFS — height down, diameter across
 // LC: https://leetcode.com/problems/diameter-of-binary-tree/
 function diameterOfBinaryTree(root) {
-  let best = 0; // Best diameter seen (in edges)
+  // Hinglish: step 1 — base case check karo
+  let best = 0;
   const height = (node) => {
     if (!node) return 0;
     const L = height(node.left);
     const R = height(node.right);
-    best = Math.max(best, L + R); // Path through this node as bend point
-    return 1 + Math.max(L, R); // Height upward to parent
+    best = Math.max(best, L + R);
+    return 1 + Math.max(L, R);
   };
   height(root);
   return best;
@@ -160,147 +223,220 @@ function diameterOfBinaryTree(root) {
 \`\`\``,
     },
     {
-      id: 124,
-      lcSlug: "binary-tree-maximum-path-sum",
-      title: "Binary Tree Maximum Path Sum",
-      diff: "Hard",
-      body: `A path can bend at a node (left + node + right). I return to my parent only a one-sided gain (node + best child, or 0 if negative).
+      id: 9,
+      lcSlug: "range-sum-of-bst",
+      title: "Range Sum of BST",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=AdX9Gd7GJYs&t=41s&ab_channel=AlgoJS",
+      body: `Range se bahar wala hissa kaato — low se chhota ho to sirf right, high se bada ho to sirf left.
 
-[Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
+[Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/)
 
 \`\`\`js
-// At each node: best bending path vs one-sided gain returned to parent
-// LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
-function maxPathSum(root) {
-  let best = -Infinity;
-  const gain = (node) => {
-    if (!node) return 0;
-    const L = Math.max(0, gain(node.left)); // Ignore negative contributions
-    const R = Math.max(0, gain(node.right));
-    best = Math.max(best, node.val + L + R); // Path that turns at this node
-    return node.val + Math.max(L, R); // Extend only one side upward
-  };
-  gain(root);
-  return best;
+// Hinglish: bekaar hissa kaato — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/range-sum-of-bst/
+function rangeSumBST(root, low, high) {
+  // Hinglish: step 1 — base case
+  if (!root) return 0;
+  if (root.val < low) return rangeSumBST(root.right, low, high); // Hinglish: left bekaar
+  if (root.val > high) return rangeSumBST(root.left, low, high); // Hinglish: right bekaar
+  return root.val + rangeSumBST(root.left, low, high) + rangeSumBST(root.right, low, high);
 }
 \`\`\``,
     },
     {
-      id: 572,
-      lcSlug: "subtree-of-another-tree",
-      title: "Subtree of Another Tree",
+      id: 10,
+      lcSlug: "find-all-the-lonely-nodes",
+      title: "Find All Lonely Nodes",
       diff: "Easy",
-      body: `Is \`t\` a subtree of \`s\`? At each node of \`s\`, check whether the trees match from there.
+    premium: true,
+    solutionUrl: "https://www.youtube.com/watch?v=YATikdLWwsw&ab_channel=AlgoJS",
+      body: `Jis node ka bhai-behen na ho (single child) wo lonely hai — DFS me pakadte jao.
 
-[Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
+[Find All Lonely Nodes](https://leetcode.com/problems/find-all-the-lonely-nodes/)
+
+*Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Try subRoot match at every node — sameTree check at each candidate root
+// Hinglish: akela bachcha pakdo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/find-all-the-lonely-nodes/ (Premium)
+function getLonelyNodes(root) {
+  // Hinglish: step 1 — answer lo
+  const out = [];
+  const dfs = (node) => {
+    if (!node) return;
+    if (node.left && !node.right) out.push(node.left.val); // Hinglish: right nahi to left akela
+    if (node.right && !node.left) out.push(node.right.val); // Hinglish: left nahi to right akela
+    dfs(node.left);
+    dfs(node.right);
+  };
+  dfs(root);
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 11,
+      lcSlug: "subtree-of-another-tree",
+      title: "Subtree of Another Subtree",
+      diff: "Easy",
+    solutionUrl: "https://www.youtube.com/watch?v=amZ7QmuIIII&ab_channel=AlgoJS",
+      body: `\`s\` me \`t\` jaisa subtree hai kya? Har node ko root maan ke sameTree check.
+
+[Subtree of Another Subtree](https://leetcode.com/problems/subtree-of-another-tree/)
+
+\`\`\`js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/subtree-of-another-tree/
 function isSubtree(root, subRoot) {
+  // Hinglish: same tree helper
   const same=(a,b)=>{
     if(!a&&!b) return true;
     if(!a||!b||a.val!==b.val) return false;
     return same(a.left,b.left) && same(a.right,b.right);
   };
   if (!root) return false;
-  if (same(root, subRoot)) return true; // subRoot equals tree rooted here
-  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Search other positions
+  if (same(root, subRoot)) return true; // Hinglish: yahan se match?
+  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Hinglish: left/right me dhoondo
 }
 \`\`\``,
     },
     {
-      id: 617,
-      lcSlug: "merge-two-binary-trees",
-      title: "Merge Two Binary Trees",
-      diff: "Easy",
-      body: `Where both nodes exist, sum their values and merge children; otherwise return the non-null subtree.
-
-[Merge Two Binary Trees](https://leetcode.com/problems/merge-two-binary-trees/)
-
-\`\`\`js
-// Overlay two trees — sum values where both exist, reuse single side otherwise
-// LC: https://leetcode.com/problems/merge-two-binary-trees/
-function mergeTrees(t1, t2) {
-  if (!t1) return t2; // Only t2 subtree remains
-  if (!t2) return t1; // Only t1 subtree remains
-  t1.val += t2.val; // Combine values at overlapping node
-  t1.left = mergeTrees(t1.left, t2.left);
-  t1.right = mergeTrees(t1.right, t2.right);
-  return t1; // Reuse t1 nodes as merged result
-}
-\`\`\``,
-    },
-    {
-      id: 814,
-      lcSlug: "binary-tree-pruning",
-      title: "Binary Tree Pruning",
+      id: 12,
+      lcSlug: "validate-binary-search-tree",
+      title: "Validate Binary Search Tree",
       diff: "Medium",
-      body: `Postorder: keep subtrees that contain 1, prune all-0 subtrees to null.
+    solutionUrl: "https://www.youtube.com/watch?v=i1m-rywzw68&t=8s&ab_channel=AlgoJS",
+      body: `Har node \`(lo, hi)\` seema me hona chahiye. Left me jaao to \`hi = node.val\`, right me jaao to \`lo = node.val\`.
 
-[Binary Tree Pruning](https://leetcode.com/problems/binary-tree-pruning/)
-
-\`\`\`js
-// Post-order prune — drop leaf zeros with no 1 in subtree
-// LC: https://leetcode.com/problems/binary-tree-pruning/
-function pruneTree(root) {
-  if (!root) return null;
-  root.left = pruneTree(root.left); // Prune left first
-  root.right = pruneTree(root.right);
-  if (!root.left && !root.right && root.val === 0) return null; // Remove useless zero leaf
-  return root;
-}
-\`\`\``,
-    },
-    {
-      id: 687,
-      lcSlug: "longest-univalue-path",
-      title: "Longest Univalue Path",
-      diff: "Medium",
-      body: `Longest path with equal values: at each node add left and right chain lengths; track global max.
-
-[Longest Univalue Path](https://leetcode.com/problems/longest-univalue-path/)
+[Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 \`\`\`js
-// Longest path with equal values — bend at node uses left+right arms
-// LC: https://leetcode.com/problems/longest-univalue-path/
-function longestUnivaluePath(root) {
-  let best = 0; // Global max path length (edges)
-  const dfs = (node) => {
-    if (!node) return 0;
-    const l = dfs(node.left), r = dfs(node.right); // Arm lengths from children
-    const left = node.left && node.left.val === node.val ? l + 1 : 0; // Extend left if same value
-    const right = node.right && node.right.val === node.val ? r + 1 : 0;
-    if (left + right > best) best = left + right; // Path through node as hub
-    return Math.max(left, right); // Parent may extend one side only
+// Hinglish: bounds check — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/validate-binary-search-tree/
+function isValidBST(root) {
+  // Hinglish: step 1 — bounds helper lo
+  const check = (node, lo, hi) => {
+    if (!node) return true;
+    if (node.val <= lo || node.val >= hi) return false; // Hinglish: seema tooti
+    return check(node.left, lo, node.val) && check(node.right, node.val, hi);
   };
-  dfs(root);
-  return best;
+  return check(root, -Infinity, Infinity);
 }
 \`\`\``,
     },
-      ],
+    {
+      id: 13,
+      lcSlug: "sum-root-to-leaf-numbers",
+      title: "Sum Root to Leaf Numbers",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=9p32QQ3DuR0&ab_channel=AlgoJS",
+      body: `Number aage badhate jao (x10 + digit) — leaf pe jod do.
+
+[Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/)
+
+\`\`\`js
+// Hinglish: number banate jao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/sum-root-to-leaf-numbers/
+function sumNumbers(root) {
+  // Hinglish: step 1 — total lo
+  let ans = 0;
+  const dfs = (node, cur) => {
+    if (!node) return;
+    cur = cur * 10 + node.val; // Hinglish: digit jodo
+    if (!node.left && !node.right) { ans += cur; return; } // Hinglish: leaf pe jodo
+    dfs(node.left, cur);
+    dfs(node.right, cur);
+  };
+  dfs(root, 0);
+  return ans;
+}
+\`\`\``,
     },
     {
-      title: "BFS / Level Order",
-      topics: [
+      id: 14,
+      lcSlug: "path-sum-ii",
+      title: "Path Sum II",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=_fvGemi7ao8&t=1s&ab_channel=AlgoJS",
+      body: `Path Sum jaisa, par raste bhi chahiye — path array saath le jao, leaf pe copy rakho.
+
+[Path Sum II](https://leetcode.com/problems/path-sum-ii/)
+
+\`\`\`js
+// Hinglish: rasta saath le jao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/path-sum-ii/
+function pathSum(root, targetSum) {
+  // Hinglish: step 1 — answer lo
+  const out = [];
+  const dfs = (node, rest, path) => {
+    if (!node) return;
+    path.push(node.val);
+    if (!node.left && !node.right && rest === node.val) out.push([...path]); // Hinglish: mil gaya
+    else {
+      dfs(node.left, rest - node.val, path);
+      dfs(node.right, rest - node.val, path);
+    }
+    path.pop(); // Hinglish: wapas aao
+  };
+  dfs(root, targetSum, []);
+  return out;
+}
+\`\`\``,
+    },
     {
-      id: 102,
+      id: 15,
+      lcSlug: "binary-tree-right-side-view",
+      title: "Binary Tree Right Side View",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=Uub7EVnp0P8&ab_channel=AlgoJS",
+      body: `Har level ka aakhri node dikhta hai — level order me last wala uthao.
+
+[Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
+
+\`\`\`js
+// Hinglish: har level ka aakhri — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/binary-tree-right-side-view/
+function rightSideView(root) {
+  // Hinglish: step 1 — queue lo
+  if (!root) return [];
+  const out = [];
+  let q = [root];
+  while (q.length) {
+    const n = q.length;
+    const next = [];
+    for (let i = 0; i < n; i++) {
+      const node = q[i];
+      if (i === n - 1) out.push(node.val); // Hinglish: aakhri dikhega
+      if (node.left) next.push(node.left);
+      if (node.right) next.push(node.right);
+    }
+    q = next;
+  }
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 16,
       lcSlug: "binary-tree-level-order-traversal",
       title: "Binary Tree Level Order Traversal",
       diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=oI42cbNqzwA&ab_channel=AlgoJS",
       body: `Queue. Snapshot length. Those nodes are one level.
 
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 \`\`\`js
-// BFS with level size snapshot — each batch is one level
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Tree BFS — by level
 // LC: https://leetcode.com/problems/binary-tree-level-order-traversal/
 function levelOrder(root) {
+  // Hinglish: step 1 — base case check karo
   if (!root) return [];
   const out = [], queue = [root];
   while (queue.length) {
-    const level = [], n = queue.length; // Fix level width before processing
+    const level = [], n = queue.length;
     for (let i = 0; i < n; i++) {
       const node = queue.shift();
       level.push(node.val);
@@ -314,21 +450,292 @@ function levelOrder(root) {
 \`\`\``,
     },
     {
-      id: 103,
+      id: 17,
+      lcSlug: "kth-smallest-element-in-a-bst",
+      title: "Kth Smallest Element in a BST",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=za9OrjpbaCs&ab_channel=AlgoJS",
+      body: `Inorder traversal sorted order deta hai — kth visit hi jawab hai. Iterative stack se karo, poora traverse mat karo.
+
+[Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
+
+\`\`\`js
+// Hinglish: inorder walk — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+function kthSmallest(root, k) {
+  // Hinglish: step 1 — stack lo
+  const st = [];
+  let node = root;
+  while (node || st.length) {
+    while (node) { st.push(node); node = node.left; } // Hinglish: left dabao
+    node = st.pop();
+    if (--k === 0) return node.val; // Hinglish: kth mila
+    node = node.right;
+  }
+}
+\`\`\``,
+    },
+    {
+      id: 18,
+      lcSlug: "lowest-common-ancestor-of-a-binary-tree",
+      title: "Lowest Common Ancestor of a Binary Tree",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=6B6xk-ZqWN8&ab_channel=AlgoJS",
+      body: `If the node is p or q, return it. Recurse. If both sides return something, I am the LCA. If only one side, pass it up.
+
+[Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+\`\`\`js
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Tree DFS — first node that sees both
+// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
+function lowestCommonAncestor(root, p, q) {
+  // Hinglish: step 1 — base case check karo
+  if (!root || root === p || root === q) return root;
+  const L = lowestCommonAncestor(root.left, p, q);
+  const R = lowestCommonAncestor(root.right, p, q);
+  if (L && R) return root;
+  return L || R;
+}
+\`\`\``,
+    },
+    {
+      id: 19,
+      lcSlug: "deepest-leaves-sum",
+      title: "Deepest Leaves Sum",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=Z0q319GTuDE&ab_channel=AlgoJS",
+      body: `Level order me aakhri level ka sum uthao — BFS me har level overwrite karta jao.
+
+[Deepest Leaves Sum](https://leetcode.com/problems/deepest-leaves-sum/)
+
+\`\`\`js
+// Hinglish: aakhri level jodo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/deepest-leaves-sum/
+function deepestLeavesSum(root) {
+  // Hinglish: step 1 — queue lo
+  let q = [root], ans = 0;
+  while (q.length) {
+    const next = [];
+    ans = 0; // Hinglish: naya level, naya sum
+    for (const node of q) {
+      ans += node.val; // Hinglish: is level ka jodo
+      if (node.left) next.push(node.left);
+      if (node.right) next.push(node.right);
+    }
+    q = next;
+  }
+  return ans; // Hinglish: aakhri level ka sum bacha
+}
+\`\`\``,
+    },
+    {
+      id: 20,
+      lcSlug: "balance-a-binary-search-tree",
+      title: "Balance a Binary Search Tree",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=-z4g2qW-d3M&ab_channel=AlgoJS",
+      body: `Inorder nikalo (sorted milega), phir beech se ped banao — Convert Sorted Array wala tareeka.
+
+[Balance a Binary Search Tree](https://leetcode.com/problems/balance-a-binary-search-tree/)
+
+\`\`\`js
+// Hinglish: nikalo phir banao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/balance-a-binary-search-tree/
+function balanceBST(root) {
+  // Hinglish: step 1 — inorder nikalo
+  const vals = [];
+  const inorder = (node) => {
+    if (!node) return;
+    inorder(node.left);
+    vals.push(node.val);
+    inorder(node.right);
+  };
+  inorder(root);
+  const build = (l, r) => {
+    if (l > r) return null;
+    const m = (l + r) >> 1; // Hinglish: beech root banao
+    const node = { val: vals[m], left: null, right: null };
+    node.left = build(l, m - 1);
+    node.right = build(m + 1, r);
+    return node;
+  };
+  return build(0, vals.length - 1);
+}
+\`\`\``,
+    },
+    {
+      id: 21,
+      lcSlug: "find-leaves-of-binary-tree",
+      title: "Find Leaves of a Binary Tree",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=sWRmUgjRFoY&ab_channel=AlgoJS",
+      body: `Height nikalo — same height wale same round me jhadte hain. Postorder me group karo.
+
+[Find Leaves of a Binary Tree](https://leetcode.com/problems/find-leaves-of-binary-tree/)
+
+\`\`\`js
+// Hinglish: height se group karo — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/find-leaves-of-binary-tree/
+function findLeaves(root) {
+  // Hinglish: step 1 — groups lo
+  const out = [];
+  const dfs = (node) => {
+    if (!node) return -1;
+    const h = 1 + Math.max(dfs(node.left), dfs(node.right)); // Hinglish: height nikalo
+    if (out.length === h) out.push([]);
+    out[h - 1].push(node.val); // Hinglish: height wale group me daalo
+    return h;
+  };
+  dfs(root);
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 22,
+      lcSlug: "binary-tree-vertical-order-traversal",
+      title: "Binary Tree Vertical Order Traversal",
+      diff: "Medium",
+    premium: true,
+    solutionUrl: "https://www.youtube.com/watch?v=f4T35dCZi-0&ab_channel=AlgoJS",
+      body: `Column number do (left -1, right +1) — BFS order me column map bharo, sort karke nikalo.
+
+[Binary Tree Vertical Order Traversal](https://leetcode.com/problems/binary-tree-vertical-order-traversal/)
+
+*Premium question — kholne ke liye LeetCode premium chahiye.*
+
+\`\`\`js
+// Hinglish: column number do — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/binary-tree-vertical-order-traversal/ (Premium)
+function verticalOrder(root) {
+  // Hinglish: step 1 — khaali ho to khaali do
+  if (!root) return [];
+  const cols = new Map();
+  const q = [[root, 0]];
+  let mn = 0, mx = 0;
+  while (q.length) {
+    const [node, c] = q.shift();
+    if (!cols.has(c)) cols.set(c, []);
+    cols.get(c).push(node.val); // Hinglish: BFS order me daalo
+    if (c < mn) mn = c;
+    if (c > mx) mx = c;
+    if (node.left) q.push([node.left, c - 1]); // Hinglish: left column kam
+    if (node.right) q.push([node.right, c + 1]);
+  }
+  const out = [];
+  for (let c = mn; c <= mx; c++) out.push(cols.get(c)); // Hinglish: left se right nikalo
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 23,
+      lcSlug: "n-ary-tree-level-order-traversal",
+      title: "N Array Tree Level Order Traversal",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=0UYmdpvG_Gg&ab_channel=AlgoJS",
+      body: `Binary wala hi funda — bas children loop me daalo, level-wise nikalo.
+
+[N Array Tree Level Order Traversal](https://leetcode.com/problems/n-ary-tree-level-order-traversal/)
+
+\`\`\`js
+// Hinglish: level dar level — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/n-ary-tree-level-order-traversal/
+function levelOrder(root) {
+  // Hinglish: step 1 — khaali check karo
+  if (!root) return [];
+  const out = [];
+  let q = [root];
+  while (q.length) {
+    const next = [], level = [];
+    for (const node of q) {
+      level.push(node.val);
+      for (const ch of node.children) next.push(ch); // Hinglish: saare bachche daalo
+    }
+    out.push(level);
+    q = next;
+  }
+  return out;
+}
+\`\`\``,
+    },
+    {
+      id: 24,
+      lcSlug: "count-good-nodes-in-binary-tree",
+      title: "Count Good Nodes In Binary Tree",
+      diff: "Medium",
+    solutionUrl: "https://www.youtube.com/watch?v=UwhjCzvBB8Y&ab_channel=AlgoJS",
+      body: `Ab tak ka max saath le jao — node usse kam nahi to good hai, max update karke aage badho.
+
+[Count Good Nodes In Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/)
+
+\`\`\`js
+// Hinglish: max saath le jao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/count-good-nodes-in-binary-tree/
+function goodNodes(root) {
+  // Hinglish: step 1 — count lo
+  let ans = 0;
+  const dfs = (node, mx) => {
+    if (!node) return;
+    if (node.val >= mx) { ans++; mx = node.val; } // Hinglish: record toda to good
+    dfs(node.left, mx);
+    dfs(node.right, mx);
+  };
+  dfs(root, -Infinity);
+  return ans;
+}
+\`\`\``,
+    },
+    {
+      id: 25,
+      lcSlug: "binary-tree-longest-consecutive-sequence",
+      title: "Binary Tree Longest Consecutive Sequence",
+      diff: "Medium",
+    premium: true,
+    solutionUrl: "https://www.youtube.com/watch?v=Bna4S8Auomc&ab_channel=AlgoJS",
+      body: `Parent se +1 hai to chain badhao, nahi to 1 se restart karo — max yaad rakho.
+
+[Binary Tree Longest Consecutive Sequence](https://leetcode.com/problems/binary-tree-longest-consecutive-sequence/)
+
+*Premium question — kholne ke liye LeetCode premium chahiye.*
+
+\`\`\`js
+// Hinglish: chain badhao — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/binary-tree-longest-consecutive-sequence/ (Premium)
+function longestConsecutive(root) {
+  // Hinglish: step 1 — best lo
+  let best = 0;
+  const dfs = (node, parentVal, len) => {
+    if (!node) return;
+    const cur = node.val === parentVal + 1 ? len + 1 : 1; // Hinglish: jude to badhao
+    if (cur > best) best = cur;
+    dfs(node.left, node.val, cur);
+    dfs(node.right, node.val, cur);
+  };
+  dfs(root, null, 0);
+  return best;
+}
+\`\`\``,
+    },
+    {
+      id: 26,
       lcSlug: "binary-tree-zigzag-level-order-traversal",
       title: "Binary Tree Zigzag Level Order Traversal",
       diff: "Medium",
-      body: `BFS level order, but reverse every other level using a direction flag.
+    solutionUrl: "https://www.youtube.com/watch?v=fq9bj4qOp30&ab_channel=AlgoJS",
+      body: `Level order jaisa, bas alternate level ulti — flag se direction badlo.
 
 [Binary Tree Zigzag Level Order Traversal](https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/)
 
 \`\`\`js
-// Level order with alternating reverse per level
+// Hinglish: ek seedha ek ulta — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/
 function zigzagLevelOrder(root) {
+  // Hinglish: step 1 — queue lo
   if (!root) return [];
   const out = [];
-  let q = [root], flip = false; // flip toggles left-to-right vs right-to-left
+  let q = [root], flip = false;
   while (q.length) {
     const level = [];
     const n = q.length;
@@ -339,7 +746,7 @@ function zigzagLevelOrder(root) {
       if (node.left) next.push(node.left);
       if (node.right) next.push(node.right);
     }
-    out.push(flip ? level.reverse() : level); // Reverse every other level
+    out.push(flip ? level.reverse() : level); // Hinglish: alternate ulta
     flip = !flip;
     q = next;
   }
@@ -348,207 +755,56 @@ function zigzagLevelOrder(root) {
 \`\`\``,
     },
     {
-      id: 199,
-      lcSlug: "binary-tree-right-side-view",
-      title: "Binary Tree Right Side View",
+      id: 27,
+      lcSlug: "keys-and-rooms",
+      title: "Keys and Rooms",
       diff: "Medium",
-      body: `BFS each level and collect the last node seen at that depth.
+    solutionUrl: "https://www.youtube.com/watch?v=Ro-QwE-5fio&ab_channel=AlgoJS",
+      body: `0 se DFS chalao — mili key se naya kamra kholo. Sab khule to true.
 
-[Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
+[Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)
 
 \`\`\`js
-// Right side view = last node visited at each BFS level
-// LC: https://leetcode.com/problems/binary-tree-right-side-view/
-function rightSideView(root) {
-  if (!root) return [];
-  const out = [];
-  let q = [root];
-  while (q.length) {
-    const n = q.length;
-    const next = [];
-    for (let i = 0; i < n; i++) {
-      const node = q[i];
-      if (i === n - 1) out.push(node.val); // Rightmost node on this level
-      if (node.left) next.push(node.left);
-      if (node.right) next.push(node.right);
+// Hinglish: chaabi se kamra — ek-ek step comment dekho
+// LC: https://leetcode.com/problems/keys-and-rooms/
+function canVisitAllRooms(rooms) {
+  // Hinglish: step 1 — dekhe hue yaad rakho
+  const seen = new Set([0]);
+  const stack = [0];
+  while (stack.length) {
+    const r = stack.pop();
+    for (const k of rooms[r]) {
+      if (!seen.has(k)) { seen.add(k); stack.push(k); } // Hinglish: nayi chaabi naya kamra
     }
-    q = next;
   }
-  return out;
+  return seen.size === rooms.length;
 }
 \`\`\``,
     },
     {
-      id: 515,
-      lcSlug: "find-largest-value-in-each-tree-row",
-      title: "Find Largest Value in Each Tree Row",
-      diff: "Medium",
-      body: `BFS per level and track the maximum value at each depth.
-
-[Find Largest Value in Each Tree Row](https://leetcode.com/problems/find-largest-value-in-each-tree-row/)
-
-\`\`\`js
-// Scan each BFS level for maximum value
-// LC: https://leetcode.com/problems/find-largest-value-in-each-tree-row/
-function largestValues(root) {
-  if (!root) return [];
-  const out = [];
-  let q = [root];
-  while (q.length) {
-    const n = q.length;
-    const next = [];
-    let mx = -Infinity;
-    for (let i = 0; i < n; i++) {
-      const node = q[i];
-      if (node.val > mx) mx = node.val; // Track level max
-      if (node.left) next.push(node.left);
-      if (node.right) next.push(node.right);
-    }
-    out.push(mx);
-    q = next;
-  }
-  return out;
-}
-\`\`\``,
-    },
-    {
-      id: 116,
-      lcSlug: "populating-next-right-pointers-in-each-node",
-      title: "Populating Next Right Pointers in Each Node",
-      diff: "Medium",
-      body: `In a perfect tree, link \`left.next = right\` and \`right.next = parent.next.left\` for O(1) extra space.
-
-[Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/)
-
-\`\`\`js
-// Perfect tree — use existing next pointers to link next level in O(1) space
-// LC: https://leetcode.com/problems/populating-next-right-pointers-in-each-node/
-function connect(root) {
-  let level = root; // Start of current level
-  while (level && level.left) {
-    let cur = level;
-    while (cur) {
-      cur.left.next = cur.right; // Link siblings
-      if (cur.next) cur.right.next = cur.next.left; // Link to cousin on right
-      cur = cur.next; // Walk current level via next chain
-    }
-    level = level.left; // Descend to next level start
-  }
-  return root;
-}
-\`\`\``,
-    },
-    {
-      id: 117,
-      lcSlug: "populating-next-right-pointers-in-each-node-ii",
-      title: "Populating Next Right Pointers in Each Node II",
-      diff: "Medium",
-      body: `Use a dummy head per level to wire \`next\` pointers left to right when the tree is not perfect.
-
-[Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/)
-
-\`\`\`js
-// Imperfect tree — build next level list with dummy tail while traversing current level
-// LC: https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
-function connect(root) {
-  let head = root; // Head of level being linked
-  while (head) {
-    const dummy = { val: 0, next: null };
-    let tail = dummy, cur = head;
-    while (cur) {
-      if (cur.left) { tail.next = cur.left; tail = tail.next; } // Append left child to next level
-      if (cur.right) { tail.next = cur.right; tail = tail.next; }
-      cur = cur.next; // Follow horizontal next on current level
-    }
-    head = dummy.next; // Move to first node of next level
-  }
-  return root;
-}
-\`\`\``,
-    },
-    {
-      id: 662,
-      lcSlug: "maximum-width-of-binary-tree",
-      title: "Maximum Width of Binary Tree",
-      diff: "Medium",
-      body: `Label nodes like a heap (\`2i\`, \`2i+1\`); level width is last index minus first plus one.
-
-[Maximum Width of Binary Tree](https://leetcode.com/problems/maximum-width-of-binary-tree/)
-
-\`\`\`js
-// Index nodes like heap array: left=2*pos, right=2*pos+1 — level width from indices
-// LC: https://leetcode.com/problems/maximum-width-of-binary-tree/
-function widthOfBinaryTree(root) {
-  if (!root) return 0;
-  let q = [[root, 0]], best = 1;
-  while (q.length) {
-    const next = [];
-    for (const [node, pos] of q) {
-      if (node.left) next.push([node.left, pos * 2]); // Left child index
-      if (node.right) next.push([node.right, pos * 2 + 1]); // Right child index
-    }
-    if (next.length) {
-      const w = next[next.length - 1][1] - next[0][1] + 1; // Last minus first index + 1
-      if (w > best) best = w;
-    }
-    q = next;
-  }
-  return best;
-}
-\`\`\``,
-    },
-    {
-      id: 958,
-      lcSlug: "check-completeness-of-a-binary-tree",
-      title: "Check Completeness of a Binary Tree",
-      diff: "Medium",
-      body: `Complete tree check: in level order, once null appears, no later node may be non-null.
-
-[Check Completeness of a Binary Tree](https://leetcode.com/problems/check-completeness-of-a-binary-tree/)
-
-\`\`\`js
-// Complete tree: after first null in level order, only nulls may follow
-// LC: https://leetcode.com/problems/check-completeness-of-a-binary-tree/
-function isCompleteTree(root) {
-  const q = [root];
-  let seenNull = false;
-  while (q.length) {
-    const node = q.shift();
-    if (!node) { seenNull = true; continue; } // Marker for missing child
-    if (seenNull) return false; // Real node after gap — not complete
-    q.push(node.left); q.push(node.right); // Always enqueue both slots
-  }
-  return true;
-}
-\`\`\``,
-    },
-      ],
-    },
-    {
-      title: "Build / Serialize / Views",
-      topics: [
-    {
-      id: 105,
+      id: 28,
       lcSlug: "construct-binary-tree-from-preorder-and-inorder-traversal",
-      title: "Construct Binary Tree from Preorder and Inorder Traversal",
+      title: "Construct Binary Tree From Preorder And Inorder Traversal",
       diff: "Medium",
-      body: `Preorder gives root first; inorder splits left/right subtrees — map values to indices for O(1) lookup.
+    solutionUrl: "https://www.youtube.com/watch?v=Zr2NDgOPsTE&ab_channel=AlgoJS",
+      body: `Preorder ka pehla root hai, inorder me uski position left/right baant-ti hai. Map se O(1) lookup rakho.
 
-[Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+[Construct Binary Tree From Preorder And Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 \`\`\`js
-// Preorder gives root order; inorder splits left/right ranges
+// Hinglish: root pakdo, baanto, recurse — ek-ek step comment dekho
 // LC: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
 function buildTree(preorder, inorder) {
+  // Hinglish: step 1 — inorder positions yaad rakho
   const pos = new Map();
-  inorder.forEach((v, i) => pos.set(v, i)); // O(1) root index in inorder
-  let pre = 0; // Global preorder pointer
+  inorder.forEach((v, i) => pos.set(v, i));
+  let pre = 0;
   const build = (l, r) => {
     if (l > r) return null;
-    const rootVal = preorder[pre++]; // Next preorder value is subtree root
-    const m = pos.get(rootVal); // Split inorder at root
+    const rootVal = preorder[pre++]; // Hinglish: pehla root hai
+    const m = pos.get(rootVal); // Hinglish: inorder me baantne ki jagah
     const root = { val: rootVal, left: null, right: null };
-    root.left = build(l, m - 1); // Values left of m in inorder
+    root.left = build(l, m - 1);
     root.right = build(m + 1, r);
     return root;
   };
@@ -557,211 +813,31 @@ function buildTree(preorder, inorder) {
 \`\`\``,
     },
     {
-      id: 106,
-      lcSlug: "construct-binary-tree-from-inorder-and-postorder-traversal",
-      title: "Construct Binary Tree from Inorder and Postorder Traversal",
-      diff: "Medium",
-      body: `Postorder's last element is root; partition inorder and build from the end.
-
-[Construct Binary Tree from Inorder and Postorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
-
-\`\`\`js
-// Postorder root is last; build right before left because post index walks backward
-// LC: https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/
-function buildTree(inorder, postorder) {
-  const pos = new Map();
-  inorder.forEach((v, i) => pos.set(v, i));
-  let post = postorder.length - 1; // Consume postorder from end
-  const build = (l, r) => {
-    if (l > r) return null;
-    const rootVal = postorder[post--]; // Root of current inorder range
-    const m = pos.get(rootVal);
-    const root = { val: rootVal, left: null, right: null };
-    root.right = build(m + 1, r); // Right subtree built first (postorder ends with right chain)
-    root.left = build(l, m - 1);
-    return root;
-  };
-  return build(0, inorder.length - 1);
-}
-\`\`\``,
-    },
-    {
-      id: 297,
-      lcSlug: "serialize-and-deserialize-binary-tree",
-      title: "Serialize and Deserialize Binary Tree",
+      id: 29,
+      lcSlug: "binary-tree-maximum-path-sum",
+      title: "Binary Tree Maximum Path Sum",
       diff: "Hard",
-      body: `Preorder with \`"#"\` for null. Split on commas. Recurse with a queue of tokens — same order I wrote.
+    solutionUrl: "https://www.youtube.com/watch?v=EK0A__Ri2Ms&ab_channel=AlgoJS",
+      body: `A path can bend at a node (left + node + right). I return to my parent only a one-sided gain (node + best child, or 0 if negative).
 
-[Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
+[Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
 
 \`\`\`js
-// Preorder with "#" null tokens — deserialize reads same token order
-// LC: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
-function serialize(root) {
-  const out = [];
-  const walk = (node) => {
-    if (!node) {
-      out.push("#"); // Explicit null marker
-      return;
-    }
-    out.push(String(node.val));
-    walk(node.left);
-    walk(node.right);
+// Hinglish: DFS/BFS tree — ek-ek step comment dekho
+// Tree DFS — gain I can offer my parent vs path that bends here
+// LC: https://leetcode.com/problems/binary-tree-maximum-path-sum/
+function maxPathSum(root) {
+  // Hinglish: step 1 — base case check karo
+  let best = -Infinity;
+  const gain = (node) => {
+    if (!node) return 0;
+    const L = Math.max(0, gain(node.left));
+    const R = Math.max(0, gain(node.right));
+    best = Math.max(best, node.val + L + R);
+    return node.val + Math.max(L, R);
   };
-  walk(root);
-  return out.join(",");
-}
-function deserialize(data) {
-  const q = data.split(","); // Queue of preorder tokens
-  const walk = () => {
-    const tok = q.shift();
-    if (tok === "#") return null;
-    const node = { val: Number(tok), left: null, right: null };
-    node.left = walk(); // Rebuild left before right — preorder order
-    node.right = walk();
-    return node;
-  };
-  return walk();
-}
-\`\`\``,
-    },
-    {
-      id: 889,
-      lcSlug: "construct-binary-tree-from-preorder-and-postorder-traversal",
-      title: "Construct Binary Tree from Preorder and Postorder Traversal",
-      diff: "Medium",
-      body: `First preorder node is root; size of left subtree from postorder bounds the split.
-
-[Construct Binary Tree from Preorder and Postorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
-
-\`\`\`js
-// Left subtree size from preorder[1] position in postorder segment
-// LC: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/
-function constructFromPrePost(preorder, postorder) {
-  const pos = new Map();
-  postorder.forEach((v, i) => pos.set(v, i));
-  const build = (preL, preR, postL, postR) => {
-    if (preL > preR) return null;
-    const root = { val: preorder[preL], left: null, right: null };
-    if (preL === preR) return root; // Single node subtree
-    const m = pos.get(preorder[preL + 1]); // Where left child subtree ends in postorder
-    const leftSize = m - postL + 1; // Number of nodes in left subtree
-    root.left = build(preL + 1, preL + leftSize, postL, m);
-    root.right = build(preL + leftSize + 1, preR, m + 1, postR - 1);
-    return root;
-  };
-  return build(0, preorder.length - 1, 0, postorder.length - 1);
-}
-\`\`\``,
-    },
-    {
-      id: 114,
-      lcSlug: "flatten-binary-tree-to-linked-list",
-      title: "Flatten Binary Tree to Linked List",
-      diff: "Medium",
-      body: `Morris traversal: thread left subtree to right, visit in O(1) space, then flatten to a list.
-
-[Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/)
-
-\`\`\`js
-// Morris-style: splice left subtree between node and old right spine
-// LC: https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
-function flatten(root) {
-  let cur = root;
-  while (cur) {
-    if (cur.left) {
-      let tail = cur.left;
-      while (tail.right) tail = tail.right; // Rightmost node in left subtree
-      tail.right = cur.right; // Attach original right chain after left tail
-      cur.right = cur.left; // Rotate left subtree to right child
-      cur.left = null; // Left pointer cleared per problem
-    }
-    cur = cur.right; // Preorder walk along new right spine
-  }
-}
-\`\`\``,
-    },
-    {
-      id: 236,
-      lcSlug: "lowest-common-ancestor-of-a-binary-tree",
-      title: "Lowest Common Ancestor of a Binary Tree",
-      diff: "Medium",
-      body: `If the node is p or q, return it. Recurse. If both sides return something, I am the LCA. If only one side, pass it up.
-
-[Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
-
-\`\`\`js
-// Post-order LCA — first ancestor where p and q split to different subtrees
-// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
-function lowestCommonAncestor(root, p, q) {
-  if (!root || root === p || root === q) return root; // Hit target or empty
-  const L = lowestCommonAncestor(root.left, p, q);
-  const R = lowestCommonAncestor(root.right, p, q);
-  if (L && R) return root; // p and q found in different subtrees — LCA is root
-  return L || R; // Propagate the non-null side upward
-}
-\`\`\``,
-    },
-    {
-      id: 863,
-      lcSlug: "all-nodes-distance-k-in-binary-tree",
-      title: "All Nodes Distance K in Binary Tree",
-      diff: "Medium",
-      body: `Build a parent map (tree as graph), BFS from target for exactly \`K\` steps away.
-
-[All Nodes Distance K in Binary Tree](https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/)
-
-\`\`\`js
-// Undirected graph via parent links — BFS k layers from target
-// LC: https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/
-function distanceK(root, target, k) {
-  const parent = new Map();
-  const dfs = (node, par) => {
-    if (!node) return;
-    parent.set(node, par); // Record upward edge for later BFS
-    dfs(node.left, node);
-    dfs(node.right, node);
-  };
-  dfs(root, null);
-  const seen = new Set([target]);
-  let q = [target]; // BFS frontier at current distance
-  for (let d = 0; d < k; d++) {
-    const next = [];
-    for (const node of q) {
-      for (const nb of [node.left, node.right, parent.get(node)]) {
-        if (nb && !seen.has(nb)) { seen.add(nb); next.push(nb); } // Walk down or up
-      }
-    }
-    q = next; // Expand one hop
-  }
-  return q.map((n) => n.val); // All nodes exactly k away
-}
-\`\`\``,
-    },
-    {
-      id: 652,
-      lcSlug: "find-duplicate-subtrees",
-      title: "Find Duplicate Subtrees",
-      diff: "Medium",
-      body: `Serialize each subtree; duplicate subtrees share the same string — count with a hash map.
-
-[Find Duplicate Subtrees](https://leetcode.com/problems/find-duplicate-subtrees/)
-
-\`\`\`js
-// Canonical subtree string — collect roots when signature seen exactly twice
-// LC: https://leetcode.com/problems/find-duplicate-subtrees/
-function findDuplicateSubtrees(root) {
-  const seen = new Map(), out = [];
-  const code = (node) => {
-    if (!node) return "#"; // Null placeholder in encoding
-    const s = node.val + "," + code(node.left) + "," + code(node.right); // Post-order signature
-    const c = (seen.get(s) || 0) + 1;
-    seen.set(s, c);
-    if (c === 2) out.push(node); // Second occurrence — duplicate subtree root
-    return s;
-  };
-  code(root);
-  return out;
+  gain(root);
+  return best;
 }
 \`\`\``,
     },
