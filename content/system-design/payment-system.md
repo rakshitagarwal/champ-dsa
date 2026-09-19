@@ -265,6 +265,19 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
+## Consistency & multi-region (say this)
+
+| Path | Model | Why |
+|------|--------|-----|
+| Authorize / capture / refund | Strong — transactional ledger in Postgres | Double-charge is unacceptable |
+| Idempotent API retries | Exactly-once *effect* via `Idempotency-Key` | At-least-once network |
+| Webhooks | At-least-once + dedup on `event_id` | Processor will retry |
+| Merchant dashboards / lists | Read replicas OK (eventual) | Not the money path |
+
+**Multi-region:** prefer **active-passive** or single-region primary for the ledger (sync replicas in-AZ, async DR region). Active-active ledgers need conflict-free design you usually do not want in an interview hour — say "primary region for writes; DR with RPO minutes via async replica; RTO promote + drain." PCI and tokenization stay with the processor; your DB holds tokens and ledger only.
+
+Details: [idempotency](/hld/idempotency), [distributed systems](/hld/distributed-systems).
+
 ## Handling failures and scale
 
 - **Sharding:** Payments partitioned by `orderId` or `paymentId` hash; ledger range-partitioned by `created_at` (monthly). Webhook topic partitioned by `paymentId` for ordered per-payment processing.

@@ -40,4 +40,4 @@ graph LR
 
 **Remember (Revision):** ACID default, B-tree plus GIN indexes, EXPLAIN slow queries, PgBouncer pooling, replicas for reads, shard by query key last.
 
-**See also:** [sql databases](/hld/databases-sql), [ticketmaster](/hld/ticketmaster), [robinhood](/hld/robinhood).
+**See also:** [sql databases](/hld/sql-databases), [ticketmaster](/hld/ticketmaster), [robinhood](/hld/robinhood).

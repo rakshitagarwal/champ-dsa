@@ -50,4 +50,4 @@ graph LR
 
 **Remember (Revision):** Exchange types (direct/topic/fanout), bindings, push model, per-message ack, DLQ mandatory, durable queues plus messages, prefetch backpressure, quorum queues.
 
-**See also:** [message queues](/hld/message-queues), [notification system](/hld/notification-system).
+**See also:** [message queues](/hld/message-queue), [notification system](/hld/notification-system).

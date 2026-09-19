@@ -215,6 +215,19 @@ Each device is a separate WS connection (`userId:deviceId → node`). A message 
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
+## Consistency & multi-region (say this)
+
+| Path | Model | Why |
+|------|--------|-----|
+| Message persist (`send`) | Durable write first (Cassandra quorum / equivalent) before ack | Never lose a message the client thinks was sent |
+| Delivery to online devices | At-least-once over WS + client dedup by `clientMsgId` | Network drops; duplicates OK |
+| Read receipts / presence | Eventual (Redis TTL + async) | Freshness beats strong consistency |
+| Media | S3 + CDN; metadata in DB | Bytes off chat path |
+
+**Multi-region:** pin a chat's primary region by `chatId` hash (or user home region). Cross-region fan-out is async — accept higher delivery latency rather than sync quorum across oceans. RPO for messages ≈ 0 inside the primary region (quorum write); RTO is reconnect + catch-up from the message log, not "rebuild from zero."
+
+Details: [distributed systems](/hld/distributed-systems), [idempotency](/hld/idempotency).
+
 ## Handling failures and scale
 
 - **WS node crash:** Connections re-establish (client retries with backoff) and re-register in Redis; undelivered messages remain in Cassandra and are fetched on reconnect — no loss.

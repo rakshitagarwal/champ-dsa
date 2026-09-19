@@ -217,6 +217,19 @@ Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.c
 **🔴 Galti:** Hot path pe DB direct without cache/queue.
 **✅ Sahi:** Cache/queue beech me, DB source of truth.
 
+## Consistency & multi-region (say this)
+
+| Path | Model | Why |
+|------|--------|-----|
+| Trip state (match → complete) | Strong — Postgres row + CAS / conditional update | Two riders must never get the same driver |
+| Driver location | Eventual / ephemeral — Redis GEO with TTL | Hot, lossy OK; last known is fine if WS drops |
+| Payments / fees | Strong + idempotent charge | Money path never "best effort" |
+| ETA / surge display | Eventual cached | UX freshness, not ledger truth |
+
+**Multi-region:** shard by **city / metro** (geo cell), not by global user hash — matching is local. Cross-city failover is rare; treat each city cluster as its own failure domain. RPO for trips ≈ 0 (durable trip row); location RPO can be seconds of GPS. RTO: revive trip state from Postgres; rebuild GEO from reconnecting driver heartbeats.
+
+Details: [geohashing & quadtrees](/hld/geohashing-and-quadtrees), [distributed systems](/hld/distributed-systems).
+
 ## Handling failures and scale
 
 - **Driver WS drop / tunnel:** Trip row persists; rider sees last known location + stale ETA. On reconnect, driver re-registers and replay is unnecessary.

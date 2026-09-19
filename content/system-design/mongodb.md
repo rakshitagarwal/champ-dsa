@@ -2,7 +2,7 @@
 
 > Document database — store JSON-like data directly, no upfront schema required.
 
-> Collections hold BSON documents, each shaped differently if needed. Product catalogs, CMS content, and MERN apps fit naturally; schemas evolve without migrations. Where joins and strict transactions rule, [PostgreSQL](/hld/databases-sql) wins instead.
+> Collections hold BSON documents, each shaped differently if needed. Product catalogs, CMS content, and MERN apps fit naturally; schemas evolve without migrations. Where joins and strict transactions rule, [PostgreSQL](/hld/postgresql) wins instead.
 
 ## When to pick it
 
@@ -11,7 +11,7 @@
 3. MERN stacks or JSON-thinking teams — the mental model matches
 4. Read-heavy product data with secondary indexes — queries stay fast
 
-**Don't use for:** strict relations plus joins (orders with users and payments), financial ACID ([PostgreSQL](/hld/databases-sql)), or massive known-key write volume ([Cassandra](/hld/nosql-databases)).
+**Don't use for:** strict relations plus joins (orders with users and payments), financial ACID ([PostgreSQL](/hld/postgresql)), or massive known-key write volume ([Cassandra](/hld/cassandra)).
 
 ## How scaling works
 
@@ -39,4 +39,4 @@ graph LR
 
 **Remember (Revision):** BSON documents plus collections, schema-on-read, replica sets (primary/secondary plus election), sharding (mongos plus shard key), 16MB document limit, unbounded arrays separated, limited multi-doc transactions.
 
-**See also:** [postgresql](/hld/databases-sql), [cassandra](/hld/nosql-databases), [dynamodb](/hld/nosql-databases), [sharding](/hld/databases-sql).
+**See also:** [postgresql](/hld/postgresql), [cassandra](/hld/cassandra), [dynamodb](/hld/dynamodb), [sharding](/hld/sharding).

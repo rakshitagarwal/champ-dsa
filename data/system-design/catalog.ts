@@ -12,7 +12,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     slug: "introduction",
     title: "Introduction",
     description:
-      "What system design interviews actually test, and a delivery framework you can reuse on every problem.",
+      "How to study HLD — roadmap, blank interview checklist, theory map, and design aliases.",
     group: "intro",
   },
 
@@ -252,6 +252,41 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     title: "Important Architecture Concepts",
     description:
       "Reverse proxy, service mesh, webhooks, polling vs push, batch vs stream, queues, workers and schedulers.",
+    group: "concepts",
+  },
+  {
+    slug: "sharding",
+    title: "Sharding",
+    description:
+      "Split data across databases by key — hash vs range vs geo, hot shards, and rebalancing.",
+    group: "concepts",
+  },
+  {
+    slug: "circuit-breaker",
+    title: "Circuit Breaker",
+    description:
+      "Fail fast when a dependency is down — open / half-open / closed, retries vs fallbacks.",
+    group: "concepts",
+  },
+  {
+    slug: "idempotency",
+    title: "Idempotency",
+    description:
+      "Safe retries — idempotency keys, exactly-once effects from at-least-once delivery.",
+    group: "concepts",
+  },
+  {
+    slug: "bloom-filter",
+    title: "Bloom Filter",
+    description:
+      "Probabilistic set membership — catch misses cheaply before hitting disk or cache.",
+    group: "concepts",
+  },
+  {
+    slug: "geohashing-and-quadtrees",
+    title: "Geohashing & Quadtrees",
+    description:
+      "Nearby search — geohash prefixes, quadtrees, and when Redis GEO is enough.",
     group: "concepts",
   },
 

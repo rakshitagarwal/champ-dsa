@@ -47,4 +47,4 @@ graph LR
 
 **Remember (Revision):** Core fire-and-forget, JetStream streams plus consumers plus acks plus replay, dotted subjects with wildcards, retention policies, pull backpressure, file storage for durability.
 
-**See also:** [message queues](/hld/message-queues), [microservices](/hld/microservices).
+**See also:** [message queues](/hld/message-queue), [microservices](/hld/microservices).
