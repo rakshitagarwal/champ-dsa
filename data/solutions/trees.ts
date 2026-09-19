@@ -59,14 +59,40 @@ var isSameTree = function(p, q) {
 [Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS
-// LC: https://leetcode.com/problems/maximum-depth-of-binary-tree/
-function maxDepth(root) {
-  // Hinglish: step 1 — base case check karo
-  if (!root) return 0;
-  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var maxDepth = function(root) {
+    if(!root) {
+        return 0;
+    }
+    
+    let depth = 0;
+    let queue = [root];
+    
+    while(queue.length){
+        let len = queue.length;
+        
+        for(let i = 0; i < len; i++){
+            let current = queue.shift();
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+        }
+        
+        depth++
+    }
+    
+    return depth;
+};
 \`\`\``,
     },
     {
@@ -80,16 +106,44 @@ function maxDepth(root) {
 [Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/)
 
 \`\`\`js
-// Hinglish: leaf tak chhota rasta — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/minimum-depth-of-binary-tree/
-function minDepth(root) {
-  // Hinglish: step 1 — base case
-  if (!root) return 0;
-  if (!root.left) return 1 + minDepth(root.right); // Hinglish: ek taraf hi hai
-  if (!root.right) return 1 + minDepth(root.left);
-  const l = minDepth(root.left), r = minDepth(root.right);
-  return 1 + (l < r ? l : r); // Hinglish: chhota uthao
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var minDepth = function(root) {
+    if(root === null) return 0;
+    
+    let minDepth = 1;
+    
+    let queue = [root];
+    
+    //bfs
+    while(queue.length){
+        let levelSize = queue.length;
+        while(levelSize){
+            
+            let current = queue.shift();
+            if(current.left === null && current.right === null){
+                return minDepth;
+            }else {
+                if(current.left)queue.push(current.left);
+                if(current.right)queue.push(current.right);
+            }
+            levelSize--;
+            
+        }
+        minDepth++;
+    }
+    return minDepth;
+};
 \`\`\``,
     },
     {
@@ -103,15 +157,38 @@ function minDepth(root) {
 [Path Sum](https://leetcode.com/problems/path-sum/)
 
 \`\`\`js
-// Hinglish: sum ghatate jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/path-sum/
-function hasPathSum(root, targetSum) {
-  // Hinglish: step 1 — base case
-  if (!root) return false;
-  if (!root.left && !root.right) return root.val === targetSum; // Hinglish: leaf pe check
-  const rest = targetSum - root.val; // Hinglish: bacha hua
-  return hasPathSum(root.left, rest) || hasPathSum(root.right, rest);
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} targetSum
+ * @return {boolean}
+ */
+var hasPathSum = function(root, targetSum) {
+    
+    function recurse(root, currSum){
+        
+        if(root === null) return false;
+        
+        currSum += root.val;
+        
+        if(!root.left && !root.right){
+            return currSum === targetSum;
+        }
+        
+        return recurse(root.left, currSum) || recurse(root.right, currSum);
+        
+    }
+    
+    return recurse(root, 0);
+    
+};
 \`\`\``,
     },
     {
@@ -125,21 +202,43 @@ function hasPathSum(root, targetSum) {
 [Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/)
 
 \`\`\`js
-// Hinglish: rasta likhte jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-tree-paths/
-function binaryTreePaths(root) {
-  // Hinglish: step 1 — answer lo
-  const out = [];
-  const dfs = (node, path) => {
-    if (!node) return;
-    const cur = path === "" ? String(node.val) : path + "->" + node.val; // Hinglish: jodte jao
-    if (!node.left && !node.right) { out.push(cur); return; } // Hinglish: leaf pe pakdo
-    dfs(node.left, cur);
-    dfs(node.right, cur);
-  };
-  dfs(root, "");
-  return out;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {string[]}
+ */
+var binaryTreePaths = function(root) {
+    
+    if(!root) return [];
+    
+    let res = [];
+    
+    function dfs(root, path){
+        
+        path.push(root.val);
+        
+        if(!root.left && !root.right){
+            res.push(path.join("->"))
+        }
+        
+        if(root.left) dfs(root.left, path);
+        if(root.right) dfs(root.right, path);
+        
+        path.pop();
+        
+    }
+    dfs(root, [])
+    
+    return res;
+    
+};
 \`\`\``,
     },
     {
@@ -153,14 +252,27 @@ function binaryTreePaths(root) {
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/invert-binary-tree/
-function invertTree(root) {
-  // Hinglish: null to wapas
-  if (!root) return null;
-  [root.left, root.right] = [invertTree(root.right), invertTree(root.left)]; // Hinglish: swap
-  return root;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {TreeNode}
+ */
+var invertTree = function(root) {
+    
+    if(root) {
+        [root.left, root.right] = [invertTree(root.right), invertTree(root.left)];
+    }
+    
+    return root;
+    
+};
 \`\`\``,
     },
     {
@@ -174,17 +286,31 @@ function invertTree(root) {
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 \`\`\`js
-// Hinglish: compare karke disha — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
-function lowestCommonAncestor(root, p, q) {
-  // Hinglish: step 1 — node lo
-  let node = root;
-  while (node) {
-    if (p.val < node.val && q.val < node.val) node = node.left; // Hinglish: dono chhote
-    else if (p.val > node.val && q.val > node.val) node = node.right; // Hinglish: dono bade
-    else return node; // Hinglish: beech me phas gaya = LCA
-  }
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {TreeNode}
+ */
+var lowestCommonAncestor = function(root, p, q) {
+    
+    if(p.val < root.val && q.val < root.val){
+        return lowestCommonAncestor(root.left, p, q);
+    } else if(p.val > root.val && q.val > root.val){
+        return lowestCommonAncestor(root.right, p, q);
+    } else {
+        return root;
+    }
+    
+};
 \`\`\``,
     },
     {
@@ -198,18 +324,32 @@ function lowestCommonAncestor(root, p, q) {
 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
 
 \`\`\`js
-// Hinglish: aaina check — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/symmetric-tree/
-function isSymmetric(root) {
-  // Hinglish: step 1 — jodi compare karo
-  const same = (a, b) => {
-    if (!a && !b) return true;
-    if (!a || !b) return false;
-    if (a.val !== b.val) return false;
-    return same(a.left, b.right) && same(a.right, b.left); // Hinglish: cross compare
-  };
-  return same(root, root);
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+var isSymmetric = function(root) {
+    
+    function recurse(l, r){
+        
+        if(!l && !r) return true;
+        
+        if(!l || !r || l.val !== r.val) return false;
+        
+        return recurse(l.left, r.right) && recurse(l.right, r.left);
+        
+    }
+    return recurse(root.left, root.right);
+    
+};
 \`\`\``,
     },
     {
@@ -223,22 +363,39 @@ function isSymmetric(root) {
 [Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — height down, diameter across
-// LC: https://leetcode.com/problems/diameter-of-binary-tree/
-function diameterOfBinaryTree(root) {
-  // Hinglish: step 1 — base case check karo
-  let best = 0;
-  const height = (node) => {
-    if (!node) return 0;
-    const L = height(node.left);
-    const R = height(node.right);
-    best = Math.max(best, L + R);
-    return 1 + Math.max(L, R);
-  };
-  height(root);
-  return best;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var diameterOfBinaryTree = function(root) {
+    let maxD = 0;
+    
+    function dfs(node){
+        
+        if(!node) return 0;
+        
+        let left = dfs(node.left);
+        let right = dfs(node.right);
+        let currD = left + right;
+        
+        maxD = Math.max(currD, maxD);
+        
+        return Math.max(left+1, right+1)
+        
+    }
+    dfs(root);
+    
+    return maxD;
+    
+};
 \`\`\``,
     },
     {
@@ -252,15 +409,32 @@ function diameterOfBinaryTree(root) {
 [Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/)
 
 \`\`\`js
-// Hinglish: bekaar hissa kaato — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/range-sum-of-bst/
-function rangeSumBST(root, low, high) {
-  // Hinglish: step 1 — base case
-  if (!root) return 0;
-  if (root.val < low) return rangeSumBST(root.right, low, high); // Hinglish: left bekaar
-  if (root.val > high) return rangeSumBST(root.left, low, high); // Hinglish: right bekaar
-  return root.val + rangeSumBST(root.left, low, high) + rangeSumBST(root.right, low, high);
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} low
+ * @param {number} high
+ * @return {number}
+ */
+var rangeSumBST = function(root, low, high) {
+    //base case
+    if(!root) return 0;
+    
+    if(root.val > high){
+        return rangeSumBST(root.left, low, high);
+    } else if(root.val < low){
+        return rangeSumBST(root.right, low, high);
+    } else {
+        return root.val + rangeSumBST(root.left, low, high) + rangeSumBST(root.right, low, high);
+    }
+};
 \`\`\``,
     },
     {
@@ -277,21 +451,33 @@ function rangeSumBST(root, low, high) {
 *Premium question — kholne ke liye LeetCode premium chahiye.*
 
 \`\`\`js
-// Hinglish: akela bachcha pakdo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/find-all-the-lonely-nodes/ (Premium)
-function getLonelyNodes(root) {
-  // Hinglish: step 1 — answer lo
-  const out = [];
-  const dfs = (node) => {
-    if (!node) return;
-    if (node.left && !node.right) out.push(node.left.val); // Hinglish: right nahi to left akela
-    if (node.right && !node.left) out.push(node.right.val); // Hinglish: left nahi to right akela
-    dfs(node.left);
-    dfs(node.right);
-  };
-  dfs(root);
-  return out;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+var getLonelyNodes = function(root) {
+    let res = [];
+    
+    function dfs(root){
+        if(!root) return;
+        if(root.left && !root.right) res.push(root.left.val);
+        if(root.right && !root.left) res.push(root.right.val);
+        
+        dfs(root.left);
+        dfs(root.right);
+    }
+    dfs(root);
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -305,19 +491,40 @@ function getLonelyNodes(root) {
 [Subtree of Another Subtree](https://leetcode.com/problems/subtree-of-another-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/subtree-of-another-tree/
-function isSubtree(root, subRoot) {
-  // Hinglish: same tree helper
-  const same=(a,b)=>{
-    if(!a&&!b) return true;
-    if(!a||!b||a.val!==b.val) return false;
-    return same(a.left,b.left) && same(a.right,b.right);
-  };
-  if (!root) return false;
-  if (same(root, subRoot)) return true; // Hinglish: yahan se match?
-  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot); // Hinglish: left/right me dhoondo
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} subRoot
+ * @return {boolean}
+ */
+var isSubtree = function(root, subRoot) {
+    
+    function isSame(root1, root2){
+        if(!root1 && !root2) return true;
+        if(!root1 || !root2 || root1.val !== root2.val) return false;
+        
+        return isSame(root1.left, root2.left) && isSame(root1.right, root2.right);
+    }
+    
+    function dfs(node){
+        if(!node) return false;
+        
+        if(isSame(node, subRoot)){
+            return true;
+        }
+        
+        return dfs(node.left) || dfs(node.right);
+    }
+    
+    return dfs(root);
+};
 \`\`\``,
     },
     {
@@ -331,17 +538,36 @@ function isSubtree(root, subRoot) {
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
 \`\`\`js
-// Hinglish: bounds check — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/validate-binary-search-tree/
-function isValidBST(root) {
-  // Hinglish: step 1 — bounds helper lo
-  const check = (node, lo, hi) => {
-    if (!node) return true;
-    if (node.val <= lo || node.val >= hi) return false; // Hinglish: seema tooti
-    return check(node.left, lo, node.val) && check(node.right, node.val, hi);
-  };
-  return check(root, -Infinity, Infinity);
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+var isValidBST = function(root) {
+    
+    function recurse(root, min, max){
+        
+        //base cases
+        if(root === null) return true;
+        
+        if((root.val >= max || root.val <= min)){
+            return false;
+        }
+        
+        //recurrence relation
+        return recurse(root.left, min, root.val) && recurse(root.right, root.val, max);
+        
+    }
+    return recurse(root, -Infinity, Infinity)
+    
+};
 \`\`\``,
     },
     {
@@ -355,21 +581,46 @@ function isValidBST(root) {
 [Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/)
 
 \`\`\`js
-// Hinglish: number banate jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/sum-root-to-leaf-numbers/
-function sumNumbers(root) {
-  // Hinglish: step 1 — total lo
-  let ans = 0;
-  const dfs = (node, cur) => {
-    if (!node) return;
-    cur = cur * 10 + node.val; // Hinglish: digit jodo
-    if (!node.left && !node.right) { ans += cur; return; } // Hinglish: leaf pe jodo
-    dfs(node.left, cur);
-    dfs(node.right, cur);
-  };
-  dfs(root, 0);
-  return ans;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+
+var sumNumbers = function(root) {
+    let res = [];
+    
+    function recurse(root, currArr){
+        if(root === null) return 0;
+        
+        currArr.push(root.val);
+        
+        if(!root.left && !root.right){
+            let newNum = Number(currArr.join(""));
+            res.push(newNum);
+        }
+        
+        recurse(root.left, currArr);
+        recurse(root.right, currArr);
+        currArr.pop();
+        
+    }
+    recurse(root, []);
+    
+    let nums = 0;
+    for(let i = 0; i < res.length; i++){
+        nums += res[i];
+    }
+    
+    return nums;
+};
 \`\`\``,
     },
     {
@@ -383,24 +634,43 @@ function sumNumbers(root) {
 [Path Sum II](https://leetcode.com/problems/path-sum-ii/)
 
 \`\`\`js
-// Hinglish: rasta saath le jao — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/path-sum-ii/
-function pathSum(root, targetSum) {
-  // Hinglish: step 1 — answer lo
-  const out = [];
-  const dfs = (node, rest, path) => {
-    if (!node) return;
-    path.push(node.val);
-    if (!node.left && !node.right && rest === node.val) out.push([...path]); // Hinglish: mil gaya
-    else {
-      dfs(node.left, rest - node.val, path);
-      dfs(node.right, rest - node.val, path);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} targetSum
+ * @return {number[][]}
+ */
+var pathSum = function(root, targetSum) {
+    let res = [];
+    
+    function dfs(root, currSum, currArr){
+        if(root === null) return [];
+        
+        currSum += root.val;
+        currArr.push(root.val);
+        
+        if(!root.left && !root.right && currSum === targetSum){
+            res.push([...currArr]);
+        }
+        
+        dfs(root.left, currSum, currArr);
+        dfs(root.right, currSum, currArr);
+        
+        //backtrack
+        currArr.pop();
     }
-    path.pop(); // Hinglish: wapas aao
-  };
-  dfs(root, targetSum, []);
-  return out;
-}
+    
+    dfs(root, 0, [])
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -414,26 +684,42 @@ function pathSum(root, targetSum) {
 [Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
 
 \`\`\`js
-// Hinglish: har level ka aakhri — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/binary-tree-right-side-view/
-function rightSideView(root) {
-  // Hinglish: step 1 — queue lo
-  if (!root) return [];
-  const out = [];
-  let q = [root];
-  while (q.length) {
-    const n = q.length;
-    const next = [];
-    for (let i = 0; i < n; i++) {
-      const node = q[i];
-      if (i === n - 1) out.push(node.val); // Hinglish: aakhri dikhega
-      if (node.left) next.push(node.left);
-      if (node.right) next.push(node.right);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+var rightSideView = function(root) {
+    
+    if(root === null) return [];
+    
+    let res = [];
+    let queue = [root];
+    
+    while(queue.length){
+        let level = [];
+        let levelSize = queue.length;
+        while(levelSize){
+            let current = queue.shift();
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+            
+            level.push(current.val);
+            levelSize--;
+        }
+        res.push(level[level.length-1]);
     }
-    q = next;
-  }
-  return out;
-}
+    
+    return res;
+    
+};
 \`\`\``,
     },
     {
@@ -447,25 +733,41 @@ function rightSideView(root) {
 [Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree BFS — by level
-// LC: https://leetcode.com/problems/binary-tree-level-order-traversal/
-function levelOrder(root) {
-  // Hinglish: step 1 — base case check karo
-  if (!root) return [];
-  const out = [], queue = [root];
-  while (queue.length) {
-    const level = [], n = queue.length;
-    for (let i = 0; i < n; i++) {
-      const node = queue.shift();
-      level.push(node.val);
-      if (node.left) queue.push(node.left);
-      if (node.right) queue.push(node.right);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var levelOrder = function(root) {
+    if(root === null) return [];
+    
+    let res = [];
+    let queue = [root];
+    
+    while(queue.length){
+        let levelArr = [];
+        let levelSize = queue.length;
+        while(levelSize){
+            let current = queue.shift();
+            
+            if(current.left) queue.push(current.left);
+            if(current.right) queue.push(current.right);
+            
+            levelArr.push(current.val);
+            levelSize--;
+        }
+        res.push(levelArr);
     }
-    out.push(level);
-  }
-  return out;
-}
+    
+    return res;
+};
 \`\`\``,
     },
     {
@@ -479,18 +781,38 @@ function levelOrder(root) {
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
 \`\`\`js
-// Hinglish: inorder walk — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/kth-smallest-element-in-a-bst/
-function kthSmallest(root, k) {
-  // Hinglish: step 1 — stack lo
-  const st = [];
-  let node = root;
-  while (node || st.length) {
-    while (node) { st.push(node); node = node.left; } // Hinglish: left dabao
-    node = st.pop();
-    if (--k === 0) return node.val; // Hinglish: kth mila
-    node = node.right;
-  }
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} k
+ * @return {number}
+ */
+var kthSmallest = function(root, k) {
+    let arr = [];
+    inOrder(root, arr);
+    
+    return findKth(arr, k)
+};
+
+function inOrder(root, arr){
+    if(!root) return;
+    
+    inOrder(root.left, arr);
+    arr.push(root.val);
+    inOrder(root.right, arr);
+}
+
+function findKth(arr, k){
+    for(let i = 0; i < arr.length; i++){
+        if(i === k - 1) return arr[i];
+    }
 }
 \`\`\``,
     },
@@ -505,17 +827,38 @@ function kthSmallest(root, k) {
 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 \`\`\`js
-// Hinglish: DFS/BFS tree — ek-ek step comment dekho
-// Tree DFS — first node that sees both
-// LC: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/
-function lowestCommonAncestor(root, p, q) {
-  // Hinglish: step 1 — base case check karo
-  if (!root || root === p || root === q) return root;
-  const L = lowestCommonAncestor(root.left, p, q);
-  const R = lowestCommonAncestor(root.right, p, q);
-  if (L && R) return root;
-  return L || R;
-}
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {TreeNode} p
+ * @param {TreeNode} q
+ * @return {TreeNode}
+ */
+var lowestCommonAncestor = function(root, p, q) {
+    
+    function dfs(node){
+        
+        //base cases
+        if(node === null) return null;
+        if(node === p || node === q) return node;
+        
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+        
+        if(left && right) return node;
+        return left || right;
+        
+    }
+    
+    return dfs(root);
+    
+};
 \`\`\``,
     },
     {
@@ -529,23 +872,39 @@ function lowestCommonAncestor(root, p, q) {
 [Deepest Leaves Sum](https://leetcode.com/problems/deepest-leaves-sum/)
 
 \`\`\`js
-// Hinglish: aakhri level jodo — ek-ek step comment dekho
-// LC: https://leetcode.com/problems/deepest-leaves-sum/
-function deepestLeavesSum(root) {
-  // Hinglish: step 1 — queue lo
-  let q = [root], ans = 0;
-  while (q.length) {
-    const next = [];
-    ans = 0; // Hinglish: naya level, naya sum
-    for (const node of q) {
-      ans += node.val; // Hinglish: is level ka jodo
-      if (node.left) next.push(node.left);
-      if (node.right) next.push(node.right);
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ */
+var deepestLeavesSum = function(root) {
+    let sum = 0;
+    let deepestLevel = 0;
+    
+    function dfs(root, level){
+        if(!root) return;
+        
+        if(level === deepestLevel){
+            sum += root.val;
+        } else if(level > deepestLevel){
+            deepestLevel = level;
+            sum = root.val;
+        }
+        
+        dfs(root.left, level+1);
+        dfs(root.right, level+1);
     }
-    q = next;
-  }
-  return ans; // Hinglish: aakhri level ka sum bacha
-}
+    
+    dfs(root, 0);
+    return sum;
+};
 \`\`\``,
     },
     {
