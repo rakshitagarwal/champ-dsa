@@ -1,18 +1,24 @@
 # Sorting
 
-**Definition:** Sorting array ko order me lagata hai taaki binary search, two pointers aur greedy / intervals kaam karein. Teen speed groups: `O(n²)` (bubble, selection, insertion), `O(n log n)` (merge, quick, heap), aur `O(n+k)` (counting) jab range chhoti ho.
+**Definition:** Sorting puts an array in order so binary search, two pointers, and greedy / intervals can work. Three speed bands: `O(n²)` (bubble, selection, insertion), `O(n log n)` (merge, quick, heap), and `O(n+k)` (counting) when the value range is small.
 
-**When to use:** "Sort karke" dikhe — intervals, greedy scheduling, binary search se pehle, custom order (Largest Number). Interview me algorithm likhne ko mile to `n` aur stability dekh ke chuno.
+**When to use:** The problem screams “sort first” — intervals, greedy scheduling, prep for binary search, custom order (Largest Number). If the interview asks you to implement a sort, pick by `n` and whether you need stability.
 
-**How it works:** Adjacent swap (bubble), pick min (selection), insert into sorted prefix (insertion), divide-merge (merge), pivot partition (quick), count buckets (counting). JS `Array.sort` TimSort hai — **numbers pe comparator farz** `(a,b)=>a-b`.
+**How it works:** Adjacent swap (bubble), pick min (selection), insert into sorted prefix (insertion), divide-merge (merge), pivot partition (quick), count buckets (counting). JS `Array.sort` is TimSort — for numbers a comparator is **required**: `(a,b)=>a-b`.
 
 ## Study notes
 
-- **Stable** = equal keys apna relative order rakhein (merge, insertion, TimSort). Quick/selection/heap usually **unstable**.
-- **In-place** ≈ little extra memory (quick, heap, insertion). Merge needs `O(n)` buffer (array).
-- **Pivot choice** quick pe matter: mid/random — sorted input + bad pivot = `O(n²)`.
-- **Intervals** pattern alag page pe hai (merge/insert) — yahan algorithms + complexity.
-- **Checklist:** need stable? memory tight? range small? just use built-in?
+- **Stable** = equal keys keep their relative order (merge, insertion, TimSort). Quick/selection/heap are usually **unstable**.
+- **In-place** ≈ little extra memory (quick, heap, insertion). Merge needs an `O(n)` buffer (arrays).
+- **Pivot choice** matters on quicksort: mid/random — sorted input + bad pivot = `O(n²)`.
+- **Intervals** live on a separate page (merge/insert) — this page is algorithms + complexity.
+- **Checklist:** need stable? memory tight? range small? just use the built-in?
+
+## Active revision
+
+- Name one stable and one unstable `O(n log n)` sort.
+- Why must JS number sorts pass `(a,b)=>a-b`?
+- When is counting sort better than comparison sort?
 
 ## Complexity cheat sheet
 
@@ -39,7 +45,7 @@ items.sort((a, b) => a[0] - b[0] || a[1] - b[1]); // start, then end
 
 ## Bubble Sort — O(n²)
 
-Paas-paas compare; bada bubble right. Har pass me largest settles at end.
+Compare neighbors; larger values bubble right. Each pass settles the next largest at the end.
 
 ```js
 // Bubble sort — swap adjacent out-of-order pairs
@@ -57,7 +63,7 @@ function bubbleSort(nums) {
 
 ## Selection Sort — O(n²)
 
-Har `i` pe remaining me min dhoondh ke swap. Comparisons zyada, swaps ~`O(n)`. Unstable.
+For each `i`, find the min in the remainder and swap. Many comparisons, ~`O(n)` swaps. Unstable.
 
 ```js
 // Selection sort — pick minimum for each position
@@ -78,7 +84,7 @@ function selectionSort(nums) {
 
 ## Insertion Sort — O(n²), Best O(n)
 
-Sorted prefix me bubble-back swaps se place. Almost-sorted pe fast. Stable.
+Place each key into the sorted prefix with bubble-back swaps. Fast on nearly sorted data. Stable.
 
 ```js
 // Insertion sort — insert key into sorted prefix
@@ -96,7 +102,7 @@ function insertionSort(nums) {
 
 ## Merge Sort — O(n log n)
 
-Divide halves, merge sorted runs. Always `O(n log n)`. Stable. Array pe `O(n)` space; linked list me merge in-place pointers se.
+Split in half, merge sorted runs. Always `O(n log n)`. Stable. Arrays need `O(n)` space; on linked lists you can merge with pointers in place.
 
 ```js
 // Merge sort — divide, sort halves, merge sorted runs
@@ -127,7 +133,7 @@ function merge(left, right) {
 
 ## Quick Sort — O(n log n) avg
 
-Last element pivot; chhote left, baaki right; recurse + concat. Avg fast. Worst `O(n²)`. Extra space arrays se. Unstable.
+Last element as pivot; smaller left, rest right; recurse + concat. Fast on average. Worst `O(n²)`. Extra space from arrays. Unstable.
 
 ```js
 // Quick sort — partition around pivot
@@ -159,7 +165,7 @@ function quickSort(arr) {
 
 ## Heap Sort — O(n log n)
 
-Build max-heap, baar-baar root swap with end + sift down. Worst-case `O(n log n)`, extra `O(1)`, unstable. Interview me “guaranteed n log n in-place” bolne ke liye.
+Build a max-heap, repeatedly swap root with the end and sift down. Worst-case `O(n log n)`, extra `O(1)`, unstable. Good interview line: “guaranteed n log n in-place.”
 
 ```js
 // Heap sort — max-heap, then extract max to the end
@@ -187,7 +193,7 @@ function heapSort(nums) {
 
 ## Counting Sort — O(n+k)
 
-Small non-neg int range → count then emit. Not comparison-based. Stable agar prefix cumulative use karo.
+Small non-negative int range → count, then emit. Not comparison-based. Stable if you use a cumulative prefix.
 
 ```js
 // Counting sort — count then emit
@@ -204,7 +210,7 @@ function countingSort(nums, maxVal) {
 
 ## Radix Sort — O(d(n+10))
 
-Non-neg ints: har digit pe stable counting pass (LSD). `d` = digits in max number. Helper = one digit ka counting sort.
+Non-neg ints: one stable counting pass per digit (LSD). `d` = digits in the max number. Helper = counting sort on one digit place.
 
 ```js
 // Radix sort — LSD; helper sorts by one digit place
@@ -248,7 +254,7 @@ function helper(array, digit) {
 
 ## Sort an Array
 
-LC pe khud implement — merge sort safe (stable, guaranteed `O(n log n)`).
+On LC, implement it yourself — merge sort is the safe pick (stable, guaranteed `O(n log n)`).
 
 [Sort an Array](https://leetcode.com/problems/sort-an-array/)
 
@@ -281,7 +287,7 @@ function merge(left, right) {
 
 ## Largest Number
 
-Custom comparator: `a` pehle iff `a+b > b+a`. All zeros → `"0"`.
+Custom comparator: put `a` first iff `a+b > b+a`. All zeros → `"0"`.
 
 [Largest Number](https://leetcode.com/problems/largest-number/)
 
@@ -301,7 +307,7 @@ function largestNumber(nums) {
 
 ## H-Index
 
-Sort ascending; pehli `i` jahan `citations[i] >= n - i` → h-index `n - i`.
+Sort ascending; first `i` where `citations[i] >= n - i` → h-index `n - i`.
 
 [H-Index](https://leetcode.com/problems/h-index/)
 

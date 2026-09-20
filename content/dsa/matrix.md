@@ -1,10 +1,39 @@
 # Matrix
 
-**Definition:** Matrix 2D array hai — rows × cols ka grid. Aksar sawal traversal (spiral, wave), rotation, search ya paint ke hote hain. Soch hamesha indices pe rakho: row `r` 0 se `rows-1`, column `c` 0 se `cols-1`.
+**Definition:** A matrix is a 2D array — a grid of rows × cols. Typical questions: traversal (spiral, wave), rotation, search, or paint. Always think in indices: row `r` from `0..rows-1`, column `c` from `0..cols-1`.
 
-**When to use:** Spiral order, rotate image, zeroes mark karna, sorted matrix me search, ya grid paint karna. "2D me ghoomna" dikhe to ye page kholo.
+**When to use:** Spiral order, rotate image, mark zeroes, search in a sorted matrix, or paint a grid. Open this page when the problem is "move around in 2D".
 
-**How it works:** Pehle `rows`, `cols` nikalo. Directions array rakho `[[1,0],[-1,0],[0,1],[0,-1]]`. Bounds check har move pe: `nr<0 || nc<0 || nr>=rows || nc>=cols`. Rotate 90° = transpose + har row reverse. Time aksar `O(rows*cols)`, space `O(1)` extra.
+**How it works:** Read `rows`, `cols` first. Keep a directions array `[[1,0],[-1,0],[0,1],[0,-1]]`. Bounds-check every move: `nr<0 || nc<0 || nr>=rows || nc>=cols`. Rotate 90° = transpose + reverse each row. Time usually `O(rows*cols)`; extra space often `O(1)`.
+
+## Study notes
+
+- **Rows/cols first:** Start every solution with `rows`, `cols` — do not repeat `grid.length`.
+- **Directions array:** Put 4 moves in one array; extend to 8 for diagonals.
+- **Bounds helper:** One `inBounds(r,c)` line per move.
+- **Transpose + reverse = rotate:** 90° clockwise needs no new matrix.
+- **Spiral boundaries:** Keep top/bottom/left/right; shrink each round; stop when empty.
+- **Flatten index:** For sorted-matrix binary search: `idx → [Math.floor(idx/cols), idx%cols]`.
+- **First row/col as markers:** Set Zeroes in O(1) space — mark in first row/col; use two flags for overlap.
+- **In-place paint:** Mark on the grid (`"1"` → `"0"`) when you do not need the original — saves a `seen` set.
+
+## Active revision
+
+1. Rotate 90° CW: transpose then reverse rows — say it aloud.
+2. Spiral: name the four shrink steps and the stop condition.
+3. Sorted matrix search: map flat mid to `(r,c)`.
+
+**Blank checklist:** bounds? directions? in-place? flatten for BS?
+
+## Decision table
+
+| If you see… | Likely move |
+|-------------|-------------|
+| Layer / spiral order | Shrink four boundaries |
+| Rotate square image in-place | Transpose + reverse rows |
+| Zero out rows/cols | Mark then write (or first row/col markers) |
+| Fully sorted matrix | Binary search on flat index |
+| Grid walk / paint | DFS/BFS + dirs + bounds |
 
 ```js
 // Matrix skeleton — traversal with directions
@@ -25,20 +54,9 @@ for (let r = 0; r < n; r++)
 for (const row of a) row.reverse();
 ```
 
-## Tips & Tricks
-
-- **Rows/cols pehle:** Har solution `rows`, `cols` se shuru karo — baar-baar `grid.length` mat likho.
-- **Directions array:** 4 moves ek array me rakho, alag-alag if mat lagao. 8 moves (diagonal) ho to array badhao.
-- **Bounds helper:** `inBounds` function banao — har move pe ek line me check.
-- **Transpose + reverse = rotate:** 90° clockwise ke liye transpose karke har row reverse karo — naya matrix nahi chahiye.
-- **Spiral me boundaries:** top/bottom/left/right rakho, har round ke baad shrink karo, khaali hote hi ruko.
-- **Flatten index:** Sorted matrix me binary search ke liye `idx → [Math.floor(idx/n), idx%n]` use karo.
-- **First row/col as markers:** Set Zeroes O(1) space me — pehli row/col me nishan lagao, do flags se overlap sambhalo.
-- **In-place paint:** Grid me hi mark karo (`"1"` → `"0"`) jab wapas nahi chahiye — extra `seen` bachta hai.
-
 ## Spiral Matrix
 
-Boundaries rakho (top/bottom/left/right), ek-ek layer nikalo, har side ke baad shrink karo.
+Keep boundaries (top/bottom/left/right), peel one layer at a time, shrink after each side.
 
 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
 
@@ -81,7 +99,7 @@ var spiralOrder = function(matrix) {
 
 ## Rotate Image
 
-Transpose karo (r,c) ↔ (c,r), phir har row reverse. In-place, extra space nahi.
+Transpose `(r,c) ↔ (c,r)`, then reverse each row. In-place, no extra matrix.
 
 [Rotate Image](https://leetcode.com/problems/rotate-image/)
 
@@ -111,7 +129,7 @@ var rotate = function(matrix) {
 
 ## Set Matrix Zeroes
 
-Jis cell me 0 ho, uski poori row+col zero karo. O(1) space ke liye pehli row/col me nishan lagao.
+If a cell is 0, zero its whole row and column. For O(1) space, mark in the first row/col.
 
 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
 
@@ -145,7 +163,7 @@ var setZeroes = function(matrix) {
 
 ## Search a 2D Matrix
 
-Har row sorted, har row ka pehla pichhli row ke aakhri se bada — poori matrix ek sorted array hai. Flatten index pe binary search lagao.
+Each row is sorted, and the first of each row is larger than the last of the previous — the whole matrix is one sorted array. Binary search on the flat index.
 
 [Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)
 

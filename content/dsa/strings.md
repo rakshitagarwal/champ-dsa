@@ -1,28 +1,34 @@
 # Strings
 
-**Definition:** String questions me text ko scan, compare, count ya transform karna hota hai. Asli trick ye hai ki string ko array jaisa treat karo — two pointers, frequency counting aur sliding window yahi sabse zyada lagte hain. JS me strings **immutable** hain, isliye baar-baar `+=` mat karo, array me jodke `join` karo.
+**Definition:** String problems ask you to scan, compare, count, or transform text. The main trick is treating the string like an array — two pointers, frequency counts, and sliding windows show up the most. In JS, strings are **immutable**, so do not loop with `+=`; push into an array and `join` at the end.
 
-**When to use:** Palindrome check, anagram compare, substring search, grouping, ya string transform dikhe. "Sorted order me compare" (anagram) aur "bina repeat sabse lamba" (sliding window) pehchano.
+**When to use:** Palindrome checks, anagram compares, substring search, grouping, or string transforms. Spot “compare in sorted order” (anagram) and “longest without repeats” (sliding window).
 
-**How it works:** Pehle decide karo — order matter karta hai (two pointers/expand) ya count matter karta hai (frequency map). Case aur non-alphanumeric saaf karo (`toLowerCase`, regex), fir pattern chalao. Time aksar `O(n)`, space `O(1)` ya `O(k)`.
+**How it works:** Decide first — does order matter (two pointers / expand) or do counts matter (frequency map)? Clean case and non-alphanumeric (`toLowerCase`, regex), then run the pattern. Time is usually `O(n)`, space `O(1)` or `O(k)`.
 
 ## Study notes
 
-- **Pehchan:** palindrome, anagram, substring constraint, parse/build string.
-- **Build tip:** `const out = []; out.push(ch); return out.join("")` — kabhi loop me `s += ch` nahi.
-- **Traps:** Unicode/surrogate pairs rare in LC; empty string edge; off-by-one on `slice`.
-- **Checklist:** case? only alnum? need indices or just bool?
+- **Recognition:** palindrome, anagram, substring constraint, parse/build string.
+- **Build tip:** `const out = []; out.push(ch); return out.join("")` — never `s += ch` in a hot loop.
+- **Traps:** Unicode/surrogate pairs are rare on LC; empty string edge; off-by-one on `slice`.
+- **Checklist:** case? only alnum? need indices or just a boolean?
+
+## Active revision
+
+- Why is `s += ch` in a loop dangerous in JS? What do you do instead?
+- Anagram: when is a 26-slot freq array better than sorting?
+- Palindrome: odd vs even expand-around-center — when do you need both?
 
 ## JS String methods (interview cheatsheet)
 
-| Method | Kya karta hai | Notes |
+| Method | What it does | Notes |
 | --- | --- | --- |
 | `length` | length | read-only |
 | `charAt(i)` / `s[i]` | char at i | out of range → `""` / `undefined` |
 | `charCodeAt(i)` | UTF-16 code unit | `'a'.charCodeAt(0) === 97` |
 | `at(i)` | index (negative OK) | `at(-1)` last char |
 | `slice(s, e?)` | substring copy | end exclusive; negatives OK |
-| `substring(s, e?)` | similar slice | negatives → 0; prefer `slice` |
+| `substring(s, e?)` | similar to slice | negatives → 0; prefer `slice` |
 | `indexOf` / `lastIndexOf` | find substring | `-1` if missing |
 | `includes` / `startsWith` / `endsWith` | bool checks | |
 | `split(sep)` | → array | `""` sep = chars; watch empty parts |
@@ -71,18 +77,18 @@ function expand(s, l, r) {
 
 ## Tips & Tricks
 
-- **Immutable yaad rakho:** `s += ch` loop me `O(n²)` banata hai — array me push karke `join("")` karo.
-- **Case pehle fix karo:** Compare se pehle `toLowerCase()` kar lo, har baar nahi.
-- **Kachra skip karo:** Palindrome me letters/digits ke alawa sab skip — regex `/[a-z0-9]/i` ya charCode check.
-- **Anagram = sorted ya count:** Chhoti strings sort karke compare karo, lambi ke liye 26-length freq array tez hai.
-- **charCodeAt ka use:** `'a'.charCodeAt(0)` se index nikalo — Map se tez, `O(1)` space.
-- **Split-reverse-join:** Words reverse karne hon to `split(" ").reverse().join(" ")` — par extra spaces ke liye filter karo.
-- **Sliding window strings pe:** Repeat/condition wale substring sawal window + map se `O(n)` me hote hain.
-- **Expand-center:** Palindromic substring me odd (center i) aur even (center i,i+1) dono try karo.
+- **Remember immutability:** `s += ch` in a loop is `O(n²)` — push into an array and `join("")`.
+- **Normalize case once:** Call `toLowerCase()` up front, not on every compare.
+- **Skip junk:** For palindromes, skip everything except letters/digits — regex `/[a-z0-9]/i` or a charCode check.
+- **Anagram = sort or count:** Short strings — sort and compare; longer ones — a length-26 freq array is faster.
+- **Use `charCodeAt`:** `'a'.charCodeAt(0)` gives a bucket index — often faster than a Map, `O(1)` space.
+- **Split-reverse-join:** To reverse words, `split(" ").reverse().join(" ")` — filter empty parts if there are extra spaces.
+- **Sliding window on strings:** Substring-with-constraint problems (repeats, counts) are often `O(n)` with a window + map.
+- **Expand-center:** For palindromic substrings, try both odd centers (`i`) and even centers (`i, i+1`).
 
 ## Valid Palindrome
 
-Dono siron se aao, alphanumeric nahi to skip, case ignore karke compare.
+Walk from both ends; skip non-alphanumeric; compare ignoring case.
 
 [Valid Palindrome](https://leetcode.com/problems/valid-palindrome/)
 
@@ -127,7 +133,7 @@ function isPal(str) {
 
 ## Valid Anagram
 
-Dono ke letter counts barabar hon to anagram. Ek ka +1, doosre ka -1 — sab zero to true.
+Same letter counts ⇒ anagram. +1 for `s`, −1 for `t` — all zeros means true.
 
 [Valid Anagram](https://leetcode.com/problems/valid-anagram/)
 
@@ -167,7 +173,7 @@ var isAnagram = function(s, t) {
 
 ## Group Anagrams
 
-Sorted word hi group ki key hai — anagram sort karke same bante hain. Map me key se list jodo.
+The sorted word is the group key — anagrams sort to the same string. Bucket lists in a map by that key.
 
 [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
@@ -193,7 +199,7 @@ var groupAnagrams = function(strs) {
 
 ## Longest Substring Without Repeating Characters
 
-Window badhao, repeat aaye to left se hatao. Map me last index rakho taaki left seedha jump kare.
+Grow the window; on a repeat, shrink from the left. A map of last indices lets left jump ahead.
 
 [Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/)
 
@@ -226,7 +232,7 @@ var lengthOfLongestSubstring = function(s) {
 
 ## Longest Palindromic Substring
 
-Har center (odd + even) se expand karo, sabse lamba rakho. `O(n²)` time, `O(1)` space.
+Expand from every center (odd + even); keep the longest. `O(n²)` time, `O(1)` space.
 
 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/)
 

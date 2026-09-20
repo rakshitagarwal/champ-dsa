@@ -1,49 +1,55 @@
 # Arrays
 
-**Definition:** Array ek contiguous memory structure hai — saare elements ek line me store hote hain aur index se `O(1)` me access milta hai. String bhi bas characters ka array hai. **Arrays & Hashing** me pehle ye page (in-place / scan), phir Hashing page (Map/Set) padho.
+**Definition:** An array is a contiguous memory structure — elements sit in a line and index access is `O(1)`. A string is basically an array of characters. For **Arrays & Hashing**, read this page first (in-place / scan), then the Hashing page (Map/Set).
 
-**When to use:** Jab array ko in-place badalna ho — reverse karna, rotate karna, zeroes/duplicate hatana, ya running sum / Kadane se best subarray nikalna ho. Agar key se yaad rakhna hai to Hashing wala page dekho.
+**When to use:** You need to rewrite an array in place — reverse, rotate, strip zeroes/duplicates, or find a best subarray with a running sum / Kadane. If you need to remember values by key, use the Hashing page instead.
 
-**How it works:** Read/write pointer ya do-pointer (left-right) se ek hi scan me kaam ho jata hai, har element 1–2 baar visit hota hai. Time `O(n)`, extra space `O(1)`.
+**How it works:** A read/write pointer or left–right two-pointer scan finishes the job in one pass; each element is visited 1–2 times. Time `O(n)`, extra space `O(1)`.
 
 ## Study notes
 
-- **Pehchan:** in-place rewrite, contiguous best sum, swap/reverse/rotate, majority — bina Map ke.
-- **Complexity:** almost always `O(n)` time, `O(1)` extra space (sort alag).
-- **Traps:** off-by-one on `write` pointer; Kadane me all-negative — `best` ko `-Infinity` ya `nums[0]` se start; mutate vs copy.
-- **Checklist:** kya in-place chahiye? kya order matter karta hai? hashing better to nahi?
+- **Recognition:** in-place rewrite, contiguous best sum, swap/reverse/rotate, majority — without a Map.
+- **Complexity:** almost always `O(n)` time, `O(1)` extra space (sorting is separate).
+- **Traps:** off-by-one on the `write` pointer; Kadane with all-negatives — start `best` at `-Infinity` or `nums[0]`; mutate vs copy.
+- **Checklist:** Must it be in-place? Does order matter? Would hashing be cleaner?
+
+## Active revision
+
+- Sketch read/write filter and left–right reverse without looking.
+- Kadane in one sentence: extend vs restart; what if every value is negative?
+- Name three array problems that stay `O(1)` extra space.
 
 ## JS Array methods (interview cheatsheet)
 
-Mutating (array badalte hain):
+Mutating (change the array):
 
-| Method | Kya karta hai | Notes |
+| Method | What it does | Notes |
 | --- | --- | --- |
-| `push(...x)` | end pe add | `O(1)` amortized |
-| `pop()` | end se hatao | stack top |
-| `unshift(...x)` | start pe add | `O(n)` — avoid in hot loops |
-| `shift()` | start se hatao | queue front, `O(n)` |
-| `splice(i, del, ...add)` | beech me cut/insert | `O(n)` |
+| `push(...x)` | add at end | `O(1)` amortized |
+| `pop()` | remove from end | stack top |
+| `unshift(...x)` | add at start | `O(n)` — avoid in hot loops |
+| `shift()` | remove from start | queue front, `O(n)` |
+| `splice(i, del, ...add)` | cut/insert in the middle | `O(n)` |
 | `sort(cmp)` | in-place sort | default = string sort! use `(a,b)=>a-b` |
-| `reverse()` | ulta | in-place |
-| `fill(v, s?, e?)` | range fill | DP init |
+| `reverse()` | reverse order | in-place |
+| `fill(v, s?, e?)` | fill a range | DP init |
 | `copyWithin(t, s, e?)` | copy inside self | rare |
 
 Non-mutating / read:
 
-| Method | Kya karta hai | Notes |
+| Method | What it does | Notes |
 | --- | --- | --- |
-| `slice(s?, e?)` | copy range | end exclusive; shallow copy |
-| `concat(a)` / `[...a, ...b]` | jodna | new array |
-| `includes(x)` | hai kya | `O(n)` |
-| `indexOf` / `lastIndexOf` | pehli/aakhri index | `-1` if missing |
-| `find` / `findIndex` | pehla match | callback |
+| `slice(s?, e?)` | copy a range | end exclusive; shallow copy |
+| `concat(a)` / `[...a, ...b]` | concatenate | new array |
+| `includes(x)` | contains? | `O(n)` |
+| `indexOf` / `lastIndexOf` | first/last index | `-1` if missing |
+| `find` / `findIndex` | first match | callback |
 | `filter` / `map` / `reduce` | transform / fold | new array (filter/map) |
 | `every` / `some` | all / any | short-circuit |
-| `flat(depth)` / `flatMap` | nest kholna | |
-| `join(sep)` | string banao | |
+| `flat(depth)` / `flatMap` | flatten nesting | |
+| `join(sep)` | build a string | |
 | `at(i)` | negative index OK | `at(-1)` = last |
-| `Array.from(x)` / `Array(n).fill(0)` | banao | `Array(n)` holes — prefer `fill` |
+| `Array.from(x)` / `Array(n).fill(0)` | create | `Array(n)` has holes — prefer `fill` |
 | `Array.isArray(x)` | type check | |
 
 Handy patterns: `[...arr]`, `arr.toSorted?.(cmp)` (immutable sort), destructure `[a,b]=arr`, swap `[a[i],a[j]]=[a[j],a[i]]`.
@@ -172,7 +178,7 @@ var maxSubArray = function(nums) {
 
 ## Best Time to Buy and Sell Stock
 
-Ek baar kharido, ek baar becho. Sabse sasta kharido, sabse mehenga becho — ek scan me min price track karo.
+Buy once, sell once. Track the lowest price so far and the best profit in one scan.
 
 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
@@ -194,7 +200,7 @@ var maxProfit = function(prices) {
 
 ## Remove Duplicates from Sorted Array
 
-Sorted hai to duplicates bagal me honge. Write pointer se unique hi rakho, length return karo.
+Because the array is sorted, duplicates sit next to each other. Keep only uniques with a write pointer; return the new length.
 
 [Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
 
@@ -213,7 +219,7 @@ function removeDuplicates(nums) {
 
 ## Majority Element
 
-Boyer-Moore voting — candidate rakho, count badhao/ghatao. End me candidate hi majority.
+Boyer-Moore voting — keep a candidate and bump/drop the count. At the end the candidate is the majority.
 
 [Majority Element](https://leetcode.com/problems/majority-element/)
 
@@ -232,7 +238,7 @@ function majorityElement(nums) {
 
 ## Merge Sorted Array
 
-Do sorted arrays, piche se bharo taaki overwrite na ho. `m+n` jagah pehle se hai.
+Two sorted arrays; fill from the back so you do not overwrite. Room for `m+n` elements is already there.
 
 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
 

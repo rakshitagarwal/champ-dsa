@@ -1,10 +1,10 @@
 # Topological Sort
 
-**Definition:** DAG (Directed Acyclic Graph) me nodes ka aisa order jahan har edge `u → v` ke liye `u` pehle aaye. "Pehle ye, phir wo" — courses, build order, task dependencies. Cycle hui to order impossible hai.
+**Definition:** On a DAG (Directed Acyclic Graph), a topological order lists nodes so that for every edge `u → v`, `u` appears before `v`. Think “do this first, then that” — courses, build order, task dependencies. If there is a cycle, no valid order exists.
 
-**When to use:** Course schedule, build order, Alien Dictionary, ya koi "dependency pehle" wala sawal. Sirf **directed** graph pe; undirected components ke liye [Graphs](/patterns/graphs) / [Union Find](/patterns/union-find).
+**When to use:** Course schedule, build order, Alien Dictionary, or any “dependency first” question. Only on **directed** graphs; for undirected components use [Graphs](/patterns/graphs) / [Union Find](/patterns/union-find).
 
-**How it works:** Do tareeke — **Kahn (BFS):** in-degree gino, 0 wale queue me, nikal ke neighbors unlock karo. **DFS:** visit ke baad stack me push, reverse karo. Cycle check: Kahn me `taken != n`, DFS me grey-node revisit (back-edge). Time `O(V+E)`.
+**How it works:** Two methods — **Kahn (BFS):** count in-degrees, enqueue zeros, unlock neighbors as you go. **DFS:** push onto a stack after visiting, then reverse. Cycle check: Kahn if `taken != n`; DFS if you revisit a grey node (back-edge). Time `O(V+E)`.
 
 **See also:** Base BFS/DFS → [Graphs](/patterns/graphs).
 
@@ -21,9 +21,17 @@
 - **Only on DAG.** Cycle ⇒ no topo order (return false / empty).
 - **Kahn (BFS):** `indeg[]`; queue zeros; process; `--indeg[v]===0` enqueue; if processed count `< n` → cycle.
 - **DFS:** 3 colors (0 white / 1 grey / 2 black); grey revisit = cycle; push on finish; reverse stack = order.
-- **Alien Dictionary:** consecutive word diffs se edges, phir topo; invalid prefix (`abc` before `ab`) alag check.
+- **Alien Dictionary:** edges from consecutive word diffs, then topo; invalid prefix (`abc` before `ab`) is a separate check.
 - **Traps:** wrong edge direction; `adjList[curr] === []` never true in JS (use length / delete); forgetting nodes with no edges.
 - **Checklist:** directed? any valid order vs detect cycle only?
+
+### Decision table
+
+| Need | Method |
+|------|--------|
+| Valid order list | Kahn (or DFS finish-stack reversed) |
+| Possible or not (cycle) | Kahn count / 3-color DFS |
+| Undirected cycle | Not topo — UF or parent-DFS on [Graphs](/patterns/graphs) |
 
 ```js
 // Topological skeleton (Kahn) — O(V+E)
@@ -111,7 +119,7 @@ var canFinish = function(numCourses, prerequisites) {
 
 ## Course Schedule II (Order Return)
 
-Topo order wapas bhi karna hai, sirf possible/impossible nahi. Kahn me nikalte time order array me push karo.
+Return a topo order, not only possible/impossible. With Kahn, push into an order array as you dequeue.
 
 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 
@@ -142,7 +150,7 @@ function findOrder(numCourses, prerequisites) {
 
 ## Detect Cycle in Directed Graph (DFS 3-Color)
 
-Grey node pe wapas aana = back-edge = cycle. White/grey/black colors se ek DFS me cycle pakdo.
+Returning to a grey node = back-edge = cycle. White/grey/black colors catch a cycle in one DFS.
 
 ```js
 // Time: O(V+E) · Space: O(V+E)
@@ -165,4 +173,4 @@ function hasCycleDFS(n, edges) {
 }
 ```
 
-**Yaad rakho:** Dependencies + directed = topo. Kahn for order; 3-color DFS for cycle. Undirected cycle → UF or parent-DFS on [Graphs](/patterns/graphs).
+**Remember:** Dependencies + directed = topo. Kahn for order; 3-color DFS for cycle. Undirected cycle → UF or parent-DFS on [Graphs](/patterns/graphs).

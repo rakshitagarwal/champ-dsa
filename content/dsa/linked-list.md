@@ -1,18 +1,21 @@
 # Linked List
 
-**Definition:** Linked list nodes ki chain hai — har node me value aur `next` (kabhi `random`) pointer hota hai jo agle node ko point karta hai. Random access nahi — i-th tak pahuchne ke liye i steps chalna padta hai. Fayda: pointer hai to `O(1)` me jod/tod sakte ho.
+**Definition:** A linked list is a chain of nodes — each holds a value and a `next` pointer (sometimes also `random`) to the next node. No random access: reaching the i-th node takes i steps. Upside: with a pointer you can splice in or out in `O(1)`.
 
-**When to use:** Pointer reverse karna, cycle detect, middle dhoondhna, sorted lists merge, ya end se N-th hatana — sab `O(1)` extra space me `next` rewiring se.
+**When to use:** Reverse pointers, detect a cycle, find the middle, merge sorted lists, or delete the N-th from the end — all by rewiring `next` with `O(1)` extra space.
 
-**How it works:** Tricks: (1) **Dummy node** `dummy.next = head` jab head badal sakta ho; (2) **Fast/slow** — fast 2 kadam, slow 1 — middle/cycle ke liye; (3) **`n` ka gap** do pointers me end se N-th ke liye. Time `O(n)`, space `O(1)`.
+**How it works:** Core tricks: (1) **Dummy node** `dummy.next = head` when the head may change; (2) **Fast/slow** — fast moves 2 steps, slow 1 — for middle/cycle; (3) **Gap of n** between two pointers for N-th from end. Time `O(n)`, space `O(1)`.
 
 ## Study notes
 
 - **Dummy** when head may change (delete first, merge).
-- **Floyd:** slow/fast meet ⇒ cycle; reset one to head for entrance.
-- **Reverse:** `prev/curr/next` three pointers.
-- **Traps:** lose `next` before rewire; null checks; off-by-one on nth-from-end.
+- **Floyd:** slow/fast meet ⇒ cycle; reset one to head for the entrance.
+- **Reverse:** `prev` / `curr` / `next` three pointers.
+- **Traps:** lose `next` before rewiring; null checks; off-by-one on nth-from-end.
 - **Checklist:** need dummy? cycle possible? modify in place?
+
+### Active revision
+Dummy needed? Fast/slow or gap-of-n? Did I save `next` before rewiring?
 
 ```js
 // Linked list skeleton — traverse and rewire
@@ -182,7 +185,7 @@ function copyRandomList(head) {
 
 ## Middle of the Linked List
 
-Fast 2x, slow 1x. Fast khatam to slow middle par.
+Fast moves 2×, slow 1×. When fast ends, slow is at the middle.
 
 [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/)
 
@@ -204,7 +207,7 @@ var middleNode = function(head) {
 
 ## Palindrome Linked List
 
-Middle dhoondo, second half reverse karo, fir dono half compare karo.
+Find the middle, reverse the second half, then compare both halves.
 
 [Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
@@ -249,7 +252,7 @@ function reverse(root) {
 
 ## Intersection of Two Linked Lists
 
-Do pointers, end par dusri list pe switch karo. Milenge to intersection.
+Two pointers; when one hits the end, switch to the other list. They meet at the intersection (or both become null).
 
 [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
 

@@ -1,19 +1,25 @@
 # Prefix Sum
 
-**Definition:** Prefix sum `pref[i] = nums[0] + ... + nums[i-1]` (`pref[0]=0`) saare running totals pehle se bana leta hai taaki koi bhi range `[l..r]` ka sum `pref[r+1]-pref[l]` se `O(1)` me mile. Prefix frequencies ko hash karne se target sum wale subarrays gin sakte hain.
+**Definition:** A prefix sum `pref[i] = nums[0] + ... + nums[i-1]` (`pref[0]=0`) precomputes running totals so any range `[l..r]` sums to `pref[r+1]-pref[l]` in `O(1)`. Hashing prefix frequencies lets you count subarrays with a target sum.
 
-**When to use:** Bahut saare range-sum queries, subarray sum == K, product except self (prefix × suffix), ya 2D prefix se submatrix sums.
+**When to use:** Many range-sum queries, subarray sum == K, product except self (prefix × suffix), or 2D prefix for submatrix sums.
 
-**How it works:** Ek pass me `pref` banao. "count subarrays sum == k" ke liye `seen` map rakho — `need = cur - k`, `ans += seen.get(need)`. Time `O(n)`, space `O(n)` (bare range ke liye `O(1)`).
+**How it works:** Build `pref` in one pass. To count subarrays with sum == k, keep a `seen` map — `need = cur - k`, then `ans += seen.get(need)`. Time `O(n)`, space `O(n)` (bare range queries can be `O(1)` extra after the build).
 
 ## Study notes
 
 - **Identity:** `sum(l..r) = pref[r+1] - pref[l]` with `pref[0]=0`.
 - **Hash combo:** subarray sum = k → count prior prefixes `cur - k` (negatives OK; sliding window fails).
 - **Product except self:** prefix × suffix, no division.
-- **2D:** `sum(r1,c1,r2,c2)` inclusion-exclusion on 2D prefix.
+- **2D:** `sum(r1,c1,r2,c2)` inclusion-exclusion on a 2D prefix.
 - **Traps:** off-by-one on pref length `n+1`; forget `seen.set(0,1)`; mutate nums in place carefully.
-- **Checklist:** many range queries? sum/product of contiguous? hashing needed?
+- **Checklist:** many range queries? sum/product of a contiguous range? hashing needed?
+
+## Active revision
+
+- Write the range identity with `pref[0]=0` from memory.
+- Why does subarray sum == k need a hash map when negatives exist?
+- Product except self: what do left and right passes each store?
 
 ```js
 // Prefix skeleton — build and query
@@ -85,7 +91,7 @@ function subarraySum(nums, k) {
 
 ## Range Sum Query - Immutable
 
-Baar-baar range sum pucha jayega. Prefix banao, fir `sum(l,r)=pref[r+1]-pref[l]` O(1) me.
+Many range-sum queries coming. Build a prefix, then `sum(l,r)=pref[r+1]-pref[l]` in O(1).
 
 [Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
 
@@ -103,7 +109,7 @@ NumArray.prototype.sumRange = function(l, r) {
 
 ## Find Pivot Index
 
-Pivot jahan left sum == right sum. Total sum se left nikalte jao.
+Pivot where left sum equals right sum. Walk left sum against the total.
 
 [Find Pivot Index](https://leetcode.com/problems/find-pivot-index/)
 
@@ -123,7 +129,7 @@ function pivotIndex(nums) {
 
 ## Contiguous Array
 
-0 ko -1 banao, fir prefix sum zero wala longest. Hash map me pehli occurrence yaad rakho.
+Map 0 → −1, then find the longest span whose prefix sum returns to a seen value. Store the first index of each prefix in a hash map.
 
 [Contiguous Array](https://leetcode.com/problems/contiguous-array/)
 

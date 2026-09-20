@@ -1,18 +1,24 @@
 # Hashing
 
-**Definition:** Hashing (hash map `Map` / hash set `Set` / plain `Object`) average `O(1)` me lookup, insert, delete deta hai — keys ko hash karke buckets me daalta hai. Space deke time bachate hain: jo dekha use yaad rakho. **Arrays & Hashing** ka doosra hissa yahi hai.
+**Definition:** Hashing (hash map `Map` / hash set `Set` / plain `Object`) gives average `O(1)` lookup, insert, and delete — keys hash into buckets. Trade space for time: remember what you have already seen. This is the other half of **Arrays & Hashing**.
 
-**When to use:** Jab lage "kaash jo pehle dekha wo yaad hota" — complement dhoondhna (Two Sum), signature se group (anagrams), frequency ginna, dedup, ya longest consecutive trick (streak ke left edge se hi start).
+**When to use:** Whenever you think “I wish I remembered what I saw earlier” — find a complement (Two Sum), group by signature (anagrams), count frequencies, dedupe, or the longest consecutive trick (only start a streak at a left edge).
 
-**How it works:** Ek pass: pehle dekho saathi/group already hai kya, fir current element store karo. Grouping ke liye canonical key banao (sorted string). Time `O(n)` average, space `O(n)`.
+**How it works:** One pass: check whether the partner/group already exists, then store the current element. For grouping, build a canonical key (e.g. sorted string). Time `O(n)` average, space `O(n)`.
 
 ## Study notes
 
-- **Pehchan:** "already seen?", frequency, group-by-key, complement `target - x`.
-- **Map vs Object:** keys non-string / insertion order / `.size` chahiye → `Map`. Simple string keys → `{}` OK.
-- **Set vs Map:** sirf existence → `Set`; value store → `Map`.
-- **Traps:** `{}` pe `hasOwn` vs prototype; Map keys by reference for objects; forget to `set` after `get` freq bump.
-- **Checklist:** kya key hashable hai? collision/average vs worst (LC usually average OK)?
+- **Recognition:** “already seen?”, frequency, group-by-key, complement `target - x`.
+- **Map vs Object:** non-string keys / insertion order / `.size` → `Map`. Simple string keys → `{}` is fine.
+- **Set vs Map:** existence only → `Set`; store a value → `Map`.
+- **Traps:** `{}` with `hasOwn` vs prototype; Map object keys are by reference; forgetting to `set` after a freq `get` bump.
+- **Checklist:** is the key hashable? average vs worst collision (LC usually OK with average)?
+
+## Active revision
+
+- Two Sum: look up complement **before** or **after** storing the current index — why?
+- Longest Consecutive: why only start at numbers with no `n - 1`?
+- When do you pick `Set` over `Map`?
 
 ## JS Object / Map / Set methods (interview cheatsheet)
 
@@ -201,7 +207,7 @@ var longestConsecutive = function(nums) {
 
 ## Contains Duplicate
 
-Har number pehle dekha kya? Set me check karo. Interview ka sabse basic hashing check.
+Has this number been seen before? Check with a Set. The most basic hashing interview check.
 
 [Contains Duplicate](https://leetcode.com/problems/contains-duplicate/)
 
@@ -216,7 +222,7 @@ var containsDuplicate = function(nums) {
 
 ## Valid Sudoku
 
-Har row, column, aur 3x3 box me 1-9 ek baar hi aana chahiye. Hash set se check karo.
+Each row, column, and 3×3 box may contain 1–9 at most once. Check with hash sets.
 
 [Valid Sudoku](https://leetcode.com/problems/valid-sudoku/)
 
@@ -242,7 +248,7 @@ function isValidSudoku(board) {
 
 ## Top K Frequent Elements
 
-Frequency gino, fir heap / bucket se top K nikalo. Hashing + heap combo ka classic.
+Count frequencies, then pull top K with a heap or buckets. Classic hashing + heap combo.
 
 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
 

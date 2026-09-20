@@ -1,10 +1,10 @@
 # Graphs
 
-**Definition:** Graph **nodes (vertices) + edges (neighbors)** ka jod hai. Representation: adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Do core traversals: **DFS** (gehra jao — components, paths, cycles) aur **BFS** (level by level — unweighted shortest steps). `visited` bina infinite loop.
+**Definition:** A graph is **nodes (vertices) + edges (neighbors)**. Representation: adjacency list, matrix, or an implicit grid (each cell’s 4 neighbors). Two core traversals: **DFS** (go deep — components, paths, cycles) and **BFS** (level by level — unweighted shortest steps). Without `visited`, you loop forever.
 
-**When to use:** "Pahuch sakte hain?", "kitne islands/components?", "kitne steps shortest?" (BFS), multi-source spread (Rotting Oranges), course order → [Topological Sort](/patterns/topological-sort). Grid bhi graph hai.
+**When to use:** “Can I reach?”, “how many islands/components?”, “fewest steps?” (BFS), multi-source spread (Rotting Oranges), course order → [Topological Sort](/patterns/topological-sort). A grid is also a graph.
 
-**How it works:** `graph[node] = [neighbors]` banao. DFS unvisited pe recurse/stack; BFS queue se level-by-level. Multi-source: saare sources ek saath queue me. Time `O(V+E)`, space `O(V)`.
+**How it works:** Build `graph[node] = [neighbors]`. DFS recurse/stack on unvisited; BFS queue level-by-level. Multi-source: enqueue all sources together. Time `O(V+E)`, space `O(V)`.
 
 ## Study order (this family)
 
@@ -23,11 +23,11 @@
 3. **Apply:** Pick one problem below; say time/space before coding.
 
 **Blank checklist (every graph problem):**
-1. Nodes / edges kya hain? (grid cell? word? course?)
-2. Directed ya undirected?
+1. What are the nodes / edges? (grid cell? word? course?)
+2. Directed or undirected?
 3. Weighted? → Shortest Path / MST, not plain BFS.
-4. Answer: reachability / count components / min steps / order?
-5. Visited kahan mark? (enqueue time vs dequeue — usually at enqueue)
+4. Answer shape: reachability / count components / min steps / order?
+5. Where mark visited? (enqueue time vs dequeue — usually at enqueue)
 
 ## Study notes — BFS vs DFS (must know)
 
@@ -39,9 +39,9 @@
 | Space | Queue can be wide (`O(V)`) | Stack depth (`O(V)` worst) |
 | Grid tip | Same 4-dir neighbors | Same; mark visited/`0` |
 
-**BFS jab:** "minimum steps / distance" without weights.  
-**DFS jab:** "explore whole blob", "any path", "connected components", recursion natural.  
-**Weighted shortest:** BFS mat — [Dijkstra](/patterns/shortest-path).  
+**Use BFS when:** "minimum steps / distance" without weights.  
+**Use DFS when:** "explore whole blob", "any path", "connected components", recursion feels natural.  
+**Weighted shortest:** do not use BFS — [Dijkstra](/patterns/shortest-path).  
 **Dependencies / order:** [Topological Sort](/patterns/topological-sort).  
 **Many merges / "already connected?":** [Union Find](/patterns/union-find).
 
@@ -69,9 +69,9 @@ const inBounds = (r, c, R, C) => r >= 0 && c >= 0 && r < R && c < C;
 ### Traps
 - Forget visited / mark too late (duplicate queue entries).
 - Directed vs undirected edges.
-- BFS me `steps++` level ke baahar vs andar confuse — process `queue.length` as one level.
+- BFS: confuse `steps++` outside vs inside a level — process `queue.length` as one level.
 - Grid bounds `r<0 || c<0 || r>=R || c>=C`.
-- JS `queue.shift()` is `O(n)` — interview me bol sakte ho; LC pe usually OK.
+- JS `queue.shift()` is `O(n)` — fine to mention in interviews; usually OK on LC.
 
 ```js
 // Graph skeleton — DFS (paint / components)
@@ -192,7 +192,7 @@ var cloneGraph = function(node) {
 
 ## Surrounded Regions
 
-Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
+`O` cells connected to the border are safe. Turn the rest of the `O`s into `X`. DFS from the border.
 
 [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
@@ -284,7 +284,7 @@ var pacificAtlantic = function(heights) {
 
 ## Number of Provinces
 
-Adjacency matrix → graph. Kitne connected components? DFS yahan; DSU version → [Union Find](/patterns/union-find).
+Adjacency matrix → graph. How many connected components? DFS here; DSU version → [Union Find](/patterns/union-find).
 
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
@@ -416,4 +416,4 @@ var ladderLength = function(beginWord, endWord, wordList) {
 };
 ```
 
-**Yaad rakho:** Unweighted steps = BFS. Blob / components = DFS. Weights = Shortest Path. Order / prereqs = Topo. Merge groups = UF.
+**Remember:** Unweighted steps = BFS. Blob / components = DFS. Weights = Shortest Path. Order / prereqs = Topo. Merge groups = UF.

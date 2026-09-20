@@ -1,10 +1,10 @@
 # Heap
 
-**Definition:** Heap (priority queue) ek complete binary tree hai jahan parent ≤ children (min-heap) ya ≥ (max-heap), isliye sabse chhota/bada `O(log n)` me push/pop aur `O(1)` me peek milta hai. JS me built-in heap nahi hai — neeche wale helpers copy-paste wale hain.
+**Definition:** A heap (priority queue) is a complete binary tree where parent ≤ children (min-heap) or ≥ (max-heap), so the extreme value is available in `O(1)` peek and `O(log n)` push/pop. JS has no built-in heap — the helpers below are copy-paste ready.
 
-**When to use:** "Top K", "K-th largest/smallest", "hamesha current best chahiye", ya "K sorted lists/arrays merge". Heap size = K rakho aur jo kharab hai nikal do.
+**When to use:** “Top K”, “K-th largest/smallest”, “always need the current best”, or “merge K sorted lists/arrays”. Keep heap size = K and drop what falls outside the top K.
 
-**How it works:** Array wala binary heap `heapPush` (upar bubble) aur `heapPop` (neeche bubble). Top-K smallest ke liye max-heap size K. K lists merge: har head push, sabse chhota pop karke uska `next` push. Time `O(n log K)`, space `O(K)`.
+**How it works:** Array binary heap with `heapPush` (bubble up) and `heapPop` (bubble down). For top-K smallest use a max-heap of size K. Merging K lists: push each head, pop the smallest, push its `next`. Time `O(n log K)`, space `O(K)`.
 
 ## Study notes
 
@@ -14,6 +14,19 @@
 - **JS:** no built-in PQ in interviews — bring push/pop helpers (this page) or library if allowed.
 - **Traps:** wrong comparator; forget re-balance sizes for median.
 - **Checklist:** K fixed? need min or max? merge streams?
+
+### Active revision
+Min or max heap? Fixed size K? Two-heap median balance rule?
+
+### Decision table
+
+| Need | Heap choice |
+|------|-------------|
+| Kth largest / top K large | Min-heap size K |
+| Kth smallest / top K small | Max-heap size K |
+| Always current min | Min-heap |
+| Running median | Max low + min high |
+| Merge K sorted streams | Min-heap of heads |
 
 ```js
 // Heap skeleton — copy into interview (min-heap default)
@@ -51,7 +64,7 @@ for (const x of nums) { heapPush(heap, x); if (heap.length > k) heapPop(heap); }
 ```
 ## MinHeap Class
 
-Copy-paste wali class — parent hamesha children se chhota, top pe minimum. Kth largest, Top-K, merge K lists, Dijkstra me kaam aati hai.
+Copy-paste class — parent always smaller than children, minimum on top. Useful for Kth largest, Top-K, merge K lists, Dijkstra.
 
 ```js
 // MinHeap class — copy this template for any heap interview problem
@@ -94,7 +107,7 @@ class MinHeap {
 
 ## MaxHeap Class
 
-Same structure, comparison ulta — parent hamesha children se bada, top pe maximum. Kth smallest, Last Stone Weight, median ke ek half me kaam aata hai.
+Same structure, reversed comparison — parent always larger than children, maximum on top. Useful for Kth smallest, Last Stone Weight, and one half of the median.
 
 ```js
 // MaxHeap class — same structure as MinHeap with reversed comparisons
@@ -284,7 +297,7 @@ function mergeLists(list1, list2) {
 
 ## K Closest Points to Origin
 
-Distance se min-heap. Top K nikal lo.
+Use distance with a min-heap (or sort by squared distance). Take the top K.
 
 [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/)
 
@@ -300,7 +313,7 @@ function kClosest(points, k) {
 
 ## Last Stone Weight
 
-Har baar 2 sabse heavy lo, takrao, bacha to wapas daalo. Max-heap.
+Always take the two heaviest, smash, put the remainder back if any. Max-heap.
 
 [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)
 

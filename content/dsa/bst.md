@@ -1,10 +1,10 @@
 # BST
 
-**Definition:** Binary Search Tree me har node ke liye left subtree chhota aur right subtree bada hota hai (`left < node < right`). Isliye search/insert/delete `O(log n)` me hote hain (balanced ho to), aur inorder traversal sorted order deta hai.
+**Definition:** In a Binary Search Tree, every node’s left subtree holds smaller values and the right subtree holds larger ones (`left < node < right`). Search/insert/delete are `O(log n)` when balanced, and inorder traversal yields sorted order.
 
-**When to use:** Sorted data chahiye + insert/delete bhi ho (array sort baar-baar mehengi), BST validate karna ho, kth smallest nikalna ho, ya LCA dhoondhna ho.
+**When to use:** You need sorted data plus insert/delete (resorting an array each time is expensive), BST validation, kth smallest, or LCA in a BST.
 
-**How it works:** Compare karke left/right jao — chhota hai to left, bada hai to right. Validate karne ke liye min/max bounds saath le jao (`lo < node.val < hi`). Inorder (left-node-right) hamesha sorted deta hai. Time `O(h)`, balanced me `O(log n)`.
+**How it works:** Compare and go left/right — smaller → left, larger → right. To validate, carry min/max bounds (`lo < node.val < hi`). Inorder (left-node-right) is always sorted. Time `O(h)`; balanced → `O(log n)`.
 
 ## Study notes
 
@@ -14,6 +14,19 @@
 - **LCA in BST:** both sides → node; else go left or right.
 - **Traps:** duplicates policy; skewed tree `O(n)`; confuse with heap.
 - **See also:** Trees page for general DFS/BFS.
+
+### Active revision
+State the BST invariant in one line. For validate, why are bounds required? For LCA, when do you stop and return the node?
+
+### Decision table
+
+| Task | Approach |
+|------|----------|
+| Search / insert | Compare and walk left/right |
+| Validate | Recurse with `(lo, hi)` |
+| Kth smallest | Inorder until count = k |
+| LCA | Both < → left; both > → right; else root |
+| Delete | 0/1/2 children; successor if two |
 
 ```js
 // BST skeleton — search
@@ -36,7 +49,7 @@ function check(node, lo, hi) {
 ```
 ## Validate Binary Search Tree
 
-Har node `(lo, hi)` seema me hona chahiye. Left me jaao to `hi = node.val`, right me jaao to `lo = node.val`.
+Every node must lie in `(lo, hi)`. Going left sets `hi = node.val`; going right sets `lo = node.val`.
 
 [Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
@@ -77,7 +90,7 @@ var isValidBST = function(root) {
 
 ## Kth Smallest Element in a BST
 
-Inorder traversal sorted order deta hai — kth visit hi jawab hai. Iterative stack se karo, poora traverse mat karo.
+Inorder traversal is sorted — the kth visit is the answer. Prefer an iterative stack so you need not traverse the whole tree.
 
 [Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
@@ -121,7 +134,7 @@ function findKth(arr, k){
 
 ## Lowest Common Ancestor of a BST
 
-BST property use karo — dono chhote to left, dono bade to right, warna yehi node LCA hai.
+Use the BST property — both smaller → left, both larger → right, otherwise this node is the LCA.
 
 [Lowest Common Ancestor of a BST](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
@@ -156,7 +169,7 @@ var lowestCommonAncestor = function(root, p, q) {
 
 ## Delete Node in a BST
 
-Node dhoondho, phir 3 cases: leaf (hatao), ek child (child jodo), do children (successor lao — right me sabse chhota — value copy karke successor delete karo).
+Find the node, then three cases: leaf (remove), one child (promote child), two children (copy inorder successor — min in right — then delete the successor).
 
 [Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
 

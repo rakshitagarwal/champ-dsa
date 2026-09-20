@@ -1,10 +1,10 @@
 # Dynamic Programming
 
-**Definition:** DP problem ko chhote overlapping subproblems me todta hai, `dp[state]` ka matlab pehle English me socho ("i tak ka best/ways/count"), fir saved answer reuse karo. Do tarike: top-down memo (recurse + cache) aur bottom-up tabulation (loop).
+**Definition:** DP breaks a problem into smaller overlapping subproblems. First say in English what `dp[state]` means ("best / ways / count up to i"), then reuse the saved answer. Two styles: top-down memo (recurse + cache) and bottom-up tabulation (loops).
 
-**When to use:** Same `(i, remain, index)` par baar-baar recurse — stairs/robber, coins/knapsack, grid paths, LCS/LIS/edit, interval (burst).
+**When to use:** The same `(i, remain, index)` is reached many times — stairs/robber, coins/knapsack, grid paths, LCS/LIS/edit, interval (burst).
 
-**How it works:** Meaning define karo → recurrence `dp[i] = f(pichhle)` → base → loop. 2D me `dp[i][j]`. Local recurrence ho to last row se space optimize. Time aksar `O(n * choices)`, space `O(n)`.
+**How it works:** Define meaning → write recurrence `dp[i] = f(earlier states)` → set base → fill by loop. Use `dp[i][j]` in 2D. If the recurrence is local, optimize space with the last row or a few variables. Time often `O(n * choices)`; space `O(n)`.
 
 ## Study order (DP family)
 
@@ -15,39 +15,39 @@
 | 3 | [Knapsack DP](/patterns/dp-knapsack) | Coins, partition, target sum; 0/1 vs unbounded |
 | 4 | [2D DP](/patterns/dp-2d) | LCS/edit, grid paths, LIS, interval |
 
-Jaise Graphs → Topo / Shortest / MST / UF, waise DP → Linear → Knapsack → 2D.
+Like Graphs → Topo / Shortest / MST / UF, the DP family is Linear → Knapsack → 2D.
 
 ## Active revision (3 passes)
 
-1. **Learn:** Is page pe skeletons + decision table padho.
-2. **Recall:** Bina notes — "lu ya chhodo + capacity"? "do strings"? "sirf pichhle 1–2"? → kaunsa page?
-3. **Apply:** Type page kholo, ek problem pe state English me bolo, phir code.
+1. **Learn:** Read skeletons + decision table on this page.
+2. **Recall:** Without notes — "take/skip + capacity"? "two strings"? "only previous 1–2"? → which page?
+3. **Apply:** Open the type page, say the state in English, then code.
 
-**Blank checklist (har DP problem):**
-1. `dp[state]` English me kya hai? (ways / min / max / true-false)
-2. Transition — pichhle kaunse states?
+**Blank checklist (every DP problem):**
+1. What is `dp[state]` in English? (ways / min / max / true-false)
+2. Transition — which earlier states?
 3. Base cases?
-4. Loop order (dependency) sahi hai?
+4. Is loop order (dependency) correct?
 5. 0/1 vs unbounded? (knapsack only)
-6. Answer `dp` ki kaunsi cell / max over cells?
+6. Answer is which cell / max over cells?
 
-## Decision table (type pehchano)
+## Decision table (pick the type)
 
-| Agar dikhe… | Open |
+| If you see… | Open |
 |-------------|------|
-| Sequence pe aage badho; answer pichhle 1–2 se | [1D / Linear](/patterns/dp-linear) |
-| Item lu/chhodo; capacity / amount / subset | [Knapsack](/patterns/dp-knapsack) |
-| Do strings compare; LCS / edit / LPS | [2D DP](/patterns/dp-2d) |
-| Grid right/down paths | [2D DP](/patterns/dp-2d) (grid) |
+| Walk a sequence; answer from previous 1–2 cells | [1D / Linear](/patterns/dp-linear) |
+| Take/skip an item; capacity / amount / subset | [Knapsack](/patterns/dp-knapsack) |
+| Compare two strings; LCS / edit / LPS | [2D DP](/patterns/dp-2d) |
+| Grid paths right/down | [2D DP](/patterns/dp-2d) (grid) |
 | LIS ending at i; envelopes | [2D DP](/patterns/dp-2d) (LIS) |
-| Interval me "aakhri kaun" (burst) | [2D DP](/patterns/dp-2d) (interval) |
-| Local choice always safe | Greedy page — DP mat force karo |
+| Interval "who is last" (burst) | [2D DP](/patterns/dp-2d) (interval) |
+| Local choice always safe | Greedy page — do not force DP |
 
 ## Study notes
 
-- **Always:** `dp[state]` pehle English.
-- **Top-down:** recurse + `memo`. **Bottom-up:** dependency order me loop.
-- **Vs greedy:** local choice fail ho sakta hai → DP.
+- **Always:** define `dp[state]` in English first.
+- **Top-down:** recurse + `memo`. **Bottom-up:** loop in dependency order.
+- **Vs greedy:** local choice can fail → DP.
 - **Traps:** wrong base; knapsack loop direction; Infinity sentinel; 2D off-by-one (`s[i-1]` vs `dp[i]`).
 - **Complexity cheat:** 1D often `O(n)`; knapsack `O(n·W)`; 2D string/grid `O(m·n)`; LIS `O(n²)` (or `O(n log n)` length); interval `O(n³)`.
 
@@ -75,4 +75,4 @@ function solve(i, remain) {
 }
 ```
 
-**Yaad rakho:** State English → recurrence → base → fill. Type galat page pe mat jao — pehle decision table.
+**Remember:** State in English → recurrence → base → fill. Pick the right page from the decision table first.

@@ -1,42 +1,45 @@
 # Recursion
 
-**Definition:** Recursion matlab function ka khud ko **chhoti problem** pe call karna. Do hisse farz hain: **base case** (rukna kahan) aur **progress** (har call problem chhoti karti hai). Soch: "pehla kadam main lo, baaki recursion sambhal lega" — *trust the recursion*.
+**Definition:** Recursion means a function calls itself on a **smaller problem**. Two parts are required: a **base case** (when to stop) and **progress** (each call shrinks the problem). Mindset: take the current step; trust recursion for the rest.
 
-**When to use:** Problem khud-jaisi subproblems me tute (pow, factorial), trees/linked lists naturally recursive hon, ya backtracking/DP ki neev chahiye ho. "Khud ko call" dikhe to recursion socho.
+**When to use:** The problem splits into the same shape of subproblems (pow, factorial), trees/linked lists are naturally recursive, or you need a base for backtracking/DP. If the work looks like “call yourself on a smaller piece,” think recursion.
 
-**How it works:** Base check → chhota subproblem banao → uska answer combine karke return. Call stack frames yaad rakhta hai. Deep recursion → stack overflow; kabhi iterative/stack se simulate. Time aksar `branches^depth`, space = recursion depth.
+**How it works:** Check base → build a smaller subproblem → combine its answer and return. The call stack stores frames. Too deep → stack overflow; sometimes simulate with an explicit stack. Time is often `branches^depth`; space is recursion depth.
 
 ## Study notes
 
 ### Mental model
-1. **Base case pehle likho** — empty, `n===0`, `node===null`.
-2. **Assume** recursive call sahi jawab laati hai (induction).
+1. **Write the base case first** — empty, `n===0`, `node===null`.
+2. **Assume** the recursive call returns the correct answer (induction).
 3. **Combine** — current step + sub-answer.
-4. **Guarantee progress** — `n-1`, `i+1`, `node.left` — warna infinite loop.
+4. **Guarantee progress** — `n-1`, `i+1`, `node.left` — otherwise infinite recursion.
 
 ### Recursion vs iteration
-- Recursion: clear for trees/divide-conquer; hidden `O(depth)` stack.
-- Iteration: explicit stack/queue; often same idea (DFS with stack = recursion).
+- Recursion: clear for trees/divide-and-conquer; hidden `O(depth)` stack.
+- Iteration: explicit stack/queue; often the same idea (DFS with a stack = recursion).
 
 ### Tail vs tree recursion
-- **Linear / tail-ish:** ek recursive call (pow half, list walk).
-- **Tree recursion:** do+ calls (fib, tree left+right) — overlapping → socho memo/DP.
+- **Linear / tail-ish:** one recursive call (pow half, list walk).
+- **Tree recursion:** two or more calls (fib, tree left+right) — overlapping work → consider memo/DP.
 
 ### Complexity
-- Time: kitni leaves / nodes visit × kaam per call.
+- Time: how many leaves/nodes you visit × work per call.
 - Space: max call-stack depth (balanced tree `O(log n)`, skewed `O(n)`).
 
 ### Traps
 - Base case missing / wrong.
-- Mutating shared array without undo (backtracking need `pop`).
-- Returning wrong type (`undefined` leak).
+- Mutating a shared array without undo (backtracking needs `pop`).
+- Returning the wrong type (`undefined` leak).
 - Negative `n` / empty input.
 
 ### Checklist before coding
 - Base cases list (null, 0, 1, empty).
 - What shrinks each call?
 - What do I return upward?
-- Need memo? (same args dubara)
+- Need memo? (same args again)
+
+### Active revision
+Can you state base + shrink + combine in one sentence? Would an iterative stack solve the same problem?
 
 ```js
 // Recursion skeleton — base, smaller problem, combine
@@ -67,7 +70,7 @@ function bt(path) {
 
 ## Pow(x, n)
 
-Naive me n multiplications. Fast power me aadha karo: `x^n = (x^(n/2))^2`, odd ho to ek `x` extra. Negative `n` me `1/pow(x, -n)`.
+Naive: `n` multiplications. Fast power halves: `x^n = (x^(n/2))^2`; if `n` is odd, multiply one extra `x`. For negative `n`, return `1/pow(x, -n)`.
 
 [Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
@@ -83,7 +86,7 @@ function myPow(x, n) {
 
 ## K-th Symbol in Grammar
 
-Row `n` pichhli row se banti hai: `0 → 01`, `1 → 10`. Kth symbol ke liye parent dekho — parent `(k+1)/2` hai, agar k even to parent ka flip, odd to same.
+Row `n` is built from row `n-1`: `0 → 01`, `1 → 10`. For the k-th symbol, look at the parent at index `ceil(k/2)`. If `k` is odd, same as parent; if even, flipped.
 
 [K-th Symbol in Grammar](https://leetcode.com/problems/k-th-symbol-in-grammar/)
 
@@ -99,7 +102,7 @@ function kthGrammar(n, k) {
 
 ## Merge Two Sorted Lists (Recursive)
 
-Dono heads me chhota lo, uska `next` baaki ka merge hai. Base: ek list khatm to doosri pakdao. (Neeche iterative version bhi — same idea.)
+Take the smaller head; its `next` is the merge of the rest. Base: if one list is empty, return the other.
 
 [Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/)
 

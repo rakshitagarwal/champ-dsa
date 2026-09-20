@@ -1,19 +1,22 @@
 # Binary Search
 
-**Definition:** Binary Search sorted / monotonic space me target dhoondhne ki technique hai — har step me search interval aadha kar dete hain, `O(log n)`. General soch: sabse pehla `x` dhoondo jahan monotonic predicate `good(x)` `false → true` flip hota hai. Value search aur "minimum feasible answer" same loop hai.
+**Definition:** Binary search finds a target in a sorted or monotonic space by halving the interval each step — `O(log n)`. The general idea: find the first `x` where a monotonic predicate `good(x)` flips from false to true. Exact value search and “minimum feasible answer” share the same loop shape.
 
-**When to use:** Sorted array me dhoondhna, rotated array me search, ya "sabse chhota speed/capacity jo kaam kar jaye" (agar `k` kaam karta hai to bada `k` bhi karega). Power `Pow(x,n)` me bhi n ko half karte hain.
+**When to use:** Lookup in a sorted array, search in a rotated sorted array, or “smallest speed/capacity that still works” (if `k` works, any larger `k` also works). Also appears in `Pow(x, n)` by repeatedly halving the exponent.
 
-**How it works:** Half-open `[lo, hi)` invariant rakho. `mid = lo + ((hi-lo)>>1)`. Agar `good(mid)` to `hi = mid` warna `lo = mid+1`. Exact value ke liye `lo <= hi` wala equality check. Time `O(log n)`, space `O(1)`.
+**How it works:** Keep a half-open `[lo, hi)` invariant. `mid = lo + ((hi-lo)>>1)`. If `good(mid)` then `hi = mid`, else `lo = mid+1`. For exact match use closed `lo <= hi` with equality checks. Time `O(log n)`, space `O(1)`.
 
 ## Study notes
 
-- **Two uses:** (1) find value in sorted array, (2) binary search the **answer** (min speed/capacity) when `feasible(mid)` monotonic.
-- **Invariant:** decide closed `[l,r]` vs half-open `[l,r)` — stick to one; bug = infinite loop / off-by-one.
+- **Two uses:** (1) find a value in a sorted array, (2) binary search the **answer** (min speed/capacity) when `feasible(mid)` is monotonic.
+- **Invariant:** pick closed `[l,r]` or half-open `[l,r)` and stick to it — bugs become infinite loops / off-by-one.
 - **mid:** `lo + ((hi-lo)>>1)` — overflow-safe style.
-- **Rotated array:** identify sorted half; decide which half holds target.
-- **Traps:** `hi = mid` vs `mid-1`; duplicate bounds; float answers rare in LC ints.
-- **Checklist:** is predicate monotonic? what does `lo` mean when loop ends?
+- **Rotated array:** identify the sorted half; decide which half still holds the target.
+- **Traps:** `hi = mid` vs `mid-1`; duplicate bounds; float answers are rare on LC ints.
+- **Checklist:** is the predicate monotonic? what does `lo` mean when the loop ends?
+
+### Active revision
+Value search or answer search? Closed or half-open bounds? After the loop, what does `lo` (or `hi`) represent?
 
 ```js
 // Binary search skeleton — first true (lower bound / answer search)
@@ -240,7 +243,7 @@ function myPow(x, n) {
 
 ## Search Insert Position
 
-Target kahan insert hoga wahi lower_bound hai. Binary search se `lo` hi answer.
+The insert index for the target is a lower bound. After binary search, `lo` is the answer.
 
 [Search Insert Position](https://leetcode.com/problems/search-insert-position/)
 
@@ -271,7 +274,7 @@ var searchInsert = function(nums, target) {
 
 ## Find First and Last Position of Element in Sorted Array
 
-Lower bound aur upper bound ka khel. Do binary search.
+Find the lower bound and the upper bound with two binary searches.
 
 [Find First and Last Position](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 

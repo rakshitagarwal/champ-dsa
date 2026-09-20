@@ -1,18 +1,21 @@
 # Stack
 
-**Definition:** Stack LIFO hai (last-in, first-out) — plate ka dher, ek hi end se push/pop, `O(1)`. Nesting, undo aur "pichhla yaad rakho" wale kaam stack ke hain.
+**Definition:** A stack is LIFO (last-in, first-out) — like a pile of plates: push and pop from one end only, `O(1)`. Nesting, undo, and “remember the previous unresolved item” are classic stack jobs.
 
-**When to use:** Valid brackets, min so far, RPN evaluate, DFS recursion, monotonic next greater (alag page), ya do stack se queue banana.
+**When to use:** Valid brackets, min-so-far, RPN evaluation, DFS recursion, monotonic next-greater (separate page), or building a queue from two stacks.
 
-**How it works:** Open push, close par matching pop; empty/mismatch check. Min-stack ke liye parallel minima stack rakho. Time `O(n)`, space `O(n)`.
+**How it works:** Push openers; on a closer, pop and match. Check empty/mismatch. For a min-stack, keep a parallel stack of running minima. Time `O(n)`, space `O(n)`.
 
 ## Study notes
 
-- **Pehchan:** nesting, matching pairs, undo, "last unresolved thing".
+- **Cue:** nesting, matching pairs, undo, “last unresolved thing”.
 - **JS:** `push` / `pop` / `at(-1)` for peek — `O(1)`.
-- **Vs Monotonic Stack:** plain stack = brackets/DFS; monotonic = next greater/smaller (alag page).
-- **Traps:** forget empty check before pop; leftover opens at end; map closer→opener carefully.
-- **Checklist:** what goes on stack (char / index / pair)? when pop?
+- **Vs Monotonic Stack:** plain stack = brackets/DFS; monotonic = next greater/smaller (separate page).
+- **Traps:** pop without an empty check; leftover openers at the end; map closer → opener carefully.
+- **Checklist:** what goes on the stack (char / index / pair)? when do I pop?
+
+### Active revision
+What is pushed? What triggers a pop? Empty check and leftover stack at the end?
 
 ```js
 // Stack skeleton — brackets / nesting
@@ -88,7 +91,7 @@ MinStack.prototype.getMin = function () {
 
 ## Evaluate Reverse Polish Notation
 
-Stack me number push, operator aaye to top 2 pop karke compute karke wapas push karo.
+Push numbers. When an operator arrives, pop the top two, compute, and push the result back.
 
 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
@@ -111,7 +114,7 @@ function evalRPN(tokens) {
 
 ## Daily Temperatures (Stack)
 
-Monotonic decreasing stack se next warmer day ka wait nikalo. (Monotonic page se link)
+Use a monotonic decreasing stack to find how long until the next warmer day. (See Monotonic Stack page.)
 
 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
 
@@ -132,7 +135,7 @@ function dailyTemperatures(temps) {
 
 ## Asteroid Collision
 
-Asteroid left/right move karte hain. Stack me rakho, opposite direction aaye to takkar.
+Asteroids move left/right. Keep survivors on a stack; when opposite directions meet, resolve collisions.
 
 [Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
 
@@ -157,7 +160,7 @@ function asteroidCollision(asteroids) {
 
 ## Implement Queue using Stacks
 
-Do stack lo — ek me push, doosre se pop. Pop/peek pe doosra khaali ho to pehle ka sab ulta daalo. Amortized `O(1)`.
+Two stacks: push into one; pop/peek from the other. When the out stack is empty, pour the in stack into it (reverses order). Amortized `O(1)`.
 
 [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
 

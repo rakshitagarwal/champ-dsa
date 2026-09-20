@@ -1,10 +1,10 @@
 # Shortest Path
 
-**Definition:** Do points ke beech sabse tez/sasta rasta. Algorithm **weight type** se chuno — bina weight ho to seedha BFS ([Graphs](/patterns/graphs)), warna neeche wala map.
+**Definition:** The cheapest / fastest route between points. Pick the algorithm by **weight type** — no weights → plain BFS ([Graphs](/patterns/graphs)); otherwise use the map below.
 
-**When to use:** Network delay, cheapest flights with stops, all-pairs distances, ya negative weights. "Sabse kam cost" + weights dikhe to ye page.
+**When to use:** Network delay, cheapest flights with stops, all-pairs distances, or negative weights. If you see “minimum cost” plus edge weights, this page.
 
-**How it works:** Dijkstra (non-negative, heap se min nikalo, relax), Bellman-Ford (har round saare edges relax; K stops = K+1 rounds + copy), Floyd-Warshall (har `k` intermediate, all pairs). `dist` `Infinity` se start; unreachable → `-1`.
+**How it works:** Dijkstra (non-negative, heap pops min, relax), Bellman-Ford (relax all edges each round; K stops = K+1 rounds + copy), Floyd-Warshall (try each intermediate `k`, all pairs). Start `dist` at `Infinity`; unreachable → `-1`.
 
 **See also:** Unweighted steps → [Graphs BFS](/patterns/graphs). Min cost connect all → [MST](/patterns/mst) (different problem!).
 
@@ -78,7 +78,7 @@ function networkDelayTime(times, n, k) {
 
 ## Network Delay Time — Heap Version
 
-Same Dijkstra, min-heap se `O((V+E) log V)`. Purani heap entry dikhe to skip (`d !== dist[u]`).
+Same Dijkstra with a min-heap for `O((V+E) log V)`. Skip stale heap entries (`d !== dist[u]`).
 
 ```js
 // Time: O((V+E) log V) · Space: O(V+E)
@@ -158,7 +158,7 @@ function findCheapestPrice(n, flights, src, dst, k) {
 
 ## Negative Cycle Check (Bellman-Ford Extra Round)
 
-N-1 rounds normal; Nth round me bhi update ⇒ negative cycle. Super-source trick: sab `dist` 0 se start taaki disconnected components bhi check hon.
+N-1 rounds are normal; an update on the Nth round ⇒ negative cycle. Super-source trick: start all `dist` at 0 so disconnected components are covered too.
 
 ```js
 // Time: O(V·E) · Space: O(V)
@@ -181,7 +181,7 @@ function hasNegativeCycle(n, edges) {
 
 ## Find the City (Floyd-Warshall, All Pairs)
 
-Har `k` intermediate: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])`. `O(V³)`, `V ≤ ~400` OK.
+For each intermediate `k`: `dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])`. `O(V³)`, fine for `V ≤ ~400`.
 
 [Find the City With the Smallest Number of Neighbors at a Threshold Distance](https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/)
 
@@ -217,4 +217,4 @@ function findTheCity(n, edges, distanceThreshold) {
 }
 ```
 
-**Yaad rakho:** No weight → BFS. Non-neg → Dijkstra. Hop limit / neg → Bellman. All pairs small V → Floyd. Connect-all min cost → MST, not shortest path.
+**Remember:** No weight → BFS. Non-neg → Dijkstra. Hop limit / neg → Bellman. All pairs small V → Floyd. Connect-all min cost → MST, not shortest path.

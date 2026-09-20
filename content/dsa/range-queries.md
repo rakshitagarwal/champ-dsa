@@ -1,10 +1,37 @@
 # Range Queries
 
-**Definition:** Range-query problems me point update ("i par v add") aur range query ("[l..r] ka sum") dono `O(log n)` me chahiye. Prefix sums update par fail (`O(n)` rebuild). **Fenwick Tree (BIT)** aur **Segment Tree** ye fix karte hain; merge-sort counting "right me kitne chhote" gin leta hai.
+**Definition:** Range-query problems need both point updates ("add `v` at `i`") and range queries ("sum of `[l..r]`") in `O(log n)`. Prefix sums fail under updates (`O(n)` rebuild). **Fenwick Tree (BIT)** and **Segment Tree** fix that; merge-sort counting answers "how many smaller to the right".
 
-**When to use:** Baar-baar `update(i, delta)` + `query(l,r)` mix ho; after self smaller count / reverse pairs; updates ke saath range min.
+**When to use:** Mixed `update(i, delta)` + `query(l,r)`; count smaller after self / reverse pairs; range min with updates.
 
-**How it works:** Fenwick `bit[1..n]` me `add(i)` `i += i&-i` se upar jata hai aur `sum(i)` `i -= i&-i` se neeche; range = `sum(r)-sum(l-1)`. Merge-sort count: jab right ka element baaki left se pehle place ho to wo unse chhota hai. Time `O(log n)` per op, space `O(n)`.
+**How it works:** Fenwick uses 1-based `bit[1..n]`: `add(i)` climbs with `i += i&-i`, `sum(i)` drops with `i -= i&-i`; range = `sum(r)-sum(l-1)`. Merge-sort count: when a right-half value is placed before remaining left values, it is smaller than each of them. Time `O(log n)` per op; space `O(n)`.
+
+## Study notes
+
+- **Fenwick:** prefix sums with updates; range = two prefixes.
+- **Segment tree:** same idea for sum/min/max; more flexible, more code.
+- **Immutable 2D sum:** build 2D prefix once; query with inclusion-exclusion in O(1).
+- **Count inversions / reverse pairs:** merge sort while counting cross pairs.
+- **Traps:** 0-based array vs 1-based BIT index (`i+1`); forget `sum(l-1)`.
+- **Checklist:** updates? only queries? 1D or 2D? counting pairs?
+
+## Active revision
+
+1. Write `bitAdd` / `bitSum` and `sum(r)-sum(l-1)` from memory.
+2. Explain Count Smaller: when right is taken, left remaining gets +1.
+3. 2D prefix: draw inclusion-exclusion for a rectangle.
+
+**Blank checklist:** mutable? need BIT or static prefix? count during merge?
+
+## Decision table
+
+| If you see… | Likely move |
+|-------------|-------------|
+| Point update + range sum | Fenwick / Segment Tree |
+| Static 2D range sum | 2D prefix + inclusion-exclusion |
+| Count smaller after self | Merge-sort on indexes |
+| `nums[i] > 2*nums[j]`, `i<j` | Merge-sort count (Reverse Pairs) |
+| No updates, 1D range sum only | Plain prefix sum is enough |
 
 ```js
 // Fenwick (BIT) skeleton — 1-based
@@ -90,7 +117,7 @@ function countSmaller(nums) {
 
 ## Range Sum Query 2D - Immutable
 
-2D prefix sum `pref[i+1][j+1]`. Range sum inclusion-exclusion se O(1).
+Build 2D prefix `pref[i+1][j+1]`. Rectangle sum via inclusion-exclusion in O(1).
 
 [Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)
 
@@ -112,7 +139,7 @@ NumMatrix.prototype.sumRegion=function(r1,c1,r2,c2){
 
 ## Reverse Pairs
 
-`i<j` aur `nums[i] > 2*nums[j]` kitne pairs? Merge sort count.
+How many pairs with `i<j` and `nums[i] > 2*nums[j]`? Count during merge sort.
 
 [Reverse Pairs](https://leetcode.com/problems/reverse-pairs/)
 

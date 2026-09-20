@@ -1,18 +1,21 @@
 # Two Pointers
 
-**Definition:** Two pointers me sequence par do indices lagate hain aur unhe sirf aage (ya ek dusre ki taraf) badhate hain, bina extra space ke `O(n)` me scan.
+**Definition:** Place two indices on a sequence and only move them forward (or toward each other). You scan in `O(n)` with no extra space beyond a few variables.
 
-**When to use:** Sorted array pair sum, container with most water, duplicate hatana, ya center se expand karke palindrome. Agar sort karke current sum/value se decide kar sake kaunsa pointer badhana hai to yehi pattern.
+**When to use:** Sorted-array pair sum, container with most water, removing duplicates in place, or expanding from a center for palindromes. If sorting (or an ordered view) lets you decide which pointer to move from the current sum/value, this is the pattern.
 
-**How it works:** Opposite-ends sorted/pair ke liye (jo side behtar jawab nahi de sakti use hatao); same-direction / center-expand palindrome ke liye. Kabhi peeche nahi — `O(n)`, `O(1)` space.
+**How it works:** Opposite ends for sorted/pair problems (drop the side that cannot improve the answer); same-direction or center-expand for palindromes. Never move backward — `O(n)` time, `O(1)` space.
 
 ## Study notes
 
-- **3 flavors:** (1) opposite ends on sorted, (2) slow/fast same direction (remove dups / middle), (3) expand around center (palindrome).
-- **Move rule:** sum too small → `left++`; too big → `right--`. Never both blindly.
-- **Vs sliding window:** two pointers often *not* maintaining a "window validity" map — just a decision from ends/center.
-- **Traps:** unsorted input for pair-sum (sort pehle, ya hashing); infinite loop if pointer na badhe; 3Sum me skip duplicates.
-- **Checklist:** sorted? what makes left/right move? indices 0- or 1-based return?
+- **3 flavors:** (1) opposite ends on sorted data, (2) slow/fast same direction (remove dups / find middle), (3) expand around center (palindrome).
+- **Move rule:** sum too small → `left++`; too big → `right--`. Never advance both blindly.
+- **Vs sliding window:** two pointers often do *not* maintain a “window validity” map — just a decision from the ends or center.
+- **Traps:** unsorted input for pair-sum (sort first, or use hashing); infinite loop if a pointer never moves; skip duplicates in 3Sum.
+- **Checklist:** sorted? what forces left vs right to move? return 0-based or 1-based indices?
+
+### Active revision
+Opposite ends or expand-from-center? What comparison decides the next move? Can either pointer get stuck?
 
 ```js
 // Two pointers skeleton — opposite ends (sorted array)

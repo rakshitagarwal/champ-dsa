@@ -1,19 +1,22 @@
 # Monotonic Stack
 
-**Definition:** Monotonic stack me indices aise rakhte hain ki values strictly increasing (ya decreasing) rahen. Jab naya value monotonicity todta hai to pop karte hain — pop hua element ko uska next greater/smaller mil gaya. Har index ek baar push/pop → `O(n)`.
+**Definition:** A monotonic stack stores indices so values stay strictly increasing (or decreasing). When a new value breaks that order, you pop — each popped index just found its next greater/smaller. Every index is pushed and popped at most once → `O(n)`.
 
-**When to use:** "Next greater/smaller left/right", daily temperatures, stock span, histogram largest rectangle, trapping rain water.
+**When to use:** “Next greater/smaller to the left/right”, daily temperatures, stock span, largest rectangle in histogram, trapping rain water.
 
-**How it works:** Ek scan. Jab `stack not empty && nums[i] > nums[stack.top]` (next greater ke liye) to pop karke `ans[popped] = nums[i]` record karo. Push `i`. Next smaller ke liye `>` ko `<` karo. Time `O(n)`, space `O(n)`.
+**How it works:** One scan. While the stack is non-empty and `nums[i] > nums[stack.top]` (for next greater), pop and set `ans[popped] = nums[i]`. Then push `i`. For next smaller, flip `>` to `<`. Time `O(n)`, space `O(n)`.
 
 ## Study notes
 
-- **Pehchan:** "next greater/smaller to the left/right", temperatures, histogram, stock span.
-- **Store indices** (not values) — distance `i - j` easy.
+- **Cue:** “next greater/smaller to the left/right”, temperatures, histogram, stock span.
+- **Store indices** (not values) — distance `i - j` is easy.
 - **Mono decreasing stack** (top = smallest among stack): next greater.
 - **Mono increasing stack:** next smaller.
-- **Traps:** wrong comparison `>` vs `>=` (duplicates); forget remaining stack defaults (`-1` or `0`).
-- **Related:** trapping rain / histogram often mono stack; plain brackets → Stack page.
+- **Traps:** wrong comparison `>` vs `>=` (duplicates); forget defaults for leftover stack (`-1` or `0`).
+- **Related:** trapping rain / histogram often use mono stack; plain brackets → Stack page.
+
+### Active revision
+Next greater or next smaller? Decreasing or increasing stack? What default for indices that never resolve?
 
 ```js
 // Monotonic stack skeleton — next greater to the right
@@ -78,7 +81,7 @@ function largestRectangleArea(heights) {
 
 ## Next Greater Element I
 
-Map se next greater nikalo. Stack decreasing rakho, pop hote hi answer pata chalta hai.
+Build a next-greater map while scanning. Keep a decreasing stack; when you pop, the answer is the current value.
 
 [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/)
 
@@ -98,7 +101,7 @@ function nextGreaterElement(nums1, nums2) {
 
 ## Online Stock Span
 
-Har din ka span = kitne consecutive peeche wale days price <= aaj. Stack me [price, span] rakho.
+Span for today = how many consecutive previous days have price ≤ today. Stack stores `[price, span]` pairs.
 
 [Online Stock Span](https://leetcode.com/problems/online-stock-span/)
 
@@ -116,7 +119,7 @@ StockSpanner.prototype.next = function(price) {
 
 ## Trapping Rain Water (Monotonic Stack Variant)
 
-Stack se pits dhoondo. Har pop ke baad bounded height nikal ke water jodo.
+Find bounded pits with a stack. After each pop, compute the trapped height and add water. (Solution below uses the two-pointer approach.)
 
 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 

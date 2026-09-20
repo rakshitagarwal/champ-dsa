@@ -1,10 +1,10 @@
 # Trie
 
-**Definition:** Trie (prefix tree) ek rooted tree hai jahan har edge ek character hai aur root se path ek prefix banata hai. Nodes prefix share karte hain — `"app"` aur `"apple"` ka `a-p-p` same. Har node me `children` map aur `isEnd` flag ("shabd yahan khatam").
+**Definition:** A trie (prefix tree) is a rooted tree where each edge is a character and every root-to-node path is a prefix. Nodes share prefixes — `"app"` and `"apple"` share `a-p-p`. Each node has a `children` map and an `isEnd` flag ("word ends here").
 
-**When to use:** Prefix search, autocomplete, `.` wildcard wala dictionary, ya diye prefix se shuru hone wale words ginna. Prefix ops me hashing se tez — `O(L)` per word (`L` = length).
+**When to use:** Prefix search, autocomplete, dictionary with `.` wildcards, or counting words that start with a given prefix. Faster than hashing for prefix ops — `O(L)` per word (`L` = length).
 
-**How it works:** `insert(word)` har char par node walk/create; `search(word)` ko `isEnd` chahiye; `startsWith(prefix)` bas walk success chahiye. Board search me DFS trie edges follow karke words collect. Time `O(L)` per op, space `O(total chars)`.
+**How it works:** `insert(word)` walks/creates a node per character; `search(word)` needs `isEnd`; `startsWith(prefix)` only needs a successful walk. Board search DFS follows trie edges and collects words. Time `O(L)` per op; space `O(total chars)`.
 
 ## Study notes
 
@@ -14,6 +14,23 @@
 - **Word Search II:** trie + board DFS; prune dead ends.
 - **Traps:** mark `isEnd` only at last char; mutate board without restore.
 - **Checklist:** prefix share? many queries on same dict?
+
+## Active revision
+
+1. Implement insert / search / startsWith from memory.
+2. Explain why Word Search II clears `end` after finding a word.
+3. Trace `.` wildcard DFS: when to try every child.
+
+**Blank checklist:** need end flag or prefix only? wildcards? board backtrack restore?
+
+## Decision table
+
+| If you see… | Likely move |
+|-------------|-------------|
+| Shared prefixes / autocomplete | Trie insert + startsWith |
+| Many dictionary lookups + board | Build trie, DFS board |
+| `.` matches any letter | DFS over children |
+| Only exact full-word lookup, no prefixes | Hash set may be enough |
 
 ```js
 // Trie skeleton — node + insert / search / startsWith
@@ -171,7 +188,7 @@ function buildTrie(words){
 
 ## Design Add and Search Words Data Structure
 
-Trie me `.` wildcard search bhi chahiye. DFS se har child try karo.
+Trie with `.` wildcard search. DFS tries every child when the pattern has `.`.
 
 [Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
 
@@ -241,7 +258,7 @@ WordDictionary.prototype.search = function(word) {
 
 ## Longest Word in Dictionary
 
-Sab prefixes wale words me se sabse lamba (lexicographically chhota tie me). Trie/ Set se check.
+Among words whose every prefix is also in the dict, pick the longest (lexicographically smallest on ties). Check with a Set or trie.
 
 [Longest Word in Dictionary](https://leetcode.com/problems/longest-word-in-dictionary/)
 

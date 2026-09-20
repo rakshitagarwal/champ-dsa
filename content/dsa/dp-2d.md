@@ -1,10 +1,10 @@
 # 2D DP (Grid, Strings, LIS, Interval)
 
-**Definition:** State me **do indices** (ya interval `[l,r]`) — `dp[i][j]` / `dp[r][c]` / `dp[l][r]`. Strings compare, grid paths, LIS endings, interval "last choice".
+**Definition:** The state uses **two indices** (or an interval `[l,r]`) — `dp[i][j]` / `dp[r][c]` / `dp[l][r]`. Used for string compare, grid paths, LIS endings, and interval "last choice".
 
 **When to use:** LCS, edit distance, LPS, unique paths, min path sum, LIS, burst balloons.
 
-**How it works:** Table dependency order me bharo (rows, or gap length for interval). Match → diagonal; else skip/ops. Grid: only up+left (usually).
+**How it works:** Fill the table in dependency order (by rows, or by gap length for interval). Match → diagonal; else skip/ops. Grid: usually only up + left.
 
 **See also:** Hub [DP](/patterns/dp). 1D sequence → [Linear](/patterns/dp-linear). Coins/subset → [Knapsack](/patterns/dp-knapsack).
 
@@ -17,17 +17,26 @@
 
 **Blank checklist:** two sequences or grid? 1-index table vs 0-index string? LIS ending-at-i?
 
+## Decision table
+
+| If you see… | Open section / state |
+|-------------|----------------------|
+| Two strings — LCS / edit / LPS | Strings & sequences |
+| Grid right/down paths | Grid & matrix |
+| Longest increasing subsequence | LIS — `dp[i]` ending at i |
+| "Last choice" inside `[l,r]` | Interval DP |
+
 ## Strings & sequences
 
-**Pehchan:** Do strings/sequences compare karni hain, prefix-by-prefix table bharo. `dp[i][j]` ka matlab rat lo: pehle i chars vs pehle j chars ka answer.
+**Spot it:** Compare two strings/sequences; fill a prefix-by-prefix table. Memorize: `dp[i][j]` = answer for first i chars vs first j chars.
 
-**Match vs skip:** Dono chars barabar hon to diagonal + 1 (LCS, LPS). Na hon to dono me se ek chhodo aur max lo. Edit distance me teeno operations: insert `dp[i][j-1]`, delete `dp[i-1][j]`, replace `dp[i-1][j-1]` — plus 1.
+**Match vs skip:** Equal chars → diagonal + 1 (LCS, LPS). Else take max of skipping either side. Edit distance uses all three ops: insert `dp[i][j-1]`, delete `dp[i-1][j]`, replace `dp[i-1][j-1]` — plus 1.
 
-**Base:** Pehli row/col khaali-string cases hain. LCS me sab 0; Edit Distance me `dp[i][0] = i`, `dp[0][j] = j` (khaali se banane me itne ops).
+**Base:** First row/col are empty-string cases. LCS: all 0. Edit Distance: `dp[i][0] = i`, `dp[0][j] = j` (ops to build from empty).
 
-**Complexity:** Time `O(m * n)`, space `O(m * n)` — sirf answer chahiye to 2 rows tak optimize ho jaata hai.
+**Complexity:** Time `O(m * n)`, space `O(m * n)` — if only the answer is needed, can optimize to 2 rows.
 
-**Traps:** Table 1-indexed hai par strings 0-indexed — `a[i-1]` vs `dp[i]` ka off-by-one sabse aam bug hai. Longest Palindromic Subsequence string aur uske reverse ka LCS hai (ya interval DP).
+**Traps:** Table is 1-indexed but strings are 0-indexed — `a[i-1]` vs `dp[i]` off-by-one is the #1 bug. Longest Palindromic Subsequence = LCS of the string and its reverse (or interval DP).
 
 ## Longest Common Subsequence
 
@@ -90,7 +99,7 @@ function minDistance(a, b) {
 
 ## Longest Palindromic Subsequence
 
-`dp` me LCS string aur uske reverse ka. Ya `dp[i][j]` interval DP.
+`dp` via LCS of the string and its reverse. Or `dp[i][j]` interval DP.
 
 [Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
 
@@ -111,15 +120,15 @@ function longestPalindromeSubseq(s) {
 
 ## Grid & matrix
 
-**Pehchan:** Cell tak sirf upar/left se aao (kabhi 4-direction memo ke saath). `dp[r][c]` = start `(0,0)` se cell `(r,c)` tak ka answer.
+**Spot it:** Reach a cell only from up/left (sometimes 4-direction memo). `dp[r][c]` = answer from start `(0,0)` to cell `(r,c)`.
 
-**Recurrence:** Unique Paths me `up + left`; Min Path Sum me `grid + min(up, left)`. Sirf do padosi dekhne hain, isliye poori table ki jagah 1D row kaafi hai: `dp[c] += dp[c - 1]`.
+**Recurrence:** Unique Paths = `up + left`; Min Path Sum = `grid + min(up, left)`. Only two neighbors matter, so one 1D row often suffices: `dp[c] += dp[c - 1]`.
 
-**Base:** Pehli row sirf left se bharti hai, pehla column sirf upar se. Obstacle wali cell (Unique Paths II) zero ho jaati hai.
+**Base:** First row fills only from the left; first column only from above. Obstacle cells (Unique Paths II) become zero.
 
-**Complexity:** Time `O(m * n)`, space `O(n)` optimize karke (ek row).
+**Complexity:** Time `O(m * n)`, space `O(n)` after optimizing to one row.
 
-**Traps:** Pehli row/col ka init bhoolna sabse aam bug hai. Obstacle check loop ke andar hona chahiye, bahar nahi.
+**Traps:** Forgetting first row/col init is the #1 bug. Obstacle checks belong inside the loop, not outside.
 
 ## Unique Paths
 
@@ -153,7 +162,7 @@ var uniquePaths = function(m, n) {
 
 ## Minimum Path Sum
 
-Har cell pe `grid + min(upar, left)`. Pehli row/col seedha accumulate hoti hai.
+At each cell: `grid + min(up, left)`. First row/col accumulate in a straight line.
 
 [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
 
@@ -178,15 +187,15 @@ function minPathSum(grid) {
 
 ## LIS pattern
 
-**Pehchan:** "Ending at i" wala state — har `i` ke liye saare `j < i` check karo. Subsequence (order maintain, gaps allowed) hai, subarray nahi.
+**Spot it:** State is "ending at i" — for each `i`, check all `j < i`. This is a subsequence (order kept, gaps allowed), not a subarray.
 
-**State:** `dp[i]` = `nums[i]` pe khatm hota longest increasing subsequence length. Har `dp[i]` kam se kam 1 (khud akela).
+**State:** `dp[i]` = length of the longest increasing subsequence ending at `nums[i]`. Each `dp[i]` starts at least 1 (the element alone).
 
-**Recurrence:** `nums[j] < nums[i]` ho to `dp[i] = max(dp[i], dp[j] + 1)`. Answer poore array ka max hai — aakhri cell nahi, ye sabse aam galti hai.
+**Recurrence:** If `nums[j] < nums[i]`, set `dp[i] = max(dp[i], dp[j] + 1)`. The answer is the **max over the whole array** — not the last cell. That is the most common mistake.
 
-**Complexity:** O(n²) loop interview me samjhane layak hai. Patience sorting + binary search se length O(n log n) me nikalti hai (sequence reconstruct karna mushkil hota hai).
+**Complexity:** The O(n²) loop is interview-explainable. Patience sorting + binary search gets length in O(n log n) (reconstructing the sequence is harder).
 
-**Variations:** Russian Doll Envelopes (sort karke LIS), Maximum Length of Pair Chain, Number of LIS (count array saath chalao), non-decreasing chahiye to `<=` use karo.
+**Variations:** Russian Doll Envelopes (sort then LIS), Maximum Length of Pair Chain, Number of LIS (run a count array alongside), non-decreasing → use `<=`.
 
 ## Longest Increasing Subsequence
 
@@ -221,7 +230,7 @@ var lengthOfLIS = function(nums) {
 
 ## Interval DP
 
-Jab decision interval ke andar "aakhri kaun" ho, `dp[l][r]` banao aur gap order me bharo (chhote interval pehle). Burst Balloons me gap ke andar aakhri phoda balloon `k` score deta hai: `nums[l] * nums[k] * nums[r]`. Array ko 1s se pad karo, answer `dp[0][n-1]`.
+When the decision is "who is last" inside an interval, use `dp[l][r]` and fill by increasing gap (small intervals first). In Burst Balloons, the last balloon `k` burst inside the gap scores `nums[l] * nums[k] * nums[r]`. Pad the array with 1s; answer is `dp[0][n-1]`.
 
 ## Burst Balloons
 
@@ -247,4 +256,3 @@ function maxCoins(nums) {
   return dp[0][n - 1];
 }
 ```
-

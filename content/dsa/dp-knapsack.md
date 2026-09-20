@@ -1,12 +1,12 @@
 # Knapsack DP
 
-**Definition:** Har item pe **lu ya chhodo** (ya kitni baar lu), capacity/target limited. Subset sum, coin change, partition — ek family.
+**Definition:** For each item, decide **take or skip** (or how many times), under a limited capacity/target. Subset sum, coin change, and partition are one family.
 
-**When to use:** Coins, partition equal subset, target sum (+/-), 0/1 knapsack. "Capacity + choice" dikhe to yahan.
+**When to use:** Coins, partition equal subset, target sum (+/-), classic 0/1 knapsack. Open this page when you see "capacity + choice".
 
-**How it works:** `dp[s]` = possible / min coins / ways for sum `s`. **0/1:** inner loop **ulta** (item ek baar). **Unbounded:** inner **seedha** (reuse). Ways (combinations): coin loop **bahar**.
+**How it works:** `dp[s]` = possible / min coins / ways for sum `s`. **0/1:** inner loop **downward** (each item once). **Unbounded:** inner loop **upward** (reuse). Ways (combinations): coin loop **outer**.
 
-**See also:** Hub [DP](/patterns/dp). Linear sequence → [1D DP](/patterns/dp-linear).
+**See also:** Hub [DP](/patterns/dp). Linear sequence → [1D DP](/patterns/dp-linear). Grid/strings → [2D DP](/patterns/dp-2d).
 
 ## Active revision
 
@@ -18,17 +18,27 @@
 
 ## Study notes
 
-**Pehchan:** Har item ke liye "lu ya chhodo" ka faisla, capacity/target limited hai. Subset sum, coin change, partition — sab isi parivaar ke hain.
+**Spot it:** Each item is take/skip (or reuse), with a limited capacity/target. Subset sum, coin change, and partition all belong here.
 
-**0/1 vs unbounded:** Har item ek baar (0/1) ya baar-baar (unbounded) — ye ek line poora code badal deti hai. 0/1 me inner loop **ulta** chalao (target se neeche) taaki item dobara use na ho. Unbounded me inner loop **seedha** chalao taaki reuse ho sake. Loop direction galat to 0/1 unbounded ban jaata hai — ye classic bug hai, interview me pakda jaata hai.
+**0/1 vs unbounded:** One use per item (0/1) vs unlimited reuse (unbounded) — one line changes the whole code. For 0/1, run the inner loop **downward** (from target) so the item is not reused. For unbounded, run the inner loop **upward** so reuse is allowed. Wrong direction turns 0/1 into unbounded — a classic interview bug.
 
-**Ways vs min:** Tareeke ginne hon (Coin Change II) to coin loop **bahar** rakho — warna permutations count ho jayengi. Min coins (Coin Change) me order se farak nahi padta.
+**Ways vs min:** Counting combinations (Coin Change II) needs the coin loop **outer** — otherwise you count permutations. Min coins (Coin Change) does not care about order.
 
-**State:** `dp[s]` = target s possible? / min coins / tareeke. Partition me target = total/2. Target Sum ko subset-sum me badlo: sum(P) - sum(N) = target se `sum(P) = (total + target)/2`.
+**State:** `dp[s]` = is target s possible? / min coins / number of ways. Partition target = total/2. Target Sum reduces to subset sum: from `sum(P) - sum(N) = target` get `sum(P) = (total + target)/2`.
 
 **Complexity:** Time `O(n * target)`, space `O(target)`.
 
-**Traps:** Loop direction (ulta vs seedha) sabse aam bug; Coin Change II me coin-outer order; Target Sum me `(total + target)` odd ya negative ho to answer 0.
+**Traps:** Loop direction (down vs up) is the #1 bug; Coin Change II coin-outer order; Target Sum returns 0 if `(total + target)` is odd or negative.
+
+## Decision table
+
+| If you see… | Loop / state |
+|-------------|--------------|
+| Each item at most once | 0/1 — inner loop downward |
+| Coins reusable | Unbounded — inner loop upward |
+| Number of combinations | Coin loop outer |
+| Min coins to amount | `dp[a] = min coins for a` |
+| Partition / Target Sum | Subset sum to `total/2` or `(total+target)/2` |
 
 ## Coin Change
 
@@ -64,7 +74,7 @@ var coinChange = function(coins, amount) {
 
 ## Coin Change II (Number of Ways)
 
-Kitne tareeke se amount banao? Order nahi count karna, coin loop bahar.
+How many ways to make the amount? Do not count order — keep the coin loop outer.
 
 [Coin Change II](https://leetcode.com/problems/coin-change-2/)
 
@@ -105,7 +115,7 @@ function canPartition(nums) {
 
 ## Target Sum
 
-Har number ke aage + ya - lagake target banao — kitne tareeke? Subset-sum me badlo: `sum(P) = (total + target) / 2`, fir 0/1 count wala knapsack.
+Assign + or - before each number to hit target — how many ways? Reduce to subset sum: `sum(P) = (total + target) / 2`, then 0/1 counting knapsack.
 
 [Target Sum](https://leetcode.com/problems/target-sum/)
 
@@ -124,4 +134,3 @@ function findTargetSumWays(nums, target) {
   return dp[t];
 }
 ```
-

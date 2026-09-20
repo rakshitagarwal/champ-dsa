@@ -1,10 +1,10 @@
 # Bit Manipulation
 
-**Definition:** Bit manipulation seedha binary par kaam karta hai. Har integer 32/64 flags hai. Main identities: `a ^ a = 0`, `a ^ 0 = a`, `n & (n - 1)` sabse neeche wala `1` hata deta hai, `n & -n` wahi bit nikalta hai.
+**Definition:** Bit manipulation works directly on binary. Each integer is a pack of 32/64 flags. Core identities: `a ^ a = 0`, `a ^ 0 = a`, `n & (n - 1)` clears the lowest set bit, `n & -n` isolates that bit.
 
-**When to use:** "Har number do baar aaya bas ek single hai", set bits ginna, power-of-two check, missing number, ya `O(1)` space me flags/subsets ka khel.
+**When to use:** "Every number appears twice except one", counting set bits, power-of-two checks, missing number, or `O(1)` space flags / subsets.
 
-**How it works:** XOR se pairs cancel hote hain; `n & (n-1)` loop `O(popcount)` me bits gin leta hai; bit DP `dp[i] = dp[i>>1] + (i&1)`. Time `O(n)` ya `O(1)` per op, space `O(1)`.
+**How it works:** XOR cancels pairs; a `n & (n-1)` loop counts bits in `O(popcount)`; bit DP often uses `dp[i] = dp[i>>1] + (i&1)`. Time `O(n)` or `O(1)` per op; space often `O(1)`.
 
 ## Study notes
 
@@ -13,6 +13,24 @@
 - **XOR trick:** single number, missing number (index^value).
 - **Traps:** signed `>>` vs `>>>`; forget `n>0` for power of two.
 - **Checklist:** need count bits, cancel pairs, or flags?
+
+## Active revision
+
+1. Recite XOR / clear-lowest-1 / power-of-two checks from memory.
+2. Explain Single Number and Missing Number with one XOR pass.
+3. Reconstruct Single Number II bit-by-bit with counts mod 3.
+
+**Blank checklist:** pairs cancel? need popcount? signed shift trap?
+
+## Decision table
+
+| If you see… | Likely move |
+|-------------|-------------|
+| One unique among duplicates | XOR all |
+| Count / list set bits | `n&(n-1)` or shift loop |
+| Exactly one bit set | `n>0 && (n&(n-1))===0` |
+| Missing in `0..n` | XOR index^value or sum formula |
+| Every value ×3 except one | Count each bit mod 3 |
 
 ```js
 // Bit skeleton — core identities
@@ -163,7 +181,7 @@ var isPowerOfTwo = function(n) {
 
 ## Single Number II
 
-Har number 3 baar, ek single. Bits count mod 3 se nikalo.
+Every number appears three times except one. Rebuild the answer from bit counts mod 3.
 
 [Single Number II](https://leetcode.com/problems/single-number-ii/)
 
@@ -184,7 +202,7 @@ function singleNumberII(nums) {
 
 ## Reverse Bits
 
-32-bit unsigned integer ke bits ulta karo.
+Reverse all 32 bits of an unsigned integer.
 
 [Reverse Bits](https://leetcode.com/problems/reverse-bits/)
 
@@ -216,7 +234,7 @@ var reverseBits = function(n) {
 
 ## Hamming Distance
 
-Do numbers me kitne bits alag? XOR karke set bits gino.
+How many bits differ between two numbers? XOR, then count set bits.
 
 [Hamming Distance](https://leetcode.com/problems/hamming-distance/)
 

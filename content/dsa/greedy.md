@@ -1,18 +1,36 @@
 # Greedy
 
-**Definition:** Greedy har step pe jo sabse locally best lage wahi choice le leta hai (sabse jaldi khatam, sabse door jump, sabse bada gap) aur kabhi peeche mudke nahi sochta. Tabhi kaam karta hai jab ye local choice global optimum ko kharab na kare (greedy-choice property) aur problem me optimal substructure ho.
+**Definition:** Greedy picks the locally best choice at each step (earliest finish, farthest jump, largest gap) and never rethinks past choices. It works only when that local choice does not break the global optimum (greedy-choice property) and the problem has optimal substructure.
 
-**When to use:** Ek key par sort karke single left-to-right pass me jawab mile — Jump Game, Gas Station, Partition Labels, Task Scheduler. Agar prove nahi kar pa rahe ki greedy safe hai, to shayad DP hai.
+**When to use:** Sorting on one key, then a single left-to-right pass gives the answer — Jump Game, Gas Station, Partition Labels, Task Scheduler. If you cannot prove the greedy choice is safe, the problem is probably DP.
 
-**How it works:** Decisive key par sort karo, fir ek scan me best state maintain karo (`reach`, `end`, `tank`, `last`). Time `O(n log n)` sort + `O(n)` scan; space `O(1)`.
+**How it works:** Sort on the decisive key, then scan once while maintaining the best state (`reach`, `end`, `tank`, `last`). Time `O(n log n)` sort + `O(n)` scan; space often `O(1)`.
 
 ## Study notes
 
-- **Pehchan:** sort + one pass; local best is globally safe (or you can prove it).
-- **If unsure prove → try DP** (coin change min coins is DP, not greedy always).
+- **Spot it:** sort + one pass; local best is globally safe (or you can prove it).
+- **If unsure prove → try DP** (min coin change is DP, not always greedy).
 - **Classics:** jump game (farthest reach), gas station (tank reset), interval scheduling (earliest end), partition labels.
-- **Traps:** wrong sort key; greedy that fails on counterexample.
+- **Traps:** wrong sort key; greedy that fails on a counterexample.
 - **Checklist:** what is the greedy choice? counterexample? still optimal?
+
+## Active revision
+
+1. Name the greedy choice and the sort key for jump / gas / intervals / partition labels.
+2. Give one case where greedy fails and DP is required (e.g. unbounded coin change for min coins).
+3. Trace Jump Game II windows: `end`, `far`, when to increment jumps.
+
+**Blank checklist:** what is the choice? which key to sort? counterexample? still DP?
+
+## Decision table
+
+| If you see… | Likely move |
+|-------------|-------------|
+| Farthest reach / min jumps on array | Track `reach` / jump windows |
+| Unique circuit start with gas/cost | Tank reset after worst prefix |
+| Cover intervals with min shots/labels | Sort by end; grow cover window |
+| Local choice always safe | Greedy |
+| Local choice can fail | DP — do not force greedy |
 
 ```js
 // Greedy skeleton — sort by key, then one pass
@@ -148,7 +166,7 @@ function leastInterval(tasks, n) {
 
 ## Minimum Number of Arrows to Burst Balloons
 
-Balloon = interval. End se sort karo, ek arrow jahan tak cover kare rakho.
+Each balloon is an interval. Sort by end. Place one arrow and keep the farthest x it still covers.
 
 [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/)
 
@@ -168,7 +186,7 @@ function findMinArrowShots(points) {
 
 ## Lemonade Change
 
-5,10,20 notes. Greedy: 20 aaye to 10+5 do, nahi to 5+5+5.
+Bills are 5, 10, 20. Prefer giving a 10+5 for a 20; otherwise three 5s.
 
 [Lemonade Change](https://leetcode.com/problems/lemonade-change/)
 
@@ -191,7 +209,7 @@ function lemonadeChange(bills) {
 
 ## Valid Parenthesis String (with *)
 
-`*` ko `(`, `)` ya empty maan sakte hain. Greedy range `low..high` open count ka.
+`*` can be `(`, `)`, or empty. Track a greedy open-count range `low..high`.
 
 [Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/)
 

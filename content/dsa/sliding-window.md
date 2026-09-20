@@ -1,20 +1,23 @@
 # Sliding Window
 
-**Definition:** Sliding window array/string par ek contiguous range `[left, right]` hai jo `O(n)` me slide karta hai. `right` badhate hain aur invariant (all unique, sum ≤ k, t cover) banaye rakhne ke liye `left` shrink karte hain. Har index max ek baar andar-bahar.
+**Definition:** A sliding window is a contiguous range `[left, right]` on an array or string that slides in `O(n)`. Grow with `right`; shrink `left` to keep an invariant (all unique, sum ≤ k, covers `t`). Each index enters and leaves the window at most once.
 
-**When to use:** Longest/shortest *contiguous* subarray/substring kisi constraint ke saath — no repeats, at most K distinct, minimum window jo t cover kare, ya size k ki har window ka max (deque variant).
+**When to use:** Longest or shortest *contiguous* subarray/substring under a constraint — no repeats, at most K distinct, minimum window covering `t`, or max of every window of size k (deque variant).
 
-**How it works:** Variable-size: `right` badhao, `while(invalid) left shrink`, best record. Fixed k: `right` add, `i ≥ k` par `left-k` hatao, monotonic deque ka front = max. Time `O(n)`, space `O(1)` + freq map/deque.
+**How it works:** Variable size: advance `right`, `while (invalid) shrink left`, record the best. Fixed size k: add at `right`, drop `i-k` once `i ≥ k`; with a monotonic deque the front is the max. Time `O(n)`, space `O(1)` plus a freq map or deque.
 
 ## Study notes
 
-- **Pehchan:** *contiguous* substring/subarray + constraint (unique chars, ≤k distinct, cover `t`, sum/window size).
+- **Cue:** *contiguous* substring/subarray + constraint (unique chars, ≤k distinct, cover `t`, sum / window size).
 - **Template:** expand `right` → update state → shrink `left` while invalid → update answer.
 - **Fixed vs variable:** fixed k → add/remove one each step; variable → while-loop shrink.
-- **State:** Set/Map/counter — jab `map.get(c)===0` delete key (distinct count).
+- **State:** Set/Map/counter — when `map.get(c)===0`, delete the key (distinct count).
 - **Deque variant:** sliding window maximum — see Queue page.
-- **Traps:** forget shrink; answer update inside vs outside while; off-by-one length `right-left+1`.
-- **Checklist:** contiguous? what breaks window? what do I store in map?
+- **Traps:** forget to shrink; answer update inside vs outside the while; off-by-one length `right-left+1`.
+- **Checklist:** contiguous? what breaks the window? what do I store in the map?
+
+### Active revision
+What is the window invariant? Expand then shrink, or fixed size k? Where do I update the answer?
 
 ```js
 // Sliding window skeleton — variable size
@@ -149,7 +152,7 @@ function maxSlidingWindow(nums, k) {
 
 ## Longest Repeating Character Replacement
 
-Window me sabse zyada frequent char `maxF`, window size - maxF <= k to valid. Nahi to left shrink karo.
+Let `maxF` be the most frequent character in the window. The window is valid while `size - maxF ≤ k` (replacements needed). Otherwise shrink from the left.
 
 [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/)
 
@@ -188,7 +191,7 @@ var characterReplacement = function(s, k) {
 
 ## Permutation in String
 
-`s1` ka permutation `s2` me hai kya? Sliding window + frequency compare.
+Does `s2` contain a permutation of `s1`? Fixed sliding window of length `|s1|` plus frequency compare.
 
 [Permutation in String](https://leetcode.com/problems/permutation-in-string/)
 
@@ -212,7 +215,7 @@ function checkInclusion(s1, s2) {
 
 ## Maximum Average Subarray I
 
-Size `k` ki window me max sum / k. Fixed sliding window.
+Max average of any contiguous window of size `k`: track max sum, then divide by `k`. Fixed sliding window.
 
 [Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
 

@@ -1,10 +1,10 @@
 # Queue
 
-**Definition:** Queue **FIFO** hai (first-in, first-out) — line: peeche se enqueue, aage se dequeue, ideal `O(1)`. Ordering aur levels sambhalta hai — BFS, task order, sliding time windows. **Deque** (double-ended queue) dono ends se add/remove karta hai — sliding window maximum, monotonic queue.
+**Definition:** A queue is **FIFO** (first-in, first-out) — a line: enqueue at the back, dequeue from the front, ideally `O(1)`. It preserves order and levels — BFS, task order, sliding time windows. A **deque** (double-ended queue) adds/removes at both ends — used for sliding window maximum and monotonic queues.
 
-**When to use:** BFS levels, recent-calls jaisa time window, task scheduling, stack-via-queues, circular buffer. Window ka max/min chahiye to **deque of indices**.
+**When to use:** BFS by levels, time windows (e.g. recent calls), task scheduling, stack-via-queues, circular buffers. For window max/min, use a **deque of indices**.
 
-**How it works:** JS me `push` + `shift` se queue (shift `O(n)` — bade n pe head index ya proper deque). Circular queue: `head + count + % k`. Deque: back pe badhte indices, front se stale/chhote nikaalo.
+**How it works:** In JS, `push` + `shift` acts as a queue (`shift` is `O(n)` — for large n prefer a head index or a real deque). Circular queue: `head + count` with `% k`. Deque: push growing candidates at the back; drop stale/smaller from the front.
 
 ## Study notes
 
@@ -39,6 +39,9 @@ while (q.length) {
 - Forget `visited` in BFS → infinite.
 - Circular queue: confuse full vs empty without `count`.
 
+### Active revision
+FIFO or deque? Level-by-level BFS with `size = q.length`? For window max, why store indices?
+
 ```js
 // Queue skeleton — enqueue at back, dequeue from front (FIFO)
 const q = [start];
@@ -63,7 +66,7 @@ const enqIdx = (head + count) % k;
 ```
 ## Number of Recent Calls
 
-3000ms window ke andar kitne ping aaye? Queue me time daalo, purane nikalo, length gin lo.
+How many pings fall in the last 3000ms? Enqueue each time; dequeue anything older than `t - 3000`; return the queue length.
 
 [Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
 
@@ -82,7 +85,7 @@ RecentCounter.prototype.ping = function (t) {
 
 ## Implement Stack using Queues
 
-Ek queue lo — push ke baad purane sab ghuma ke piche daal do, taaki naya aage rahe. Pop/shift `O(1)`.
+One queue: after each push, rotate older elements behind the new one so the newest sits at the front. Then pop/shift is `O(1)`.
 
 [Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/)
 
@@ -109,7 +112,7 @@ MyStack.prototype.empty = function () {
 
 ## Design Circular Queue
 
-Fixed size `k` — head + count rakho, index `% k` se ghoomo. Full/empty ka farak count se karo.
+Fixed capacity `k` — track `head` and `count`, wrap indices with `% k`. Distinguish full vs empty with `count`.
 
 [Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
 

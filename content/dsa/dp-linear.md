@@ -1,10 +1,10 @@
 # 1D / Linear DP
 
-**Definition:** Sequence pe ek direction me chalo; har position ka jawab **pichhle 1–2** answers se banta hai. `dp[i]` = prefix `[0..i]` ka ways / min cost / max loot / possible.
+**Definition:** Walk a sequence in one direction; each position's answer comes from the **previous 1–2** answers. `dp[i]` = ways / min cost / max loot / possible for prefix `[0..i]`.
 
-**When to use:** Climbing stairs, house robber, decode ways, word break, min cost climb — "i tak" ka linear scan.
+**When to use:** Climbing stairs, house robber, decode ways, word break, min cost climb — a linear "up to i" scan.
 
-**How it works:** Recurrence pichhle states se — stairs `dp[i]=dp[i-1]+dp[i-2]`; robber `max(skip, take+dp[i-2])`. Base `dp[0]/dp[1]` haath se. Space often `O(1)` (2 variables).
+**How it works:** Recurrence from nearby states — stairs `dp[i]=dp[i-1]+dp[i-2]`; robber `max(skip, take+dp[i-2])`. Set `dp[0]`/`dp[1]` by hand. Space often `O(1)` (two variables).
 
 **See also:** Hub [Dynamic Programming](/patterns/dp). Capacity/subset → [Knapsack](/patterns/dp-knapsack). Grid/strings → [2D DP](/patterns/dp-2d).
 
@@ -18,10 +18,20 @@
 
 ## Study notes
 
-- **Pehchan:** one array/string; answer grows left → right from nearby cells.
-- **Base bugs** sabse common — robber empty/1-element; decode `'0'`.
+- **Spot it:** one array/string; answer grows left → right from nearby cells.
+- **Base bugs** are the most common — robber empty/1-element; decode `'0'`.
 - **Word Break:** `dp[i]` = `s[0..i)` breakable; try every `j < i` (or BFS on indices).
 - **Complexity:** usually `O(n)` or `O(n²)` (word break).
+
+## Decision table
+
+| If you see… | Likely state |
+|-------------|--------------|
+| Ways with 1 or 2 steps | `dp[i] = dp[i-1] + dp[i-2]` |
+| Take/skip adjacent constraint | Robber: `max(take+dp[i-2], skip)` |
+| Circular houses | Best of two linear ranges |
+| Decode string digits | 1-digit + valid 2-digit |
+| Split into dict words | `dp[i]` breakable prefix |
 
 ## Climbing Stairs
 
@@ -56,7 +66,7 @@ var climbStairs = function(n) {
 
 ## Min Cost Climbing Stairs
 
-`dp[i]` = step i tak pahunchne ki min cost. Har step se 1 ya 2 aage ja sakte ho, top ke baad rukna hai.
+`dp[i]` = min cost to stand on step i. From each step you can go 1 or 2 ahead; stop once past the top.
 
 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/)
 
@@ -112,7 +122,7 @@ var rob = function(nums) {
 
 ## House Robber II (Circular)
 
-Ghar gol me hain, pehla aur aakhri saath nahi loot sakte. Do cases: [0..n-2] aur [1..n-1] me se best.
+Houses form a circle — first and last cannot both be robbed. Best of two ranges: `[0..n-2]` and `[1..n-1]`.
 
 [House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
@@ -219,4 +229,3 @@ var wordBreak = function(s, wordDict) {
   return false;
 };
 ```
-

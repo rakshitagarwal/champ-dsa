@@ -1,10 +1,10 @@
 # Backtracking
 
-**Definition:** Backtracking ek systematic DFS technique hai state-space tree par — hum ek choice try karte hain, aage recurse karte hain, aur jaise hi pata chale ki ye rasta valid solution tak nahi ja sakta, wapas undo (backtrack) kar dete hain. Ye brute force hai par pruning se tez.
+**Definition:** Backtracking is systematic DFS over a state-space tree — try a choice, recurse, and as soon as a path cannot lead to a valid solution, undo (backtrack). It is brute force made faster with pruning.
 
-**When to use:** Jab saare subsets / permutations / combinations chahiye, ya N-Queens jaise placements, ya grid/word search jisme constraint check karna ho. Agar soch "ek choice try karo, kaam kare to rakho warna hatao" hai to yehi pattern hai.
+**When to use:** You need all subsets / permutations / combinations, placements like N-Queens, or grid/word search with constraints. If the thought is “try a choice, keep it if it works, otherwise remove it,” this is the pattern.
 
-**How it works:** Recursive `choose → explore → unchoose` (push → recurse → pop). Ek `path` rakho current partial solution ke liye aur `ans` me save karo. Har call me check karo — valid hai to record, invalid hai to prune/return, fir loop se next choices try karo. Time aksar exponential `O(k^n)` par pruning branches kaat deta hai; space `O(n)` depth + path.
+**How it works:** Recursive `choose → explore → unchoose` (`push → recurse → pop`). Keep a `path` for the partial solution and save copies into `ans`. At each call: if complete, record; if invalid, prune/return; else try the next choices. Time is often exponential `O(k^n)` but pruning cuts branches; space is `O(n)` depth + path.
 
 ## Study notes
 
@@ -14,6 +14,20 @@
 - **Duplicates:** sort + skip same value at same depth (`i>start && nums[i]===nums[i-1]`).
 - **Traps:** mutate path into `ans` without `[...path]` copy; wrong start index (reuse vs not).
 - **Checklist:** what is a choice? when is path complete? how undo?
+
+### Active revision
+Name the choice set, the completion condition, and the undo step. Which variant: subsets, permutations, combinations, or grid?
+
+### Decision table
+
+| Need | Pattern |
+|------|---------|
+| All subsets | include/skip or start-index DFS |
+| Order matters, use each once | permutations + used / remaining |
+| Order does not matter, size/target | combinations + `start` |
+| Same value may repeat | recurse with `i` (reuse) |
+| Duplicates in input | sort + skip at same depth |
+| Board placement / word | mark cell → DFS → unmark |
 
 ```js
 // Backtracking skeleton — choose / explore / unchoose
@@ -260,7 +274,7 @@ var solveNQueens = function(n) {
 
 ## Subsets II (Duplicates)
 
-Duplicate numbers ke saath subsets, duplicate subsets avoid karo. Sort karke `i>start && nums[i]==nums[i-1]` skip karo.
+Subsets with duplicate numbers, without duplicate subsets. Sort, then skip when `i>start && nums[i]==nums[i-1]`.
 
 [Subsets II](https://leetcode.com/problems/subsets-ii/)
 
@@ -294,7 +308,7 @@ var subsetsWithDup = function(nums) {
 
 ## Combination Sum II
 
-Har coin ek baar, duplicate combos nahi. Sort + skip `i>start && same`.
+Each coin once; no duplicate combos. Sort + skip `i>start && same`.
 
 [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
 
@@ -321,7 +335,7 @@ function combinationSum2(candidates, target) {
 
 ## Palindrome Partitioning
 
-String ko tukdon me kaato jahan har tukda palindrome ho. Backtrack se cut try karo.
+Cut the string so every piece is a palindrome. Backtrack over cut positions.
 
 [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)
 
@@ -347,7 +361,7 @@ function partition(s) {
 
 ## Letter Combinations of a Phone Number
 
-Phone digits se saare letter combos. Har digit ke letters pe loop.
+All letter combinations from phone digits. Loop over letters for each digit.
 
 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
 

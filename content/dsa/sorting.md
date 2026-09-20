@@ -1,19 +1,25 @@
 # Intervals
 
-**Definition:** Sorting elements ko comparator se arrange karta hai (`O(n log n)`). Interviews me sabse common use **Intervals** pattern hai: intervals ko start (ya end) se sort karke left-to-right sweep me overlaps merge karna. Insert interval aur overlaps hatana bhi isi me.
+**Definition:** Sorting arranges elements with a comparator (`O(n log n)`). In interviews the most common use is the **Intervals** pattern: sort intervals by start (or end), then sweep left-to-right to merge overlaps. Inserting an interval and erasing overlaps use the same idea.
 
-**When to use:** Input `[start, end]` pairs ho (meetings, ranges) aur merge/insert/overlaps ginna ho. Unsorted hai to pehle sort zaroori — sweep sorted par hi kaam karta hai.
+**When to use:** Input is `[start, end]` pairs (meetings, ranges) and you must merge, insert, or count overlaps. If unsorted, sort first — the sweep only works on sorted data.
 
-**How it works:** `a[0]-b[0]` se sort. Last merged interval `last` rakho. Har `cur` ke liye agar `cur[0] <= last[1]` to overlap → `last[1] = max(last[1], cur[1])`; warna push `cur`. Insert me "pehle wale" copy, "overlap wale" merge, "baad wale" copy. Time `O(n log n)` sort + `O(n)` sweep, space `O(n)`.
+**How it works:** Sort by `a[0]-b[0]`. Keep the last merged interval `last`. For each `cur`, if `cur[0] <= last[1]` there is overlap → `last[1] = max(last[1], cur[1])`; else push `cur`. Insert: copy “before,” merge overlaps, copy “after.” Time `O(n log n)` sort + `O(n)` sweep, space `O(n)`.
 
 ## Study notes
 
-- **Pehchan:** list of `[start,end]`; merge / insert / erase overlaps / min rooms.
+- **Recognition:** list of `[start,end]`; merge / insert / erase overlaps / min rooms.
 - **Sort key:** merge → by start; non-overlap count → often by **end**.
-- **Overlap test:** `a.start <= b.end && b.start <= a.end` (closed); half-open careful.
+- **Overlap test:** `a.start <= b.end && b.start <= a.end` (closed); be careful with half-open ranges.
 - **Meeting rooms II:** sort starts & ends; sweep line / min-heap of ends.
-- **Traps:** sort forgotten; mutate last incorrectly; inclusive ends.
-- **Checklist:** sort by start or end? what is "overlap"?
+- **Traps:** forgetting to sort; mutating `last` incorrectly; inclusive ends.
+- **Checklist:** sort by start or end? what counts as “overlap”?
+
+## Active revision
+
+- Merge vs erase-overlaps: which sort key (start vs end) and why?
+- State the three phases of Insert Interval in order.
+- Closed vs half-open: how does the overlap test change?
 
 ```js
 // Sorting skeleton
@@ -110,7 +116,7 @@ var insert = function(intervals, newInterval) {
 
 ## Non-overlapping Intervals
 
-Kitne intervals hatane padenge taaki overlap na rahe? End se sort karo, greedy rakho.
+How many intervals must you remove so none overlap? Sort by end and greedily keep.
 
 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
@@ -142,7 +148,7 @@ var eraseOverlapIntervals = function(intervals) {
 
 ## Meeting Rooms (Can Attend All Meetings)
 
-Sab meetings attend kar sakte kya? Sort karke check karo overlap hai kya.
+Can you attend every meeting? Sort and check whether any adjacent pair overlaps.
 
 [Meeting Rooms](https://leetcode.com/problems/meeting-rooms/)
 
@@ -172,7 +178,7 @@ var canAttendMeetings = function(intervals) {
 
 ## Sort Colors (Dutch Flag)
 
-0,1,2 ko ek pass me sort karo. Low, mid, high pointer.
+Sort 0, 1, 2 in one pass. Low, mid, high pointers.
 
 [Sort Colors](https://leetcode.com/problems/sort-colors/)
 

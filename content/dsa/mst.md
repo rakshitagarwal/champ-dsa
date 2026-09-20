@@ -1,10 +1,10 @@
 # MST
 
-**Definition:** Minimum Spanning Tree saare nodes ko **sabse kam total edge weight** se jodta hai, **bina cycle** ke. Tree me exactly `n-1` edges. "Minimum cost to connect all" dikhe to MST — ye **shortest path nahi** hai ([Shortest Path](/patterns/shortest-path) alag).
+**Definition:** A Minimum Spanning Tree connects all nodes with the **smallest total edge weight** and **no cycles**. A tree on `n` nodes has exactly `n-1` edges. If you see “minimum cost to connect all,” think MST — this is **not** shortest path ([Shortest Path](/patterns/shortest-path) is different).
 
-**When to use:** Connect all points/nodes with minimum cost, network wiring, clustering. Edges mil rahe / complete graph → Kruskal + DSU. Dense + grow from one node → Prim + heap.
+**When to use:** Connect all points/nodes at minimum cost, network wiring, clustering. Edge list / complete graph → Kruskal + DSU. Dense graph grown from one node → Prim + heap.
 
-**How it works:** **Kruskal** — edges chhote → bade sort; DSU se loop check; alag components ho to lo; `n-1` edges pe ruko. **Prim** — ek node se start; min-heap se sabse sasta next edge into tree. Time Kruskal `O(E log E)`, Prim heap `O((V+E) log V)`.
+**How it works:** **Kruskal** — sort edges small → large; DSU to skip cycles; take edges that join different components; stop at `n-1` edges. **Prim** — start from one node; min-heap always picks the cheapest edge into the tree. Time Kruskal `O(E log E)`, Prim heap `O((V+E) log V)`.
 
 **See also:** DSU details → [Union Find](/patterns/union-find). Graph basics → [Graphs](/patterns/graphs).
 
@@ -24,6 +24,14 @@
 - **Prim** = Dijkstra-shaped growth but tracks edge into tree, not path dist (same heap pattern often).
 - **Traps:** forgetting `used === n-1` early stop; directed edges (MST is undirected); calling Dijkstra for "connect all."
 - **Complexity:** n points complete graph → `E = n(n-1)/2` so Kruskal `O(n² log n)`.
+
+### Decision table
+
+| Need | Algorithm |
+|------|-----------|
+| Min cost connect all (edge list) | Kruskal + DSU |
+| Grow tree from one node | Prim + heap |
+| Shortest A → B | Not MST — [Shortest Path](/patterns/shortest-path) |
 
 ```js
 // DSU skeleton — find with path compression + union
@@ -50,7 +58,7 @@ for (const [w, u, v] of edges) {
 
 ## Min Cost to Connect All Points (Kruskal + DSU)
 
-Har pair ka Manhattan edge banao, sort karo, DSU se loop check karke jodo. `n-1` edges milte hi answer.
+Build a Manhattan edge for every pair, sort, join with DSU when no cycle. Stop when you have `n-1` edges.
 
 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/)
 
@@ -86,7 +94,7 @@ function minCostConnectPoints(points) {
 
 ## Prim (Heap) — Same Problem Shape
 
-Start at 0; hamesha tree ke bahar ka sabse sasta edge lo. `inMST` mark; stale heap skip.
+Start at 0; always take the cheapest edge leaving the tree. Mark `inMST`; skip stale heap entries.
 
 ```js
 // Time: O(n² log n) worst with dense edges · Space: O(n²)
@@ -141,4 +149,4 @@ function minCostConnectPointsPrim(points) {
 }
 ```
 
-**Yaad rakho:** Connect all + min total weight + no cycle = MST. Kruskal = sort + DSU. Prim = grow with heap. A→B cheapest = Shortest Path, not MST.
+**Remember:** Connect all + min total weight + no cycle = MST. Kruskal = sort + DSU. Prim = grow with heap. A→B cheapest = Shortest Path, not MST.

@@ -1,10 +1,10 @@
 # Union Find
 
-**Definition:** Union-Find (Disjoint Set Union, DSU) nodes ko disjoint sets me rakhta hai. `find` (path compression) aur `union` (rank/size) lagbhag `O(α(n))` — practically `O(1)`. Har node parent ko point karta hai; **root** = set representative.
+**Definition:** Union-Find (Disjoint Set Union, DSU) keeps nodes in disjoint sets. With `find` (path compression) and `union` (by rank/size), operations are nearly `O(α(n))` — practically `O(1)`. Each node points to a parent; the **root** is the set representative.
 
-**When to use:** "Ye connected hain kya?", groups merge, undirected cycle (redundant edge), components ginna, Kruskal MST ([MST](/patterns/mst)). Edge stream / many merge queries pe BFS se better.
+**When to use:** “Are these connected?”, merge groups, undirected cycle (redundant edge), count components, Kruskal MST ([MST](/patterns/mst)). Better than BFS when you have an edge stream / many merge queries.
 
-**How it works:** `find(x)` root tak jata hai aur path flat karta hai. `union(a,b)` roots milata hai (chhote rank ko bade ke neeche). `find(a)===find(b)` pehle se same set → undirected pe cycle / redundant. Space `O(n)`.
+**How it works:** `find(x)` walks to the root and flattens the path. `union(a,b)` links roots (lower rank under higher). If `find(a)===find(b)` already, same set → undirected cycle / redundant. Space `O(n)`.
 
 **See also:** Kruskal uses this → [MST](/patterns/mst). Components via DFS → [Graphs](/patterns/graphs).
 
@@ -24,6 +24,15 @@
 - **Init:** `parent[i]=i`, `rank[i]=0` (0- or 1-index carefully).
 - **Traps:** union without finding roots first; recursive find without compression; using DSU on directed "prereq" graphs (use [Topo](/patterns/topological-sort)).
 - **Vs BFS components:** DSU better when many online merges / edge list; BFS/DFS fine for one-shot grid/matrix.
+
+### Decision table
+
+| Need | Tool |
+|------|------|
+| Online merges / redundant edge | Union-Find |
+| One-shot grid/matrix components | DFS/BFS on [Graphs](/patterns/graphs) |
+| Min cost connect all | Kruskal + DSU → [MST](/patterns/mst) |
+| Directed dependencies | [Topological Sort](/patterns/topological-sort), not UF |
 
 ```js
 // Union-Find skeleton — path compression + union by rank
@@ -67,7 +76,7 @@ function findRedundantConnection(edges) {
 
 ## Number of Provinces (Union-Find)
 
-Matrix me `isConnected[i][j]===1` → union(i, j). Unique roots = provinces. (DFS version → [Graphs](/patterns/graphs).)
+When `isConnected[i][j]===1`, union(i, j). Unique roots = provinces. (DFS version → [Graphs](/patterns/graphs).)
 
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
@@ -144,7 +153,7 @@ function minCostConnectPoints(points) {
 
 ## Accounts Merge
 
-Same email ⇒ same person. Emails ko nodes banao; ek account ke emails union. Phir har root ke emails sort + name.
+Same email ⇒ same person. Treat emails as nodes; union emails in one account. Then sort emails per root and attach the name.
 
 [Accounts Merge](https://leetcode.com/problems/accounts-merge/)
 
@@ -202,4 +211,4 @@ function accountsMerge(accounts) {
 }
 ```
 
-**Yaad rakho:** Same root = same group. Union false = already connected. Kruskal = sort + DSU. Directed deps = topo, not UF.
+**Remember:** Same root = same group. Union false = already connected. Kruskal = sort + DSU. Directed deps = topo, not UF.

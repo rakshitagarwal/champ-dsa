@@ -1,10 +1,10 @@
 # Trees (DFS/BFS)
 
-**Definition:** Tree ek connected acyclic graph hai jiska root hota hai; har node ke `left`/`right` (ya children) pointers. Do traversal: **DFS** (depth-first, recursion/stack — gehrai tak) aur **BFS** (breadth-first, queue — level by level).
+**Definition:** A tree is a connected acyclic graph with a root; each node has `left`/`right` (or children) pointers. Two traversals: **DFS** (depth-first, recursion/stack — go deep) and **BFS** (breadth-first, queue — level by level).
 
-**When to use:** "Left dekho, right dekho, combine karo" (max depth, path sum, invert, diameter) → DFS recursion. "Level", "root ke sabse kareeb", "right side view", "unweighted me sabse kam steps" → BFS `queue.length` se level drain.
+**When to use:** “Look left, look right, combine” (max depth, path sum, invert, diameter) → DFS recursion. “Level”, “closest to root”, “right side view”, “fewest unweighted steps” → BFS, draining `queue.length` per level.
 
-**How it works:** DFS `combine(node, dfs(left), dfs(right))` return karta hai `null → base`. BFS root push, fir jab tak queue hai `n = queue.length` nodes ek level ke. Time `O(n)`, space `O(h)` DFS / `O(w)` BFS.
+**How it works:** DFS returns `combine(node, dfs(left), dfs(right))` with `null → base`. BFS pushes root, then while the queue is non-empty processes `n = queue.length` nodes as one level. Time `O(n)`, space `O(h)` DFS / `O(w)` BFS.
 
 ## Study notes
 
@@ -14,6 +14,18 @@
 - **BST rules** → BST page; here general binary trees.
 - **Traps:** forget null; mutate tree accidentally; BFS without level size.
 - **Checklist:** need depth combine or level view?
+
+### Active revision
+Do I need a per-node combine (DFS) or a level view / nearest (BFS)? What is the null base return?
+
+### Decision table
+
+| Question | Prefer |
+|----------|--------|
+| Height / diameter / path sum | DFS post-order combine |
+| Level lists / zigzag / side view | BFS by level size |
+| Same structure / invert / subtree | DFS recurse both sides |
+| Sorted order in BST | Inorder DFS |
 
 ```js
 // Tree skeleton — DFS (post-order combine)
@@ -386,7 +398,7 @@ function findKth(arr, k){
 
 ## Invert Binary Tree
 
-Har node ke left/right swap karo. Recursion se dono subtree invert.
+Swap left/right at every node. Recurse to invert both subtrees.
 
 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
 
@@ -418,7 +430,7 @@ var invertTree = function(root) {
 
 ## Same Tree
 
-Dono trees ka structure aur value same hai kya? Dono null to true, ek null to false.
+Are both trees the same in structure and values? Both null → true; exactly one null → false.
 
 [Same Tree](https://leetcode.com/problems/same-tree/)
 
@@ -457,7 +469,7 @@ var isSameTree = function(p, q) {
 
 ## Subtree of Another Tree
 
-`s` me `t` jaisa subtree hai kya? Har node ko root maan ke sameTree check.
+Does `s` contain a subtree identical to `t`? At every node of `s`, run a same-tree check against `t`.
 
 [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/)
 
