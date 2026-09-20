@@ -20,6 +20,8 @@ export type SdDocumentMeta = {
   title: string;
   description: string;
   group: SdGroupId;
+  /** Classic interview set: Bitly, rate limiter, news feed, chat, notifications, Uber, YouTube, Ticketmaster */
+  core8?: boolean;
 };
 
 export type SdDocument = SdDocumentMeta & {

@@ -112,6 +112,8 @@ All chunk uploads/downloads use **pre-signed S3 URLs** so API servers don't prox
 
 ## High-Level Design (HLD)
 
+![Dropbox architecture: API gateway, metadata service, Postgres, S3 chunks, notifications](/images/hld/dropbox-architecture.png)
+
 ```
 Desktop / Mobile Clients  <---WebSocket / Long Poll--->  Notification Service
         |                                                    ^

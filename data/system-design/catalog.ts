@@ -23,7 +23,14 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     slug: "introduction",
     title: "Introduction",
     description:
-      "How to study HLD — roadmap, blank interview checklist, theory map, and design aliases.",
+      "How to study HLD — request path, study order, note templates, checklist, and design aliases.",
+    group: "intro",
+  },
+  {
+    slug: "hld-cheatsheet",
+    title: "HLD Cheat Sheet",
+    description:
+      "Latency numbers, availability nines, estimation shortcuts, and the 45-minute interview split.",
     group: "intro",
   },
 
@@ -56,6 +63,13 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     group: "network",
   },
   {
+    slug: "api-paradigms",
+    title: "REST vs GraphQL vs gRPC",
+    description:
+      "When to pick REST, GraphQL, or gRPC — caching, mobile BFF, and internal streaming trade-offs.",
+    group: "network",
+  },
+  {
     slug: "load-balancing",
     title: "Load Balancing",
     description:
@@ -80,7 +94,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     slug: "caching-strategies",
     title: "Caching",
     description:
-      "Cache patterns, TTL, eviction, stampede, Redis deep-dive and Bloom filters.",
+      "Cache patterns, TTL, eviction, stampede, Redis, Bloom filters, HLL, Count-Min, Merkle trees.",
     group: "caching",
   },
   {
@@ -94,7 +108,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     slug: "distributed-systems",
     title: "Distributed Systems",
     description:
-      "CAP, quorum, replication, locks, ZooKeeper coordination, sagas and retries.",
+      "CAP, quorum, replication, locks, ZooKeeper, sagas, and consistency flavors (causal, read-your-writes).",
     group: "distributed",
   },
   {
@@ -129,7 +143,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     slug: "reliability-fault-tolerance",
     title: "Reliability & Fault Tolerance",
     description:
-      "Health checks, retries, timeouts, circuit breaker, bulkhead, failover and RPO/RTO.",
+      "Health checks, retries, timeouts, circuit breaker, bulkhead, failover, RPO/RTO, and safe deployments.",
     group: "resilience",
   },
   {
@@ -166,6 +180,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "URL shortener — generate a short code, redirect fast, survive read-heavy traffic.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "dropbox",
@@ -187,6 +202,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Inventory under flash sales — hold seats, avoid double-booking, survive spikes.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "fb-news-feed",
@@ -194,6 +210,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Fan-out timelines, rank posts, and keep the home feed fast at celebrity scale.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "tinder",
@@ -215,6 +232,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "1:1 and group chat — WebSockets, receipts, media, and offline push.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "rate-limiter",
@@ -222,6 +240,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Protect APIs with token buckets / sliding windows across many servers.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "youtube",
@@ -229,6 +248,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Upload, transcode, adaptive stream, and CDN the bytes — metadata stays in a DB.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "fb-live-comments",
@@ -250,6 +270,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Ride matching with live location, geohash nearby search, and trip state.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "web-crawler",
@@ -334,6 +355,7 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "Fan-out email / push / SMS with preferences, retries, and idempotency.",
     group: "questions",
+    core8: true,
   },
   {
     slug: "robinhood",
@@ -376,5 +398,26 @@ export const SD_CATALOG: SdDocumentMeta[] = [
     description:
       "LLM product design — sessions, streaming tokens, rate limits, and RAG.",
     group: "questions",
-  }
+  },
+  {
+    slug: "pastebin",
+    title: "Pastebin",
+    description:
+      "Paste service — short-lived text blobs, unique IDs, expiry, and read-heavy fetch.",
+    group: "questions",
+  },
+  {
+    slug: "search-autocomplete",
+    title: "Search Autocomplete",
+    description:
+      "Typeahead suggestions — trie / prefix index, top-K ranking, and hot-prefix cache.",
+    group: "questions",
+  },
+  {
+    slug: "google-maps",
+    title: "Google Maps",
+    description:
+      "Maps tiles, routing, ETA, and live traffic — geo indexes and pathfinding at scale.",
+    group: "questions",
+  },
 ];

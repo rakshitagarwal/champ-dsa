@@ -4,6 +4,8 @@
 
 > In a flash sale, lock inventory in Postgres with FOR UPDATE, hold seats with a 10-min TTL, absorb spikes with a waiting-room queue, shard by eventId.
 
+> **Same pattern as:** BookMyShow, hotel/flight seat holds, flash-sale inventory — hold + TTL + waiting room, not a new design.
+
 ## What they ask
 
 **Scenario:** "Design Ticketmaster — on-sale at 10:00. 50k people, 5k seats. Hold a seat for 10 minutes while checkout finishes. No oversell."
@@ -108,6 +110,8 @@ ETag: "rev-1234"
 ```
 
 ## High-Level Design (HLD)
+
+![Ticketmaster architecture: waiting room, ticket API, inventory DB, hold Redis, payment, orders](/images/hld/ticketmaster-architecture.svg)
 
 ```
 Client (Web/Mobile)

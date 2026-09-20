@@ -1,5 +1,6 @@
 import { isPremiumLcSlug } from "@/data/practice/premium-slugs";
 import { isStriverA2zSlug } from "@/data/practice/striver-a2z-slugs";
+import { lcQuestionNumber } from "@/data/practice/leetcode-ids";
 
 export type LcDifficulty = "easy" | "medium" | "hard";
 
@@ -7,6 +8,8 @@ export type LcProblem = {
   title: string;
   slug: string;
   difficulty: LcDifficulty;
+  /** LeetCode frontend question number (e.g. 1 for Two Sum). */
+  number?: number;
   premium?: boolean;
   /** Also on Striver A2Z — solving it advances that sheet too. */
   striver?: boolean;
@@ -27,19 +30,17 @@ export type LcGroup = {
 };
 
 function p(title: string, slug: string, difficulty: LcDifficulty): LcProblem {
+  const number = lcQuestionNumber(slug);
   return {
     title,
     slug,
     difficulty,
+    ...(number != null ? { number } : {}),
     ...(isPremiumLcSlug(slug) ? { premium: true } : {}),
     ...(isStriverA2zSlug(slug) ? { striver: true } : {}),
   };
 }
 
-/**
- * Interview sheet grouped to match /patterns.
- * One LeetCode home per problem — popular Blind 75 / NeetCode 150 / Grind picks.
- */
 /**
  * Interview sheet grouped to match /patterns.
  * Subgroups keep large topics browsable; some problems appear in more than one pattern on purpose.

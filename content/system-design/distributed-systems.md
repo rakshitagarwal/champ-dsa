@@ -35,12 +35,24 @@ When **no partition**, systems still trade **Latency (L)** vs **Consistency (C)*
 
 ## Consistency Models and Availability
 
-**Strong / linearizable:** Behaves like one copy, one at a time — expensive, often leader-based. **Sequential / causal:** Respect cause-effect order without full global lock. **Eventual:** Replicas converge; reads may return old values for a bounded (or unbounded) window. **Availability** means serving despite node loss — often conflicts with strong consistency under partition. Product language maps to models: bank balance → strong; Twitter follower count → eventual with TTL display.
+**Strong / linearizable:** Behaves like one copy, one at a time — expensive, often leader-based. **Sequential:** All nodes agree on one global order of operations (weaker than linearizability on real-time constraints). **Causal:** If A happened-before B (e.g. you reply to a comment), everyone sees A before B — but unrelated ops may reorder. **Eventual:** Replicas converge; reads may return old values for a bounded (or unbounded) window. **Availability** means serving despite node loss — often conflicts with strong consistency under partition. Product language maps to models: bank balance → strong; Twitter follower count → eventual with TTL display.
 
-- **Read-your-writes:** Session stickiness or leader read after own write — common UX compromise.
+Session-level flavors interviewers love (name them explicitly):
+
+| Flavor | Guarantee | Typical mechanism |
+|--------|-----------|-------------------|
+| **Read-your-writes** | After I write, *I* see my write | Sticky session, or read from primary / quorum after own write |
+| **Monotonic reads** | I never see older data than a previous read | Session token / version watermark per client |
+| **Causal** | Cause before effect globally for related ops | Vector clocks, or single-leader per conversation key |
+| **Bounded staleness** | Stale by at most T seconds | Async replica lag SLO + monitor |
+
+- **Read-your-writes:** Session stickiness or leader read after own write — common UX compromise (profile update, create-then-redirect).
 - **Monotonic reads:** Never go backward in time for one user — cheaper than full linearizability.
+- **Causal vs eventual:** Chat threads and comment replies want causal; like-counts can be eventual.
 - **RPO/RTO:** Recovery point/time objectives drive sync vs async replication choice.
 - **SLA honesty:** "Highly available" with stale reads is valid — document what users see during failure.
+
+**Soundbite:** *"Consistency is per path — payments linearizable, feed eventual, profile read-your-writes."*
 
 ## Replication and Leader/Follower
 

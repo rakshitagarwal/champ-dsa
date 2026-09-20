@@ -72,6 +72,8 @@ Headers: `Idempotency-Key` on create/complete. Player polling uses `Range` reque
 
 ## High-Level Design (HLD)
 
+![YouTube architecture: CDN, upload API, metadata, object store, transcode queue, HLS, edge CDN](/images/hld/youtube-architecture.svg)
+
 ```
 [ Client / Player ] 
       |

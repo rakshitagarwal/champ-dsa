@@ -109,6 +109,8 @@ WS /v1/orders/ord_789/track
 
 ## High-Level Design (HLD)
 
+![Local delivery architecture: apps, CDN/LB, gateway, dispatch, Redis GEO, Postgres, WebSocket](/images/hld/local-delivery-architecture.png)
+
 ```
 Customer App  Courier App  Store App
      |            |           |

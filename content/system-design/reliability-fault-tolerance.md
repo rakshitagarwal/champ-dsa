@@ -80,6 +80,24 @@ Recovery Point Objective: maximum acceptable data loss measured in time (“lose
 - Document accepted loss windows per data class — not all tables need the same RPO.
 - Measure achieved RPO/RTO in drills, not theoretical — lag and human steps dominate.
 
+## Safe deployments
+
+Shipping code without taking the site down is a reliability topic. Name the pattern and the blast radius:
+
+| Pattern | How it works | When to use |
+|---------|--------------|-------------|
+| **Rolling** | Replace instances a few at a time behind the LB | Default for stateless fleets |
+| **Blue-green** | Two full environments; flip traffic (LB/DNS) from blue → green | Fast rollback; need 2× capacity briefly |
+| **Canary** | Send 1–5% traffic to new version; watch errors/latency; ramp up | Catch bad releases before full blast |
+| **Feature flags** | Ship dark code; enable per user/% gradually | Decouple deploy from release; instant kill switch |
+
+- **Health checks** must fail unhealthy canaries out of the pool — otherwise canary is theater.
+- **DB migrations:** expand/contract (add column nullable → dual-write → backfill → switch read → drop old) — never require downtime-breaking renames in one step.
+- **Flags ≠ experiments only** — use them for degrade modes and emergency shutoffs (see Graceful Degradation).
+- **Serverless:** cold starts and concurrency limits are deploy/runtime constraints — keep hot paths on warm fleets when p99 is tight ([Cloud](/hld/cloud-architecture)).
+
+**Soundbite:** *"Canary plus feature flags — ship dark, ramp traffic, kill switch without a full rollback."*
+
 ```mermaid
 graph TD
     A[Failure] --> B[Circuit open?<br/>fail fast]
@@ -97,3 +115,4 @@ graph TD
 - Degrade by predefined feature tiers — never all-or-nothing unless truly unavoidable.
 - Test failovers, restores, and game days — untested DR plans fail under real pressure.
 - RPO bounds data loss, RTO bounds downtime — get both signed before sizing infra.
+- Deploy with canary or blue-green; use feature flags to separate release from deploy.

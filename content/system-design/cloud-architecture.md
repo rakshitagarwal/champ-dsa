@@ -16,10 +16,11 @@
 
 ## Lambda
 
-**Lambda** runs code on demand in response to events — API Gateway HTTP, S3 object created, SQS message, EventBridge schedule — with no servers to provision and billing per invocation and GB-second. Concurrency scales automatically including to zero, which saves money on spiky or rare workloads. **Cold starts** (hundreds of ms to seconds for JVM/.NET) and the **15-minute max duration** make Lambda wrong for steady high-QPS hot paths and long transcodes; it's ideal for webhooks, image thumbnails, lightweight ETL, and glue between managed services.
+**Lambda** runs code on demand in response to events — API Gateway HTTP, S3 object created, SQS message, EventBridge schedule — with no servers to provision and billing per invocation and GB-second. Concurrency scales automatically including to zero, which saves money on spiky or rare workloads. **Cold starts** (hundreds of ms to seconds for JVM/.NET; lighter for Node/Go) and the **15-minute max duration** make Lambda wrong for steady high-QPS hot paths and long transcodes; it's ideal for webhooks, image thumbnails, lightweight ETL, and glue between managed services. Mitigations: provisioned concurrency for latency-critical functions, keep packages small, avoid VPC unless required (ENI attach worsens cold start).
 
 - **Triggers:** design idempotent handlers — SQS and retries mean duplicate invocations happen.
 - **Concurrency limits:** account-wide and per-function caps prevent runaway bills and downstream overload.
+- **Limits to name:** payload size, ephemeral `/tmp`, no long-lived in-memory state across invocations.
 - **VPC attachment:** adds ENI cold start latency — only when Lambdas must reach private RDS.
 - **Package size / memory:** more memory increases CPU proportionally; tune for duration vs cost.
 - **Interview:** "Event-driven, scale-to-zero glue — not a replacement for always-on API servers."

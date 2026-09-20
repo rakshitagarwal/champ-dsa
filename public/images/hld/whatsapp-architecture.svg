@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 220" role="img" aria-label="WhatsApp architecture">
+  <rect width="960" height="220" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/></pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8fa1bd"/></marker>
+  </defs>
+  <rect width="960" height="220" fill="url(#g)"/>
+  <text x="16" y="28" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">WhatsApp  WebSocket gateway, chat store, media, push</text>
+  <rect x="20" y="88" width="80" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="60" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Client</text>
+  <rect x="130" y="88" width="110" height="44" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="185" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">WS gateway</text>
+  <rect x="280" y="88" width="120" height="44" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="340" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Chat service</text>
+  <rect x="440" y="30" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="510" y="57" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Message store</text>
+  <rect x="440" y="88" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="510" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Presence Redis</text>
+  <rect x="440" y="146" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="510" y="173" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Kafka / fan-out</text>
+  <rect x="620" y="88" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="690" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Media / S3</text>
+  <rect x="800" y="88" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="870" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Push / APNs</text>
+  <path d="M100 110H128" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M240 110H278" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M400 100L438 56" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M400 110H438" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M400 120L438 168" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M580 110H618" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M760 110H798" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+</svg>

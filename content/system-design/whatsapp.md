@@ -65,6 +65,8 @@ Headers: `Idempotency-Key: clientMsgId` for dedup. History is cursor-paginated b
 
 ## High-Level Design (HLD)
 
+![WhatsApp architecture: WebSocket gateway, chat service, message store, presence, Kafka, media, push](/images/hld/whatsapp-architecture.svg)
+
 ```
 [ Mobile / Desktop ] --HTTPS--> [ API Gateway (auth, rate-limit) ]
         |  \

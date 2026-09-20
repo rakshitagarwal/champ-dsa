@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Activity,
   BookOpen,
@@ -11,7 +12,6 @@ import {
   Globe,
   HardDrive,
   Layers,
-  Lightbulb,
   Lock,
   MapPin,
   Network,
@@ -47,6 +47,7 @@ const GROUP_ICON: Partial<Record<SdGroupId, typeof Zap>> = {
 
 export function SdSidebar({ docs, className }: Props) {
   const pathname = usePathname();
+  const [core8Only, setCore8Only] = useState(false);
 
   return (
     <aside
@@ -56,19 +57,22 @@ export function SdSidebar({ docs, className }: Props) {
       )}
     >
       <div className="border-b border-border px-4 py-4">
-          <Link
-            href="/hld"
-            className="text-sm font-semibold text-foreground hover:text-primary"
-          >
-            HLD
-          </Link>
+        <Link
+          href="/hld"
+          className="text-sm font-semibold text-foreground hover:text-primary"
+        >
+          HLD
+        </Link>
         <p className="mt-1 text-xs text-muted-foreground">
           Technologies and interview designs
         </p>
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-hide">
         {SD_GROUPS.map((group) => {
-          const items = docs.filter((d) => d.group === group.id);
+          let items = docs.filter((d) => d.group === group.id);
+          if (group.id === "questions" && core8Only) {
+            items = items.filter((d) => d.core8);
+          }
           if (items.length === 0) return null;
           const Icon = GROUP_ICON[group.id] ?? null;
           return (
@@ -77,6 +81,21 @@ export function SdSidebar({ docs, className }: Props) {
                 {Icon ? <Icon className="h-3.5 w-3.5 text-primary" /> : null}
                 {group.title}
               </p>
+              {group.id === "questions" ? (
+                <button
+                  type="button"
+                  onClick={() => setCore8Only((v) => !v)}
+                  className={cn(
+                    "mb-2 w-full rounded-md border px-2 py-1.5 text-left text-[11px] font-medium transition-colors",
+                    core8Only
+                      ? "border-primary/40 bg-primary/15 text-primary"
+                      : "border-border text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                  )}
+                  aria-pressed={core8Only}
+                >
+                  {core8Only ? "Showing Core 8 · show all" : "Filter Core 8"}
+                </button>
+              ) : null}
               <ul
                 className={cn(
                   group.id === "intro"
@@ -93,9 +112,7 @@ export function SdSidebar({ docs, className }: Props) {
                       <span
                         className={cn(
                           "absolute -left-[21px] top-1 flex h-4 w-4 items-center justify-center rounded-full border bg-background text-[9px] font-mono tabular-nums text-white",
-                          active
-                            ? "border-primary"
-                            : "border-white/35",
+                          active ? "border-primary" : "border-white/35",
                         )}
                         aria-hidden
                       >
@@ -105,13 +122,18 @@ export function SdSidebar({ docs, className }: Props) {
                         href={href}
                         title={doc.title}
                         className={cn(
-                          "block truncate rounded-md px-2 py-1.5 text-sm transition-colors",
+                          "flex items-center gap-1.5 truncate rounded-md px-2 py-1.5 text-sm transition-colors",
                           active
                             ? "bg-primary/15 font-medium text-primary"
                             : "text-foreground hover:bg-accent/50",
                         )}
                       >
-                        {doc.title}
+                        <span className="truncate">{doc.title}</span>
+                        {doc.core8 ? (
+                          <span className="shrink-0 rounded border border-primary/30 bg-primary/10 px-1 py-px text-[9px] font-semibold uppercase tracking-wide text-primary">
+                            Core
+                          </span>
+                        ) : null}
                       </Link>
                     </li>
                   );

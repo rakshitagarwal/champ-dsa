@@ -77,6 +77,25 @@ graph LR
 
 A typical production shape: DNS → CDN for static bytes → L7 load balancer → **stateless** app fleet → Redis cache-aside → sharded primary + read replicas → async work on a queue → blob storage for media. Each box above maps to a dedicated notes page — draw this once from memory before interviews.
 
+## Unique ID generation
+
+Distributed systems need IDs that are unique without a single global lock on every write. Interview options, from simple to production-shaped:
+
+| Approach | How | Pros | Cons |
+|----------|-----|------|------|
+| DB auto-increment | One primary sequence | Simple, sortable | Single writer bottleneck; hard multi-region |
+| UUID v4 | Random 128-bit | No coordination | Not sortable; larger indexes; random B-tree inserts |
+| Ticket servers | Flickr-style: DB issues ID ranges to app servers | Contiguous, small | Ticket DB is SPOF unless HA; not time-ordered across servers |
+| **Snowflake** | 64-bit: timestamp + worker id + sequence | Sortable by time, ~4096 IDs/ms/worker, no central DB per ID | Needs unique worker ids; clock skew care |
+
+**Snowflake shape (typical):** 1 sign bit unused + ~41-bit ms timestamp + ~10-bit worker/datacenter + ~12-bit sequence. Apps mint IDs locally after leasing a worker id from config/ZK. Prefer Snowflake (or ULID) when you need roughly time-ordered keys at high write QPS — Bitly codes, chat message ids, paste ids.
+
+- **Clock skew:** NTP jump backward can collide — freeze sequence or wait until clock catches up.
+- **Worker id:** Assign via config, Kubernetes ordinal, or ZooKeeper lease — never hardcode duplicates.
+- **Don't use** random UUIDs as primary keys on huge write tables if you care about index locality — say why.
+
+**Soundbite:** *"Snowflake — time + worker + sequence — unique without a central counter on every insert."*
+
 ## Keep in mind
 
 - Requirements first: top functional items, then only the non-functionals that matter — with numbers.
@@ -85,3 +104,4 @@ A typical production shape: DNS → CDN for static bytes → L7 load balancer �
 - Every non-functional requirement you name, be ready to design for with a specific component.
 - 100% availability is impossible — say which nine you target, allowed downtime, and what you sacrifice (cost, consistency).
 - Explicit out-of-scope items save you from designing Twitter on a todo-app prompt.
+- Unique IDs: prefer Snowflake/ULID over DB sequences when writes are multi-region or high QPS.

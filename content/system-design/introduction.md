@@ -8,10 +8,19 @@ HLD matters in three places. First, big systems are never built in someone's hea
 
 HLD versus LLD is simple: HLD talks about machines (servers, databases, load balancers), LLD talks about classes (Parking Lot models, SOLID, design patterns). Different interviews, different preparation. This section is HLD - concepts, technologies, and complete design breakdowns.
 
+## The request path (memorize this shape)
+
+![Client → DNS → CDN → load balancer → app servers → cache / database / queue](/images/hld/request-path.svg)
+
+Almost every interview design is a variation of this path. Know what each box does, what it costs, and how it fails. Before you invent new components, place the product on this spine.
+
+Keep the [HLD cheat sheet](/hld/hld-cheatsheet) open while you practice: latency numbers, availability nines, estimation shortcuts, and the 45-minute split.
+
 ## How to use this section
 
-1. **Building blocks** - theory behind every design ([fundamentals](/hld/fundamentals), [capacity](/hld/capacity-estimation), [networking](/hld/networking), [databases](/hld/sql-databases), [caching](/hld/caching-strategies), [queues](/hld/message-queue), [distributed systems](/hld/distributed-systems)). Each page folds in the tool deep-dives (Redis, Kafka, Postgres - ) where they belong.
-2. **Question Breakdowns** - most of your study time. Bitly, Uber, WhatsApp-style walkthroughs are where patterns stick.
+1. **Building blocks** — theory behind every design ([fundamentals](/hld/fundamentals), [capacity](/hld/capacity-estimation), [networking](/hld/networking), [databases](/hld/sql-databases), [caching](/hld/caching-strategies), [queues](/hld/message-queue), [distributed systems](/hld/distributed-systems)). Each page folds in the tool deep-dives (Redis, Kafka, Postgres) where they belong.
+2. **Question Breakdowns** — most of your study time. Start with the **Core 8** (Bitly, Rate limiter, News Feed, WhatsApp, Notifications, Uber, YouTube, Ticketmaster), then branch out.
+3. **Cheat sheet** — [numbers and timing](/hld/hld-cheatsheet) you should say without opening notes.
 
 Every design page follows the same shape: what the real question is, requirements, APIs, boxes, one deep dive the interviewer will probe, failures/scale, and a line you can say out loud.
 
@@ -21,11 +30,47 @@ Every design page follows the same shape: what the real question is, requirement
 
 | Week focus | Read | Then practice aloud |
 |------------|------|---------------------|
-| Theory spine | [Fundamentals](/hld/fundamentals) -> [Capacity](/hld/capacity-estimation) -> [Networking](/hld/networking) -> [API design](/hld/api-design) -> [Caching](/hld/caching-strategies) -> [Load balancing](/hld/load-balancing) -> [Message queues](/hld/message-queue) -> [Distributed systems](/hld/distributed-systems) | Explain CAP + cache-aside without notes |
-| Data & traffic | [SQL](/hld/sql-databases) -> [NoSQL](/hld/nosql-databases) -> [Storage](/hld/storage) -> [CDN](/hld/cdn) | Pick Postgres vs Cassandra for a chat app |
-| Resilience & architecture | [Reliability](/hld/reliability-fault-tolerance) -> [Rate limiting](/hld/rate-limiting) -> [Microservices](/hld/microservices) -> [Security](/hld/security) -> [Observability](/hld/observability) -> [Cloud](/hld/cloud-architecture) | Name the fallback for every dependency |
-| Classic designs | [Bitly](/hld/bitly) -> [Rate limiter](/hld/rate-limiter) -> [WhatsApp](/hld/whatsapp) -> [Uber](/hld/uber) -> [Ticketmaster](/hld/ticketmaster) -> [FB News Feed](/hld/fb-news-feed) | Draw boxes from memory, then open the page |
-| Harder / money | [Payment](/hld/payment-system), [Dropbox](/hld/dropbox), [YouTube](/hld/youtube), [Google Docs](/hld/google-docs) | Consistency + failure story for each |
+| Theory spine | [Fundamentals](/hld/fundamentals) → [Capacity](/hld/capacity-estimation) → [Networking](/hld/networking) → [API design](/hld/api-design) → [Caching](/hld/caching-strategies) → [Load balancing](/hld/load-balancing) → [Message queues](/hld/message-queue) → [Distributed systems](/hld/distributed-systems) | Explain CAP + cache-aside without notes |
+| Data & traffic | [SQL](/hld/sql-databases) → [NoSQL](/hld/nosql-databases) → [Storage](/hld/storage) → [CDN](/hld/cdn) | Pick Postgres vs Cassandra for a chat app |
+| Resilience & architecture | [Reliability](/hld/reliability-fault-tolerance) → [Rate limiting](/hld/rate-limiting) → [Microservices](/hld/microservices) → [Security](/hld/security) → [Observability](/hld/observability) → [Cloud](/hld/cloud-architecture) | Name the fallback for every dependency |
+| **Core 8** designs | [Bitly](/hld/bitly) → [Rate limiter](/hld/rate-limiter) → [FB News Feed](/hld/fb-news-feed) → [WhatsApp](/hld/whatsapp) → [Notification](/hld/notification-system) → [Uber](/hld/uber) → [YouTube](/hld/youtube) → [Ticketmaster](/hld/ticketmaster) | Draw boxes from memory, then open the page |
+| Harder / money | [Payment](/hld/payment-system), [Dropbox](/hld/dropbox), [Google Docs](/hld/google-docs), [Pastebin](/hld/pastebin), [Autocomplete](/hld/search-autocomplete), [Maps](/hld/google-maps) | Consistency + failure story for each |
+
+## Note-taking habits
+
+Do not copy pages into Anki dumps. Write **your** notes in the templates below so recall sticks.
+
+1. After reading a concept page, fill the **concept template** once — then close the notes and re-explain from the template only.
+2. After finishing a design page, fill the **design template** from memory; only peek to correct mistakes.
+3. Keep one scratch pad of **trade-off lines** you actually said out loud ("strong on payment path, eventual on feed").
+4. Revisit the [cheat sheet](/hld/hld-cheatsheet) weekly until latency and nines are automatic.
+
+### Concept note template
+
+```
+Topic:
+Problem it solves:
+When NOT to use:
+How it works (3–5 bullets):
+Trade-offs (pick latency / consistency / availability / cost):
+Failure modes:
+30-second soundbite:
+Related designs:
+```
+
+### Design note template
+
+```
+Prompt (one sentence):
+Actors + v1 scope / out of scope:
+NFRs with numbers:
+Capacity that changes boxes:
+APIs (4–8):
+Boxes + data flow:
+Deep dive (the hard part):
+Failure + degrade story:
+Closing phrase:
+```
 
 ## Blank interview checklist (use on every problem)
 
@@ -80,21 +125,31 @@ You are ready for a design when you can deliver the checklist in **35-45 minutes
 | URL shortener / TinyURL | [Bitly](/hld/bitly) |
 | Chat / Messenger | [WhatsApp](/hld/whatsapp) |
 | Ride sharing / Lyft | [Uber](/hld/uber) |
-| Ticket booking flash sale | [Ticketmaster](/hld/ticketmaster) |
+| Ticket booking / BookMyShow / flash-sale inventory | [Ticketmaster](/hld/ticketmaster) |
+| Hotel or flight seat hold under spike | [Ticketmaster](/hld/ticketmaster) (same hold + expiry pattern) |
 | Video streaming | [YouTube](/hld/youtube) |
 | Collaborative editing | [Google Docs](/hld/google-docs) |
+| Paste service / hastebin | [Pastebin](/hld/pastebin) |
+| Typeahead / search suggestions | [Search autocomplete](/hld/search-autocomplete) |
+| Maps / routing / ETA | [Google Maps](/hld/google-maps) |
 
 ## Full index - every page and what it covers
 
+## Start here
+
+- [Introduction](/hld/introduction) - Request path, study order, note templates, checklist.
+- [HLD Cheat Sheet](/hld/hld-cheatsheet) - Latency numbers, availability nines, estimation shortcuts, 45-minute split.
+
 ## Foundations (2)
 
-- [System Design Fundamentals](/hld/fundamentals) - Functional vs non-functional requirements, scalability, availability, consistency and the core trade-offs. Covers: Functional Requirements, Non-Functional Requirements, Horizontal vs Vertical Scaling, Stateless vs Stateful Services.
+- [System Design Fundamentals](/hld/fundamentals) - Functional vs non-functional requirements, scalability, availability, consistency, unique ID generation (Snowflake), and the core trade-offs.
 - [Capacity Estimation](/hld/capacity-estimation) - QPS, DAU, storage and bandwidth math - back-of-the-envelope calculations with a worked example. Covers: The Core Metrics, Storage Estimation, Bandwidth Estimation, Worked Example - WhatsApp-like Chat.
 
-## Networking & APIs (2)
+## Networking & APIs (3)
 
 - [Networking](/hld/networking) - HTTP versions, TCP vs UDP, DNS, TLS, WebSockets, SSE, REST, gRPC and connection reuse. Covers: TCP vs UDP, DNS, TLS / SSL, HTTP/1.1, HTTP/2, HTTP/3, WebSockets and SSE, REST and gRPC, Connection Pooling and Keep-Alive.
 - [API Design](/hld/api-design) - REST design, versioning, pagination, gateway, validation, errors, idempotency and webhooks. Covers: REST API Design, API Versioning, Pagination, Filtering, Sorting, API Gateway, Request Validation and Error Handling, Idempotency and Idempotency Keys, Webhooks, API Composition.
+- [REST vs GraphQL vs gRPC](/hld/api-paradigms) - When to pick REST, GraphQL, or gRPC — caching, mobile BFF, and internal streaming.
 
 ## Traffic & CDN (2)
 
@@ -146,12 +201,12 @@ You are ready for a design when you can deliver the checklist in **35-45 minutes
 
 - [Cloud Architecture](/hld/cloud-architecture) - EC2, ECS/EKS, Lambda, RDS, DynamoDB, ElastiCache, SQS/SNS, CloudFront, Route 53, ALB and CloudWatch. Covers: EC2, ECS, EKS Basics, Lambda, S3, RDS, DynamoDB, ElastiCache, SQS, SNS, CloudFront, Route 53, ALB, API Gateway, CloudWatch.
 
-## Question Breakdowns (31)
+## Question Breakdowns (34)
 
 - [Bitly](/hld/bitly) - URL shortener - generate a short code, redirect fast, survive read-heavy traffic. Covers: generating codes, read-heavy redirect path, analytics off the hot path.
 - [Dropbox](/hld/dropbox) - File storage and sync - chunk uploads, metadata, and conflict handling. Covers: conflicts and consistency, resumable uploads and delta sync, sharing and scale.
 - [Local Delivery Service](/hld/local-delivery) - Match nearby couriers to orders, track live location, and keep ETAs honest. Covers: matching without double-assign, live location and ETA, order state machine durability.
-- [Ticketmaster](/hld/ticketmaster) - Inventory under flash sales - hold seats, avoid double-booking, survive spikes. Covers: holds and expiry, waiting room and fairness, sharding and read scaling.
+- [Ticketmaster](/hld/ticketmaster) - Inventory under flash sales - hold seats, avoid double-booking, survive spikes. Covers: holds and expiry, waiting room and fairness, sharding and read scaling. Aliases: BookMyShow, hotel/flight flash inventory.
 - [FB News Feed](/hld/fb-news-feed) - Fan-out timelines, rank posts, and keep the home feed fast at celebrity scale. Covers: hybrid fan-out, ranking and pagination, celebrity and hot user handling.
 - [Tinder](/hld/tinder) - Geo matching, swipe queues, and a recommendation stack that stays cheap. Covers: making recs cheap, swipe ledger and match correctness, location and safety.
 - [LeetCode](/hld/leetcode) - Online judge - isolate untrusted code, grade tests, and queue submissions. Covers: isolation and contests, hidden tests and cheating, fair scheduling and warm start.
@@ -179,6 +234,9 @@ You are ready for a design when you can deliver the checklist in **35-45 minutes
 - [Metrics Monitoring](/hld/metrics-monitoring) - Ingest time series, downsample, alert on SLOs - Prometheus-shaped thinking. Covers: Cardinality: how this design dies, Alert burn rate and grouping.
 - [Online Chess](/hld/online-chess) - Matchmaking, game rooms, clocks, and cheating-resistant move validation. Covers: Authority, cheat, and why client is dumb, Disconnects, persistence, and fair pairing.
 - [ChatGPT](/hld/chatgpt) - LLM product design - sessions, streaming tokens, rate limits, and RAG. Covers: context and cost, streaming, quotas, and queuing, RAG and tenancy.
+- [Pastebin](/hld/pastebin) - Paste service - unique IDs, object storage bodies, expiry, read-heavy fetch. Covers: Snowflake IDs, S3 vs metadata, CDN/cache reads.
+- [Search Autocomplete](/hld/search-autocomplete) - Typeahead - prefix index, top-K, hot-prefix cache. Covers: trie/ES completion, offline log aggregation, personalization.
+- [Google Maps](/hld/google-maps) - Tiles, routing, traffic, ETA. Covers: CDN tiles, road graph shortest path, traffic stream edge weights.
 
 ## Keep in mind
 

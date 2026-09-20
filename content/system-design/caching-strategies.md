@@ -131,6 +131,23 @@ A Bloom filter answers "definitely not in set vs probably in set" in tiny memory
 
 **Phrase:** "Bloom No is definitely No, Yes is maybe — 1% at m/n 10, a guard before disk, never for money."
 
+## HyperLogLog, Count-Min Sketch, Merkle trees
+
+Probabilistic structures beyond Bloom show up in analytics and sync interviews:
+
+| Structure | Answers | Error | Interview use |
+|-----------|---------|-------|---------------|
+| **HyperLogLog (HLL)** | Approximate distinct count (UV, unique IPs) | ~1–2% with small fixed memory | Redis `PFCOUNT`, dashboard uniques |
+| **Count-Min Sketch (CMS)** | Approximate frequency of items in a stream | Over-estimates, never under (with high probability) | Heavy hitters, "top URLs", rate abuse |
+| **Merkle tree** | Hash tree over data chunks | Exact mismatch localization | Replica sync (Cassandra repair), blockchain, file sync (Dropbox-style) |
+
+- **HLL:** Don't store every user id to count uniques — HLL merges across shards with union.
+- **CMS:** Pair with a heap for approximate Top-K; good when exact counts are too expensive.
+- **Merkle:** Compare root hashes; descend only differing branches — O(log n) to find diverged leaves instead of full scan.
+- **Never** for billing money totals — use exact ledgers; sketches are for product metrics and sync efficiency.
+
+**Soundbite:** *"HLL for uniques, Count-Min for frequencies, Merkle to find which replicas diverge — approximate where exact is too expensive."*
+
 ## Keep in mind
 
 - Default to cache-aside with TTL plus delete-on-write; DB remains source of truth.

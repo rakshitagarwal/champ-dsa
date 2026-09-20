@@ -109,6 +109,8 @@ WebSocket/push for real-time: `WS /feed/updates` → `{ type:"new_post", postId:
 
 ## High-Level Design (HLD)
 
+![News feed architecture: CDN, feed service, post DB, fan-out, Kafka, timeline cache, ranker](/images/hld/fb-news-feed-architecture.svg)
+
 ```
 Client (Mobile/Web)
   |

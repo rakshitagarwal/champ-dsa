@@ -71,6 +71,8 @@ All state transitions are **idempotent** (`Idempotency-Key` header). Location WS
 
 ## High-Level Design (HLD)
 
+![Uber architecture: apps, CDN, trip API, matching, Redis GEO, location Kafka, trip DB, maps/ETA](/images/hld/uber-architecture.svg)
+
 ```
 [ Rider App ] --HTTPS/WS-->                [ Driver App ] --WS location-->
         \                                      /

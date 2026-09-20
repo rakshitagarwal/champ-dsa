@@ -102,6 +102,8 @@ Use `302` if you need analytics (hits reach you). Use `301` if you want browser/
 
 ## High-Level Design (HLD)
 
+![Bitly architecture: CDN, LB, link service, Redis, DB, Kafka analytics](/images/hld/bitly-architecture.png)
+
 ```
 Client (Browser/App)
    |

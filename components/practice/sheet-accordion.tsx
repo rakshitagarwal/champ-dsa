@@ -41,9 +41,17 @@ function ProblemRow({ problem }: { problem: LcProblem }) {
         href={leetcodeUrl(problem.slug)}
         target="_blank"
         rel="noopener noreferrer"
-        className="min-w-0 flex-1 font-medium hover:text-primary"
+        className="flex min-w-0 flex-1 items-baseline gap-2.5 font-medium hover:text-primary"
       >
-        {problem.title}
+        {problem.number != null ? (
+          <span
+            className="w-11 shrink-0 tabular-nums text-sm font-semibold text-muted-foreground"
+            title={`LeetCode #${problem.number}`}
+          >
+            {problem.number}
+          </span>
+        ) : null}
+        <span className="min-w-0">{problem.title}</span>
       </a>
       <span className="flex shrink-0 flex-wrap items-center gap-2">
         <Badge
@@ -105,6 +113,7 @@ export function SheetAccordion() {
     return getAllPracticeProblems().filter((problem) => {
       if (problem.title.toLowerCase().includes(q)) return true;
       if (problem.slug.includes(q)) return true;
+      if (problem.number != null && String(problem.number) === q) return true;
       if (q === "striver" && problem.striver) return true;
       if (q === "premium" && problem.premium) return true;
       return false;
@@ -120,7 +129,7 @@ export function SheetAccordion() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name, or “striver”…"
+            placeholder="Search name, number, or “striver”…"
             className="h-9 w-full rounded-md border border-border bg-background py-1.5 pl-8 pr-3 text-sm outline-none ring-primary/30 placeholder:text-muted-foreground focus:ring-2"
             aria-label="Search problems by name"
           />
