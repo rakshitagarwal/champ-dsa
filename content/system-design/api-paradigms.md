@@ -6,6 +6,8 @@
 
 Almost every API-design discussion ends with "which paradigm, and why."
 
+![API paradigms: REST, GraphQL, and gRPC by client surface](/images/hld/api-paradigms-overview.svg)
+
 ## REST
 
 - Resource + verb: `GET /users/123`, `POST /orders`, `PUT`, `DELETE` — HTTP semantics, `GET` is cacheable, `PUT` is idempotent.
@@ -23,13 +25,6 @@ Almost every API-design discussion ends with "which paradigm, and why."
 - Protobuf service: `service Payment { rpc Charge(Req) returns (Res) }` over HTTP/2 binary, with unary and streaming RPCs.
 - **Pros:** 5–10× smaller/faster payloads, first-class streaming (chat ticks, stock prices), codegen for many languages.
 - **Cons:** Browsers need grpc-web or a gateway; debugging binary is harder than JSON.
-
-```mermaid
-graph LR
-    A[Client] -->|GET /users/123<br/>cache| B[REST<br/>resource]
-    A -->|POST /graphql<br/>query| C[GraphQL<br/>one call]
-    A -->|gRPC stream<br/>HTTP/2| D[gRPC<br/>binary]
-```
 
 ## How to choose
 

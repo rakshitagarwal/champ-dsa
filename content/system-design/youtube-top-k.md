@@ -6,222 +6,79 @@
 
 ## What they ask
 
-Interviewer: "Design YouTube Trending — Top 100 videos in last 24h globally and per country. Views arrive as a firehose; dashboard must load in <100ms. How would you do it?" You have 45 minutes to converge on a pipeline that never does `SELECT ... ORDER BY views DESC LIMIT 100` on the OLTP.
+"Top 100 videos in last 24h globally/per country — views as firehose, dashboard <100ms."
 
-**What they really test:** (1) Do you treat views as **events in a log** vs row updates? (2) Can you pick windowing semantics (tumbling vs sliding, event-time vs processing-time)? (3) How you bound cost — you cannot sort 2B videos per request. (4) Trade-off: freshness vs accuracy vs cost. (5) Hot-key handling when one MrBeast video gets 50M views/hour on one shard.
+**Tests:** Events in a log not row `UPDATE views`; windowing + watermarks; O(K) not sort entire catalog; hot-key salting.
 
-**Scale anchor:** YouTube: ~2.5B MAU, ~500 hours uploaded/min, ~5B video plays/day. Trending QPS: watch page 50k RPS but `GET /trending` itself is ~5-10k RPS globally (cacheable). Ingest: ~60k view events/sec average, bursts to ~500k/sec during viral events. 24h window holds ~5B events. Storing raw events 7 days matters; serving Top-K is just 100 IDs per region.
+**Scale anchor:** ~5B plays/day (~58k/s avg, 300–500k peak viral); `GET /trending` ~10k RPS (CDN/Redis).
 
 ## Requirements
 
 **Functional:**
-- Ingest `view` event `{ videoId, userId?, region, categoryId, ts }` from player (batched, at-least-once, possibly late/out-of-order by seconds to minutes).
-- Query `GET /trending?window=1h|24h|7d&region=GLOBAL|IN|US&category=&k=50..200` — return ranked list with title, channel, thumbnail, view count, rank delta.
-- Per-video counts per window available for hydration; de-duplicate repeated plays by same user within e.g. 10 min (debounce) if required.
-- Support per-country and per-category variants without re-architecting (add dimension to key).
-- Historical windows (last 24h sliding) not just calendar day.
+- Ingest `{ videoId, region, categoryId, ts, eventId, userId? }` (batched, at-least-once).
+- `GET /trending` for windows `1h|24h|7d`, region, optional category, `k` up to ~200.
+- Return ranks with view counts + metadata (title, channel, thumb); rank delta optional.
+- Optional debounce: one view per user per video per 10m.
 
 **Non-functional:**
-- Read latency p95 < 80ms (served from [Redis](/hld/caching-strategies) / CDN); ingest not on critical path — async pipeline.
-- Eventual consistency OK: trending can lag 10-30 seconds, never miss billing-grade accuracy here but avoid wild rank flips.
-- No thundering read on DB: Top-K recompute is O(K log K + distinct) not O(N log N) over video catalog.
-- Fault-tolerant: lost Flink state rebuilds from [Kafka](/hld/message-queue); serving layer survives AZ loss.
-- Cost-aware: do not keep 24h of raw events in memory on one box; sketch or incremental aggregation.
+- Read p95 <80ms from [Redis](/hld/caching-strategies); ingest off critical path.
+- Trending may lag 10–30s; avoid wild rank flips (coalesce publishes).
+- Fault-tolerant: rebuild from Kafka + checkpoints; no `ORDER BY views` on OLTP.
 
-**Clarify:**
-- What counts as a view? 3 sec? 30 sec? Auto-play counts? Interviewer often says "any play event we send" — don't overfit.
-- Is `k` fixed 100 or client-supplied? Max k?
-- Do we need strong fraud filtering or just basic bot dedupe?
-- Sliding vs tumbling window? Slide every minute vs every second?
-- Per-user personalization or global only? (Answer: v1 global + region, no personalization.)
+**Clarify:** What counts as a view (3s vs 30s)? Max `k`? Per-user dedupe within 10m? Fraud basic vs ML?
 
-**Out of scope (v1):**
-- Personalized recommendations / ML ranking — trending is count-based + small recency boost.
-- Full-text search over titles.
-- Real-time comment/like counts in ranking (deferred to v2 weighted score).
-- Exact-once billing semantics — trending allows ~1% error.
+**Out of scope (v1):** Personalized For You, comment/like in score, exact billing-grade counts.
 
 ## Scale estimation
 
-| Dimension | Assumption | Math | Result |
-|-----------|-----------|------|--------|
-| View events | 5B/day global | 5B / 86400 | ~58k events/sec avg, ~300-500k peak |
-| Trending reads | 10k RPS | 10k * 86400 | 864M reads/day |
-| Serving payload | 100 IDs * ~200B + metadata ~50KB/list | 10k * 50KB | 500 MB/s egress (cacheable → ~50 MB/s to origin) |
-| Raw event store | 5B * 200B JSON + overhead | 1 TB/day | 7 TB/week in Kafka/S3 (retention 7d) |
-| Aggregates | 50M distinct videos/day * 16B counter | ~800 MB per 24h window shards | Fits in Flink state + Cassandra |
-| Memory for heap | K=100 per region * 200 regions * 24 windows | negligible | <10 MB in Redis |
-
-Bandwidth is dominated by hydration (thumbnails via CDN, not trending service). Compute heavy part is aggregation, not serving.
+| Dimension | Assumption | Result |
+|-----------|-----------|--------|
+| View events | 5B/day | ~58k/s avg, ~300–500k peak viral |
+| Trending reads | 10k RPS | CDN + Redis — ~90% cache hit |
+| Serving payload | 100 ids × ~50KB hydrated | Origin ~500 MB/s without cache |
+| Raw log | ~200B/event | ~1 TB/day Kafka; ~7 TB/week retention |
+| Distinct videos/day | ~50M in window | Flink state + RocksDB spill OK |
+| Heap state | K=100 × ~200 regions | <10 MB Redis lists |
 
 ## API Design
 
-```http
-// Ingest — called by player edge / collector (internal, batched)
-POST /v1/views:batch
-Content-Type: application/json
-{
-  "events": [
-    { "videoId": "dQw4w9WgXcQ", "region": "IN", "categoryId": 10, "ts": 1714000000, "eventId": "uuid-1", "userId": "u123" }
-  ]
-}
-=> 202 Accepted { "accepted": 1 }
-
-// Alternative pixel GET for web legacy
-GET /v1/views/pixel?videoId=abc&region=IN&ts=1714000000&eventId=uuid-1 => 204 No Content
-
-// Query trending
-GET /v1/trending?window=24h&region=IN&category=music&k=100&cursor=0
-=> 200 OK
-{
-  "window": "24h",
-  "region": "IN",
-  "updatedAt": 1714000123,
-  "items": [
-    { "rank": 1, "videoId": "abc", "views": 4820123, "title": "...", "channel": "...", "thumbnail": "https://cdn/...", "delta": +2 },
-    { "rank": 2, "videoId": "xyz", "views": 4100234, "...": "..." }
-  ],
-  "nextCursor": null
-}
-```
-
-Internal: `GET /internal/counts?videoIds=abc,xyz&window=24h` for hydration. All writes idempotent by `eventId`.
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1/views:batch` | Ingest (202, idempotent `eventId`) |
+| `GET` | `/v1/trending` | `window`, `region`, `category`, `k` |
+| `GET` | `/internal/counts` | Hydration counts |
 
 ## High-Level Design (HLD)
 
 ![YouTube Top-K architecture: Kafka, window agg, CMS/heaps, trending API](/images/hld/youtube-top-k-architecture.svg)
 
 ```
-Client (player) -> CDN/Edge Collector -> [Kafka] views (partitioned by videoId%N or round-robin)
-                                              |
-                                   [Flink] Aggregator (event-time sliding window)
-                                              |  state: keyed counts + min-heap TopK
-                                              v
-                                     Serving Store ([Redis] trending:{region}:{window} + [Cassandra] counts)
-                                              ^
-API Gateway -> Trending Service -> Redis (read) -> Hydration Cache ([Redis]/[Memcached]) -> Video Metadata DB
-                                              -> CDN for response
+Player → Edge collector → Kafka views.raw → Flink: dedupe (eventId TTL) → sliding window counts + min-heap Top-K per region
+  → Redis trending:{region}:{window} + optional Cassandra
+Trending Service → Redis → hydrate metadata cache → CDN on response
 ```
 
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
-```
+**Components:** Edge collector (batch 50ms) → [Kafka](/hld/message-queue) → [Flink](/hld/message-queue) dedupe + windowed count + min-heap per `(region, window)` → Redis sorted list + optional [Cassandra](/hld/nosql-databases) point counts. Trending Service hydrates from video metadata cache (L1 + L2).
 
-**Components:**
-- **Edge Collector / API Gateway:** Lightweight Go/Netty service that validates, batches (100 events / 50ms), returns 202, produces to [Kafka](/hld/message-queue). Never blocks on DB. Rate-limits per IP for bot mitigation.
-- **[Kafka](/hld/message-queue):** Durable log, 3x replication, 100+ partitions. Retention 7 days. Topic `views.raw` (raw), `views.deduped` (after dedupe processor).
-- **[Flink](/hld/message-queue) / Kafka Streams:** Keyed aggregations. Two-stage: (a) dedupe by `eventId` (RocksDB state TTL 1h), (b) windowed count per `(videoId, region, category)`. Sliding window 24h sliding every 1 minute (or 30s). Maintains min-heap Top-K per region in state and emits diffs every 15-30s to [Redis](/hld/caching-strategies). Handles late events via watermark + allowed lateness 5 min.
-- **Serving Store:** [Redis](/hld/caching-strategies) Cluster holds precomputed lists `trending:IN:24h` (sorted set or JSON list) + per-video counts hash `counts:{videoId}` TTL 2x window. [Cassandra](/hld/nosql-databases) for durable windowed counts if you need point queries and backfill.
-- **Trending Service:** Stateless, reads Redis, hydrates titles from video metadata cache (Caffeine L1 + Redis L2) and returns ranking. Hydration misses bulk-load from primary DB via read replica.
-- **Batch Reconciler (optional):** Hourly Spark job over S3 raw logs corrects Flink counts and publishes adjustment if drift > threshold — keeps Flink's approximation honest.
+**Write:** 202 fast, never touch OLTP on ingest. **Read:** `GET trending:IN:24h` → mget metadata → CDN-cache response 15–30s.
 
-**Write path:** player batch -> edge -> Kafka -> Flink dedupe+count -> Redis/Cassandra.
-**Read path:** `GET /trending` -> Trending Service -> `GET trending:IN:24h` from Redis (p95 <10ms) -> mget metadata from cache -> assemble response -> CDN cache 15s.
+## Deep dive — windows and late events
 
-## Low-Level Design (LLD)
+Event-time watermarks (delay 30–60s), allowed lateness ~5m; minute buckets summed for 24h slide. Publish to Redis at most every 15s per region to limit churn. Beyond lateness → side output adjustments.
 
-**DB schema — serving + metadata**
+## Deep dive — hot keys and Top-K
 
-```sql
--- Durable windowed counts (Cassandra-style, shown as SQL for clarity)
-CREATE TABLE video_window_counts (
-  video_id       VARCHAR(32) NOT NULL,
-  region         VARCHAR(8)  NOT NULL,
-  window_start   TIMESTAMPTZ NOT NULL,
-  window_end     TIMESTAMPTZ NOT NULL,
-  category_id    INT,
-  view_count     BIGINT NOT NULL DEFAULT 0,
-  updated_at     TIMESTAMPTZ NOT NULL,
-  PRIMARY KEY (region, window_end, video_id)
-) PARTITION BY RANGE (window_end);
-CREATE INDEX ON video_window_counts (video_id, window_end);
-
--- Trending snapshot (Redis is primary, but RDBMS backup for cold start)
-CREATE TABLE trending_snapshots (
-  region       VARCHAR(8) NOT NULL,
-  window_type  VARCHAR(8) NOT NULL, -- '1h','24h','7d'
-  k            INT NOT NULL,
-  snapshot_at  TIMESTAMPTZ NOT NULL,
-  items        JSONB NOT NULL, -- [{video_id, views, rank}]
-  PRIMARY KEY (region, window_type, snapshot_at)
-);
-
--- Dedup table / state (TTL = 1h)
-CREATE TABLE view_events_dedup (
-  event_id   UUID PRIMARY KEY,
-  video_id   VARCHAR(32) NOT NULL,
-  ts         TIMESTAMPTZ NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL
-) WITH (ttl = '1 hour');
-```
-
-**Key classes & responsibilities**
-
-```typescript
-interface ViewEvent { eventId: string; videoId: string; region: string; categoryId: number; ts: Date; userId: string; }
-interface ViewCollector { acceptBatch(batch: ViewEvent[]): void; } // -> KafkaProducer
-interface DedupeProcessor { isDuplicate(eventId: string): boolean; } // RocksDB + BloomFilter
-interface WindowCounter { add(e: ViewEvent): void; windowCounts(w: SlidingWindow): Map<string, number>; }
-interface TopKHeap { // min-heap size K per region
-  offer(videoId: string, count: number): void;
-  topK(): ScoredVideo[];
-}
-interface TrendingPublisher { publish(region: string, window: string, topK: ScoredVideo[]): void; }
-interface TrendingService {
-  getTrending(region: string, window: string, k: number): TrendingResponse;
-  // reads Redis, hydrates via VideoMetadataCache
-}
-```
-
-**Concurrency handling / algorithms:**
-- **Event-time watermarks:** Flink watermark = max event ts - 30s. Windows fire on watermark, not wall clock, so late events still correctly counted if within allowed lateness.
-- **Hot-key mitigation:** Salted keys: `key = videoId + "#" + random(0..N-1)` for first-stage aggregation, second stage merges N salts. Prevents one viral video hashing to single subtask and OOMing it.
-- **Min-heap Top-K:** O(N log K) not O(N log N). Per region, keep heap of 100; each count update does heap adjust in O(log K). Emit only when top-K diff > threshold or every 15s to reduce Redis churn.
-- **Count-Min Sketch (optional):** If interviewer pushes "billions distinct", mention CMS + heap for heavy hitters as approx alternative at ~1% error with 10x less memory.
-- **Idempotency:** `eventId` dedup before counting; Flink checkpointing + transactional sink gives effective exactly-once for counts within allowed lateness.
-
-**Design patterns:**
-- **Event Sourcing + CQRS:** Kafka log is source of truth; serving store is derived read model.
-- **Materialized View:** Trending list is a continuously maintained view.
-- **Cache-Aside:** Trending Service caches lists with short TTL and stale-while-revalidate.
-- **Strangler / Lambda hybrid:** Streaming path for freshness + batch reconciler for accuracy.
-
-## Deep dive — Sliding windows, watermarks and late events
-
-A 24h **sliding** window every 1 minute naively keeps 1440 overlapping windows. Flink optimizes with **slicing**: keep per-minute buckets and sum 1440 buckets on query. Watermark handles out-of-order: player batching + mobile offline causes events 2-5 min late. Set watermark delay 30-60s and allowed lateness 5 min; late events beyond that go to a side output `late_views` and increment an `adjustments` counter applied at next publish, not rewriting the closed window. For read path, never recompute window from scratch on every event — incremental aggregation (`ReduceFunction` + `WindowFunction`) keeps per-bucket sum in RocksDB and updates heap incrementally. If you need per-second freshness, shrink slide to 10s but publish diff only if top 20 changes to avoid flapping.
-
-## Deep dive — Hot keys, heavy hitters and approximate Top-K
-
-One video hitting 1M views/sec would saturate a single keyed subtask if keyed by `videoId`. Fix with **key salting + two-phase aggregation**: first stage counts per `(videoId, salt)` in parallel, second stage sums salts to real videoId. Also cap per-user dedupe in edge to drop bot bursts before Kafka. For Top-K at massive cardinality (100M videos/day), exact counting in Flink state is heavy (RocksDB spill). Alternative discussed in interviews: **Count-Min Sketch** to estimate frequency + **SpaceSaving** or min-heap to track heavy hitters — gives ~1-2% error but constant memory. Whichever path, publish path must be rate-limited: even if counts update 100k times/sec, publish to Redis at most once per 15s per region, coalescing updates. Mention **probabilistic early emission** if top rank changes by > threshold.
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
+Salt `videoId` in stage-1 count, merge in stage-2. Min-heap size K: O(N log K). Optional Count-Min Sketch for cardinality discussion. Never `ORDER BY views` on MySQL at 60k/s.
 
 ## Handling failures and scale
 
-- **Kafka down:** Edge collector spills to local disk buffer (bounded 10 min) + returns 202 anyway; clients retry batch. Backpressure via `429` when buffer full.
-- **Flink subtask fails:** Checkpoint every 30s to S3; on restore replays from last offset. Exactly-once via checkpoint + idempotent Redis `SET` + Cassandra `upsert` (last-write-wins on count). No double counting after dedupe window.
-- **Redis hot shard:** Replicate `trending:IN:24h` to 3 replicas via read replicas; Trending Service reads from replica, writes to primary. Hot key replication + L1 Caffeine 5s in service mitigates.
-- **Cassandra compaction lag:** Counts table TTL auto-expires old windows; add time-bucketed partitions to avoid tombstone storm.
-- **Region failover:** Multi-AZ Kafka + Flink; Trending Service stateless behind [Load Balancer](/hld/load-balancing). Stale snapshot served with `Age` header if writer stalls — never 500.
-- **Scale knobs:** Add Kafka partitions + Flink parallelism linearly; sharding by region for heaps (each region heap independent). CDN caches `GET /trending` 15-30s, absorbing 90%+ reads.
-
-## Extra probes / follow-ups
-
-- Why not update MySQL `views` counter? — Row-level lock contention at 60k QPS, impossible to keep sliding window; kills primary.
-- Per-category trending — add `categoryId` to Flink key; heap per `(region, category)`; cardinality * categories still bounded because heap per combo is just K=100.
-- Decaying trending score — `score = view_count * exp(-age/half_life)` or weight last hour 3x — same pipeline, just weighted sum in Flink.
-- Fraud/bot filtering — separate processor checks `userId` rate, data-center ASN, headless fingerprint; taints event with `is_valid` flag before counting.
-- Cold start / new video boost — separate "Rising" list ranked by velocity (`views last 10 min / views last hour`).
-- Compare pipeline choice: [Kafka](/hld/message-queue) + [Flink](/hld/message-queue) vs Kinesis + Spark Structured Streaming — same idea, Flink wins on low latency.
-
-**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
+- **Kafka down:** Edge disk buffer + client retry; `429` when buffer full.
+- **Flink fail:** Checkpoint every ~30s; replay from offset; dedupe by `eventId`.
+- **Redis hot key:** Read replicas + service L1 (5s); replicate trending keys for top regions.
+- **Writer stall:** Serve last snapshot with `Age` header — prefer stale over 500.
+- **Batch reconciler (optional):** Hourly Spark over S3 raw vs Flink counts if drift >0.1%.
+- **Scale:** Partition Kafka + Flink parallelism; independent heap per `(region, category)`.
 
 **Phrase:** Views are events. Flink counts in a sliding window and publishes a Redis list of 100 ids. The website never sorts the whole catalog.
+
+**Remember:** CQRS — log is truth, trending list is materialized view; heap per region; watermarks for lateness.

@@ -29,11 +29,13 @@ Not user-facing. Match [request-path.svg](./request-path.svg).
 2. Every major box needs one concrete note (store, key, TTL, shard).
 3. Fleet / multi-instance: dashed rounded group rect + label.
 4. One caption soundbite at bottom.
-5. Output: `public/images/hld/{slug}-architecture.svg`
-6. Markdown: image first under `## High-Level Design (HLD)`; keep ASCII/components for study.
+6. Output: `public/images/hld/{slug}-architecture.svg` for question breakdowns
+7. Theory topics (selective): `public/images/hld/{topic}-overview.svg` via `node scripts/generate-hld-topic-diagrams.mjs`
+8. Markdown: image first under `## High-Level Design (HLD)` for questions; after intro blurb for theory topics
 
 ## Generator
 
 ```bash
-node scripts/generate-hld-diagrams.mjs
+node scripts/generate-hld-diagrams.mjs        # all question architectures
+node scripts/generate-hld-topic-diagrams.mjs  # selected theory overviews only
 ```

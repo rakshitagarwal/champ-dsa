@@ -4,6 +4,8 @@
 
 > Security in system design means threat-aware architecture: every boundary validates, every identity proves itself, every secret stays sealed. Interviews expect the standard controls placed correctly, not cryptography expertise.
 
+![Security path: TLS, gateway auth, service authorization, secrets, WAF](/images/hld/security-overview.svg)
+
 ## Authentication vs Authorization
 
 Authentication proves *who* you are; authorization decides *what* you may do — conflating them is a common design flaw. Login flows, MFA, and token issuance belong to authentication; roles, policies, and resource-level checks belong to authorization. Sessions or bearer tokens carry identity after login, but every protected endpoint must re-verify credentials and permissions — never trust client-supplied user IDs or role claims without signature or server-side lookup. Fail closed: missing or invalid auth returns 401; valid identity without permission returns 403.

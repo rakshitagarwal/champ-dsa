@@ -2,251 +2,87 @@
 
 > Download the web politely. The core is a **URL frontier + dedup + robots.txt**, not a recursive `wget` on one box.
 
-> URL frontier (queue), per-domain politeness, dedup via Bloom/set; fetcher -> parser -> dedup -> store in S3 + index.
+> URL frontier (queue), per-domain politeness, dedup via Bloom/set; fetcher → parser → dedup → store in S3 + index.
 
 ## What they ask
 
-Interviewer: "Design a web crawler like Googlebot — start from seeds, crawl billions of pages, feed a search index. How do you avoid DDoSing wikipedia.org, looping on calendar URLs, and re-crawling the same content forever?" They expect you to reason about politeness, scale, and freshness, not HTML parsing trivia.
+"Design Googlebot — seeds, billions of pages, feed search index." Avoid DDoSing hosts, infinite URL traps, infinite re-crawl.
 
-**What they really test:** (1) Frontier as a distributed priority queue (not DFS/BFS in memory). (2) Per-host rate limiting + robots.txt cache as first-class. (3) URL canonicalization + seen-set at billions scale (Bloom + exact). (4) Decoupling fetch, parse, store, index via queues. (5) Trade-offs: throughput vs politeness vs freshness.
+**Tests:** Distributed frontier; per-host politeness + robots; canonicalization + Bloom dedup; decouple fetch/parse/index via [Kafka](/hld/message-queue).
 
-**Scale anchor:** Web ~40-60B indexable pages (debatable), crawler targeting 1-10B pages. Fetch 10k pages/sec ~ 1B/day requires ~1000 fetcher threads with polite delays. Raw HTML avg ~30KB gzipped ~30KB*1B = 30TB crawl data/day to [S3](/hld/storage). Frontier holds billions of URLs — cannot be in RAM.
+**Scale anchor:** Target ~1B pages; ~5–10k fetches/s polite aggregate; frontier billions of URLs on disk.
 
 ## Requirements
 
 **Functional:**
-- Seed with `POST /seeds { urls[] }`; recursively extract `<a href>`, sitemaps, canonical links; enqueue unseen URLs.
-- Fetch HTML (and optionally PDFs/images) with size/time caps; handle redirects (301/302), retries, and HTTP errors.
-- Respect `robots.txt`, `sitemap.xml`, `Crawl-delay`, and meta `noindex/nofollow`.
-- Canonicalize + deduplicate URLs and content; detect near-duplicates.
-- Store raw pages and extracted links; emit to downstream indexing pipeline ([Elasticsearch](/hld/nosql-databases)).
-- Recrawl: revisit pages based on change frequency, not blindly.
+- Seed URLs (incl. sitemaps); extract links; enqueue unseen canonical URLs.
+- HTTP fetch with redirect cap, retries, size/time limits; respect `robots.txt`, `noindex`, `Crawl-delay`.
+- Canonicalize URLs; URL + content dedup; store raw pages to [S3](/hld/storage).
+- Emit parsed docs to search indexer ([Elasticsearch](/hld/nosql-databases)); recrawl by freshness/change hints.
 
 **Non-functional:**
-- Polite per-host rate (e.g., ≤2 req/sec per domain or per-IP) even with 1000 workers.
-- Throughput via inter-host parallelism — many hosts in parallel, few connections per host.
-- Idempotent & resumable: crash of a fetcher doesn't lose URLs; exactly-once fetch per URL per version.
-- Freshness SLA: important pages recrawled within hours, low-value within weeks.
-- Operate within bandwidth/DNS/robots cache limits; not flagged as abusive.
+- Polite per-host rate (e.g. ≤1–2 req/s/domain) with massive inter-host parallelism.
+- Idempotent fetch (lease + visibility timeout); crash-safe frontier.
+- Operate within bandwidth/DNS budgets; identifiable crawler agent.
 
-**Clarify:**
-- Scope: whole web vs focused crawl (news only, e-commerce site)? Affects frontier size and politeness.
-- JS rendering: static HTML only (v1) or headless Chrome queue? (Say v1 = static, v2 = render queue for JS-heavy).
-- Depth cap? Max pages per domain? Budget-aware crawl.
-- Freshness vs coverage: are we building a search engine or archival mirror?
-- Is real-time indexing required or batch?
+**Clarify:** Whole web vs focused vertical? JS rendering (defer headless queue)? Max depth / URLs per host?
 
-**Out of scope (v1):**
-- Headless rendering for JS SPAs (separate expensive queue).
-- Image/video transcoding; keep raw HTML only.
-- Search ranking / query serving (downstream consumer).
-- User-facing search API on crawler itself.
+**Out of scope (v1):** Headless render farm, search ranking, image/video processing beyond store.
 
 ## Scale estimation
 
-| Dimension | Assumption | Math | Result |
-|-----------|-----------|------|--------|
-| Pages | 1B pages crawl corpus |  | storage driver |
-| Fetch rate | 5k pages/sec target | 5k * 86400 | ~432M pages/day (~2.3 days per 1B) |
-| Bandwidth | 30KB avg HTML gzipped + headers | 5k * 30KB | 150 MB/s fetch egress (~1.2 Gbps) sustained |
-| Storage (raw) | 30KB * 1B | 30 TB | S3 Standard + lifecycle to Glacier |
-| Frontier size | 10B pending URLs * ~100B per URL | ~1 TB metadata | Needs disk-backed queue (RocksDB / Cassandra) |
-| DNS | 5k lookups/sec | cache 90% hit | ~500 uncached DNS/sec to resolver |
-| Dedup seen-set | 10B URLs * 8B hash | 80 GB hash | Bloom 10B @1% FPR ~12 GB + exact Cassandra |
-
-Throughput scales horizontally by adding fetcher workers; bottleneck is per-host politeness and DNS, not CPU.
+| Dimension | Assumption | Result |
+|-----------|-----------|--------|
+| Corpus | 1B pages target | S3 + index downstream |
+| Fetch rate | 5k pages/s | ~432M pages/day |
+| Bandwidth | ~30 KB/page gzipped | ~150 MB/s sustained (~1.2 Gbps) |
+| Raw storage | 30 KB × 1B | ~30 TB (lifecycle to Glacier) |
+| Frontier | 10B pending URLs × ~100B | ~1 TB metadata — disk queue |
+| Dedup seen-set | 10B URLs | Bloom ~12 GB @1% FPR + Cassandra exact |
+| DNS | 5k fetches/s, 90% cache hit | ~500 uncached lookups/s |
 
 ## API Design
 
-```http
-// Seed — operators or discovery
-POST /v1/seeds
-{ "urls": ["https://example.com/sitemap.xml", "https://news.ycombinator.com"], "priority": "high", "label": "bootstrap" }
-=> 202 { "accepted": 2, "jobId": "seed-uuid" }
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1/seeds` | Bootstrap URLs |
+| `GET` | `/v1/status` | Frontier depth, fetch RPS |
+| `POST` | `/v1/crawl/pause` | Pause domain |
 
-// Control plane
-GET /v1/status => 200 { "frontierDepth": 4823910234, "fetchRps": 5120, "domainsInFlight": 82340, "failedQueue": 12034 }
-GET /v1/frontier/sample?limit=10 => { "urls": [...] }
+Steady state: workers use [Kafka](/hld/message-queue) topics, not REST.
 
-POST /v1/crawl/pause { "domain": "example.com" } => 202
-DELETE /v1/seeds/{jobId} => 204
-
-// Data plane (internal) — fetcher -> parser -> store
-POST /internal/fetchResult { "url": "...", "status": 200, "htmlRef": "s3://crawl/raw/...", "links": ["..."], "fetchedAt": "..." }
-```
-
-Workers communicate via internal [Kafka](/hld/message-queue) topics, not these REST endpoints in steady state. Admin API above is for control plane only.
+**Non-functional:** Identify via `User-Agent`; cap body size (~2MB) and fetch timeout (~10s); follow ≤5 redirects.
 
 ## High-Level Design (HLD)
 
 ![Web crawler architecture: frontier, fetchers, dedup, store](/images/hld/web-crawler-architecture.svg)
 
 ```
-Seeds -> URL Frontier (priority queue sharded by host) -> Scheduler (per-host queue)
-                                                        |
-                                              Fetcher Workers (100s-1000s pods)
-                                                  | DNS Cache | robots.txt Cache | Per-host Rate Limiter
-                                                  v
-                                             HTTP Fetch -> Content Store (S3) + Content Hash -> Dedup Service
-                                                  |                                        \
-                                                  v                                         v
-                                        Parser (link extractor) -> Canonicalizer -> Seen-Set (Bloom + Cassandra)
-                                                  |                                        |
-                                                  +------------> Frontier (enqueue unseen)   +-> Index Pipeline -> [Elasticsearch]
+Seeds → Frontier (priority, sharded by host) → Scheduler (per-host token bucket + robots cache)
+  → Fetcher workers (DNS cache, HTTP caps) → S3 raw + Parser → Canonicalizer → Dedup (Bloom → exact)
+  → re-enqueue links + Index pipeline → Elasticsearch
 ```
 
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
-```
+**Politeness:** Host-sharded frontier; [rate limiter](/hld/rate-limiter) token bucket per domain; `Crawl-delay` from robots cache (24h TTL). **Dedup:** Canonical hash → Bloom → Cassandra `seen_urls`. **Content dedup:** SHA256 body; optional SimHash for near-dup. **Recrawl:** Priority = importance / time-since-fetch × observed change rate; respect ETag/304.
 
-**Components:**
-- **URL Frontier:** Disk-backed priority queue, logically sharded by `hash(host) % shards`. Two-level: global priority (PageRank/importance, recency, `Crawl-Delay`) then per-host FIFO to enforce politeness. Backed by [Kafka](/hld/message-queue) + RocksDB or custom disk queue (like Mercator). Must spill to disk — billions of URLs don't fit in Redis alone.
-- **Scheduler:** Pulls from frontier in host-sharded fashion; enforces per-host concurrency = 1-2 and min interval (e.g., 500ms-1s). Uses a [rate limiter](/hld/rate-limiter) keyed by host/IP (token bucket per domain). Also merges robots.txt fetch into schedule — don't schedule fetch until robots fetched & cached.
-- **Fetcher Workers:** Stateless pods (Go/Java). Steps: DNS resolve (with shared [Redis](/hld/caching-strategies) cache TTL 5 min), check robots cache (cached per host 24h), HTTP GET with timeout 10s + max body 2MB + respect `Crawl-delay` and `Retry-After`, handle redirects (follow ≤5, canonicalize target). Respect `User-Agent` identification.
-- **DNS / robots cache:** Shared cache layer ([Redis](/hld/caching-strategies) or Memcached) + local L1. Robots.txt fetched once per host per 24h, stored as parsed rules.
-- **Content Store:** Raw HTML + headers stored to [S3](/hld/storage) with key `s3://crawl/raw/{date}/{hostHash}/{urlHash}.warc.gz`. Also store metadata in [Cassandra](/hld/nosql-databases) for quick lookup.
-- **Parser / Link Extractor:** Extracts `href`, sitemap links, `rel=canonical`. Canonicalizes (lowercase host, remove `utm_*`, sort query, strip fragment, handle trailing slash). Emits canonical URLs.
-- **Dedup Service:** Checks Bloom filter (fast negative) then exact store (Cassandra/Dynamo `seen_urls`). Content dedup via SHA256 of body (or SimHash for near-dup) — same content via many URLs stored once.
+## Deep dive — traps and canonicalization
 
-**Write path (crawl):** Seed -> frontier -> scheduler picks host shard -> fetcher -> S3 + parser -> dedup -> frontier (new links) and index pipeline.
-**Read path (search):** Downstream indexer reads S3/queue, builds inverted index in [Elasticsearch](/hld/nosql-databases). No user-facing read on crawler.
+Infinite calendars/facets: depth cap, URLs/host cap, pattern detection. Normalize `http/https`, `www`, UTM params, fragments; prefer `<link rel=canonical>`. Fail closed if robots.txt fetch fails.
 
-## Low-Level Design (LLD)
+## Deep dive — recrawl and failures
 
-**DB schema — metadata, seen-set, frontier spill**
-
-```sql
--- Seen URLs exact store (Cassandra/Dynamo style, shown as SQL)
-CREATE TABLE seen_urls (
-  url_hash      CHAR(64) PRIMARY KEY, -- SHA256(canonical_url)
-  canonical_url TEXT NOT NULL,
-  first_seen_at TIMESTAMPTZ NOT NULL,
-  last_fetched_at TIMESTAMPTZ,
-  content_hash  CHAR(64),
-  http_status   SMALLINT,
-  host          VARCHAR(255) NOT NULL
-) PARTITION BY HASH(url_hash);
-CREATE INDEX ON seen_urls (host, last_fetched_at);
-
--- Fetch history / content store pointer
-CREATE TABLE fetch_history (
-  url_hash     CHAR(64) NOT NULL,
-  fetched_at   TIMESTAMPTZ NOT NULL,
-  s3_key       TEXT NOT NULL,
-  content_hash CHAR(64) NOT NULL,
-  etag         TEXT,
-  duration_ms  INT,
-  PRIMARY KEY (url_hash, fetched_at)
-) PARTITION BY RANGE (fetched_at);
-
--- Per-host crawl state (politeness, robots)
-CREATE TABLE host_state (
-  host              VARCHAR(255) PRIMARY KEY,
-  robots_txt        TEXT,
-  robots_fetched_at TIMESTAMPTZ,
-  crawl_delay_ms    INT NOT NULL DEFAULT 500,
-  last_fetched_at   TIMESTAMPTZ,
-  backoff_until     TIMESTAMPTZ,
-  consecutive_failures SMALLINT DEFAULT 0
-);
-
--- Frontier spill (if using RDBMS for demo; prod is RocksDB/Kafka)
-CREATE TABLE frontier_queue (
-  id           BIGSERIAL PRIMARY KEY,
-  host         VARCHAR(255) NOT NULL,
-  url          TEXT NOT NULL,
-  priority     SMALLINT NOT NULL DEFAULT 5,
-  depth        SMALLINT NOT NULL,
-  enqueued_at  TIMESTAMPTZ NOT NULL,
-  next_fetch_after TIMESTAMPTZ NOT NULL
-);
-CREATE INDEX ON frontier_queue (host, next_fetch_after, priority DESC);
-```
-
-**Key classes & responsibilities**
-
-```typescript
-interface UrlCanonicalizer {
-  canonicalize(rawUrl: string): string; // lowercase host, strip tracking params, sort query, remove fragment
-  hash(canonicalUrl: string): string; // SHA-256
-}
-interface RobotsCache {
-  get(host: string): RobotsRules; // cached 24h, fetch + parse on miss
-  allowed(host: string, path: string): boolean;
-}
-interface PerHostRateLimiter {
-  tryAcquire(host: string): boolean; // token bucket per host, e.g. 2 req/sec/host
-  delayUntilNext(host: string): number;
-}
-interface Frontier {
-  enqueue(urls: Url[], priority: number): void;
-  dequeueForHost(host: string, max: number): Url[]; // respects next_fetch_after
-  size(): number;
-}
-interface Fetcher {
-  fetch(url: Url): FetchResult; // DNS -> robots check -> HTTP GET with timeout/size cap
-}
-interface DedupService {
-  isSeenUrl(hash: string): boolean; // Bloom -> Cassandra
-  isDuplicateContent(body: Uint8Array): boolean; // SHA256 / SimHash
-}
-interface Parser {
-  extractLinks(html: Uint8Array, baseUrl: string): string[];
-}
-```
-
-**Concurrency handling / algorithms:**
-- **Host-sharded frontier:** Partition frontier by `hash(host)` so all URLs for `example.com` live on same shard. Single scheduler per shard enforces politeness without distributed lock — natural sharding.
-- **Bloom filter + exact:** Local Bloom (1% FPR, 12GB for 10B) for fast negative; on positive, check Cassandra exact to avoid false dedup. Periodically rebuild Bloom from snapshot.
-- **Content fingerprint:** SHA256 exact match + SimHash (Hamming distance ≤3) for near-duplicate; avoids storing 10 copies of same article via different params.
-- **Backpressure:** If S3/backend stalls, fetcher blocks via bounded queue; frontier stops scheduling. No unbounded in-memory queue.
-- **Idempotency:** Fetch result written with `url_hash+fetched_at` key; re-fetch after TTL (e.g., 7 days) not immediate.
-
-**Design patterns:**
-- **Producer-Consumer:** Frontier producers (parsers) decoupled from fetcher consumers via [Kafka](/hld/message-queue) / disk queue.
-- **Cache-Aside:** DNS + robots.txt cache-aside with TTL.
-- **Token Bucket:** Per-host rate limiting.
-- **Strategy:** Pluggable `PriorityStrategy` (BFS vs PageRank vs recency) for frontier ordering.
-- **Circuit Breaker:** Per-host failure tracking; after N 5xx consecutive, backoff exponentially (1s, 10s, 1m, 10m) + mark host unhealthy.
-
-## Deep dive — Traps, canonicalization and infinite spaces
-
-**Infinite calendars / faceted search:** `example.com/calendar?date=2024-01-01` generates infinite distinct URLs. Mitigations: cap depth (e.g., 20), cap URLs per host (e.g., 10M), cap path segments (≤10), detect pattern via regex (`?date=`, `?page=`) and collapse. Fingerprint URL structure and flag hosts generating >N distinct patterns/hour. **Canonical vs alias:** UTM tags, `http` vs `https`, trailing slash, `www.` all map to same content — canonicalizer normalizes before dedup. Prefer `<link rel=canonical>` if present. Content hash is final deduper: if two canonical URLs hash to same body, store only one pointer. **Politeness vs throughput:** Single-threaded per host is polite but slow; achieve throughput by maintaining thousands of distinct hosts in flight simultaneously. Visualization: 50k hosts * 1 req/sec = 50k RPS aggregate while per-host stays gentle.
-
-## Deep dive — Recrawl, freshness and failure handling
-
-Not all pages change equally: homepages hourly, blog posts never. Track `changeFrequency` per URL (observed diff via checksum/ETag `If-None-Match`, `If-Modified-Since`). Priority formula: `priority = importanceScore / (now - lastFetched) * changeRate`. Use sitemaps `<changefreq>` and `lastmod` as hint. Failed fetches: `429/503` → respect `Retry-After` + exponential backoff; `404/410` → drop and keep tombstone 30 days; `5xx` → backoff and requeue with penalty priority; DNS failure → backoff host 1h. Duplicate content updates: store `content_hash`; if unchanged via HEAD/ETag, skip body download and requeue with longer delay. Persistence: frontier checkpointed to RocksDB; fetcher is stateless and can be killed and resumed without loss because URL returns to queue on lease expiry (visibility timeout like SQS).
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
+Lease URLs on dequeue (visibility timeout); crash → re-enqueue. Backoff on 429/503 with `Retry-After`; tombstone 404. Frontier checkpointed to disk; fetchers stateless.
 
 ## Handling failures and scale
 
-- **Fetcher crash mid-fetch:** URL lease expires (e.g., 2 min) and scheduler re-enqueues — at-least-once fetch; dedup layer makes it idempotent.
-- **Host down / slow:** Circuit breaker marks host unhealthy after 5 failures; scheduler skips it for backoff period; doesn't block other hosts.
-- **Robots.txt fetch fails:** Fail closed — don't crawl host until robots fetched; avoid accidental ban.
-- **Bloom false positive storm:** Cap Bloom FPR at 1%; exact check on positive ensures no URL lost — only extra Cassandra read.
-- **S3 / Kafka outage:** Fetcher local disk spill buffer (bounded) + backpressure; frontier pauses scheduling rather than OOMing.
-- **Thundering herd on node addition:** Consistent hashing for host shards; virtual nodes prevent massive reassignment.
-- **Scale knobs:** Horizontally add fetcher pods + frontier shards. DNS cache sharding avoids resolver thundering. Use HTTP/1.1 keep-alive per host to reduce TCP overhead.
-- **Observability:** Per-host metrics (fetch latency, status distribution), frontier depth, dedup hit rate, robots cache hit rate. Alert on frontier growth >10% hourly (loop bug).
-
-## Extra probes / follow-ups
-
-- How to crawl JS-heavy SPAs? — Secondary **render queue** with headless Chrome, 10x more expensive, limited to flagged domains; v1 skips it.
-- How to avoid duplicate content across mirrors? — Content SimHash + canonical host preference.
-- How to prioritize important pages? — Seed priority + PageRank-like in-degree count in frontier; or query search click logs.
-- Legal/compliance: obey `robots.txt` is voluntary but assumed; mention `Crawl-delay` and polite identification via `User-Agent`.
-- Alternative queue: Why not [Redis](/hld/caching-strategies) only? — RAM insufficient for 10B URLs; need disk-backed RocksDB/Kafka + Redis cache for hot hosts.
-- Scheduling as [rate limiter](/hld/rate-limiter) per host — exactly the token-bucket pattern applied to crawler politeness.
-
-**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
+- **Fetcher crash mid-fetch:** URL lease expires → re-enqueue (at-least-once; dedup makes safe).
+- **Host 429/503:** Honor `Retry-After`; exponential backoff per `host_state`.
+- **Robots fetch fails:** Fail closed — do not crawl until rules cached.
+- **S3/Kafka stall:** Backpressure; bounded local spill; pause scheduler vs OOM.
+- **Bloom false positive:** Exact Cassandra check on positive only.
+- **Loop detection:** Alert if frontier depth grows >10%/hr for a host pattern.
+- **Scale:** More fetcher pods + frontier shards; HTTP keep-alive per host; consistent hash on host shards.
 
 **Phrase:** A frontier of canonical URLs, fetchers sharded by host with robots and rate limits, and a seen-set so we don't loop. HTML in S3; links go back to the queue.
+
+**Remember:** Politeness is per-host serialism + many hosts parallel; robots before fetch; dedup before enqueue.

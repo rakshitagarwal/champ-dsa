@@ -4,6 +4,8 @@
 
 > Reliability is a system property built from layered defenses: nothing here is exotic alone, but together they decide whether incidents are blips or outages. Design each layer assuming the ones below it fail.
 
+![Reliability layers: timeout → retry → circuit breaker → bulkhead → dependencies](/images/hld/reliability-overview.svg)
+
 ## Health Checks
 
 Orchestrators and load balancers need a signal to stop sending traffic to broken instances before users become the probe. Liveness asks “is the process wedged?” — fail it to restart the pod. Readiness asks “can this instance accept work?” — fail it to remove from rotation while keeping the process up (migrations, warmup, dependency outage). Checks should be cheap (milliseconds), hit a dedicated endpoint, and avoid calling every downstream on every tick or flapping will eject healthy nodes during a partial outage. Deep checks belong in synthetic monitoring, not in kube `readinessProbe` that runs every second.

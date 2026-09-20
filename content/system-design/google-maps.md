@@ -6,61 +6,41 @@
 
 ## What they ask
 
-**Scenario:** "Design Google Maps — show the map, search places, route from A to B with ETA, update with traffic."
+**Scenario:** Show map, search places, route A→B with ETA, reflect live traffic.
 
-**What the interviewer really tests:**
-- Whether you separate **static tiles** from **dynamic routing**.
-- Geo indexing and road-network representation (nodes/edges, not lat-long scans).
-- How traffic updates change edge weights without recomputing the world.
-- Scale of tile serving vs compute-heavy route requests.
+**Tests:** Static tiles vs dynamic routing separated? Road graph (not lat/lng table scan)? Traffic updates edge weights? Tile CDN vs route CPU scale?
 
-**Example scale:** billions of tile views/day (CDN), millions of route requests/day, continuous GPS/traffic probes.
+**Scale:** Billions of tile views/day (CDN); millions of routes/day; continuous probe stream for traffic.
 
 ## Requirements
 
-**Functional:**
-- Render map at zoom levels (tiles).
-- Geocode / reverse geocode; place search.
-- Route: driving/walking options, alternatives, ETA.
-- Live traffic coloring / ETA refresh.
-- (Optional) navigation turn-by-turn (v2).
+**Functional (≤6):** Tile render at zoom levels; geocode + place search; driving/walking routes + alternatives; live traffic on map/ETA.
 
-**Non-functional:**
-- **Tiles:** ultra-high availability, cacheable, global CDN.
-- **Routing:** p95 < 200–500ms for city-scale; longer for cross-country with hierarchical methods.
-- **ETA:** freshness minutes; eventual consistency OK.
-- **Correctness:** avoid illegal roads; respect one-ways / turn restrictions.
+**Non-functional:** Tiles: global CDN, cacheable; routing p95 ~200–500ms city-scale; ETA freshness ~minutes; respect one-ways/restrictions.
 
-**Clarify:** offline maps? multi-modal transit? which regions?
+**Clarify (≤4):** Offline maps? Transit multi-modal? Which regions first?
 
-**Out of scope (v1):** full Street View pipeline, 3D buildings, ads.
+**Out of scope (v1):** Street View pipeline, 3D buildings, ads.
 
 ## Scale estimation
 
 | Piece | Insight |
 |-------|---------|
-| Tiles | 256×256 images × zoom pyramid — almost all CDN; origin is tile store |
-| Routes | CPU-heavy; cache popular OD pairs; partition graph by region |
-| Traffic | High write stream of speed samples → aggregate per edge segment |
+| Tiles | 256×256 pyramid — almost all CDN hits |
+| Routes | CPU-heavy; cache popular OD pairs; regional graph shards |
+| Traffic | High-write speed samples → aggregate per edge segment |
 
 ## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/tiles/{z}/{x}/{y}.png` | Map tile |
-| `GET` | `/v1/geocode` | Address → lat/lng |
-| `GET` | `/v1/places` | Text search near location |
-| `POST` | `/v1/route` | Compute route + ETA |
-| `GET` | `/v1/traffic` | Traffic overlay for viewport |
+| `GET` | `/v1/geocode` | Address ↔ lat/lng |
+| `GET` | `/v1/places` | Text search |
+| `POST` | `/v1/route` | Route + ETA |
+| `GET` | `/v1/traffic` | Viewport overlay |
 
-```json
-POST /v1/route
-{
-  "origin": {"lat": 37.77, "lng": -122.42},
-  "destination": {"lat": 37.33, "lng": -121.89},
-  "mode": "driving"
-}
-```
+`POST /v1/route` with `origin`, `destination`, `mode` → polyline + ETA.
 
 ## High-Level Design (HLD)
 
@@ -68,33 +48,26 @@ POST /v1/route
 
 ```
 Client
-  ├─ Tile CDN ← Tile store / renderer (static + vector tiles)
-  └─ Maps API / LB
+  ├─ Tile CDN ← tile store / renderer
+  └─ Maps API
         ├─ Geocode / Places (search index)
-        ├─ Routing service ← Road graph (sharded by region)
-        └─ ETA / Traffic service ← Traffic stream (Kafka) → edge speed store
+        ├─ Routing ← road graph (regional shards)
+        └─ Traffic ← Kafka stream → edge speed store → routing weights
 ```
 
-**Tile path:** client requests `z/x/y` → CDN hit almost always → miss → tile server / pre-rendered store.
+**Tiles:** `z/x/y` → CDN. **Route:** snap to graph → Dijkstra / A* / **Contraction Hierarchies** for long distance → polyline. **Traffic:** probes aggregate to segment speeds → refresh weights.
 
-**Route path:** snap origin/dest to graph nodes → shortest path (Dijkstra / A* / Contraction Hierarchies) with weights = distance or time(traffic) → encode polyline → return ETA.
+## Deep dive
 
-**Traffic path:** probe vehicles / apps report speeds → aggregate per segment → update weight cache → routing reads recent weights.
+**Routing at scale:** Nodes = intersections, edges = segments with length, limits, restrictions. CH preprocesses shortcuts for continent queries. Partition graph by metro; stitch long routes. Navigation refreshes ETA every N seconds from live weights.
 
-## Deep dive — routing at scale
+## Failures and scale
 
-- **Graph:** nodes = intersections, edges = road segments with length, speed limit, restrictions.
-- **Algorithms:** Dijkstra OK for small; **A*** with landmarks or **Contraction Hierarchies** for continent-scale — say the name and why (preprocess shortcuts).
-- **Partitioning:** shard graph by geo tiles / metro; long routes stitch corridors.
-- **Cache:** popular routes and "home ↔ work" OD pairs.
-- **ETA:** travel_time = Σ edge_length / current_speed; refresh on navigation client every N seconds.
+- CDN miss → origin tile store; versioned tiles for cache immutability.
+- Routing overload → queue low priority; cached route without live traffic.
+- Bad probe data → static speed limits; label ETA approximate.
+- Related: [Uber](/hld/uber), [CDN](/hld/cdn), [Architecture concepts](/hld/architecture-concepts).
 
-## Failure and scale
+**Phrase:** Tiles on CDN, road graph for routing with hierarchical shortest path, traffic stream updates edge weights for ETA.
 
-- CDN outage region → clients use alternate PoP; tiles are immutable-ish by version.
-- Routing overload → queue low priority; serve cached route without live traffic.
-- Bad traffic data → fall back to static speed limits; mark ETA as approximate.
-
-**Closing phrase:** *"Tiles on CDN, road graph for routing with hierarchical shortest path, traffic stream updates edge weights for ETA."*
-
-**See also:** [Uber](/hld/uber), [CDN](/hld/cdn), [Architecture concepts](/hld/architecture-concepts) (geo indexing).
+**Remember:** Never store raw GPS firehose in SQL; separate immutable tiles from mutable edge weights; name CH/A* even if you don't implement them.

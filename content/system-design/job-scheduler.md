@@ -2,241 +2,91 @@
 
 > Cron for a whole company. The job is **run exactly once (or retry safely)** across many workers, not `crontab` on one VM.
 
-> Jobs durable in Postgres, workers poll with heartbeats, leases + ZK leader, retries with backoff, exactly-once via idempotency.
+> Jobs durable in Postgres, dispatch with SKIP LOCKED, workers at-least-once with idempotent handlers + `run_id` dedup.
 
 ## What they ask
 
-Design a distributed job scheduler: users register jobs to run once at a timestamp, on a cron expression, or with a delay (e.g., "email in 30 minutes"). Thousands of jobs fire per second across many workers that can crash or scale. Don't run the billing cron twice.
+**Scenario:** Register jobs at a timestamp, on cron, or with delay. Thousands fire per second; workers crash mid-run. **`charge_monthly` must not run twice** because five dispatchers and twenty workers are alive.
 
-**Scenario:** You have 200 app pods, 50k job definitions, and a requirement that a job like `charge_monthly` runs once per tick even if 5 dispatchers and 20 workers are alive. Workers can die mid-execution. The interviewer will push on "exactly-once" — the correct answer is at-least-once with idempotent handlers.
-
-**What interviewer tests:**
-- Distributed locking / leasing without single point of failure
-- Durable schedule state vs. in-memory cron
-- Retry, backoff, DLQ, and missed-tick policy
-- Thundering herd at `:00` and timezone correctness
+**What the interviewer really tests:**
+- Distributed leasing without SPOF
+- Durable schedule vs in-memory cron
+- Retry, backoff, DLQ, missed-tick policy
+- Thundering herd at `:00` and timezones
 
 ## Requirements
 
-| Category | Requirement |
-|---|---|
-| **Functional** | Register job: `name`, `cron` or `run_at` / `delay`, `payload` (JSON), `timeout`, `retryPolicy`, `maxRetries`. Cancel / pause / resume job. List runs with status (`PENDING`, `RUNNING`, `SUCCESS`, `FAILED`, `DLQ`). Trigger ad-hoc run. DAG dependencies (v2). |
-| **Non-functional** | Durable schedule (survives dispatcher crash). At-least-once execution with idempotent handlers. No double-enqueue when dispatchers scale. Scalable to 100k jobs with second granularity. Observable (metrics, logs, alerts). |
-| **Clarify** | Cron semantics: standard 5-field? Timezone per job? Missed-tick policy: catch-up or skip? Max payload size? Who runs the job — your workers or a webhook to caller? Job duration range (ms to hours)? |
-| **Out of scope v1** | Full DAG orchestrator (like Airflow), UI for visual DAG editor, per-job code deployment, distributed cron editor with RBAC. |
+**Functional:** Register job (cron / `run_at` / delay, payload, timeout, retry policy, queue). Cancel/pause/resume. List runs (PENDING, RUNNING, SUCCESS, FAILED, DLQ). Ad-hoc trigger. DAG (v2).
+
+**Non-functional:** Survives dispatcher crash; at-least-once + idempotent handlers; no double-enqueue when dispatchers scale; 100k jobs, second granularity; observable.
+
+**Clarify:** Cron fields + timezone per job? Missed tick — catch-up or skip? Webhook vs internal worker? Job duration range?
+
+**Out of scope (v1):** Full Airflow UI, per-job code deploy, visual DAG editor.
 
 ## Scale estimation
 
-| Metric | Math | Result |
-|---|---|---|
-| **Jobs stored** | 50k definitions × avg 500 bytes + indexes | ~25 MB metadata; runs history dominates |
-| **Runs history** | 50k jobs × avg 10 runs/day × 365 days × 300 bytes | ~55 GB/year before TTL/archival |
-| **QPS — dispatch** | 50k jobs, 30% hourly crons: ~15k ticks/hour ≈ 4/sec; + 1k delayed jobs/sec | ~1k–5k dispatches/sec peak |
-| **QPS — workers** | Each dispatch → 1 enqueue + 1 callback | ~2k–10k internal rps |
-| **Storage bandwidth** | Poll `SELECT ... WHERE next_run_at <= now() LIMIT 500` every second | ~500 rows/sec scan, index on `next_run_at` keeps it cheap |
-| **Kafka/SQS** | 5k messages/sec × 1 KB | ~5 MB/s; trivial for [Kafka](/hld/message-queue) |
+| Metric | Result |
+|--------|--------|
+| Job defs | ~50k × 500 B → ~25 MB metadata |
+| Run history | ~55 GB/year before TTL/archive |
+| Dispatch | ~1k–5k/sec peak; index on `next_run_at` |
+| Queue | ~5 MB/s to [Kafka](/hld/message-queue) — trivial |
 
-The bottleneck is **contention on the dispatch query**, not raw throughput.
+Bottleneck: **contention on dispatch poll**, not raw throughput.
 
 ## API Design
 
-| Method | Endpoint | Description |
-|---|---|---|
+| Method | Path | Description |
+|--------|------|-------------|
 | `POST` | `/api/v1/jobs` | Create job |
-| `GET` | `/api/v1/jobs/{id}` | Get job + next run |
-| `DELETE` | `/api/v1/jobs/{id}` | Cancel job |
-| `POST` | `/api/v1/jobs/{id}/pause` | Pause scheduling |
-| `POST` | `/api/v1/jobs/{id}/resume` | Resume |
-| `GET` | `/api/v1/jobs/{id}/runs?cursor=` | List runs |
+| `GET` | `/api/v1/jobs/{id}` | Job + next run |
+| `DELETE` | `/api/v1/jobs/{id}` | Cancel |
+| `POST` | `/api/v1/jobs/{id}/pause` | Pause |
 | `POST` | `/api/v1/jobs/{id}/trigger` | Ad-hoc run |
-| `POST` | `/internal/workers/callback` | Worker reports success/fail + heartbeat |
+| `GET` | `/api/v1/jobs/{id}/runs` | Run history |
+| `POST` | `/internal/workers/callback` | Success/fail + heartbeat |
 
-**Create job — Request:**
-```json
-POST /api/v1/jobs
-{
-  "name": "billing-daily",
-  "cron": "0 2 * * *",
-  "timezone": "UTC",
-  "payload": { "accountId": "acct_123" },
-  "timeoutMs": 60000,
-  "retryPolicy": { "maxRetries": 3, "backoff": "exponential", "baseMs": 1000 },
-  "queue": "billing"
-}
-```
-
-**Create — Response:**
-```json
-{ "jobId": "job_abc", "nextRunAt": "2026-08-26T02:00:00Z", "status": "ACTIVE" }
-```
-
-**Worker contract:** Workers `POST /internal/workers/callback { runId, status, result, error }` or use long-poll `GET /internal/workers/poll?queue=billing` to fetch work. Alternative: push via [Kafka](/hld/message-queue) / SQS.
-
-Headers: `Idempotency-Key` on create; `X-Run-Id` on callbacks.
+**Create:** `{ name, cron?, timezone, payload, timeoutMs, retryPolicy, queue }` → `{ jobId, nextRunAt, status: ACTIVE }`. Worker: poll queue or Kafka consume; callback with `X-Run-Id`.
 
 ## High-Level Design (HLD)
 
 ![Job scheduler: job store, ticker, workers, DLQ](/images/hld/job-scheduler-architecture.svg)
 
-```
-Client / Admin UI
-   |
- API Gateway (auth, validation)
-   |
- Job Service (CRUD, validation, computes next_run_at)
-   |
- Postgres (jobs, runs)  <-- Dispatcher (polls next_run_at, enqueues)
-   |                         |
-   |                      [Kafka](/hld/message-queue) / SQS (run queue, per-queue partitions)
-   |                         |
-   +---- Workers (poll / consume, execute, heartbeat, callback)
-   |
- [Redis](/hld/caching-strategies) (optional lease / fencing token cache)
-   |
- Observability: [metrics](/hld/metrics-monitoring) + logs + DLQ dashboard
-```
+- **Job Service:** validate cron, store UTC `next_run_at` — never client clock.
+- **Dispatcher (3–5 replicas):** every ~1s: `SELECT … WHERE next_run_at <= now() AND status=ACTIVE ORDER BY next_run_at LIMIT 500 FOR UPDATE SKIP LOCKED` → insert `job_runs`, advance `next_run_at`, enqueue `{ job_id, run_id, payload }`.
+- **Queue:** [Kafka](/hld/message-queue)/SQS per `queue` name; partition by `jobId` if ordering matters.
+- **Workers:** autoscale per queue depth; heartbeat every 10s; idempotent side effects keyed by **`run_id`**.
+- **DLQ:** after `maxRetries`; manual replay endpoint.
+- **Redis (optional):** lease/fencing token cache.
 
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
-```
+**Register:** compute `next_run_at` → INSERT `jobs`.
 
-**Components:**
-- **Job Service:** Validates cron (via cron parser), stores UTC `next_run_at`, computes following tick using library (e.g., `cron-utils`). Never trusts client clock.
-- **Dispatcher:** Stateless replicas (3–5) that every 500ms–1s run: `SELECT ... WHERE next_run_at <= now() AND status='ACTIVE' ORDER BY next_run_at LIMIT 500 FOR UPDATE SKIP LOCKED` → for each row, generate `runId = uuid`, insert into `job_runs`, set `next_run_at` to next cron tick (or null for one-shot), enqueue to [Kafka](/hld/message-queue)/SQS. `SKIP LOCKED` ensures two dispatchers never grab the same job.
-- **Queue:** [Kafka](/hld/message-queue) topic `job.runs` partitioned by `jobId` or `queue` name; or SQS per queue for simpler ops. Provides durability if workers are down.
-- **Workers:** Autoscaled pool per queue (billing, email, etc.). Long-poll or Kafka consume; execute handler; send heartbeat every 10s; callback success/fail. On timeout, dispatcher resets `locked_by` via lease expiry.
-- **DLQ:** After `maxRetries` exhausted, move to DLQ topic/table for manual retry.
+**Execute:** consume → handler checks dedup table for `run_id` → run → callback SUCCESS/FAILED.
 
-**Write flow — Register job:**
-1. `POST /jobs` → validate cron, compute `next_run_at` in UTC, insert into `jobs`.
+## Deep dive — exactly-once is a lie
 
-**Read flow — Dispatch tick:**
-1. Dispatcher lease-selects due jobs under transaction → enqueues → commits. If commit fails, message not sent (transactional outbox variant).
+**At-least-once + idempotent handlers + dedup.** Dispatcher: `SKIP LOCKED` + unique `run_id`. Worker: `if billing_ledger has run_id → noop success`. Heartbeat extends lease; reaper re-enqueues expired RUNNING.
 
-**Execution flow:**
-1. Worker consumes `runId` + payload → executes idempotent handler keyed by `runId` → callback. If worker dies, heartbeat lease expires and another worker retries after visibility timeout.
+**Never** 200 pods each running `if (minute===0) bill()` — name that double-charge bug.
 
-## Low-Level Design (LLD)
+Missed ticks: policy `SKIP` (one digest) vs `CATCH_UP_ONCE` (billing). **Midnight herd:** jitter `next_run_at` on create or shard dispatchers. Store UTC; DST gaps at scheduling edge.
 
-**DB Schema (Postgres):**
-```sql
-CREATE TABLE jobs (
-  id              BIGSERIAL PRIMARY KEY,
-  name            VARCHAR(200) NOT NULL,
-  cron            VARCHAR(100), -- null for one-shot/delayed
-  run_at          TIMESTAMPTZ, -- for one-shot
-  timezone        VARCHAR(50) NOT NULL DEFAULT 'UTC',
-  payload         JSONB NOT NULL DEFAULT '{}',
-  queue           VARCHAR(100) NOT NULL DEFAULT 'default',
-  status          VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE, PAUSED, CANCELLED
-  next_run_at     TIMESTAMPTZ,
-  locked_by       VARCHAR(100),
-  locked_at       TIMESTAMPTZ,
-  timeout_ms      INT NOT NULL DEFAULT 60000,
-  max_retries     INT NOT NULL DEFAULT 3,
-  created_at      TIMESTAMPTZ DEFAULT now(),
-  updated_at      TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX idx_jobs_next_run ON jobs(next_run_at) WHERE status='ACTIVE';
-CREATE INDEX idx_jobs_queue_next ON jobs(queue, next_run_at);
+## Deep dive — delayed jobs and leases
 
-CREATE TABLE job_runs (
-  id              BIGSERIAL PRIMARY KEY,
-  job_id          BIGINT NOT NULL REFERENCES jobs(id),
-  run_id          VARCHAR(64) UNIQUE NOT NULL, -- idempotency key for handlers
-  status          VARCHAR(20) NOT NULL, -- PENDING, RUNNING, SUCCESS, FAILED, DLQ
-  attempt         INT NOT NULL DEFAULT 0,
-  payload         JSONB,
-  result          JSONB,
-  error           TEXT,
-  scheduled_at    TIMESTAMPTZ NOT NULL,
-  started_at      TIMESTAMPTZ,
-  finished_at     TIMESTAMPTZ,
-  lease_expires_at TIMESTAMPTZ
-);
-CREATE INDEX idx_runs_job_time ON job_runs(job_id, scheduled_at DESC);
-CREATE INDEX idx_runs_status ON job_runs(status, lease_expires_at);
+Delayed = `run_at = now()+delay` or SQS delay / Redis `ZADD jobs:delayed`. DAG (v2): dependency table — enqueue child when parent SUCCESS.
 
--- For exactly-once handler dedup, handlers store:
--- CREATE UNIQUE INDEX ON billing_ledger(run_id) -- or separate dedup table
-```
+Transactional outbox if enqueue must match DB commit. Poison pill → DLQ + alert on depth.
 
-**Key classes / responsibilities:**
-```typescript
-interface JobService {
-  createJob(payload: JobPayload): Job; // validate cron, compute next_run_at UTC
-  cancelJob(id: string): void;
-  computeNextRun(cron: string, timezone: string, after: Date): Date;
-}
-interface Dispatcher {
-  // tick: claim due jobs (FOR UPDATE SKIP LOCKED), insert run PENDING,
-  // recompute next_run_at, lock, enqueue {job_id, run_id, payload}
-  tick(): void;
-}
-interface Worker {
-  poll(): JobRun; // long-poll or Kafka consume
-  execute(run: JobRun): void; // idempotent: check dedup table by run_id before side effects
-  heartbeat(runId: string): void; // UPDATE job_runs SET lease_expires_at = now()+30s
-}
-interface RetryPolicy {
-  nextDelay(attempt: number): number; // base * 2^attempt + jitter
-}
-```
+## Failures and scale
 
-**Concurrency & algorithms:**
-- **SKIP LOCKED:** The core primitive. Two dispatchers run the same `SELECT FOR UPDATE SKIP LOCKED` — the first locks rows, the second skips them. No [ZooKeeper](/hld/distributed-systems) needed for correctness, though leader election can reduce duplicate wakeups.
-- **Lease + fencing token:** Alternative with [Redis](/hld/caching-strategies): `SET job:lock:{id} <token> NX EX 30` — only holder with current token may enqueue. Fencing token (monotonic `runId`) ensures stale holder can't commit.
-- **Jitter for thundering herd:** Instead of `0 * * * *` for 10k jobs, spread `next_run_at` by adding `random(0, 300s)` on creation or using `0-5 * * * *` equivalent. Prevents midnight spike.
-- **Missed ticks:** Policy per job: `SKIP` (email digest — don't send 10 old digests) vs `CATCH_UP_ONCE` (billing — run once with latest payload, not N times). Dispatcher checks `now() - next_run_at > threshold` and applies policy.
+- Dispatcher crash: peers continue via `SKIP LOCKED`.
+- Worker crash mid-job: lease expiry → retry; handler idempotency prevents double charge.
+- Queue down: runs stay PENDING in DB; retry enqueue with circuit breaker.
+- Clock skew: DB `now()` as truth; NTP on hosts.
+- Scale: ~10 dispatchers linear; partition queues; archive old `job_runs` to S3.
+- Observability: per-queue lag, run latency, DLQ alerts, trace `run_id`.
 
-**Patterns used:** Lease / Distributed lock, Transactional outbox (run insert + enqueue), Idempotency key (`run_id`), Retry with exponential backoff + jitter, DLQ, Heartbeat / lease expiry, Leader election (optional via [ZooKeeper](/hld/distributed-systems)/etcd).
+**Phrase:** Schedules live in the DB. Dispatch uses SKIP LOCKED and a run id. Workers are at-least-once; the job itself is idempotent. No crontab on random pods.
 
-## Deep dive — exactly-once is a lie (and what to do)
-
-You will **not** get exactly-once in a distributed system with failures — you get **at-least-once execution + idempotent handlers + dedup**. Concretely:
-1. **Dispatcher dedup:** `SKIP LOCKED` prevents double-enqueue; `run_id` UNIQUE prevents double-insert even if dispatcher retries.
-2. **Worker dedup:** Handler checks `SELECT * FROM billing_ledger WHERE run_id=?` before charging. If present, return success without side effect. This is the real guarantee.
-3. **Heartbeat / lease:** Worker updates `lease_expires_at` every 10s. If worker dies, dispatcher (or reaper) resets `status=PENDING` after `lease_expires_at < now()` and re-enqueues with `attempt+1`. Use visibility timeout in SQS / Kafka consumer timeout equivalently.
-4. **Do not** have 200 pods each running `if (minute===0) bill()` — that's the classic double-charge bug the interviewer wants you to name.
-
-## Deep dive — missed ticks and hot midnight
-
-If the dispatcher was down 10 minutes, 500 jobs are overdue. Naively enqueueing all 500 at once + computing each next tick as `now()` causes drift. Correct behavior: for `SKIP` jobs, set `next_run_at = next tick after now()` and enqueue only one run; for `CATCH_UP` jobs, enqueue one run with a flag `wasMissed=true` and document it. For **hot `:00`**, pre-jitter on write: `next_run_at = cron_next + random(0, 5m)` or bucket jobs into 60 shards and stagger dispatcher ticks per shard. Mention timezones: store UTC, convert at scheduling edge, and warn about DST gaps (2am doesn't exist in some zones).
-
-## Deep dive — delayed jobs and DAGs
-
-Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. Implementation options: SQS delay queue, [Redis](/hld/caching-strategies) sorted set `ZADD jobs:delayed <run_at> <jobId>` with a poller `ZRANGEBYSCORE ... LIMIT 100`, or [Kafka](/hld/message-queue) with delayed topic + scheduler. For DAGs (Airflow-style), add `job_dependencies(job_id, depends_on_job_id, depends_on_run_status)` and only enqueue when parents succeeded; a DAG scheduler topologically checks readiness after each parent callback.
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
-
-## Handling failures and scale
-
-| Failure | Handling |
-|---|---|
-| **Dispatcher crash** | Other dispatchers continue via `SKIP LOCKED`; overdue jobs picked up on next tick. No SPOF. |
-| **Worker crash mid-job** | Lease expires → reaper re-enqueues; handler idempotency prevents double charge. |
-| **Queue down ([Kafka](/hld/message-queue)/SQS)** | Dispatcher keeps `PENDING` runs in DB; retries enqueue with backoff; circuit breaker to avoid DB bloat. |
-| **DB overload** | Index on `next_run_at` keeps poll cheap; shard by `queue` or `jobId` hash; move hot queues to dedicated dispatcher. |
-| **Clock skew** | NTP on all hosts; dispatcher uses DB `now()` as source of truth; never use client-supplied time. |
-| **Poison pill (always fails)** | After `maxRetries`, route to DLQ; alert on DLQ depth; manual replay endpoint. |
-| **Scale** | Add dispatcher replicas (SKIP LOCKED scales linearly to ~10). Partition queues; autoscale workers per queue depth. Archive old `job_runs` to S3/cold store. |
-
-## Extra probes / follow-ups
-
-1. DAG of jobs (Airflow) — `dependencies` table; don't start B until A succeeded; support fan-in/fan-out.
-2. Delayed messages — SQS delay / Redis sorted set / Kafka delayed publish.
-3. Timezones — store UTC, convert at edge; handle DST non-existent times.
-4. Observability — per-queue lag, run latency histogram, DLQ alerts, distributed tracing with `run_id`.
-5. Calendar vs interval scheduling — "every 24h" vs "daily at 2am" behave differently on DST days.
-
-**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
-
-**Phrase:** "Schedules live in the DB. Dispatch uses SKIP LOCKED and a run id. Workers are at-least-once; the job itself is idempotent. No crontab on random pods."
+**Remember:** SKIP LOCKED dispatch → unique run_id → worker dedup table → heartbeat lease → jitter midnight → DLQ after max retries.

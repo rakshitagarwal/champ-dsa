@@ -1,237 +1,94 @@
 # YouTube
 
-> Video platform. Bytes go through **object storage + CDN + transcoding**. The API only stores metadata and the user never waits on FFmpeg.
+> Video platform. Bytes go through **object storage + CDN + transcoding**. The API only stores metadata — users never wait on FFmpeg.
 
-> Upload via S3 presigned URL, transcode in async workers, serve the HLS ladder from S3 + CDN. Views batched through Kafka, metadata in Postgres.
+> Presigned S3 upload, async transcode to HLS ladder, playback from CDN. Views batched; metadata in Postgres.
 
 ## What they ask
 
-Design a system like YouTube / Netflix VOD where creators **upload** raw video, the platform **processes** it into multiple qualities, and viewers **stream** adaptively on any device — including a phone in Nairobi with bad Wi-Fi. Search, comments, likes, and recommendations are usually scoped extras, not the core 45-minute design.
+**Scenario:** Creators upload video; platform transcodes to multiple qualities; viewers stream adaptively globally. Search/comments scoped extras.
 
-What the interviewer really tests:
+**What the interviewer really tests:**
+- **Byte path** (GB) vs **metadata path** (KB JSON).
+- **Async transcoding** — upload API never blocks on FFmpeg.
+- **ABR (HLS/DASH)**, CDN, never serve video from app servers.
+- Avoid `views=views+1` per play and blobs in Postgres.
 
-- Do you keep the **byte path** (gigabytes of video) separate from the **metadata path** (kilobytes of JSON)?
-- Can you design an **async transcoding pipeline** that never blocks the upload API?
-- Do you understand **adaptive bitrate (HLS/DASH)**, CDN caching, and why you never serve video bytes from app servers?
-- Can you avoid the classic traps: `UPDATE views SET views=views+1` on every play, storing blobs in Postgres, or running FFmpeg inline in the request?
-
-A strong answer: *pre-signed upload → durable blob → queue → transcode ladder → manifest → CDN → player*. Everything else is an async side-effect.
+**Example scale:** ~17–50K playback QPS; ~1.3 PB/day originals + renditions; metadata ~1.7 GB/day — CDN carries bandwidth.
 
 ## Requirements
 
-| Category | Details |
-|---|---|
-| **Functional** | Upload video (title, description, visibility), transcode to multiple renditions (144p to 4K), generate thumbnails, stream with adaptive bitrate, like/dislike, comment (scoped), search by title/description (scoped), view count, subscriptions / feed (v2) |
-| **Non-functional** | Durable originals (11 9s), global low-latency playback, adaptive bitrate for variable bandwidth, upload API p95 < 300ms (not blocked on transcode), 99.9% availability for playback, strong consistency for metadata, eventual for counts/search |
-| **Clarify** | Max video size? (e.g., 10 GB / 2 hr). Retention? Analytics? Live streaming is **not** VOD — separate ingest (RTMP). Ask about copyright/region checks vs simple upload |
-| **Out of scope v1** | Real-time live ingest, recommendations/ML ranking (offline job), real-time collaborative editing, DRM beyond tokenized CDN URLs (name Widevine/FairPlay as a box) |
+**Functional:**
+- Upload (title, visibility), transcode ladder (144p–4K), thumbnails, adaptive stream.
+- Like/comment (scoped), search (scoped), view count.
+
+**Non-functional:**
+- Upload API p95 < 300ms (not blocked on transcode); 11 9s on originals.
+- Playback 99.9%; metadata strong; counts/search eventual.
+
+**Clarify:** Max file size/duration? Live vs VOD separate? Region/copyright checks?
+
+**Out of scope (v1):** Live RTMP ingest, ML recommendations, DRM detail (Widevine as box).
 
 ## Scale estimation
 
-Assume 300M DAU, 2% creators upload 1 video/week, average original 1.5 GB, 5 renditions average 0.4× extra total (ladder is smaller than source).
-
-| Metric | Math | Result |
-|---|---|---|
-| Upload QPS | 300M × 2% / 7 days = ~860K uploads/day ≈ **10 uploads/s** peak 3× → ~30/s | ~30 writes/s |
-| Playback QPS | 300M × 5 plays/day = 1.5B plays/day ≈ **17K plays/s**, peak 50K/s | 17–50K reads/s |
-| Storage (originals) | 860K × 1.5 GB = **1.3 PB/day** → 475 PB/year before renditions | PB scale — needs [Object Storage](/hld/storage) (S3/GCS) |
-| Storage (renditions) | 1.3 PB × 1.4 (ladder + thumbs + manifest) | ~1.8 PB/day |
-| Bandwidth | 1.5B plays × 30 MB avg (ABR mix) = 45 PB/day ≈ **4.2 Tbps** avg | CDN-served, not origin |
-| Metadata | 1 row/video ~2 KB → 860K × 2 KB = **1.7 GB/day** in [Postgres](/hld/sql-databases) | Tiny vs blobs |
-
-Key insight: metadata QPS and storage are trivial. Bandwidth and blob storage dominate — which is why the **CDN + object store** are the system, the API is just the index.
+| Metric | Result |
+|--------|--------|
+| Uploads | ~10/s avg, ~30/s peak |
+| Plays | ~17K/s avg, ~50K/s peak |
+| Blob storage | PB-scale → [Object Storage](/hld/storage) |
+| Bandwidth | ~4 Tbps avg — **CDN**, not origin |
+| Metadata | trivial in [Postgres](/hld/sql-databases) |
 
 ## API Design
 
-```http
-POST /v1/videos
-Authorization: Bearer <token>
-{ "title": "How I learned HLS", "description": "...", "visibility": "public" }
-→ 201 { "videoId": "vid_9f3a", "uploadUrl": "https://upload.yt.example/...?sig=...", "expiresAt": "2026-08-25T12:10:00Z" }
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1/videos` | Create + presigned upload URL |
+| `PUT` | presigned URL | Client → S3 direct |
+| `POST` | `/v1/videos/{id}/complete` | Start processing (202) |
+| `GET` | `/v1/videos/{id}` | Metadata + `manifestUrl` |
+| `GET` | `/v1/videos/{id}/manifest` | 302 signed CDN URL |
+| `POST` | `/v1/videos/{id}/views` | Debounced heartbeat |
+| `GET` | `/v1/search?q=` | Search (async index) |
 
-PUT <uploadUrl>              // client uploads bytes directly to S3/GCS, not through API
-Content-Type: video/mp4
-<binary>
-
-POST /v1/videos/{videoId}/complete
-{ "fileSize": 1572864000, "checksum": "sha256:..." }
-→ 202 { "status": "processing" }
-
-GET /v1/videos/{videoId}
-→ 200 { "videoId":"vid_9f3a","title":"...","status":"ready","durationSec":632,"renditions":["144p","720p","1080p"],"manifestUrl":"https://cdn.yt.example/vid_9f3a/master.m3u8","thumbnailUrl":"https://cdn.yt.example/vid_9f3a/thumb.jpg","views":48201 }
-
-GET /v1/videos/{videoId}/manifest
-→ 302 redirect to CDN signed URL (or return manifest directly if edge-cached)
-
-POST /v1/videos/{videoId}/views   // called by player heartbeat, debounced — not on every chunk
-POST /v1/videos/{videoId}/comments { "text": "..." }
-GET  /v1/search?q=adaptive+bitrate&cursor=...
-```
-
-Headers: `Idempotency-Key` on create/complete. Player polling uses `Range` requests for chunks. All CDN URLs are **signed** with short TTL for private/unlisted videos.
+**Create:** `{ title, description, visibility }` → `{ videoId, uploadUrl, expiresAt }`.
 
 ## High-Level Design (HLD)
 
 ![YouTube architecture: upload, transcode queue, HLS, edge CDN](/images/hld/youtube-architecture.svg)
 
-```
-[ Client / Player ] 
-      |
-      v
-[ CDN (CloudFront /Akamai) ]  <--  HLS chunks, thumbnails, manifests (edge-cached)
-      |
-[ L4 LB → API Gateway ]  --auth, rate-limit--[ Rate Limiter ] 
-      |
-  +---+---+---+
-  |       |   |
-[Video Service] [Transcode Orchestrator] [View/Search Services]
-  |       |                |
-[Postgres] [S3/GCS]   [ Kafka → Transcode Workers (FFmpeg/GPU) ]
-  |       |                |
-[Cache]  [Thumb Svc]  [ Elasticsearch (async) ]
-[Redis]                [ Notification via WebSocket/Push ]
-```
+- **CDN:** HLS segments, manifests, thumbs — origin S3; signed URLs for private.
+- **Video Service:** metadata state `created → uploading → processing → ready`; presign + complete → [Kafka](/hld/message-queue).
+- **Transcode workers:** pull job, FFmpeg ladder, upload segments + `master.m3u8`, GPU autoscale.
+- **Postgres:** videos/renditions; replicas for GET.
+- **Views:** Redis INCR or Kafka → aggregator → [YouTube Top K](/hld/youtube-top-k); not hot row update.
+- **Search:** Kafka → [Elasticsearch](/hld/nosql-databases) async.
 
-```mermaid
-graph LR
-  A[Client] --> B[CDN]
-  B --> C[API Gateway]
-  C --> D[Video Service]
-  D --> E[S3 Upload]
-  D --> F[Transcode Workers]
-  F --> G[S3 HLS] --> B
-  D --> H[Postgres Metadata]
-  D --> I[Kafka Views] --> J[Redis Top-K]
-```
+**Playback:** GET metadata → player fetches manifest from CDN → ABR picks rendition client-side.
 
-**Components:**
+**State machine:** `UPDATE status='processing' WHERE status='uploading'` prevents double-queue on retry.
 
-- **Client / Player:** Uploads via pre-signed URL, plays via HLS/DASH. ABR logic lives in player (hls.js / ExoPlayer) — not server.
-- **CDN:** Serves 95%+ of bytes. Origin is S3. Cache key = `videoId/rendition/segment`. Signed cookies for region/privacy.
-- **API Gateway + LB:** Terminates TLS, validates JWT, enforces [Rate Limiter](/hld/rate-limiter) per user/IP.
-- **Video Service:** Owns metadata, upload session, state machine `created → uploading → processing → ready/failed`. Writes Postgres, emits `video.upload.completed` to [Kafka](/hld/message-queue).
-- **Transcode Workers:** Stateless consumers. Pull task, download source from S3, run FFmpeg ladder (144p…4K), pack HLS segments + master manifest, upload renditions back to S3, update DB via orchestrator. GPU autoscaled.
-- **Metadata DB:** [Postgres](/hld/sql-databases) for videos, users. Read replicas for `GET /videos`. Not on byte path.
-- **Search & Counts:** Async [Elasticsearch](/hld/nosql-databases) indexer and a separate counter pipeline ([YouTube Top K](/hld/youtube-top-k)) — never inline `views+1`.
-- **Cache:** [Redis](/hld/caching-strategies) for hot video metadata, view-count write-behind buffer.
-
-**Write flow (upload):** `POST /videos` → create row `status=created` + presign S3 → client PUT to S3 → `POST /complete` → set `processing` → publish Kafka event. Returns 202 immediately.
-
-**Read flow (playback):** Player `GET /videos/{id}` → Video Service (or Redis/CDN cache) returns `manifestUrl` → player fetches `master.m3u8` from CDN → CDN fetches from S3 on miss → player picks rendition per bandwidth and fetches `.ts`/`.m4v` chunks directly from CDN.
-
-## Low-Level Design (LLD)
-
-### DB schema
-
-```sql
-CREATE TABLE users (
-  user_id       UUID PRIMARY KEY,
-  handle        TEXT UNIQUE NOT NULL,
-  created_at    TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE videos (
-  video_id      UUID PRIMARY KEY,
-  owner_id      UUID NOT NULL REFERENCES users(user_id),
-  title         TEXT NOT NULL,
-  description   TEXT,
-  visibility    TEXT NOT NULL CHECK (visibility IN ('public','unlisted','private')),
-  status        TEXT NOT NULL CHECK (status IN ('created','uploading','processing','ready','failed')),
-  duration_sec  INT,
-  source_key    TEXT, -- s3://bucket/originals/{videoId}/source.mp4
-  manifest_key  TEXT, -- s3://bucket/renditions/{videoId}/master.m3u8
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  updated_at    TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX idx_videos_owner ON videos(owner_id, created_at DESC);
-CREATE INDEX idx_videos_status ON videos(status) WHERE status='processing';
-
-CREATE TABLE renditions (
-  rendition_id  UUID PRIMARY KEY,
-  video_id      UUID NOT NULL REFERENCES videos(video_id) ON DELETE CASCADE,
-  quality       TEXT NOT NULL, -- '144p','360p','720p','1080p','4K'
-  codec         TEXT NOT NULL, -- 'h264','vp9','av1'
-  bitrate_kbps  INT NOT NULL,
-  s3_key_prefix TEXT NOT NULL,
-  file_size     BIGINT,
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(video_id, quality, codec)
-);
-
-CREATE TABLE views_daily (
-  video_id      UUID NOT NULL REFERENCES videos(video_id),
-  day           DATE NOT NULL,
-  view_count    BIGINT NOT NULL DEFAULT 0,
-  PRIMARY KEY (video_id, day)
-);
--- Real-time counter in Redis, flushed hourly to views_daily + materialized total
-```
-
-### Key classes / responsibilities
-
-```typescript
-interface VideoService {
-  createVideo(userId: string, title: string): Video; // -> presigned URL
-  completeUpload(videoId: string, checksum: string): void; // validate S3 HEAD, set processing, publish event
-  getVideo(videoId: string): Video; // cache-aside Redis -> Postgres -> signed manifest URL
-}
-interface TranscodeOrchestrator {
-  onUploadCompleted(event: UploadCompleted): void; // idempotent: INSERT ... ON CONFLICT DO NOTHING (dedupe videoId)
-  updateRendition(videoId: string, rendition: Rendition): void; // track progress, set ready when ladder complete
-}
-interface TranscodeWorker { // Kafka consumer
-  process(task: TranscodeTask): void; // download -> FFmpeg ladder -> upload chunks -> ack; retry with backoff
-}
-interface PlaybackService {
-  signedManifestUrl(videoId: string, user: string): string; // policy check + sign CDN URL
-}
-```
-
-### Concurrency & algorithms
-
-- **Idempotent workers:** Dedupe on `videoId` + `source_etag`. Worker writes `renditions` with `UNIQUE(videoId,quality)` — retries are safe.
-- **State machine:** `compare-and-swap` on `status` (`UPDATE videos SET status='processing' WHERE status='created'`) prevents double-queueing.
-- **Adaptive bitrate:** Player measures throughput per segment (EWMA), picks highest bitrate < estimated bandwidth. Server is stateless — just serves manifest.
-- **Upload resumption:** Multipart S3 upload; `uploadId` stored in `videos` row for resume.
-
-### Patterns used
-
-Strategy (codec choice), State Machine (video lifecycle), Producer-Consumer (Kafka queue), Cache-Aside (Redis), Signed URL / Token Bucket for CDN auth.
+**Unlisted/private:** short-lived signed manifest; player refreshes before CDN cookie/TTL expiry.
 
 ## Deep dive — never block on transcode
 
-Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket / SSE](/hld/networking) events (`processing: 30%`). Poison messages go to a DLQ after N retries.
+`POST /complete` only flips status + publishes event. Workers scale on queue depth; poison → DLQ. Progress via poll or SSE. Multipart S3 for resume.
 
-## Deep dive — view counts and hot videos
+## Deep dive — views and hot videos
 
-Do **not** `UPDATE videos SET views=views+1` on every play — that row becomes a hot lock at 50K QPS. Instead the player heartbeats every ~30s debounced, hits a stateless `ViewIngest` service that `INCR` in [Redis](/hld/caching-strategies) (or [Kafka](/hld/message-queue) → aggregator). Flusher aggregates per minute and batch-upserts `views_daily`. Reads use `cached_total + redis_delta`. Same reason search is async: DB write → Kafka → [Elasticsearch](/hld/nosql-databases) — so indexing never blocks upload.
+Player heartbeat ~30s → `INCR` Redis → minute batch to `views_daily`. Viral spike: CDN absorbs bytes; origin shield; app never sees segment traffic. Policy scan before transcode; region gate at CDN edge token.
 
-## Deep dive — copyright, regions, and thumbnail hot path
+## Failures and scale
 
-Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stages** before transcode — fail fast and set `status=failed:policy`. Region / age-gate is enforced at **CDN edge** via signed token + edge function, not in app servers. Thumbnails are generated alongside renditions and pushed to CDN with long TTL + cache purge on update.
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
-
-## Handling failures and scale
-
-- **S3 / CDN miss:** Player retries next segment at lower rendition; CDN stale-while-revalidate. Origin shield reduces S3 thundering herd.
-- **Worker crash mid-transcode:** Kafka re-delivers (at-least-once); idempotent rendition writes + deterministic chunk naming make retry safe.
-- **DB overload:** Metadata reads from Redis + Postgres replicas; writes only on create/complete/status. View counts never hit Postgres hot path.
-- **Hot video (MrBeast spike):** CDN absorbs 99% of bandwidth; add origin shield, pre-warm CDN on publish, and use consistent hashing for manifest cache. App servers never see byte traffic.
-- **Transcode backlog:** Priority queue (small videos first), autoscale workers, and shed low-priority qualities (e.g., skip 4K if queue > threshold) — degrade gracefully.
-- **Signed URL expiry:** Player refreshes manifest URL via `GET /manifest` every N minutes; never hardcode TTL in client.
-
-## Extra probes / follow-ups
-
-1. **Comments:** Shard by `videoId`; for viral videos reuse the [FB Live Comments](/hld/fb-live-comments) sampled fan-out pattern rather than loading all comments.
-2. **Recommendations:** Offline candidate generation + ranking service; online serving via feature store — not part of upload/playback critical path.
-3. **Live streaming:** Separate ingest — RTMP/WebRTC → packager → low-latency CDN (LL-HLS) — not the VOD ladder; needs edge transcode and DVR window.
-4. **Dedupe / re-upload:** Content hash (e.g., perceptual hash) to detect re-uploads; optionally reuse existing renditions copy-on-write.
-5. **Analytics:** Kafka → warehouse; never query Postgres for watch-time aggregations.
-
-**Remember (Revision):** 1) Upload presign S3 2) Transcode async, never block 3) HLS + CDN 4) Views batch via Kafka.
+- Worker retry: idempotent `UNIQUE(videoId, quality)` on renditions.
+- CDN miss: player downgrades rendition; stale-while-revalidate.
+- Transcode backlog: HPA on depth; shed 4K if queue huge.
+- Signed URL refresh via `GET /manifest` before TTL expiry.
+- Comments on viral video: shard by `videoId` ([FB Live Comments](/hld/fb-live-comments) pattern if asked).
+- Live streaming: separate RTMP/LL-HLS path — not this VOD ladder.
+- Copyright fingerprint stage before transcode — fail fast to `status=failed`.
 
 **Phrase:** Pre-signed upload to S3, Kafka transcode to an HLS ladder, play from CDN. Postgres holds metadata only. View counts and search are async.
+
+**Remember:** Presign → async transcode → HLS on CDN → batched views, not per-play UPDATE.

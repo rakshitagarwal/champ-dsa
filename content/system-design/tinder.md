@@ -14,311 +14,91 @@
 - Can you make **recs cheap** — precomputed deck vs live geo query, Bloom filter for history?
 - Whether you handle **location privacy**, hot users, and chat auth (only matched users).
 
-**Example scale:** 50M users, 1M DAU per large metro, 500M swipes/day (~5.8k/s avg, 30k/s peak evening). Each `GET /recs` must return 20 profiles in <200ms.
+**Example scale:** 50M users, 500M swipes/day (~5.8k/s avg, 30k/s peak). Each `GET /recs` must return 20 profiles in <200ms.
 
 ## Requirements
 
 **Functional:**
-- Profile: create/edit, photos (S3/CDN), bio, age, gender, preferences (age range, distance, gender preference).
-- Location: update `lat/lng` (or travel passport), query nearby candidates.
-- Recs: `GET /recs?limit=20` — ranked, filtered, excluding already-swiped and blocked.
-- Swipe: `POST /swipes{ targetId, dir: left|right }` — record direction, detect mutual like → create match.
-- Match: list matches, unmatch/block.
-- Chat: 1:1 only if matched (reuse [WhatsApp](/hld/whatsapp) lite — WebSocket + history).
+- Profile: photos (S3/CDN), bio, age, gender, preferences (distance, age range).
+- Location updates; nearby candidates via geo index.
+- Recs deck excluding swiped/blocked; swipe left/right; mutual right → match.
+- Match list, unmatch/block; 1:1 chat only if matched (reuse [WhatsApp](/hld/whatsapp) lite).
 
 **Non-functional:**
-- **Latency:** deck load p95 < 200ms; swipe < 100ms; match notification < 1s.
-- **Availability:** recs highly available (cache); swipe/match strongly consistent per pair.
-- **Throughput:** 30k swipes/s peak, 5k recs/s per metro.
-- **Consistency:** exactly-once swipe per pair; match creation idempotent.
-- **Privacy:** don't leak exact `lat/lng`; show distance buckets; location updates rate-limited.
+- Deck p95 <200ms; swipe <100ms; match notify <1s.
+- Exactly-once swipe per pair; idempotent match creation.
+- Privacy: distance buckets, not exact lat/lng; rate-limit location spoofing.
 
-**Clarify — questions to ask:**
-- Max distance default? (50km? 100km?) Filters beyond age/gender?
-- Boost / Super Like / Passport — need priority injection?
-- Chat scope — text only v1 or media?
-- Need to prevent same profile appearing twice?
-- Paid tier affects recs ordering?
-- How to handle inactive users (last active > 30d)?
+**Clarify:** Max distance default? Boost / Super Like? Chat media v1? Hide inactive >30d?
 
-**Out of scope (v1):**
-- Full ML attractiveness scoring pipeline (mention offline scoring).
-- Video profiles, group swipes, or social feed.
-- Advanced safety: photo verification, ML moderation beyond async flagging.
+**Out of scope (v1):** Full ML attractiveness pipeline, video profiles, photo verification at scale.
 
 ## Scale estimation
 
 | Metric | Assumption | Math | Result |
 |--------|-----------|------|--------|
-| Users | 50M total, 5M active/week | — | 5M weekly active profiles to index |
-| Swipes per day | 500M | 500M / 86400 | ~5.8k/s avg, ~30k/s peak (evening) |
-| Recs QPS | Each active user 20 recs/day | 5M*20/86400 | ~1.2k/s avg, ~6k/s peak |
-| Swipe storage | 500M rows/day * ~50B (userId+targetId+dir+ts) | 500M*50B | ~25 GB/day, ~9 TB/year — before compression; TTL or cold archive |
-| Geo index | 5M active users * ~100B geo entry | 5M*100B | ~500 MB per replica — fits in [Redis](/hld/caching-strategies) GEO |
-| Photos | 5 photos/user avg 500KB | 50M*5*500KB | ~125 TB in S3 — CDN cached |
-| Bandwidth (recs) | 20 profiles * 2KB meta + thumb URLs | 20*2KB=40KB *6k QPS | ~240 MB/s |
+| Swipes/day | 500M | /86400 | ~5.8k/s avg, ~30k/s peak |
+| Recs QPS | 5M WAU × 20 recs/day | /86400 | ~1.2k/s avg, ~6k/s peak |
+| Swipe storage | 500M × ~50B/row | | ~25 GB/day before archive |
+| Geo index | 5M active × ~100B | | ~500 MB/replica — [Redis](/hld/caching-strategies) GEO |
+| Photos | 50M × 5 × 500KB | | ~125 TB S3, CDN-cached |
+| Recs bandwidth | 6k QPS × 40KB/deck | | ~240 MB/s meta + thumb URLs |
 
-**Insight:** swipe ledger dominates writes; recs pipeline must avoid city-wide scans.
+**Insight:** Swipe ledger dominates writes; recs must avoid city-wide scans.
 
 ## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `PUT` | `/v1/me` | Create/update profile + preferences |
-| `PUT` | `/v1/me/location` | Update location |
-| `GET` | `/v1/recs?limit=20&cursor=` | Get recommendation deck |
+| `PUT` | `/v1/me` | Profile + preferences |
+| `PUT` | `/v1/me/location` | Update lat/lng |
+| `GET` | `/v1/recs?limit=20` | Recommendation deck |
 | `POST` | `/v1/swipes` | Swipe on target |
-| `GET` | `/v1/matches` | List matches (paginated) |
-| `POST` | `/v1/matches/{matchId}/unmatch` | Unmatch |
-| `WS` | `/v1/chat/{matchId}` | 1:1 chat (only if matched) |
+| `GET` | `/v1/matches` | List matches |
+| `WS` | `/v1/chat/{matchId}` | 1:1 chat (matched only) |
 
-**Update location:**
-```json
-PUT /v1/me/location
-Authorization: Bearer <token>
-{ "lat": 40.7128, "lng": -74.0060, "accuracy": 10 }
-→ 200 { "geohash": "dr5ru7", "updatedAt": "2026-08-25T10:00:00Z" }
-```
+**Location:** `PUT /v1/me/location { lat, lng }` → `{ geohash, updatedAt }` (no raw coords to others).
 
-**Get recs:**
-```
-GET /v1/recs?limit=20
-→ 200 {
-    "profiles": [
-      { "userId":"u_456", "name":"Alex", "age":27, "distanceKm":3, "photos":["https://cdn/..."], "bio":"..." }
-    ],
-    "nextCursor": "eyJvZmZzZXQiOjIwfQ=="
-  }
-```
-
-**Swipe:**
-```json
-POST /v1/swipes
-{ "targetId": "u_456", "dir": "right" }
-→ 200 { "matched": true, "matchId": "m_789" }
-→ 200 { "matched": false }
-→ 409 { "error": "already swiped" }
-```
-
-**Chat:** `WS /v1/chat/m_789` with `{ type:"send", text:"hi" }` — authorized only if `match` exists and not unmatched.
+**Swipe:** `POST /v1/swipes { "targetId", "dir": "right|left" }` → `{ "matched": true, "matchId" }` or `409 already swiped`.
 
 ## High-Level Design (HLD)
 
 ![Tinder architecture: geo, recs, swipe ledger, matches, chat](/images/hld/tinder-architecture.svg)
 
 ```
-Client (Mobile)
-  |
- CDN (photos)
-  |
- L4 LB → API Gateway (auth, [rate limiter](/hld/rate-limiter): swipes/min)
-  |
- +-- Profile Service → Postgres (users, prefs) + S3 (photos)
- |
- +-- Location Service → [Redis](/hld/caching-strategies) GEO / ES geo / S2 index
- |        `--> GEOADD tinder:geo:nyc lng lat userId
- |
- +-- Recs Service → orchestrates: geo query ∩ filters − swiped set → rank → deck cache
- |        |--> [Redis](/hld/caching-strategies) deck cache: deck:{userId} → list<userId> (next 50)
- |        |--> [Redis](/hld/caching-strategies) Bloom filter: swiped:{userId} → Bloom
- |        `--> Offline scorer (batch) → score table
- |
- +-- Swipe Service → Cassandra/Dynamo (swipes PK=userId SK=targetId) → Match check → [Kafka](/hld/message-queue)
- |        `--> Match table (Postgres) + Notification
- |
- +-- Chat Service (WS + Cassandra history) — only if match
+Client → CDN (photos) → API Gateway ([rate limiter](/hld/rate-limiter))
+  ├─ Profile Service → Postgres + S3
+  ├─ Location Service → Redis GEO (GEORADIUS + filters)
+  ├─ Recs Service → deck cache + Bloom/SET swiped + offline scores
+  ├─ Swipe Service → Cassandra swipes (PK=userId, SK=targetId) → match check → Kafka
+  └─ Chat Service → WebSocket + Cassandra history (match authz)
 ```
 
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
-```
+**Roles:** **Recs** — cache `deck:{userId}` (next 50 ids); on miss: geo query ∩ prefs − swiped − blocked, rank (offline score + distance + last_active). **Swipe** — `IF NOT EXISTS` swipe row; on `right`, check reverse swipe → idempotent `matches` insert + Kafka notify. **Location** — return distance buckets, not raw lat/lng.
 
-**Component roles:**
-- **Profile Service:** CRUD for `users`, preferences, photos (pre-signed S3). Validates age/gender filters.
-- **Location Service:** writes `GEOADD` on `PUT /location`; on recs, queries `GEORADIUS` or geohash neighbors + age/gender filters. Maintains `last_active` for recency.
-- **Recs Service:** builds deck. Two modes: (a) **precompute** offline — nightly batch scores candidates per user, caches `deck:{userId}` in Redis; (b) **live geo query** at request time for freshness (location changes). Preferred: **mix** — precompute + live geo fallback, then filter by `already_swiped` set and cache next 50 ids.
-- **Swipe Service:** writes `swipes(userId, targetId, dir, ts)` with `PK=(userId, targetId)`. On `dir=right`, checks reverse key `PK=(targetId, userId) dir=right` — if exists, create `matches` row + notify both via Kafka/push.
-- **Chat Service:** 1:1 WebSocket, history in Cassandra `PK=matchId, SK=timestamp`, authz `match exists && not unmatched`.
+**Write (swipe):** Record swipe with `IF NOT EXISTS` → if mutual right, idempotent match row → [Kafka](/hld/message-queue) → push.
 
-**Write flow (swipe):** `POST /swipes{targetId, right}` → Swipe Service `PUT` swipe row (`IF NOT EXISTS` → 409 if duplicate) → if `right`, `GET` reverse swipe → if reverse is `right`, `INSERT` into `matches` (idempotent) → publish `MatchCreated` to Kafka → push notification to both.
+**Read (recs):** Hit `deck:{userId}` → return 20; miss → `GEORADIUS` + filters − Bloom swiped − blocked → rank → cache next 50 async.
 
-**Read flow (recs):** `GET /recs` → Recs Service: check `deck:{userId}` cache (hit → return 20, async refill). On miss: `GEORADIUS` for `lat/lng ± distance`, filter by `age BETWEEN pref.min AND pref.max` and `gender IN pref.genders`, subtract `swiped set` (Redis SET or Bloom), exclude `blocked`, fetch 50 candidate profiles from DB, rank (offline score + distance + last_active), cache, return 20.
+**Chat auth:** Every WS message verifies active match row — no match, no send.
 
-## Low-Level Design (LLD)
+## Deep dive — cheap recs
 
-**Database schema:**
-```sql
-CREATE TABLE users (
-  id            BIGSERIAL PRIMARY KEY,
-  name          VARCHAR(255) NOT NULL,
-  dob           DATE NOT NULL,
-  gender        VARCHAR(16) NOT NULL, -- male|female|nonbinary|...
-  bio           TEXT,
-  lat           DOUBLE PRECISION,
-  lng           DOUBLE PRECISION,
-  geohash       VARCHAR(12),
-  last_active   TIMESTAMPTZ DEFAULT now(),
-  is_boosted    BOOLEAN DEFAULT false,
-  boosted_until TIMESTAMPTZ,
-  created_at    TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX idx_users_geohash ON users(geohash);
-CREATE INDEX idx_users_last_active ON users(last_active DESC);
+NYC 50km can imply millions of candidates — **narrow:** `last_active` window, geohash/city prefix, age/gender filters, subtract Bloom/SET for swiped, rank top 100 → cache 50. **No ML on request** — nightly offline scores blended online. Boost = priority insert in deck.
 
-CREATE TABLE preferences (
-  user_id       BIGINT PRIMARY KEY REFERENCES users(id),
-  min_age       INT NOT NULL DEFAULT 18,
-  max_age       INT NOT NULL DEFAULT 35,
-  genders       VARCHAR(32)[] NOT NULL, -- array of desired genders
-  max_distance_km INT NOT NULL DEFAULT 50
-);
+## Deep dive — swipe ledger and matches
 
-CREATE TABLE photos (
-  id            BIGSERIAL PRIMARY KEY,
-  user_id       BIGINT REFERENCES users(id),
-  s3_key        VARCHAR(512) NOT NULL,
-  order_idx     INT NOT NULL,
-  created_at    TIMESTAMPTZ DEFAULT now()
-);
-
--- Swipe ledger: Cassandra/Dynamo style — shown as Postgres for interview
-CREATE TABLE swipes (
-  user_id       BIGINT NOT NULL,
-  target_id     BIGINT NOT NULL,
-  dir           VARCHAR(8) NOT NULL, -- 'left'|'right'
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (user_id, target_id)
-);
-CREATE INDEX idx_swipes_target ON swipes(target_id, user_id);
-
-CREATE TABLE matches (
-  id            BIGSERIAL PRIMARY KEY,
-  user_a        BIGINT NOT NULL REFERENCES users(id),
-  user_b        BIGINT NOT NULL REFERENCES users(id),
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  status        VARCHAR(16) DEFAULT 'active', -- active|unmatched|blocked
-  UNIQUE (LEAST(user_a, user_b), GREATEST(user_a, user_b))
-  -- ensures one match per unordered pair
-);
-CREATE INDEX idx_matches_user ON matches(user_a, status) INCLUDE (user_b);
-
-CREATE TABLE blocks (
-  blocker_id    BIGINT REFERENCES users(id),
-  blocked_id    BIGINT REFERENCES users(id),
-  created_at    TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (blocker_id, blocked_id)
-);
-```
-
-**Cassandra swipe table (preferred for scale):**
-```cql
-CREATE TABLE swipes (
-  user_id bigint,
-  target_id bigint,
-  dir text,
-  created_at timestamp,
-  PRIMARY KEY (user_id, target_id)
-) WITH CLUSTERING ORDER BY (target_id ASC);
-```
-
-**Key classes:**
-```typescript
-interface RecsService {
-  getRecs(userId: string, limit?: number): Profile[];
-  candidatesGeo(lat: number, lng: number, radiusKm: number, filters: Filters): string[];
-  filterSwiped(userId: string, candidateIds: string[]): string[]; // Redis SET or Bloom
-  rank(candidates: Profile[]): Profile[]; // score offline + distance
-  refillDeck(userId: string): void; // async
-}
-interface SwipeService {
-  swipe(userId: string, targetId: string, dir: SwipeDir): SwipeResult;
-  hasSwiped(userId: string, targetId: string): boolean;
-  checkMatch(userId: string, targetId: string): Match | null;
-}
-interface MatchService {
-  createMatch(userA: string, userB: string): Match; // idempotent
-  listMatches(userId: string): Match[];
-}
-interface LocationService {
-  update(userId: string, lat: number, lng: number): void; // GEOADD + geohash
-  nearby(lat: number, lng: number, radiusKm: number, filters: Filters, exclude: string[]): string[];
-}
-interface ChatService {
-  send(matchId: string, senderId: string, text: string): void; // check match active
-  history(matchId: string, cursor: string): Message[];
-}
-```
-
-**Algorithms / concurrency:**
-- **Geo query:** `[Redis](/hld/caching-strategies) GEO`: `GEORADIUS tinder:geo:nyc lng lat 50 km WITHDIST COUNT 200 ASC` then filter by age/gender in app or via Lua/ES. Alternative: geohash prefix scan — query `geohash[0:5]` cell + 8 neighbors, then Haversine prune.
-- **Already-swiped filter:** keep `swiped:{userId}` as Redis SET (`SADD` on swipe) for exact check, plus Bloom filter for memory efficiency on large history (10k swipes/user → Bloom ~12KB at 1% FP). On Bloom positive, confirm via DB.
-- **Match detection:** double-key check idempotent:
-  ```python
-  put_swipe(userA, userB, dir)  # IF NOT EXISTS else 409
-  if dir == 'right' and get_swipe(userB, userA) == 'right':
-      create_match(least(A,B), greatest(A,B))  # unique constraint prevents dup
-  ```
-  Race on simultaneous mutual swipe: both try to create match → unique constraint ensures one winner; other catches exception and returns existing match.
-- **Distance privacy:** store precise `lat/lng` but return `distanceKm` bucketed (`<1km`, `2km`, `5km`).
-
-**Patterns:** Geohash/S2 Index, Bloom Filter, Cache-Aside (deck), Double-Key Match, Observer (Kafka for match events).
-
-## Deep dive — making recs cheap
-
-**Naive "all users in 50km" is huge** — NYC 50km radius ≈ 8k km², density 10k/km² → 80M candidates impossible.
-
-**Narrow aggressively:**
-1. Only `last_active > now() - 7d` and `geohash` same city prefix.
-2. Filter by `age BETWEEN pref` and `gender IN pref` at query time (or pre-partition index by `gender:geohash`).
-3. Subtract `already_swiped` Bloom filter — majority have been seen in dense city.
-4. Fetch 100 candidates, rank, return 20. Cache next 50 in `deck:{userId}` so swipe UI never waits on city-wide query.
-
-**Don't run ML in request.** Offline scorer (Spark) computes `attractiveness / activity / response_rate` per user nightly, writes `user_scores(userId, score)`. Online ranking is `0.5*offline_score + 0.3*distance_penalty + 0.2*last_active_boost`. Boost injection: insert boosted users into decks via priority queue (paying users at head with decay).
-
-## Deep dive — swipe ledger and match correctness
-
-**Swipe store:** Dynamo/Cassandra `PK=userId SK=targetId` gives O(1) "have I swiped" and paginable history. Use `IF NOT EXISTS` to prevent double swipe. TTL optional for left swipes (expire after 30d to re-show).
-
-**Match creation:** must be **idempotent** and race-safe. Two simultaneous right swipes:
-- `PUT swipe A→B` and `PUT swipe B→A` both succeed (different PKs).
-- Both check reverse → both see `right` → both `INSERT match(A,B)`. Unique constraint on `(least, greatest)` ensures one succeeds, other gets `duplicate key` → fetch existing match and return it.
-
-**Hot user (1M incoming rights):** incoming likes fan-in to one `targetId` partition — hot key. Mitigate by sharding counter (`likes_received:{userId}` as Redis counter) and not listing all likers at once — paginate `SELECT * FROM swipes WHERE target_id=:uid AND dir='right' LIMIT 20`.
-
-## Deep dive — location and safety
-
-**Location updates:** `PUT /me/location` rate-limited (1/min) to prevent spoofing. Store `geohash` for bucket queries, precise `lat/lng` for distance calc but never expose precise to other users — `distanceKm = bucket(Haversine(myLatLng, theirLatLng))`.
-
-**Passport / travel:** user can set `lat/lng` manually to another city — treat as normal location update but flag `is_passport=true` for analytics.
-
-**Safety:** block creates `blocks` row + removes from deck/matches; photo moderation via async [Kafka](/hld/message-queue) workers (Rekognition); GDPR delete purges `swipes`, `matches`, deck cache, and S3 photos.
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
+Cassandra/Dynamo `PK=(userId, targetId)` for O(1) history and duplicate prevention. Mutual swipe race: unique constraint on `(least(A,B), greatest(A,B))` — one wins, other returns existing match. Hot target (many incoming likes): paginate likers; don't fan-in one partition.
 
 ## Handling failures and scale
 
-- **Sharding:** `users` by `geohash` region or `userId` hash; `swipes` by `userId` hash (so `has_swiped` local); `matches` by `least(user_a,user_b)` hash. Redis GEO sharded by city (`tinder:geo:{city}`).
-- **Caching:** deck cache in [Redis](/hld/caching-strategies) with TTL 10m + invalidation on location change; profile hydrate cache (`user:{id} → JSON` 1m TTL). Swipe Bloom in Redis, rebuilt from `swipes` table on miss.
-- **Replication:** Postgres primary + replicas for profiles; Cassandra multi-AZ for swipes/matches. Kafka for swipe→match→notification.
-- **Failure modes:** Redis GEO down → degrade to Postgres `WHERE geohash LIKE 'dr5ru%'` (slower, fewer recs but available). Swipe DB down → queue swipes in Kafka, replay when back (show "swipe queued"). Match notification via push; if push fails, client polls `GET /matches`.
-- **Abuse:** [rate limiter](/hld/rate-limiter) 100 swipes/min, device attestation, shadow-ban suspicious bots (serve empty deck).
+- **Redis GEO down:** Degrade to geohash prefix query in Postgres (fewer recs).
+- **Swipe queue:** Buffer swipes in [Kafka](/hld/message-queue) if store slow; client shows optimistic UI.
+- **Shard:** Swipes by `userId`; matches by pair hash; GEO by city shard.
+- **Abuse:** Rate-limit swipes/min; shadow-ban → empty deck.
+- **Match notify fail:** Client polls `GET /matches`; Kafka replay for push.
+- **Deck stale on move:** Invalidate deck on significant location change.
 
-## Extra probes / follow-ups
+**Phrase:** GEO for candidates, swipe ledger keyed by pair, match on reverse right. Precompute a small deck so swipe UI never waits on a city-wide query.
 
-1. **Boost:** `is_boosted=true` users injected at top of others' decks via `ZADD boosted:{city} score=boosted_until member=userId` — recs service merges boosted candidates with higher weight for 30m window.
-2. **Super Like:** `dir='super_right'` with separate notification and badge; stored as `dir` enum, match still mutual right.
-3. **GDPR delete:** tombstone `users` row, async workers delete `swipes` partitions, `deck` keys, S3 photos, search index; confirm via audit log.
-4. **Analytics:** Kafka → Druid for `swipes per metro`, `match rate`, `time to first swipe`.
-5. **Chat auth:** every `WS /chat/{matchId}` message checks `matches` table `status='active' AND (user_a=:me OR user_b=:me)` — no match, no send.
-
-**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
-
-**Phrase:** GEO for candidates, a swipe ledger keyed by pair, match when the reverse swipe is right. Precompute a small deck so the swipe UI never waits on a city-wide query.
+**Remember:** Deck = cache + Bloom; match = double-key + idempotent insert; never expose precise location.

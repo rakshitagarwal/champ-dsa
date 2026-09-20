@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" role="img" aria-label="Reliability layers — timeout, retry, circuit, bulkhead">
+  <rect width="960" height="260" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="260" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Reliability layers — timeout, retry, circuit, bulkhead</text>
+  
+  <rect x="16" y="100" width="80" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="56" y="124" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Caller</text>
+  <rect x="130" y="100" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="185" y="120" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Timeout</text><text x="185" y="140" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">deadline</text>
+  <rect x="270" y="100" width="120" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="330" y="120" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Retry</text><text x="330" y="140" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">backoff+jitter</text>
+  <rect x="420" y="100" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="485" y="120" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Circuit</text><text x="485" y="140" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">open/half-open</text>
+  <rect x="580" y="100" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="645" y="120" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Bulkhead</text><text x="645" y="140" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">pool per dep</text>
+  <rect x="740" y="40" width="140" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="810" y="64" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Dependency A</text>
+  <rect x="740" y="140" width="140" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="810" y="164" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Dependency B</text>
+  <path d="M96 120L130 126" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M240 126L270 126" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 126L420 126" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M550 126L580 126" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M710 126L740 60" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M710 126L740 160" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="246" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Fail fast with timeouts; retry only idempotent calls; open circuit on error rate; isolate pools per dependency.</text>
+</svg>

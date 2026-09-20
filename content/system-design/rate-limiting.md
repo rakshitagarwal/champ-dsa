@@ -4,6 +4,8 @@
 
 > Rate limiters cap how often clients call: per user, per IP, per API key. They stop abuse, contain costs, and keep one tenant from starving others. Every limiter answers three questions: what is counted, over what window, and what happens on exceed (429 plus Retry-After).
 
+![Distributed rate limiting: gateway checks Redis atomically before upstream](/images/hld/rate-limiting-overview.svg)
+
 ## Why Rate Limiting
 
 Without limits, one scraper, bug loop, or noisy tenant can exhaust DB connections, LLM budgets, or egress caps for everyone on shared infrastructure. Public APIs expose you to unbounded fan-out; internal microservices need limits before cascading retries amplify a single bad client. Rate limiting is also a product lever — free tier 100 req/min, paid 10k — encoded in infrastructure rather than honor system. Good limiters fail open or closed by design: payment auth might fail closed; analytics beacon might fail open with sampling. Document limits in API contracts; surprise 429s erode trust.

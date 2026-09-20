@@ -4,6 +4,8 @@
 
 > These patterns crosscut the syllabus — each earns a paragraph here and a link where it lives in depth. In interviews, naming the right block ("this is a job queue with a scheduler") scores as much as drawing boxes.
 
+![Architecture concepts: reverse proxy, API gateway, discovery, services, optional mesh](/images/hld/architecture-concepts-overview.svg)
+
 ## Reverse Proxy and API Gateway
 
 A **reverse proxy** (Nginx, HAProxy, Envoy) sits in front of application servers and handles TLS termination, load balancing, compression, static file serving, and buffering slow clients so backends stay protected. An **API gateway** is the same edge role plus API-aware policies: authentication, rate limiting, request routing to microservices, request/response transformation, and sometimes billing or developer portals. Proxies optimize transport; gateways enforce product and security contracts at the boundary. In small systems one Nginx box does both; at scale dedicated gateways (Kong, AWS API Gateway) centralize cross-cutting rules so services stay thin.

@@ -4,6 +4,8 @@
 
 > Start as a monolith; extract services when teams and scale demand it. Each microservice owns its code, data, and deployments — user, order, and payment evolve and scale independently. The costs are real: network latency, distributed transactions, and 10x operational overhead.
 
+![Microservices: API gateway, DB-per-service, Kafka events, saga/outbox](/images/hld/microservices-overview.svg)
+
 ## Monolith and Modular Monolith
 
 One repo, one database, and one deploy keep the happy path simple: in-process calls, ACID transactions across tables, and stack traces that point to a single codebase. That simplicity erodes when dozens of engineers collide on the same repo, when one hot feature forces scaling the entire app, or when a small change requires a full redeploy. A modular monolith preserves one deploy but enforces package boundaries (user, billing, catalog) inside the same process — you still share one database, but imports and schemas stay scoped. Use it as the deliberate stepping stone before extraction: when a module has clear ownership, stable APIs, and independent scaling needs, peel it off with the strangler pattern instead of big-bang rewrites.

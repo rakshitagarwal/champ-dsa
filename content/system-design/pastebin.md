@@ -6,65 +6,42 @@
 
 ## What they ask
 
-**Scenario:** "Design Pastebin — users paste text, get `pastebin.com/aB3x9K`. Anyone with the link can read it until it expires."
+**Scenario:** Users paste text, get `pastebin.com/aB3x9K`; anyone with the link reads until expiry.
 
-**What the interviewer really tests:**
-- Unique ID generation at write QPS without a central bottleneck ([fundamentals](/hld/fundamentals) Snowflake).
-- Where the **blob** lives vs **metadata** (object store vs DB).
-- Expiry / privacy (public, unlisted, password) and abuse (size limits, rate limits).
-- Read-heavy path: cache + CDN without making the DB hot.
+**Tests:** Unique IDs at write QPS without DB hotspot ([fundamentals](/hld/fundamentals) Snowflake)? Blob in object store vs metadata in DB? Expiry, visibility, abuse limits? Read path without hot DB?
 
-**Example scale:** 10M new pastes/day (~100 writes/s, 1k peak), 100:1 read:write, avg paste 10 KB, max 1 MB, retention 1 day–forever by plan.
+**Scale:** 10M pastes/day (~100 writes/s, ~1k peak); 100:1 read:write; avg 10 KB, max 1 MB.
 
 ## Requirements
 
-**Functional:**
-- Create paste: `POST /v1/pastes` → `id` + URL.
-- Fetch: `GET /v1/pastes/{id}` → body + metadata.
-- Optional: syntax language, title, password, burn-after-read, custom expiry.
-- Delete (owner) / list own pastes (auth).
+**Functional (≤6):** Create + fetch by id; optional language, password, burn-after-read, expiry; delete/list own (auth).
 
-**Non-functional:**
-- **Latency:** p95 read < 100ms cache hit; create < 300ms.
-- **Availability:** 99.9%+ reads; durable storage for paid/forever pastes.
-- **Consistency:** read-your-writes for creator; public reads eventual OK within seconds.
-- **Security:** size caps, rate limits, malware scanning for large uploads (v2).
+**Non-functional:** p95 read < 100ms (cache hit); create < 300ms; 99.9%+ reads; size caps + [rate limiter](/hld/rate-limiter).
 
-**Clarify:** max size, retention defaults, anonymous vs auth, custom aliases, analytics?
+**Clarify (≤4):** Max size, default retention, anonymous vs auth, custom aliases?
 
-**Out of scope (v1):** collaborative editing, folders, full-text search across all pastes.
+**Out of scope (v1):** Collaborative editing, folders, global full-text search.
 
 ## Scale estimation
 
-| Metric | Math | Result |
-|--------|------|--------|
-| Writes | 10M/day / 10⁵ | ~100/s avg, ~1k peak |
-| Reads | 100× writes | ~10k/s avg, ~100k peak |
-| Storage/day | 10M × 10 KB | ~100 GB/day raw |
-| Hot cache | 1% hottest × 10 KB | fits multi-GB Redis |
+| Metric | Result |
+|--------|--------|
+| Reads | ~10k/s avg, ~100k/s peak |
+| Storage/day | ~100 GB (10M × 10 KB) |
+| Hot cache | Top 1% fits multi-GB Redis |
 
-Bottleneck is **read QPS + bytes**, not row count — put bodies in [object storage](/hld/storage).
+Bottleneck is **read QPS + bytes** — bodies in [object storage](/hld/storage).
 
 ## API Design
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/v1/pastes` | Create paste |
-| `GET` | `/v1/pastes/{id}` | Fetch paste |
+| `POST` | `/v1/pastes` | Create |
+| `GET` | `/v1/pastes/{id}` | Fetch |
 | `DELETE` | `/v1/pastes/{id}` | Delete (auth) |
-| `GET` | `/v1/me/pastes` | List own (auth) |
+| `GET` | `/v1/me/pastes` | List own |
 
-**Create request:**
-```json
-{
-  "content": "console.log('hi')",
-  "language": "javascript",
-  "expiresInSec": 86400,
-  "visibility": "unlisted"
-}
-```
-
-**Errors:** `413` too large, `404` missing/expired, `401` password required, `429` rate limited.
+Create body: `{ "content", "language", "expiresInSec", "visibility" }` — errors: `413`, `404`, `401`, `429`.
 
 ## High-Level Design (HLD)
 
@@ -72,29 +49,27 @@ Bottleneck is **read QPS + bytes**, not row count — put bodies in [object stor
 
 ```
 Client → CDN / LB → Paste API
-              ├─ ID / Snowflake service
-              ├─ Metadata DB (Postgres): id, owner, expiry, visibility, s3_key
-              ├─ Object store (S3): paste body
-              ├─ Redis: hot paste cache
-              └─ Expiry workers (scan / TTL queue)
+              ├─ Snowflake IDs
+              ├─ Postgres: id, owner, expiry, visibility, s3_key
+              ├─ S3: body
+              ├─ Redis: hot reads
+              └─ Expiry workers (TTL / scan)
 ```
 
-**Write:** validate size → mint id → put object → insert metadata → (optional) warm cache → return URL.
+**Write:** validate → mint id → S3 put → metadata row → return URL. **Read:** CDN → Redis → metadata + S3 → warm cache. Password pastes skip public CDN.
 
-**Read:** CDN/cache → Redis → else metadata + S3 → populate cache. Password pastes never CDN-cache publicly.
+## Deep dive
 
-## Deep dive — IDs and expiry
+**IDs + expiry:** Base62 Snowflake — no sequence hotspot. `expires_at` + worker deletes S3 + row; Redis TTL mirrors. Burn-after-read: atomic read + delete flag. Large pastes: multipart to S3, pointer in DB.
 
-- **IDs:** Snowflake or Base62 of Snowflake — short, unique, no DB sequence hotspot. Custom aliases: unique index, reserved words blocked.
-- **Expiry:** store `expires_at`; workers delete S3 + row; Redis TTL mirrors. Burn-after-read: atomic `GET` + delete flag.
-- **Large pastes:** multipart to S3; API stores only pointer.
+## Failures and scale
 
-## Failure and scale
+- S3 outage: hot Redis still serves; creates fail closed.
+- DB down: no new pastes; cached reads OK.
+- Abuse: per-IP limits, max size, CAPTCHA on anonymous spikes.
 
-- S3 outage → reads miss for cold pastes; serve from Redis hot set; creates fail closed.
-- DB down → no new pastes; cached reads still work.
-- Abuse → per-IP rate limit ([rate limiter](/hld/rate-limiter)), max size, CAPTCHA on anonymous.
+**Phrase:** Snowflake ids, body in S3, metadata in Postgres, Redis + CDN on reads, TTL workers for expiry.
 
-**Closing phrase:** *"Snowflake ids, body in S3, metadata in Postgres, Redis + CDN on the read path, TTL workers for expiry."*
+**Remember:** Read-heavy — never serve cold bodies from Postgres; unlisted ≠ secret (guessable ids) unless entropy is high.
 
-**See also:** [Bitly](/hld/bitly), [Storage](/hld/storage), [Fundamentals](/hld/fundamentals) (unique IDs).
+**See also:** [Bitly](/hld/bitly), [Storage](/hld/storage).

@@ -6,262 +6,84 @@
 
 ## What they ask
 
-Interviewer: "We serve billions of ad clicks/impressions a day. Build the pipeline that aggregates by campaign/ad/hour so finance can invoice and advertisers see dashboards. Pixels retry, events arrive late, and one campaign can spike 10x during Super Bowl." This is a streaming billing system, not a CRUD app.
+"Billions of clicks/impressions/day — aggregate by campaign/ad/hour; pixels retry; events arrive late; Super Bowl spikes."
 
-**What they really test:** (1) Separate **ingest** (fast, never loses money) from **serve** (queried dashboards) — CQRS. (2) Idempotency & dedup under at-least-once ingest. (3) Event-time windows, watermarks, and late-event handling. (4) When dashboards can be approximate but invoices must reconcile exactly. (5) Hot campaign skew.
+**Tests:** Ingest fast/durable vs serve dashboards (CQRS); dedup at-least-once ingest; event-time windows; **closed billing windows** vs live dashboard approximations.
 
-**Scale anchor:** 2B clicks + 50B impressions/day at a large ad network. Avg ingest ~600k events/sec, peak ~5M/sec during prime time. Each event ~300B JSON. Dashboard query ~2k RPS; billing export once daily. Retain raw 90 days for audit, aggregates indefinitely.
+**Scale anchor:** ~52B events/day combined; ~600k/s avg ingest; impressions dominate volume.
 
 ## Requirements
 
 **Functional:**
-- Ingest click event `{ eventId, adId, campaignId, userId, ts, ip, region, costMicros }` and impression event (same schema, `type=impression|click`) via pixel/SDK.
-- De-duplicate retries and double-pixels (same `eventId` or `user+ad+timeBucket` within 10 min).
-- Aggregate counts and sums: `count, sum(cost), uniqueUsers (HLL)` grouped by `campaignId, adId, region` per time bucket (1 min, 1 hour, 1 day).
-- Query API `GET /stats?campaign=&ad=&from=&to=&granularity=hour` for dashboards.
-- Billing export: daily closed-window aggregates per campaign (UTC day) with reconciled, auditable numbers.
-- Fraud signal tap: obvious bots filtered before billing (consumed by fraud service).
+- Ingest click/impression `{ eventId, type, adId, campaignId, userId, ts, region, costMicros }`.
+- Dedupe retries (UUID + optional `user+ad+minute` fallback).
+- Rollups: counts, spend sum, HLL uniques by campaign/ad/region for 1m/1h/1d buckets.
+- `GET /stats` for dashboards; daily **closed** billing export per campaign (UTC day).
 
 **Non-functional:**
-- Durability: **zero lost billable events** (at-least-once ingest + dedup, not at-most-once).
-- Idempotent counts under retries; exactly-once *effect* via idempotent sink.
-- Freshness: dashboard lag < 30-60s (streaming), billing uses closed windows.
-- Isolation: query path never touches ingest path; serving store scaled independently.
-- Auditability: raw log retained immutable for replay; aggregates reconcilable to raw.
+- **No lost billable events** — at-least-once ingest + dedup + idempotent sink.
+- Dashboard freshness ~30–60s; invoices use immutable closed windows + adjustments trail.
+- Raw log retained ~90 days for audit/replay; query path isolated from ingest firehose.
 
-**Clarify:**
-- What defines duplicate? `eventId` UUID from client vs server-generated `hash(user,ad,minute)`? (Prefer client UUID with server fallback.)
-- Impression vs click: two topics/pipelines or one? (Often two, different volume.)
-- Timezone for billing day? (Say UTC, configurable per advertiser.)
-- Need real-time fraud blocking or offline filtering? (Offline for v1, flag not drop.)
-- Unique user counting strict or HyperLogLog approximate? (HLL for dashboards, exact for billing via dedup table.)
+**Clarify:** Client `eventId` vs server `hash(user,ad,minute)` dedup? Separate click/impression topics? HLL OK for dashboard uniques?
 
-**Out of scope (v1):**
-- Bidding / ad serving / auction — only counting.
-- Real-time ML fraud models (separate service taps same topic).
-- Per-user frequency capping.
-- Complex attribution (view-through vs click-through).
+**Out of scope (v1):** Auction/bidding, view-through attribution, synchronous fraud reject on pixel.
 
 ## Scale estimation
 
-| Dimension | Assumption | Math | Result |
-|-----------|-----------|------|--------|
-| Click events | 2B/day | 2B / 86400 | ~23k/sec avg, ~150k peak |
-| Impression events | 50B/day | 50B / 86400 | ~580k/sec avg, ~3M peak |
-| Combined ingest | ~52B/day | 52B * 300B | ~15.6 TB/day raw into Kafka |
-| Kafka retention 7d | 15.6 TB * 7 | ~109 TB | 3x replication → ~327 TB disk |
-| Aggregates | 1M campaigns * 24 hour buckets * 100B row | ~2.4 GB/day hour-granularity | Trivial vs raw; daily granularity even smaller |
-| Dashboard reads | 2k RPS * 10KB response | 20 MB/s | Cacheable for top campaigns |
-| Flink state | dedup window 1h * 600k eps * 64B key | ~2.2 GB/hour * replication | RocksDB spill to disk, manageable |
-
-Impressions dominate volume; many designs keep clicks and impressions on separate pipelines with different retention/cost.
+| Dimension | Assumption | Result |
+|-----------|-----------|--------|
+| Impressions | 50B/day | ~580k/s avg, ~3M peak |
+| Clicks | 2B/day | ~23k/s avg, ~150k peak |
+| Combined ingest | ~52B/day | ~600k/s avg aggregate |
+| Raw volume | ~300B/event | ~15 TB/day Kafka (~109 TB × RF7d) |
+| Hour aggregates | ~1M campaigns × 24 buckets | GB/day — trivial vs raw |
+| Dashboard reads | 2k RPS × ~10KB | Redis for top 1% campaigns |
+| Flink dedupe state | 1h window @ peak | RocksDB spill to disk OK |
 
 ## API Design
 
-```http
-// Pixel — must be feather-light, returns 204 or 1x1 GIF
-GET /v1/click?eventId=uuid-1&adId=ad123&campaignId=camp9&ts=1714000000&userId=u42&costMicros=1200
-=> 204 No Content  (also sets CORS headers, logs, publishes to Kafka)
-
-// SDK / server-to-server (preferred, batched)
-POST /v1/events:batch
-Content-Type: application/json
-{
-  "events": [
-    { "eventId": "uuid-1", "type": "click", "adId": "ad123", "campaignId": "camp9", "ts": 1714000000, "userId": "u42", "region": "IN", "costMicros": 1200 },
-    { "eventId": "uuid-2", "type": "impression", "adId": "ad123", "campaignId": "camp9", "ts": 1714000005, "userId": "u43" }
-  ]
-}
-=> 202 { "accepted": 2 }
-
-// Query — dashboard
-GET /v1/stats?campaignId=camp9&from=2026-05-10T00:00:00Z&to=2026-05-11T00:00:00Z&granularity=hour&region=IN
-=> 200
-{
-  "campaignId": "camp9",
-  "granularity": "hour",
-  "buckets": [
-    { "bucket": "2026-05-10T00:00:00Z", "clicks": 12034, "impressions": 892341, "ctr": 0.013, "spendMicros": 14440800, "uniquesHLL": 11023 }
-  ],
-  "isFinal": false  // false if last bucket still open
-}
-
-// Billing export (internal)
-GET /internal/billing/export?day=2026-05-10&campaignId=camp9
-=> 200 { "day": "2026-05-10", "campaignId": "camp9", "clicks": 288123, "spendMicros": 345000000, "status": "closed" }
-```
-
-All ingest endpoints return fast (edge validates and enqueues, never waits for aggregation).
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/v1/click` | Pixel 204 (→ Kafka) |
+| `POST` | `/v1/events:batch` | SDK batch 202 |
+| `GET` | `/v1/stats` | Dashboard buckets (`isFinal` on open hour) |
+| `GET` | `/internal/billing/export` | Closed day totals |
 
 ## High-Level Design (HLD)
 
 ![Ad click aggregator: ingest, fraud, billing path, OLAP](/images/hld/ad-click-aggregator-architecture.svg)
 
 ```
-Pixel/SDK -> Edge Collector (204 fast) -> [Kafka] raw_clicks / raw_impressions (partitioned by campaignId hash)
-                                                  |
-                                     [Flink] Dedupe (eventId table TTL 1h) -> [Flink] Window Agg (event-time, 1m/1h/1d)
-                                                  |                                        |
-                                          Fraud Service (tap)                      Serving Store ([Cassandra]/[Druid]/ClickHouse)
-                                                  |                                        ^ 
-                                                  v                                        |
-                                            Dead-letter / late queue                Dashboard Service -> Cache ([Redis]) -> UI
-                                                                                         |
-                                                                                  Billing Service (closed windows from store + S3 replay)
+Pixel/SDK → Edge (204 <20ms, acks=all) → Kafka raw_clicks / raw_impressions
+  → Flink dedupe (eventId TTL 1h) → window agg (event-time 1m/1h/1d, watermarks)
+  → Serving store (Cassandra/ClickHouse) + Redis hot campaigns
+  → Dashboard Service | Billing Service (close day + S3 Parquet reconcile)
+  Fraud tap: same topic, separate consumer — filter at query time for billing
 ```
 
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
-```
+**Components:** Regional edge behind [load balancer](/hld/load-balancing); Kafka `ad.raw.clicks` / `ad.raw.impressions` (impressions much higher volume); Flink dedupe + tumbling/sliding windows; serving store (ClickHouse/Cassandra); optional fraud consumer on same topic.
 
-**Components:**
-- **Edge Collector:** Stateless edge in 3 regions, behind [Load Balancer](/hld/load-balancing) + CDN. Validates fields, stamps `receivedAt`, assigns `eventId` if missing, produces to [Kafka](/hld/message-queue) with `acks=all`. Returns 204 in <20ms. No DB on request path. Backpressure via bounded queue + `429` when Kafka unavailable (client retries).
-- **[Kafka](/hld/message-queue):** Two topics `ad.raw.clicks` (12 partitions per 10k eps) and `ad.raw.impressions` (larger). Retention 7-30 days. Compression `lz4`/`zstd`. Partition key `campaignId` (or `adId`) preserves per-campaign ordering for deterministic dedup; but for throughput sometimes round-robin and dedup via global table.
-- **[Flink](/hld/message-queue) Pipelines:** (1) **Dedupe processor:** RocksDB state `eventId -> seen` TTL 1h + Bloom pre-filter; drops duplicates. Also handles `user+ad+minute` fallback key for clients without UUID. (2) **Window aggregator:** Keyed by `(campaignId, granularity)` with event-time windows. Maintain `count, sum(cost), HLL uniques` incrementally. Emit updates every 10s to serving store (upsert). Watermark = max event ts - 45s; allowed lateness 5 min.
-- **Serving Store:** [Cassandra](/hld/nosql-databases) or ClickHouse/Druid for OLAP slices. Schema optimized for `WHERE campaignId=? AND bucket >=? AND bucket <?`. TTL not needed — keep forever for reporting. Secondary [Redis](/hld/caching-strategies) cache for hottest campaigns (top 1% campaigns = 90% reads) with 30s TTL.
-- **Dashboard Service:** Reads serving store, merges open (in-flight) + closed buckets, marks `isFinal=false` for current hour. Serves from Redis cache first.
-- **Billing Service:** Cron at `00:05 UTC` closes yesterday's window. Queries serving store for `day=2026-05-10` and cross-checks with **S3 raw replay** (hourly Parquet dump via Kafka Connect) for reconciliation. Billing reads closed windows only.
+**Write:** 204/202 in <20ms — produce with `acks=all`. **Read:** Dashboard hits Redis then OLAP; billing cron closes UTC day and reconciles against S3 Parquet archive.
 
-**Write path:** pixel -> edge -> Kafka -> Flink dedupe -> Flink window agg -> serving store.
-**Read path:** dashboard/billing -> Dashboard/Billing Service -> Redis cache -> serving store (Cassandra/Druid) -> response.
+## Deep dive — money vs dashboards
 
-## Low-Level Design (LLD)
+Dashboards: HLL uniques, ~30s staleness, `isFinal=false` on current hour. Billing: freeze day at T+5 UTC; late events → `billing_adjustments` row, not silent overwrite. Hourly Spark vs raw reconciles drift.
 
-**DB schema — dedup + aggregates + raw archive pointer**
+## Deep dive — late events and exactly-once effect
 
-```sql
--- Dedupe table (RocksDB in Flink; shown as SQL for interview)
-CREATE TABLE event_dedup (
-  event_id   UUID PRIMARY KEY,
-  campaign_id VARCHAR(32) NOT NULL,
-  ts         TIMESTAMPTZ NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL
-) WITH ttl = '1 hour';
-CREATE INDEX ON event_dedup (campaign_id, ts);
-
--- Minute aggregates (hot, Flink upserts)
-CREATE TABLE agg_minute (
-  campaign_id VARCHAR(32) NOT NULL,
-  ad_id       VARCHAR(32) NOT NULL,
-  region      VARCHAR(8)  NOT NULL,
-  bucket      TIMESTAMPTZ NOT NULL, -- truncated to minute
-  clicks      BIGINT NOT NULL DEFAULT 0,
-  impressions BIGINT NOT NULL DEFAULT 0,
-  spend_micros BIGINT NOT NULL DEFAULT 0,
-  uniques_hll BYTEA, -- serialized HLL sketch
-  updated_at  TIMESTAMPTZ NOT NULL,
-  is_final    BOOLEAN NOT NULL DEFAULT FALSE,
-  PRIMARY KEY (campaign_id, bucket, ad_id, region)
-) PARTITION BY RANGE (bucket);
-
--- Hour aggregates (rolled up from minute, serving)
-CREATE TABLE agg_hour (
-  campaign_id VARCHAR(32) NOT NULL,
-  ad_id       VARCHAR(32) NOT NULL,
-  region      VARCHAR(8)  NOT NULL,
-  bucket      TIMESTAMPTZ NOT NULL, -- truncated to hour
-  clicks      BIGINT NOT NULL,
-  impressions BIGINT NOT NULL,
-  spend_micros BIGINT NOT NULL,
-  uniques_hll BYTEA,
-  PRIMARY KEY (campaign_id, bucket, ad_id, region)
-) PARTITION BY RANGE (bucket);
-
--- Day aggregates (billing source of truth, immutable after close)
-CREATE TABLE agg_day (
-  day         DATE NOT NULL,
-  campaign_id VARCHAR(32) NOT NULL,
-  ad_id       VARCHAR(32) NOT NULL,
-  region      VARCHAR(8)  NOT NULL,
-  clicks      BIGINT NOT NULL,
-  impressions BIGINT NOT NULL,
-  spend_micros BIGINT NOT NULL,
-  uniques_exact BIGINT, -- reconciled exact if required
-  status      VARCHAR(16) NOT NULL, -- 'open','closed','adjusted'
-  PRIMARY KEY (day, campaign_id, ad_id, region)
-);
-
--- Raw archive (S3 external table via Hive/Parquet)
--- s3://ad-logs/raw/dt=2026-05-10/hour=00/events.parquet
-```
-
-**Key classes & responsibilities**
-
-```typescript
-interface AdEvent { eventId: string; type: string; adId: string; campaignId: string; userId: string; region: string; ts: Date; costMicros: number; }
-interface EdgeCollector {
-  handle(e: AdEvent): void; // validate, stamp receivedAt, produce to Kafka
-}
-interface DedupeProcessor {
-  isDuplicate(e: AdEvent): boolean; // eventId table TTL 1h + user+ad+minute fallback
-  markSeen(e: AdEvent): void;
-}
-interface WindowAggregator {
-  // Flink ReduceFunction + WindowFunction keyed by campaignId+bucket
-  add(e: AdEvent, w: Window): void; // increments count/sum/HLL
-  emit(w: Window): Aggregate; // upsert to Cassandra
-}
-interface ServingStore {
-  query(campaignId: string, from: Date, to: Date, g: Granularity): Bucket[];
-  upsert(agg: Aggregate): void; // idempotent upsert keyed by (campaignId, bucket, adId, region)
-}
-interface BillingService {
-  closeDay(day: string): void; // freeze agg_day, reconcile with S3 replay
-  adjustLate(day: string, late: AdEvent): void; // side adjustments table
-}
-```
-
-**Concurrency handling / algorithms:**
-- **Idempotent sink:** Sink key is `(campaignId, bucket, adId, region)`. Flink upsert is idempotent; replay produces same row. Use `INSERT ... ON CONFLICT DO UPDATE clicks = clicks + delta` if delta model, or `upsert full bucket count` if recomputed.
-- **Event-time + watermark:** Events may arrive 5 min late (mobile offline, retry). Watermark = max ts - 45s; windows fire on watermark. Late events within 5 min update window via allowed lateness; beyond that, go to `late_events` side output and an `adjustments` table that billing adds to closed day without mutating history silently.
-- **HLL for uniques:** `uniques` is HyperLogLog sketch merged per window — O(1) memory vs exact set, ~1% error acceptable for dashboards; billing can optionally compute exact via batch replay if contract requires.
-- **Hot campaign skew:** One campaign (Super Bowl) gets 100x traffic → single Flink key would bottleneck. **Salt the key:** `key = campaignId + "#" + random(0..S-1)` first stage sums per salt, second stage merges. Same trick as YouTube Top-K.
-- **Exactly-once effect:** Flink checkpointing (every 30s to S3) + transactional Kafka producer + idempotent Cassandra sink = end-to-end exactly-once effect despite at-least-once ingest.
-
-**Design patterns:**
-- **CQRS / Event Sourcing:** Kafka log is source of truth; serving store is derived materialized view.
-- **Idempotent Receiver:** `eventId` dedup table.
-- **Lambda/Kappa unified:** Streaming path for realtime + batch Parquet replay for reconciliation (Kappa with replay).
-- **Sidecar fraud tap:** Separate consumer group reads same topic without coupling to billing latency.
-
-## Deep dive — Money vs dashboards (correctness tiers)
-
-Not all reads need same accuracy. **Dashboards** can be approximate and laggy: show `isFinal=false` badge on current hour, use HLL for uniques, allow 30s staleness via [Redis](/hld/caching-strategies) cache. **Invoices** need closed, auditable numbers: finance runs `closeDay()` at `T+5 min` UTC — that day's `agg_day` rows become immutable (`status='closed'`). Any late event after close doesn't overwrite the row; it inserts into `billing_adjustments(day, campaignId, deltaClicks, deltaSpend)` so the invoice can show "original + adjustments" with audit trail. Reconciliation job (Spark over S3 Parquet) hourly compares `SUM(raw)` per campaign vs `SUM(agg_hour)`; if divergence >0.1% alert and auto-correct via upsert. Timezone handling: store all bucket timestamps in UTC, convert at query time per advertiser preference — never bucket in local time at ingest.
-
-## Deep dive — Late events, fraud and exactly-once
-
-**Late events:** Watermark delay 45s accommodates normal jitter; allowed lateness 5 min lets Flink update already-emitted windows via incremental aggregation (RocksDB keeps window state until `watermark + lateness` passes). Beyond that, late queue → adjustments. **Fraud filtering:** Synchronous blocking on ingest would add latency and lose money if fraud service is slow — so ingest always accepts, then a Flink side-processor or separate consumer flags `is_fraud_suspected` based on rate per IP, datacenter ASN, impossible velocity. Billing query by default filters `WHERE is_fraud=false`, but raw retains everything for appeal. **Exactly-once:** Don't claim Kafka alone gives exactly-once. Show checkpoint + two-phase commit sink: Flink checkpoints offset + state atomically; on failure, replays from last checkpoint and re-upserts same aggregates (idempotent) → no double billing. **At-least-once + dedup** alternative is simpler to explain and equally correct: keep `event_dedup` and sink via idempotent upsert.
-
-## Common mistakes
-
-**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
-**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
+Watermark + 5m allowed lateness updates open windows; older → adjustments table. Flink checkpoint + idempotent upsert key `(campaignId, bucket, adId, region)` = no double billing on replay.
 
 ## Handling failures and scale
 
-- **Edge collector death:** Stateless behind LB; clients retry pixel with same `eventId` — dedup absorbs duplicates.
-- **Kafka broker loss:** Replication factor 3, `acks=all`, `min.insync.replicas=2`; producer retries with backoff; edge buffer spills to local disk 5 min if Kafka unavailable then replays.
-- **Flink job failure:** Checkpoint recovery from S3; window state rebuilt. No data loss because Kafka retains 7 days. Lag alert if consumer lag >100k.
-- **Cassandra/Druid overload:** Bulkhead: Flink sink throttles via async writes with bounded concurrency; dashboard reads go through Redis cache so DB not hit per request. Add read replicas / scale ClickHouse shards.
-- **Hot campaign overload:** Salting + separate fast lane: top 10 campaigns get dedicated Flink parallelism or dedicated Kafka partitions; auto-detected via heavy-hitter sketch.
-- **Clock skew:** Edge stamps `receivedAt`; windowing uses `event.ts` (client time) but caps future timestamps (>5 min ahead) to `receivedAt` to avoid window never closing.
-- **PII / GDPR:** Hash `userId`/`ip` before logging if possible; raw store encrypted at rest; deletion requests handled via compaction tombstones on raw S3 (batch rewrite).
-- **Scale knob:** Add Kafka partitions + Flink task managers linearly; serving store scales via partitioning by `campaignId`.
-
-## Extra probes / follow-ups
-
-- Impression vs click — two topics with 25x volume difference; keep pipelines identical but impression pipeline cheaper retention and sampled for dashboard if needed.
-- Why not write aggregates directly on pixel request? — Would make pixel latency depend on DB and lose events on DB outage; queue decouples.
-- Negative caching / bot flood — [Redis](/hld/caching-strategies) rate limiter per IP at edge drops obvious abuse before Kafka.
-- Compare stores: [Cassandra](/hld/nosql-databases) for write-heavy aggregates, Druid/ClickHouse for OLAP slice-and-dice, [Elasticsearch](/hld/nosql-databases) less ideal for sums.
-- Exactly-once vs at-least-once + dedup — both valid; interviewers often accept latter as simpler.
-- GDPR/purge — don't put raw PII in Kafka if avoidable; hash early.
-
-**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
+- **Edge death:** Stateless LB; client retries same `eventId` — dedup absorbs duplicates.
+- **Kafka broker loss:** RF=3, `min.insync.replicas=2`; producer retries with backoff.
+- **Flink job fail:** Checkpoint recovery; idempotent upsert prevents double billing.
+- **Serving store overload:** Redis front door; async sink with bounded concurrency.
+- **Hot campaign (Super Bowl):** Salt keys two-stage; boost parallelism on detected heavy hitters.
+- **Clock skew:** Cap future `ts` to `receivedAt`; bucket in UTC at ingest.
+- **PII:** Hash user/ip early in pipeline if policy requires; encrypt raw at rest.
 
 **Phrase:** The pixel only publishes to Kafka. Flink counts with event-time windows. Billing uses closed windows and deduped event ids. The advertiser UI reads a serving store, never the firehose.
+
+**Remember:** Separate ingest SLA from query SLA; dedupe before count; closed windows for invoices.

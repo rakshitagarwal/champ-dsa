@@ -4,6 +4,8 @@
 
 > NoSQL trades joins and rigid schemas for flexible models and built-in sharding. The right choice depends entirely on how data gets read: known keys favor key-value and wide-column stores; search and relations favor other tools.
 
+![NoSQL selection: pick store by access pattern, keep SQL for joins and ACID](/images/hld/nosql-databases-overview.svg)
+
 ## NoSQL vs SQL
 
 SQL delivers normalized schemas, multi-row ACID transactions, and ad hoc joins with strong consistency on a single primary — scale vertically first, then read replicas, then sharding with pain. NoSQL optimizes for partition tolerance, elastic horizontal scale, and schema flexibility, often defaulting to eventual consistency tunable via quorums. Keep money, inventory, and anything requiring multi-table invariants in SQL; use NoSQL for high-volume keyed access, flexible documents, and write-heavy logs. Production systems routinely run both — polyglot persistence with clear ownership per store.

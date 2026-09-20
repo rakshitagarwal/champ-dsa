@@ -4,6 +4,8 @@
 
 > Observability answers three questions: what happened (logs), how much (metrics), and where time went (traces). Add health monitoring on top and systems become operable: detectable incidents, fast diagnosis, honest SLOs.
 
+![Observability pipeline: OTel collector to logs, metrics, traces, Grafana, alerts](/images/hld/observability-overview.svg)
+
 ## Logging
 
 Logs are timestamped records of discrete events — request handled, payment failed, cache miss — and they answer "what happened" when someone pages you at 3 a.m. Prefer **structured JSON** with stable field names (`timestamp`, `level`, `service`, `trace_id`, `user_id` hashed) over unparsed prose; free-text-only logs don't aggregate or filter at scale. Use levels deliberately: `debug` for development, `info` for lifecycle events, `warn` for recoverable anomalies, `error` for failures needing attention — and sample or gate verbose debug in production to control cost. Ship logs off the host to centralized, searchable storage (ELK, Loki, CloudWatch Logs) with retention tiers: hot for days, warm for compliance, cold for archive — container-local files disappear with the pod.

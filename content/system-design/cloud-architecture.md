@@ -4,6 +4,8 @@
 
 > Cloud interviews test service selection, not vendor trivia. Know what each primitive does, when it beats self-hosting, and what it costs at scale. The same patterns repeat across AWS, GCP, and Azure — learn concepts, translate names.
 
+![Cloud architecture path: Route 53, CloudFront, ALB, compute, data stores, queues](/images/hld/cloud-architecture-overview.svg)
+
 ## EC2, ECS, EKS Basics
 
 **EC2** is rent-a-VM: you choose instance type, OS, and networking, and you own patching, scaling scripts, and failure recovery — maximum control, maximum ops burden. **ECS** runs Docker containers on AWS-managed infrastructure with task definitions and services — no Kubernetes API, simpler mental model for "just run containers." **EKS** is managed Kubernetes: control plane operated by AWS, you manage node groups and manifests — standard when teams already speak kubectl and Helm. Climb the ladder when requirements demand it: EC2 for legacy or special hardware, ECS for straightforward container services, EKS when you need the Kubernetes ecosystem at scale.
