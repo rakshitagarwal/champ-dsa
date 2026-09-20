@@ -15,6 +15,8 @@ Single-machine assumptions fail at scale: latency is never zero, packets drop, s
 
 ## CAP Theorem
 
+![CAP theorem: CP vs AP under partition](/images/hld/cap-theorem.png)
+
 During a **network partition**, a distributed store cannot simultaneously guarantee **Consistency** (every read returns the latest write or errors) and **Availability** (every request gets a response, possibly stale). **Partition tolerance** is non-optional in real WAN/multi-AZ systems — the trade is **CP vs AP** under partition. CP (ZooKeeper, etcd, Postgres primary with sync replica): reject minority writes/reads to stay linearizable. AP (Cassandra, DynamoDB default paths): accept writes/reads on both sides, reconcile later. Single-node databases sidestep the theorem until you replicate.
 
 - **Partition definition:** Nodes that cannot talk — not "slow network" alone, though timeouts blur the line in practice.

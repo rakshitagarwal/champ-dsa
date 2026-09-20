@@ -33,6 +33,8 @@ Producers serialize events and publish with optional **publisher confirms** (Rab
 
 ## Asynchronous Processing
 
+![Synchronous design vs message queue with parallel workers](/images/hld/message-queue-async.png)
+
 Move work off the critical HTTP path: return `202 Accepted` with job ID while encoding, PDF generation, or fraud scoring runs in workers. User-perceived latency drops; system absorbs downstream outages by growing backlog (within retention limits). Tradeoffs: harder tracing (correlate trace ID in message), delayed failure visibility, and need for status polling or webhooks on completion.
 
 - **Outbox pattern:** Write DB + outbox row in one transaction; relay publishes to broker — avoids "DB committed, message lost."

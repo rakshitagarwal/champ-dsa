@@ -15,6 +15,8 @@ Repeated reads dominate most products — home feeds, product pages, config flag
 
 ## Cache-Aside (Lazy Loading)
 
+![Cache-aside with Redis hit and miss paths](/images/hld/caching-redis.png)
+
 Application code owns the flow: read cache → on miss load DB → populate cache with TTL → return. Writes update the DB first, then **delete** (preferred) or update cache keys — delete avoids race where stale value wins over concurrent writes. Only requested keys enter memory, so cold data never wastes RAM. This is the default pattern for most services because logic stays explicit and debuggable.
 
 - **Delete-on-write:** Safer than write-through cache in cache-aside — next read rebuilds fresh value.

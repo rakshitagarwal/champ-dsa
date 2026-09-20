@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, ExternalLink, Play, Search } from "lucide-react";
+import { BookOpen, Play, Search } from "lucide-react";
 import {
   PRACTICE_SHEET,
   getAllPracticeProblems,
@@ -52,15 +52,14 @@ function ProblemRow({ problem }: { problem: LcProblem }) {
         >
           {problem.difficulty}
         </Badge>
-        <a
-          href={leetcodeUrl(problem.slug)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-        >
-          <ExternalLink className="h-3 w-3" />
-          LeetCode
-        </a>
+        {problem.striver ? (
+          <span
+            title="Also on Striver A2Z — counts toward that sheet"
+            className="rounded-full border border-sky-500/40 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:text-sky-300"
+          >
+            Striver
+          </span>
+        ) : null}
         {problem.premium ? (
           <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
             Premium
@@ -103,9 +102,13 @@ export function SheetAccordion() {
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return null;
-    return getAllPracticeProblems().filter((problem) =>
-      problem.title.toLowerCase().includes(q),
-    );
+    return getAllPracticeProblems().filter((problem) => {
+      if (problem.title.toLowerCase().includes(q)) return true;
+      if (problem.slug.includes(q)) return true;
+      if (q === "striver" && problem.striver) return true;
+      if (q === "premium" && problem.premium) return true;
+      return false;
+    });
   }, [query]);
 
   return (
@@ -117,7 +120,7 @@ export function SheetAccordion() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by problem name…"
+            placeholder="Search name, or “striver”…"
             className="h-9 w-full rounded-md border border-border bg-background py-1.5 pl-8 pr-3 text-sm outline-none ring-primary/30 placeholder:text-muted-foreground focus:ring-2"
             aria-label="Search problems by name"
           />

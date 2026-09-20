@@ -69,6 +69,8 @@ Deadlocks occur when transaction A holds lock on row 1 and waits on row 2 while 
 
 ## Read Replicas and Replication
 
+![Primary database with read replicas and failover](/images/hld/database-replication.png)
+
 The **leader** (primary) accepts writes and ships WAL/binlog to **followers** (replicas) that apply changes and serve read traffic — classic horizontal read scaling. **Synchronous** replication waits for follower ack before commit (strong durability, higher latency); **asynchronous** commits locally and replicates later (fast writes, lag and possible loss if leader dies before ship). **Read-your-writes** is not automatic on async replicas — route session-critical reads to the leader or use lag-aware routing.
 
 - **Replication lag:** Measure seconds behind primary; UI that "saved" then reads stale replica confuses users — stick to leader after write.
@@ -85,6 +87,8 @@ Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GI
 - **Phrase:** "Postgres is the default diary — index right, pool always, shard only on proof."
 
 ## Partitioning, Sharding, Connection Pooling
+
+![Database sharding plus replication](/images/hld/database-sharding-replication.png)
 
 **Partitioning** splits one logical table into physical chunks (range by date, hash by id, list by region) on one server — easier archival and partition pruning. **Sharding** spreads partitions across many servers keyed by **shard key** — scale writes when a single primary caps out (often tens of thousands of writes/s, highly workload- and hardware-dependent). Cross-shard queries and distributed transactions are expensive; co-locate data accessed together (`user_id` shards user, orders, and settings). **Connection pools** (PgBouncer, HikariCP) bound expensive database connections; size them from DB capacity and measured query latency, not "one connection per request" or a memorized universal formula.
 

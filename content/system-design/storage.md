@@ -46,6 +46,8 @@ S3 buckets are global-name unique; objects hold data, user metadata, and optiona
 
 ## Blob Storage and Presigned URLs
 
+![Storing files in blob storage with presigned URLs](/images/hld/blob-storage-presigned.png)
+
 Application servers should not stream gigabyte uploads/downloads through app CPU and bandwidth — authenticate the user, authorize the action, then hand out a presigned URL (time-limited, scoped HTTP verb and key). The client talks directly to S3/GCS/Azure Blob; your API records metadata after upload completes via callback or event. Presigned PUT for uploads and GET for downloads; shorten expiry (minutes) and bind to content-type/size where SDK allows. For private buckets, CloudFront signed URLs/cookies add CDN caching on top of origin auth.
 
 - Server never sees raw bytes — scales upload/download without scaling API replicas for bandwidth.

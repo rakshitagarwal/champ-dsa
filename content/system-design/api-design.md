@@ -59,6 +59,8 @@ Validate syntax and semantics **before** business logic: types, ranges, required
 
 ## Idempotency and Idempotency Keys
 
+![Without vs with idempotency key on payment retries](/images/hld/idempotency-key.png)
+
 Networks retry — clients, gateways, and load balancers may deliver the same POST twice. **Idempotent** operations produce the same effect once: GET, PUT, DELETE by nature; POST needs design. Clients send **`Idempotency-Key`** (UUID) on mutating calls; the server stores `(key → response)` for 24–72 hours and returns the cached response on replay instead of re-executing. Essential for **payments, reservations, and inventory**; reads get idempotency free via GET semantics.
 
 - Store idempotency record in **Redis or DB** with TTL ≥ client retry window.

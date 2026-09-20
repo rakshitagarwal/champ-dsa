@@ -16,6 +16,8 @@ TCP provides a reliable byte stream between two endpoints: three-way handshake, 
 
 ## DNS
 
+![Basic client–server flow with DNS lookup](/images/hld/client-server-dns.png)
+
 DNS maps human-readable names to IPs and other records. Resolution is hierarchical and cached at every hop: browser → OS → recursive resolver (often ISP or 8.8.8.8) → root → TLD → authoritative nameserver. **TTL** controls how long caches serve stale answers — low TTL speeds failover, high TTL cuts load and latency. Record types matter in design: **A/AAAA** (IPs), **CNAME** (aliases), **MX** (mail), **NS** (delegation). If DNS fails, the site is unreachable — treat it as a hard dependency with redundant providers and health-checked records.
 
 - **A/AAAA** for direct IPs; **CNAME** for aliases (often to load balancers or CDNs).
@@ -45,6 +47,8 @@ HTTP defines semantics (methods, headers, status codes); the version defines how
 - Edge/CDN should speak **HTTP/2 or HTTP/3** to clients; origin can differ.
 
 ## WebSockets and SSE
+
+![Short polling vs WebSockets vs Server-Sent Events](/images/hld/polling-websocket-sse.png)
 
 Real-time updates need a strategy beyond polling. **WebSockets** upgrade an HTTP connection to a full-duplex channel — client and server send frames anytime; use for chat, collaborative docs, and games. **SSE** keeps a long-lived HTTP response open and streams **server → client** events — simpler through proxies and auto-reconnects in browsers; use for live feeds and notifications. **Long polling** holds a request until data arrives — a fallback when WebSockets are blocked. Rule: two-way needs WebSocket; one-way pushes fit SSE; avoid naive polling on hot paths.
 

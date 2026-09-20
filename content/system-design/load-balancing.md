@@ -4,6 +4,8 @@
 
 > A load balancer sits in front of server pools and assigns each request by algorithm. Layer 4 balances on IP and port (TCP/UDP level, fast, dumb). Layer 7 understands HTTP — URL, headers, cookies — enabling smart routing, path rules, and session affinity.
 
+![Load balancer with L4 vs L7 and health checks](/images/hld/load-balancer-l4-l7.png)
+
 ## Algorithms
 
 The algorithm decides **which healthy backend** gets the next request. Round robin is fair when requests cost the same; weighted round robin skews toward bigger instances (more CPU/RAM). **Least connections** tracks active in-flight work — better when some requests hold connections longer (uploads, slow queries). **Least response time** blends queue depth with observed latency — useful when backends are heterogeneous. **IP hash** maps client IP to server — cheap affinity without cookies, but uneven if NAT concentrates users.
@@ -21,6 +23,8 @@ The algorithm decides **which healthy backend** gets the next request. Round rob
 - Algorithms assume **homogeneous health** — unhealthy nodes must be removed first.
 
 ## Consistent Hashing
+
+![Consistent hashing ring with virtual nodes](/images/hld/consistent-hashing.png)
 
 Plain modulo hashing (`hash(key) % N`) reshuffles almost every key when N changes — cache hit rates collapse after one scale event. **Consistent hashing** places servers and keys on a ring; only keys between the old and new server move (~`1/N` of keys). **Virtual nodes** (100+ per physical server) spread load evenly so one hot machine does not own half the ring. Used for **memcached/redis clusters**, CDNs, and sharded gateways — say it when the prompt mentions cache or data partitioning.
 

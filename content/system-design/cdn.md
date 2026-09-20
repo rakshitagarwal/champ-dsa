@@ -6,6 +6,8 @@
 
 ## CDN Fundamentals and Edge Locations
 
+![Without CDN vs with CDN edge nodes](/images/hld/cdn-with-without.png)
+
 A CDN is a geographically distributed cache layer in front of your origin: PoPs in major metros terminate TLS close to users and serve bytes from RAM or SSD when possible. Routing uses DNS (CNAME to CDN hostname), anycast, or GeoDNS so Mumbai users hit Mumbai edges, not Virginia. Edges often tier — edge PoP → regional shield/mid-tier → origin — so one origin miss fans out to many edges through a smaller set of mid-tier fetches. Capacity planning focuses on egress bandwidth and cache footprint; a 95% hit rate means origin sees only 5% of request volume but 100% of miss latency sensitivity.
 
 - PoP = point of presence; more PoPs mean shorter RTT for last-mile delivery.

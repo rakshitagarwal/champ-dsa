@@ -38,6 +38,8 @@ How well the system behaves, and where most interview depth lives:
 
 ## Horizontal vs Vertical Scaling
 
+![Horizontal vs vertical scaling](/images/hld/horizontal-vs-vertical-scaling.png)
+
 Vertical scaling (scale up) adds CPU, RAM, or faster disks to one machine. It is the fastest path early — no code changes, no distributed failure modes — but you hit hardware ceilings and keep a single point of failure. Horizontal scaling (scale out) adds more identical servers behind a load balancer; capacity grows roughly linearly until the database or shared state becomes the bottleneck. Cloud-native designs default to scale out because it pairs with redundancy: losing one node should not take the service down. Mention when vertical still wins: small teams, strict serial workloads, or legacy monoliths before a split.
 
 - **Scale up** when QPS fits one beefy box and ops simplicity beats elasticity.
@@ -68,6 +70,12 @@ graph LR
     B --> E[(Redis sessions)]
     C --> E
 ```
+
+## Putting the pieces together
+
+![Full architecture: CDN, LB, cache, shards, queue, blob storage](/images/hld/full-architecture.jpg)
+
+A typical production shape: DNS → CDN for static bytes → L7 load balancer → **stateless** app fleet → Redis cache-aside → sharded primary + read replicas → async work on a queue → blob storage for media. Each box above maps to a dedicated notes page — draw this once from memory before interviews.
 
 ## Keep in mind
 

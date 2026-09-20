@@ -14,9 +14,19 @@ export default function PracticePage() {
         </div>
         <h1 className="mt-3 text-4xl font-bold">DSA Sheet ({count})</h1>
         <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
-          Popular interview problems, grouped like the DSA pattern notes. Open a
-          problem on LeetCode, or watch the AlgoJS video solution when available.
-          For how the pattern works — with JS examples — use{" "}
+          Interview problems grouped like the DSA pattern notes. Click a title to
+          open it, or watch the AlgoJS video solution when available. Problems
+          tagged <span className="text-sky-700 dark:text-sky-300">Striver</span>{" "}
+          also appear on{" "}
+          <a
+            href="https://takeuforward.org/prep-hub/strivers-a2z-dsa-sheet"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Striver&apos;s A2Z sheet
+          </a>
+          . For how the pattern works — with JS examples — use{" "}
           <Link href="/patterns" className="text-primary hover:underline">
             DSA Patterns
           </Link>
