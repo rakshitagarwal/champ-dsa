@@ -22,12 +22,13 @@
 | Selection | `O(n²)` | `O(n²)` | `O(n²)` | `O(1)` | No | few swaps |
 | Insertion | `O(n)` | `O(n²)` | `O(n²)` | `O(1)` | Yes | great if almost sorted |
 | Merge | `O(n log n)` | `O(n log n)` | `O(n log n)` | `O(n)` | Yes | reliable; LL-friendly |
-| Quick | `O(n log n)` | `O(n log n)` | `O(n²)` | `O(log n)` avg | No | default fast; watch pivot |
+| Quick | `O(n log n)` | `O(n log n)` | `O(n²)` | `O(n)` | No | last-element pivot; left/right arrays |
 | Heap | `O(n log n)` | `O(n log n)` | `O(n log n)` | `O(1)` | No | in-place guaranteed bound |
 | Counting | `O(n+k)` | `O(n+k)` | `O(n+k)` | `O(k)` | Can be | only small integer range |
+| Radix | `O(d(n+k))` | `O(d(n+k))` | `O(d(n+k))` | `O(n+k)` | Yes | digit-by-digit; k=10 |
 | JS `sort` | — | `O(n log n)` | `O(n log n)` | impl | Yes (TimSort) | always pass comparator for nums |
 
-**Pick quickly:** teaching / tiny n → insertion; need stable guaranteed `n log n` → merge; in-place + avg fast → quick; in-place + worst-case `n log n` → heap; tiny ints → counting; production JS → `.sort((a,b)=>a-b)`.
+**Pick quickly:** teaching / tiny n → insertion; need stable guaranteed `n log n` → merge; avg fast + simple recurse → quick; in-place + worst-case `n log n` → heap; tiny ints → counting; digit ints → radix; production JS → `.sort((a,b)=>a-b)`.
 
 ```js
 // Built-in sort — always pass a numeric comparator
@@ -38,21 +39,17 @@ items.sort((a, b) => a[0] - b[0] || a[1] - b[1]); // start, then end
 
 ## Bubble Sort — O(n²)
 
-Paas-paas compare; bada bubble right. Har pass me largest settles at end. `swapped` flag → best `O(n)`.
+Paas-paas compare; bada bubble right. Har pass me largest settles at end.
 
 ```js
 // Bubble sort — swap adjacent out-of-order pairs
 function bubbleSort(nums) {
-  const n = nums.length;
-  for (let i = 0; i < n - 1; i++) {
-    let swapped = false;
-    for (let j = 0; j < n - 1 - i; j++) {
+  for (let i = 0; i < nums.length - 1; i++) {
+    for (let j = 0; j < nums.length - i; j++) {
       if (nums[j] > nums[j + 1]) {
         [nums[j], nums[j + 1]] = [nums[j + 1], nums[j]];
-        swapped = true;
       }
     }
-    if (!swapped) break;
   }
   return nums;
 }
@@ -65,13 +62,15 @@ Har `i` pe remaining me min dhoondh ke swap. Comparisons zyada, swaps ~`O(n)`. U
 ```js
 // Selection sort — pick minimum for each position
 function selectionSort(nums) {
-  const n = nums.length;
-  for (let i = 0; i < n - 1; i++) {
-    let min = i;
-    for (let j = i + 1; j < n; j++) {
-      if (nums[j] < nums[min]) min = j;
+  for (let i = 0; i < nums.length - 1; i++) {
+    let minIndex = i;
+
+    for (let j = i + 1; j < nums.length; j++) {
+      if (nums[j] < nums[minIndex]) {
+        minIndex = j;
+      }
     }
-    [nums[i], nums[min]] = [nums[min], nums[i]];
+    [nums[i], nums[minIndex]] = [nums[minIndex], nums[i]];
   }
   return nums;
 }
@@ -79,19 +78,17 @@ function selectionSort(nums) {
 
 ## Insertion Sort — O(n²), Best O(n)
 
-Sorted prefix me key insert (cards). Almost-sorted pe fast. Stable. Online (stream) friendly.
+Sorted prefix me bubble-back swaps se place. Almost-sorted pe fast. Stable.
 
 ```js
 // Insertion sort — insert key into sorted prefix
 function insertionSort(nums) {
   for (let i = 1; i < nums.length; i++) {
-    const key = nums[i];
-    let j = i - 1;
-    while (j >= 0 && nums[j] > key) {
-      nums[j + 1] = nums[j];
-      j--;
+    for (let j = i; j >= 0; j--) {
+      if (nums[j] < nums[j - 1]) {
+        [nums[j], nums[j - 1]] = [nums[j - 1], nums[j]];
+      }
     }
-    nums[j + 1] = key;
   }
   return nums;
 }
@@ -105,44 +102,58 @@ Divide halves, merge sorted runs. Always `O(n log n)`. Stable. Array pe `O(n)` s
 // Merge sort — divide, sort halves, merge sorted runs
 function mergeSort(nums) {
   if (nums.length <= 1) return nums;
-  const mid = nums.length >> 1;
-  const left = mergeSort(nums.slice(0, mid));
-  const right = mergeSort(nums.slice(mid));
-  const out = [];
-  let i = 0, j = 0;
-  while (i < left.length && j < right.length) {
-    if (left[i] <= right[j]) out.push(left[i++]); // <= keeps stable
-    else out.push(right[j++]);
+
+  const middle = Math.floor(nums.length / 2);
+  const left = nums.slice(0, middle);
+  const right = nums.slice(middle);
+
+  return merge(mergeSort(left), mergeSort(right));
+}
+
+function merge(left, right) {
+  const result = [];
+
+  while (left.length && right.length) {
+    if (left[0] <= right[0]) {
+      result.push(left.shift());
+    } else {
+      result.push(right.shift());
+    }
   }
-  return out.concat(left.slice(i), right.slice(j));
+
+  return [...result, ...left, ...right];
 }
 ```
 
 ## Quick Sort — O(n log n) avg
 
-Partition around pivot; recurse. In-place, avg fast. Worst `O(n²)` — mid/random pivot. Unstable.
+Last element pivot; chhote left, baaki right; recurse + concat. Avg fast. Worst `O(n²)`. Extra space arrays se. Unstable.
 
 ```js
 // Quick sort — partition around pivot
-function quickSort(nums, lo = 0, hi = nums.length - 1) {
-  if (lo >= hi) return;
-  const p = partition(nums, lo, hi);
-  quickSort(nums, lo, p - 1);
-  quickSort(nums, p + 1, hi);
-}
-function partition(nums, lo, hi) {
-  const mid = (lo + hi) >> 1;
-  [nums[mid], nums[hi]] = [nums[hi], nums[mid]];
-  const pivot = nums[hi];
-  let i = lo;
-  for (let j = lo; j < hi; j++) {
-    if (nums[j] < pivot) {
-      [nums[i], nums[j]] = [nums[j], nums[i]];
-      i++;
+function quickSort(arr) {
+  if (arr.length <= 1) return arr;
+
+  let pivot = arr[arr.length - 1];
+  let leftArr = [];
+  let rightArr = [];
+
+  for (let i = 0; i < arr.length - 1; i++) {
+    if (arr[i] < pivot) {
+      leftArr.push(arr[i]);
+    } else {
+      rightArr.push(arr[i]);
     }
   }
-  [nums[i], nums[hi]] = [nums[hi], nums[i]];
-  return i;
+
+  // divide and conquer
+  if (leftArr.length > 0 && rightArr.length > 0) {
+    return [...quickSort(leftArr), pivot, ...quickSort(rightArr)];
+  } else if (leftArr.length > 0) {
+    return [...quickSort(leftArr), pivot];
+  } else {
+    return [pivot, ...quickSort(rightArr)];
+  }
 }
 ```
 
@@ -191,6 +202,50 @@ function countingSort(nums, maxVal) {
 }
 ```
 
+## Radix Sort — O(d(n+10))
+
+Non-neg ints: har digit pe stable counting pass (LSD). `d` = digits in max number. Helper = one digit ka counting sort.
+
+```js
+// Radix sort — LSD; helper sorts by one digit place
+function radixSort(array) {
+  if (array.length <= 1) return array;
+  const max = Math.max(...array);
+  const digits = Math.floor(Math.log10(max)) + 1;
+  for (let digit = 0; digit < digits; digit++) {
+    helper(array, digit);
+  }
+  return array;
+}
+
+function helper(array, digit) {
+  let countArray = new Array(10).fill(0);
+  let sortArray = new Array(array.length).fill(0);
+
+  let whichDigit = 10 ** digit;
+  for (let num of array) {
+    const countIndex = Math.floor(num / whichDigit) % 10;
+    countArray[countIndex]++;
+  }
+
+  for (let i = 1; i < countArray.length; i++) {
+    countArray[i] += countArray[i - 1];
+  }
+
+  for (let i = array.length - 1; i >= 0; i--) {
+    const countIndex = Math.floor(array[i] / whichDigit) % 10;
+    countArray[countIndex]--;
+    const sortIndex = countArray[countIndex];
+    sortArray[sortIndex] = array[i];
+  }
+
+  for (let i = 0; i < array.length; i++) {
+    array[i] = sortArray[i];
+  }
+  return array;
+}
+```
+
 ## Sort an Array
 
 LC pe khud implement — merge sort safe (stable, guaranteed `O(n log n)`).
@@ -198,19 +253,29 @@ LC pe khud implement — merge sort safe (stable, guaranteed `O(n log n)`).
 [Sort an Array](https://leetcode.com/problems/sort-an-array/)
 
 ```js
-// Time: O(n) · Space: O(n)
+// Time: O(n log n) · Space: O(n)
 function sortArray(nums) {
   if (nums.length <= 1) return nums;
-  const mid = nums.length >> 1;
-  const left = sortArray(nums.slice(0, mid));
-  const right = sortArray(nums.slice(mid));
-  const out = [];
-  let i = 0, j = 0;
-  while (i < left.length && j < right.length) {
-    if (left[i] <= right[j]) out.push(left[i++]);
-    else out.push(right[j++]);
+
+  const middle = Math.floor(nums.length / 2);
+  const left = nums.slice(0, middle);
+  const right = nums.slice(middle);
+
+  return merge(sortArray(left), sortArray(right));
+}
+
+function merge(left, right) {
+  const result = [];
+
+  while (left.length && right.length) {
+    if (left[0] <= right[0]) {
+      result.push(left.shift());
+    } else {
+      result.push(right.shift());
+    }
   }
-  return out.concat(left.slice(i), right.slice(j));
+
+  return [...result, ...left, ...right];
 }
 ```
 
