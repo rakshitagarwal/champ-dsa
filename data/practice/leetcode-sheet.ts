@@ -71,9 +71,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Valid Sudoku", "valid-sudoku", "medium"),
           p("Longest Palindrome", "longest-palindrome", "easy"),
           p("Find All Duplicates in an Array", "find-all-duplicates-in-an-array", "medium"),
-          p("Group Shifted Strings", "group-shifted-strings", "medium"),
-          p("Line Reflection", "line-reflection", "medium"),
-          p("Dot Product of Two Sparse Vectors", "dot-product-of-two-sparse-vectors", "medium"),
           p("Encode and Decode Strings", "encode-and-decode-strings", "medium"),
         ],
       },
@@ -85,13 +82,7 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("LRU Cache", "lru-cache", "medium"),
           p("LFU Cache", "lfu-cache", "hard"),
           p("Time Based Key-Value Store", "time-based-key-value-store", "medium"),
-          p("Moving Average from Data Stream", "moving-average-from-data-stream", "easy"),
           p("Logger Rate Limiter", "logger-rate-limiter", "easy"),
-          p("Design Hit Counter", "design-hit-counter", "medium"),
-          p("Design Snake Game", "design-snake-game", "medium"),
-          p("Flatten 2D Vector", "flatten-2d-vector", "medium"),
-          p("Zigzag Iterator", "zigzag-iterator", "medium"),
-          p("Design Phone Directory", "design-phone-directory", "medium"),
         ],
       }
     ],
@@ -113,8 +104,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Next Permutation", "next-permutation", "medium"),
           p("Plus One", "plus-one", "easy"),
           p("Rearrange Array Elements by Sign", "rearrange-array-elements-by-sign", "medium"),
-          p("Wiggle Sort", "wiggle-sort", "medium"),
-          p("Sort Transformed Array", "sort-transformed-array", "medium"),
           p("Check if Array Is Sorted and Rotated", "check-if-array-is-sorted-and-rotated", "easy"),
           p("Max Chunks To Make Sorted", "max-chunks-to-make-sorted", "medium"),
         ],
@@ -131,7 +120,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Increasing Triplet Subsequence", "increasing-triplet-subsequence", "medium"),
           p("Shortest Unsorted Continuous Subarray", "shortest-unsorted-continuous-subarray", "medium"),
           p("Max Consecutive Ones", "max-consecutive-ones", "easy"),
-          p("Shortest Word Distance", "shortest-word-distance", "easy"),
         ],
       },
       {
@@ -143,7 +131,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Find All Numbers Disappeared in an Array", "find-all-numbers-disappeared-in-an-array", "easy"),
           p("Find the Duplicate Number", "find-the-duplicate-number", "medium"),
           p("First Missing Positive", "first-missing-positive", "hard"),
-          p("Missing Ranges", "missing-ranges", "easy"),
         ],
       },
       {
@@ -159,8 +146,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Search a 2D Matrix II", "search-a-2d-matrix-ii", "medium"),
           p("Game of Life", "game-of-life", "medium"),
           p("Transpose Matrix", "transpose-matrix", "easy"),
-          p("Sparse Matrix Multiplication", "sparse-matrix-multiplication", "medium"),
-          p("Design Tic-Tac-Toe", "design-tic-tac-toe", "medium"),
         ],
       }
     ],
@@ -184,8 +169,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Continuous Subarray Sum", "continuous-subarray-sum", "medium"),
           p("Product of Array Except Self", "product-of-array-except-self", "medium"),
           p("Minimum Size Subarray Sum", "minimum-size-subarray-sum", "medium"),
-          p("Maximum Size Subarray Sum Equals k", "maximum-size-subarray-sum-equals-k", "medium"),
-          p("Range Addition", "range-addition", "medium"),
         ],
       }
     ],
@@ -203,8 +186,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Two Sum II - Input Array Is Sorted", "two-sum-ii-input-array-is-sorted", "medium"),
           p("3Sum", "3sum", "medium"),
           p("4Sum", "4sum", "medium"),
-          p("Two Sum Less Than K", "two-sum-less-than-k", "easy"),
-          p("3Sum Smaller", "3sum-smaller", "medium"),
           p("Boats to Save People", "boats-to-save-people", "medium"),
           p("K-diff Pairs in an Array", "k-diff-pairs-in-an-array", "medium"),
           p("Find K Closest Elements", "find-k-closest-elements", "medium"),
@@ -241,7 +222,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Permutation in String", "permutation-in-string", "medium"),
           p("Find All Anagrams in a String", "find-all-anagrams-in-a-string", "medium"),
           p("Minimum Window Substring", "minimum-window-substring", "hard"),
-          p("Longest Substring with At Most Two Distinct Characters", "longest-substring-with-at-most-two-distinct-characters", "medium"),
           p("Longest Substring with At Most K Distinct Characters", "longest-substring-with-at-most-k-distinct-characters", "medium"),
           p("Fruit Into Baskets", "fruit-into-baskets", "medium"),
           p("Number of Substrings Containing All Three Characters", "number-of-substrings-containing-all-three-characters", "medium"),
@@ -261,7 +241,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Count Number of Nice Subarrays", "count-number-of-nice-subarrays", "medium"),
           p("Maximum Points You Can Obtain from Cards", "maximum-points-you-can-obtain-from-cards", "medium"),
           p("Subarrays with K Different Integers", "subarrays-with-k-different-integers", "medium"),
-          p("Minimum Swaps to Group All 1's Together", "minimum-swaps-to-group-all-1s-together", "medium"),
         ],
       }
     ],
@@ -280,7 +259,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Insert Interval", "insert-interval", "medium"),
           p("Non-overlapping Intervals", "non-overlapping-intervals", "medium"),
           p("Minimum Number of Arrows to Burst Balloons", "minimum-number-of-arrows-to-burst-balloons", "medium"),
-          p("Remove Interval", "remove-interval", "medium"),
           p("Minimum Interval to Include Each Query", "minimum-interval-to-include-each-query", "hard"),
         ],
       },
@@ -290,8 +268,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
         problems: [
           p("Meeting Rooms", "meeting-rooms", "easy"),
           p("Meeting Rooms II", "meeting-rooms-ii", "medium"),
-          p("Meeting Scheduler", "meeting-scheduler", "medium"),
-          p("Employee Free Time", "employee-free-time", "hard"),
           p("Car Pooling", "car-pooling", "medium"),
           p("My Calendar I", "my-calendar-i", "medium"),
         ],
@@ -335,7 +311,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
         title: "Design stack / queue",
         problems: [
           p("Min Stack", "min-stack", "medium"),
-          p("Max Stack", "max-stack", "hard"),
           p("Implement Queue using Stacks", "implement-queue-using-stacks", "easy"),
           p("Implement Stack using Queues", "implement-stack-using-queues", "easy"),
           p("Design Circular Queue", "design-circular-queue", "medium"),
@@ -365,7 +340,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Remove K Digits", "remove-k-digits", "medium"),
           p("Maximal Rectangle", "maximal-rectangle", "hard"),
           p("Sum of Subarray Ranges", "sum-of-subarray-ranges", "medium"),
-          p("Buildings With an Ocean View", "buildings-with-an-ocean-view", "medium"),
         ],
       }
     ],
@@ -408,8 +382,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Reverse Nodes in k-Group", "reverse-nodes-in-k-group", "hard"),
           p("Sort List", "sort-list", "medium"),
           p("Rotate List", "rotate-list", "medium"),
-          p("Plus One Linked List", "plus-one-linked-list", "medium"),
-          p("Insert into a Sorted Circular Linked List", "insert-into-a-sorted-circular-linked-list", "medium"),
         ],
       }
     ],
@@ -435,9 +407,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Search a 2D Matrix", "search-a-2d-matrix", "medium"),
           p("Peak Index in a Mountain Array", "peak-index-in-a-mountain-array", "medium"),
           p("Count Negative Numbers in a Sorted Matrix", "count-negative-numbers-in-a-sorted-matrix", "easy"),
-          p("Find Smallest Common Element in All Rows", "find-smallest-common-element-in-all-rows", "medium"),
-          p("Leftmost Column with at Least a One", "leftmost-column-with-at-least-a-one", "medium"),
-          p("Search in a Sorted Array of Unknown Size", "search-in-a-sorted-array-of-unknown-size", "medium"),
         ],
       },
       {
@@ -456,7 +425,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Minimize Max Distance to Gas Station", "minimize-max-distance-to-gas-station", "hard"),
           p("Minimum Number of Days to Make m Bouquets", "minimum-number-of-days-to-make-m-bouquets", "medium"),
           p("Kth Missing Positive Number", "kth-missing-positive-number", "easy"),
-          p("Missing Element in Sorted Array", "missing-element-in-sorted-array", "medium"),
         ],
       }
     ],
@@ -503,8 +471,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Construct Binary Tree from Preorder and Inorder Traversal", "construct-binary-tree-from-preorder-and-inorder-traversal", "medium"),
           p("Construct Binary Tree from Inorder and Postorder Traversal", "construct-binary-tree-from-inorder-and-postorder-traversal", "medium"),
           p("Binary Tree Longest Consecutive Sequence", "binary-tree-longest-consecutive-sequence", "medium"),
-          p("Count Univalue Subtrees", "count-univalue-subtrees", "medium"),
-          p("Maximum Average Subtree", "maximum-average-subtree", "medium"),
         ],
       },
       {
@@ -539,22 +505,9 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Maximum Sum BST in Binary Tree", "maximum-sum-bst-in-binary-tree", "hard"),
           p("Recover Binary Search Tree", "recover-binary-search-tree", "medium"),
           p("Two Sum IV - Input is a BST", "two-sum-iv-input-is-a-bst", "easy"),
-          p("Closest Binary Search Tree Value", "closest-binary-search-tree-value", "easy"),
-          p("Convert BST to Sorted Doubly Linked List", "convert-binary-search-tree-to-sorted-doubly-linked-list", "medium"),
-          p("Largest BST Subtree", "largest-bst-subtree", "medium"),
         ],
       },
-      {
-        id: "trees-nary",
-        title: "N-ary & nested",
-        problems: [
-          p("Nested List Weight Sum", "nested-list-weight-sum", "medium"),
-          p("Lowest Common Ancestor of a Binary Tree III", "lowest-common-ancestor-of-a-binary-tree-iii", "medium"),
-          p("Serialize and Deserialize N-ary Tree", "serialize-and-deserialize-n-ary-tree", "hard"),
-          p("Encode N-ary Tree to Binary Tree", "encode-n-ary-tree-to-binary-tree", "hard"),
-        ],
-      }
-    ],
+      ],
   },
   {
     id: "heap",
@@ -588,8 +541,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Reorganize String", "reorganize-string", "medium"),
           p("Design Twitter", "design-twitter", "medium"),
           p("Meeting Rooms III", "meeting-rooms-iii", "hard"),
-          p("Campus Bikes", "campus-bikes", "medium"),
-          p("Rearrange String k Distance Apart", "rearrange-string-k-distance-apart", "hard"),
         ],
       }
     ],
@@ -616,7 +567,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Number of Enclaves", "number-of-enclaves", "medium"),
           p("Walls and Gates", "walls-and-gates", "medium"),
           p("Flood Fill", "flood-fill", "easy"),
-          p("Web Crawler", "web-crawler", "medium"),
         ],
       },
       {
@@ -631,9 +581,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Reconstruct Itinerary", "reconstruct-itinerary", "hard"),
           p("Critical Connections in a Network", "critical-connections-in-a-network", "hard"),
           p("Evaluate Division", "evaluate-division", "medium"),
-          p("Find the Celebrity", "find-the-celebrity", "medium"),
-          p("Parallel Courses", "parallel-courses", "medium"),
-          p("Sequence Reconstruction", "sequence-reconstruction", "medium"),
         ],
       },
       {
@@ -650,11 +597,7 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Open the Lock", "open-the-lock", "medium"),
           p("Find the City With the Smallest Number of Neighbors at a Threshold Distance", "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance", "medium"),
           p("Number of Ways to Arrive at Destination", "number-of-ways-to-arrive-at-destination", "medium"),
-          p("The Maze", "the-maze", "medium"),
-          p("The Maze II", "the-maze-ii", "medium"),
           p("Minimum Knight Moves", "minimum-knight-moves", "medium"),
-          p("Shortest Distance from All Buildings", "shortest-distance-from-all-buildings", "hard"),
-          p("The Maze III", "the-maze-iii", "hard"),
         ],
       }
     ],
@@ -676,7 +619,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Number of Connected Components in an Undirected Graph", "number-of-connected-components-in-an-undirected-graph", "medium"),
           p("Longest Consecutive Sequence", "longest-consecutive-sequence", "medium"),
           p("Number of Operations to Make Network Connected", "number-of-operations-to-make-network-connected", "medium"),
-          p("The Earliest Moment When Everyone Become Friends", "the-earliest-moment-when-everyone-become-friends", "medium"),
         ],
       },
       {
@@ -688,8 +630,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Making A Large Island", "making-a-large-island", "hard"),
           p("Most Stones Removed with Same Row or Column", "most-stones-removed-with-same-row-or-column", "medium"),
           p("Number of Islands II", "number-of-islands-ii", "hard"),
-          p("Connecting Cities With Minimum Cost", "connecting-cities-with-minimum-cost", "medium"),
-          p("Optimize Water Distribution in a Village", "optimize-water-distribution-in-a-village", "hard"),
         ],
       }
     ],
@@ -717,9 +657,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Generate Parentheses", "generate-parentheses", "medium"),
           p("Letter Case Permutation", "letter-case-permutation", "medium"),
           p("Restore IP Addresses", "restore-ip-addresses", "medium"),
-          p("Factor Combinations", "factor-combinations", "medium"),
-          p("Generalized Abbreviation", "generalized-abbreviation", "medium"),
-          p("Palindrome Permutation II", "palindrome-permutation-ii", "medium"),
         ],
       },
       {
@@ -730,10 +667,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("N-Queens", "n-queens", "hard"),
           p("Sudoku Solver", "sudoku-solver", "hard"),
           p("Expression Add Operators", "expression-add-operators", "hard"),
-          p("Next Closest Time", "next-closest-time", "medium"),
-          p("Android Unlock Patterns", "android-unlock-patterns", "medium"),
-          p("Word Pattern II", "word-pattern-ii", "hard"),
-          p("Flip Game II", "flip-game-ii", "medium"),
         ],
       }
     ],
@@ -764,8 +697,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Partition to K Equal Sum Subsets", "partition-to-k-equal-sum-subsets", "medium"),
           p("Fibonacci Number", "fibonacci-number", "easy"),
           p("Number of Longest Increasing Subsequence", "number-of-longest-increasing-subsequence", "medium"),
-          p("Paint House", "paint-house", "medium"),
-          p("Paint Fence", "paint-fence", "medium"),
         ],
       },
       {
@@ -780,7 +711,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Maximal Square", "maximal-square", "medium"),
           p("Cherry Pickup", "cherry-pickup", "hard"),
           p("Count Square Submatrices With All Ones", "count-square-submatrices-with-all-ones", "medium"),
-          p("Longest Line of Consecutive One in Matrix", "longest-line-of-consecutive-one-in-matrix", "medium"),
         ],
       },
       {
@@ -800,7 +730,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Delete Operation for Two Strings", "delete-operation-for-two-strings", "medium"),
           p("Minimum Insertion Steps to Make a String Palindrome", "minimum-insertion-steps-to-make-a-string-palindrome", "hard"),
           p("Shortest Common Supersequence", "shortest-common-supersequence", "hard"),
-          p("Shortest Way to Form String", "shortest-way-to-form-string", "medium"),
         ],
       },
       {
@@ -828,8 +757,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Largest Divisible Subset", "largest-divisible-subset", "medium"),
           p("Longest String Chain", "longest-string-chain", "medium"),
           p("Frog Jump", "frog-jump", "hard"),
-          p("Paint House II", "paint-house-ii", "hard"),
-          p("Maximum Vacation Days", "maximum-vacation-days", "hard"),
         ],
       }
     ],
@@ -889,7 +816,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Subsets", "subsets", "medium"),
           p("Maximum XOR for Each Query", "maximum-xor-for-each-query", "medium"),
           p("Minimum Bit Flips to Convert Number", "minimum-bit-flips-to-convert-number", "easy"),
-          p("Flip Game", "flip-game", "easy"),
         ],
       },
       {
@@ -921,19 +847,9 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Longest Word in Dictionary", "longest-word-in-dictionary", "medium"),
           p("Replace Words", "replace-words", "medium"),
           p("Maximum XOR of Two Numbers in an Array", "maximum-xor-of-two-numbers-in-an-array", "medium"),
-          p("Word Squares", "word-squares", "hard"),
         ],
       },
-      {
-        id: "trie-design",
-        title: "Autocomplete & file system",
-        problems: [
-          p("Design Search Autocomplete System", "design-search-autocomplete-system", "hard"),
-          p("Design File System", "design-file-system", "medium"),
-          p("Design In-Memory File System", "design-in-memory-file-system", "hard"),
-        ],
-      }
-    ],
+      ],
   },
   {
     id: "range-queries",
@@ -972,8 +888,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Simplify Path", "simplify-path", "medium"),
           p("Multiply Strings", "multiply-strings", "medium"),
           p("Palindrome Number", "palindrome-number", "easy"),
-          p("Strobogrammatic Number", "strobogrammatic-number", "easy"),
-          p("Strobogrammatic Number II", "strobogrammatic-number-ii", "medium"),
         ],
       },
       {
@@ -982,7 +896,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
         problems: [
           p("Longest Common Prefix", "longest-common-prefix", "easy"),
           p("Reverse Words in a String", "reverse-words-in-a-string", "medium"),
-          p("Reverse Words in a String II", "reverse-words-in-a-string-ii", "medium"),
           p("Find the Index of the First Occurrence in a String", "find-the-index-of-the-first-occurrence-in-a-string", "easy"),
           p("Repeated DNA Sequences", "repeated-dna-sequences", "medium"),
           p("Text Justification", "text-justification", "hard"),
@@ -991,10 +904,6 @@ export const PRACTICE_SHEET: LcGroup[] = [
           p("Longest Happy Prefix", "longest-happy-prefix", "hard"),
           p("Rotate String", "rotate-string", "easy"),
           p("Sum of Beauty of All Substrings", "sum-of-beauty-of-all-substrings", "medium"),
-          p("Valid Word Abbreviation", "valid-word-abbreviation", "easy"),
-          p("One Edit Distance", "one-edit-distance", "medium"),
-          p("Add Bold Tag in String", "add-bold-tag-in-string", "medium"),
-          p("Sentence Screen Fitting", "sentence-screen-fitting", "medium"),
         ],
       }
     ],
