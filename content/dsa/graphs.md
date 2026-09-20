@@ -1,10 +1,33 @@
 # Graphs
 
-**Definition:** Graph **nodes (vertices) + edges (neighbors)** ka jod hai. Representation: adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Do core traversals: **DFS** (gehra jao — components, paths, cycles) aur **BFS** (level by level — unweighted shortest steps). `visited` bina loop.
+**Definition:** Graph **nodes (vertices) + edges (neighbors)** ka jod hai. Representation: adjacency list, matrix, ya implicit grid (har cell ke 4 neighbors). Do core traversals: **DFS** (gehra jao — components, paths, cycles) aur **BFS** (level by level — unweighted shortest steps). `visited` bina infinite loop.
 
-**When to use:** "Pahuch sakte hain?", "kitne islands/components?", "kitne steps shortest?" (BFS), multi-source spread (Rotting Oranges), course order (→ Topological Sort page). Grid bhi graph hai.
+**When to use:** "Pahuch sakte hain?", "kitne islands/components?", "kitne steps shortest?" (BFS), multi-source spread (Rotting Oranges), course order → [Topological Sort](/patterns/topological-sort). Grid bhi graph hai.
 
 **How it works:** `graph[node] = [neighbors]` banao. DFS unvisited pe recurse/stack; BFS queue se level-by-level. Multi-source: saare sources ek saath queue me. Time `O(V+E)`, space `O(V)`.
+
+## Study order (this family)
+
+| Step | Page | You can answer aloud |
+|------|------|----------------------|
+| 1 | **This page** — BFS / DFS / grid | Islands, rotting oranges, word ladder |
+| 2 | [Topological Sort](/patterns/topological-sort) | Course schedule + cycle in DAG |
+| 3 | [Union Find](/patterns/union-find) | Merge groups / redundant edge |
+| 4 | [Shortest Path](/patterns/shortest-path) | Dijkstra / Bellman / Floyd pick |
+| 5 | [MST](/patterns/mst) | Min cost to connect all |
+
+## Active revision (3 passes)
+
+1. **Learn:** Read BFS vs DFS table once; redraw both skeletons from memory.
+2. **Recall:** Without notes — "unweighted steps?", "components?", "weights?", "dependencies?" → which page?
+3. **Apply:** Pick one problem below; say time/space before coding.
+
+**Blank checklist (every graph problem):**
+1. Nodes / edges kya hain? (grid cell? word? course?)
+2. Directed ya undirected?
+3. Weighted? → Shortest Path / MST, not plain BFS.
+4. Answer: reachability / count components / min steps / order?
+5. Visited kahan mark? (enqueue time vs dequeue — usually at enqueue)
 
 ## Study notes — BFS vs DFS (must know)
 
@@ -18,24 +41,37 @@
 
 **BFS jab:** "minimum steps / distance" without weights.  
 **DFS jab:** "explore whole blob", "any path", "connected components", recursion natural.  
-**Weighted shortest:** BFS mat — Dijkstra (Shortest Path page).
+**Weighted shortest:** BFS mat — [Dijkstra](/patterns/shortest-path).  
+**Dependencies / order:** [Topological Sort](/patterns/topological-sort).  
+**Many merges / "already connected?":** [Union Find](/patterns/union-find).
 
-### Build adj list (undirected)
+### Build adj list
 ```js
+// Undirected
 const g = Array.from({ length: n }, () => []);
 for (const [u, v] of edges) {
   g[u].push(v);
   g[v].push(u);
 }
+// Directed: only g[u].push(v)
 ```
 
-### Cycle detection (undirected): parent skip. Directed: 3-color / recursion stack.
+### Grid dirs (reuse everywhere)
+```js
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const inBounds = (r, c, R, C) => r >= 0 && c >= 0 && r < R && c < C;
+```
+
+### Cycle detection
+- **Undirected:** DFS with `parent` — neighbor == parent skip; else visited neighbor ⇒ cycle. Or [Union Find](/patterns/union-find).
+- **Directed:** 3-color DFS (grey revisit = back-edge) — see [Topological Sort](/patterns/topological-sort).
 
 ### Traps
-- Forget visited.
+- Forget visited / mark too late (duplicate queue entries).
 - Directed vs undirected edges.
-- BFS me `steps++` level ke baahar vs andar confuse.
-- Grid bounds `r<0 || c<0 || r>=m || c>=n`.
+- BFS me `steps++` level ke baahar vs andar confuse — process `queue.length` as one level.
+- Grid bounds `r<0 || c<0 || r>=R || c>=C`.
+- JS `queue.shift()` is `O(n)` — interview me bol sakte ho; LC pe usually OK.
 
 ```js
 // Graph skeleton — DFS (paint / components)
@@ -55,7 +91,7 @@ while (queue.length) {
     const node = queue.shift();
     for (const nxt of graph[node]) {
       if (!visited.has(nxt)) {
-        visited.add(nxt);
+        visited.add(nxt); // mark when enqueue
         queue.push(nxt);
       }
     }
@@ -161,7 +197,7 @@ Border se connected `O` safe hai. Baaki `O` ko `X` banao. DFS border se.
 [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
 ```js
-// Time: O(n) · Space: O(n)
+// Time: O(m·n) · Space: O(m·n)
 // O cells touching border cannot be captured; mark them safe first
 function solve(board) {
   const R=board.length, C=board[0].length;
@@ -187,7 +223,7 @@ Water flows down or flat. I BFS/DFS uphill from the Pacific edge and from the At
 
 ```js
 // Time: O(m·n) · Space: O(m·n)
-// Graph DFS — from oceans inland
+// Graph BFS — from oceans inland (mark visited when enqueue)
 var pacificAtlantic = function(heights) {
   let m = heights.length;
   let n = heights[0].length;
@@ -210,16 +246,17 @@ var pacificAtlantic = function(heights) {
     const isValid = (x, y) => x >= 0 && y >= 0 && x < m && y < n;
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
     const visited = Array.from(Array(m), () => new Array(n).fill(false));
+    for (const [sx, sy] of queue) visited[sx][sy] = true;
 
     while (queue.length) {
       const [x, y] = queue.shift();
-      visited[x][y] = true;
 
       for (let dir of directions) {
         let nextX = x + dir[0];
         let nextY = y + dir[1];
         if (!isValid(nextX, nextY) || visited[nextX][nextY]) continue;
         if (heights[nextX][nextY] >= heights[x][y]) {
+          visited[nextX][nextY] = true;
           queue.push([nextX, nextY]);
         }
       }
@@ -247,7 +284,7 @@ var pacificAtlantic = function(heights) {
 
 ## Number of Provinces
 
-Adjacency matrix → graph. Kitne connected components? DFS/Union-Find.
+Adjacency matrix → graph. Kitne connected components? DFS yahan; DSU version → [Union Find](/patterns/union-find).
 
 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
@@ -310,7 +347,7 @@ All rotten oranges start in the queue together. Each level of BFS is one minute.
 [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/)
 
 ```js
-// Time: O(n) · Space: O(n)
+// Time: O(m·n) · Space: O(m·n)
 // Multi-source BFS: all rotten oranges spread one layer per minute
 function orangesRotting(grid) {
   const rows = grid.length, cols = grid[0].length;
@@ -378,3 +415,5 @@ var ladderLength = function(beginWord, endWord, wordList) {
   return 0;
 };
 ```
+
+**Yaad rakho:** Unweighted steps = BFS. Blob / components = DFS. Weights = Shortest Path. Order / prereqs = Topo. Merge groups = UF.

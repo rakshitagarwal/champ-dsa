@@ -186,7 +186,25 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
   {
     slug: "dp",
     title: "Dynamic Programming",
-    description: "Same subproblem twice? Save the answer.",
+    description: "Hub: state in English, memo vs tabulation, which DP type.",
+    tier: "core",
+  },
+  {
+    slug: "dp-linear",
+    title: "1D / Linear DP",
+    description: "Stairs, robber, decode, word break — last 1–2 states.",
+    tier: "core",
+  },
+  {
+    slug: "dp-knapsack",
+    title: "Knapsack DP",
+    description: "Coins, subset, partition — 0/1 vs unbounded loops.",
+    tier: "core",
+  },
+  {
+    slug: "dp-2d",
+    title: "2D DP",
+    description: "LCS/edit, grid paths, LIS, interval (burst balloons).",
     tier: "core",
   },
 ];

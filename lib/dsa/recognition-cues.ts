@@ -72,9 +72,24 @@ export const DSA_RECOGNITION_CUES: Record<string, string[]> = {
     "Two heaps: small half vs big half",
   ],
   graphs: [
-    "Grid or nodes+edges: islands, clone, rotting, word ladder, topo",
-    "Unweighted shortest steps → BFS; weighted delay → Dijkstra",
-    "Courses with prereqs → in-degree queue",
+    "Grid or nodes+edges: islands, clone, rotting, word ladder",
+    "Unweighted shortest steps → BFS; paint a blob / components → DFS",
+    "Weights, order/prereqs, or merge groups → Shortest Path / Topo / UF pages",
+  ],
+  "topological-sort": [
+    "Courses, build order, task dependencies — directed edges",
+    "Need a valid order or detect a cycle in a DAG",
+    "Kahn (indegree queue) or DFS 3-color (grey = back-edge)",
+  ],
+  "shortest-path": [
+    "Cheapest / fastest path with edge weights",
+    "Non-negative → Dijkstra; hop limit or negatives → Bellman-Ford; all pairs → Floyd",
+    "No weights? That is plain BFS on the Graphs page",
+  ],
+  mst: [
+    "Minimum cost to connect ALL nodes — no cycles, n-1 edges",
+    "Kruskal: sort edges + Union-Find; Prim: grow tree with a heap",
+    "Not the same as A→B shortest path",
   ],
   "union-find": [
     "Keep merging sets, ask if two things are already connected",
@@ -87,9 +102,24 @@ export const DSA_RECOGNITION_CUES: Record<string, string[]> = {
     "Prune when the path is already illegal",
   ],
   dp: [
-    "Min / max / number of ways, and the same state shows up twice",
-    "House robber, coins, grid paths, LCS, LIS, edit distance, word break, burst balloons",
-    "Write dp[i] in English first, then the loop",
+    "Same subproblem twice — save the answer (memo or table)",
+    "First write dp[state] in English, then pick the type page",
+    "1D linear vs knapsack vs 2D (grid/strings/LIS/interval)",
+  ],
+  "dp-linear": [
+    "Answer at i depends only on the last 1–2 positions",
+    "Stairs, house robber, decode ways, word break",
+    "Circular robber → two linear ranges",
+  ],
+  "dp-knapsack": [
+    "Take or skip items under a capacity / target sum",
+    "0/1 = reverse inner loop; unbounded = forward; ways = coin outer",
+    "Coin change, partition equal subset, target sum",
+  ],
+  "dp-2d": [
+    "Two indices: strings (LCS/edit), grid paths, or interval [l,r]",
+    "LIS ending at i — answer is max(dp), not only the last cell",
+    "Burst balloons / interval: fill by increasing gap length",
   ],
   greedy: [
     "Jump as far as I can, gas station tank, partition labels, task cooldown",

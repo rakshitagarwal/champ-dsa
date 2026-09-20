@@ -14,16 +14,17 @@
 8. **Trees / BST** — Trees page + BST page
 9. **Heap / Priority Queue**
 10. **Backtracking**
-11. **Graphs** (+ **BFS / DFS** comparison on that page)
+11. **Graphs** (+ **BFS / DFS** comparison on that page) → then **Topological Sort** → **Union Find** → **Shortest Path** → **MST**
 12. **Topological Sort**
 13. **Union Find**
-14. **Greedy**
-15. **Intervals**
-16. **Dynamic Programming**
-17. **Tries**
-18. **Bit Manipulation**
-19. **Prefix Sum**
-20. **Recursion**
+14. **Shortest Path** / **MST** (after Graphs family)
+15. **Greedy**
+16. **Intervals**
+17. **Dynamic Programming** (hub) → [1D / Linear](/patterns/dp-linear) → [Knapsack](/patterns/dp-knapsack) → [2D](/patterns/dp-2d)
+18. **Tries**
+19. **Bit Manipulation**
+20. **Prefix Sum**
+21. **Recursion**
 
 Har page pe pehle **Definition / When / How**, phir **Study notes**, phir templates, phir questions.
 
@@ -35,9 +36,9 @@ Har page pe pehle **Definition / When / How**, phir **Study notes**, phir templa
 
 **Phase 3 — Recursion track:** Recursion → Backtracking → Trees → BST → Heap. Recursion ke bina trees/backtracking me atakoge.
 
-**Phase 4 — Graphs:** Graphs (BFS/DFS) → Topological Sort → Union Find → (optional Shortest Path / MST).
+**Phase 4 — Graphs:** [Graphs](/patterns/graphs) (BFS/DFS) → [Topological Sort](/patterns/topological-sort) → [Union Find](/patterns/union-find) → [Shortest Path](/patterns/shortest-path) → [MST](/patterns/mst). Decision: unweighted steps? BFS. Weights? Dijkstra/BF. Order/prereqs? Topo. Merge groups? UF. Connect all cheap? MST.
 
-**Phase 5 — Advanced:** DP → Greedy → Trie → Bits. DP ke subtopics ek-ek karke.
+**Phase 5 — Advanced:** [Dynamic Programming](/patterns/dp) hub → [1D Linear](/patterns/dp-linear) → [Knapsack](/patterns/dp-knapsack) → [2D](/patterns/dp-2d) → Greedy → Trie → Bits. DP types alag pages pe — pehle decision table.
 
 ## Time & space complexity (must know)
 
@@ -72,6 +73,10 @@ Interview me har solution ke baad bolna: **time `O(...)`, space `O(...)`**. Spac
 | Backtracking | often `O(kⁿ)` / `O(n!)` | `O(n)` depth |
 | Graph DFS/BFS | `O(V+E)` | `O(V)` |
 | Topo (Kahn/DFS) | `O(V+E)` | `O(V)` |
+| Dijkstra (heap) | `O((V+E) log V)` | `O(V)` |
+| Bellman-Ford | `O(V·E)` | `O(V)` |
+| Floyd-Warshall | `O(V³)` | `O(V²)` |
+| Kruskal MST | `O(E log E)` | `O(V)` |
 | Union-Find | ~`O(α(n))` per op | `O(n)` |
 | Greedy + sort | `O(n log n)` | `O(1)`–`O(n)` |
 | Intervals merge | `O(n log n)` | `O(n)` |
