@@ -50,4 +50,4 @@ graph LR
 
 **Yaad rakho:** Up = big box simple limit, Out = many boxes + shard key, stateless zaruri.
 
-**See also:** [sharding](/hld/databases-sql), [partitioning](/hld/databases-sql), [load-balancer](/hld/load-balancing).
+**See also:** [sharding](/hld/sql-databases), [partitioning](/hld/sql-databases), [load-balancer](/hld/load-balancing).

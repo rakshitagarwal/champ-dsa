@@ -46,4 +46,4 @@ graph TD
 
 **Yaad rakho (Revision):** ACID (Atomicity, Consistency, Isolation, Durability), isolation levels (4 levels, trade-off), dirty/phantom/deadlock issues, optimistic/pessimistic locking.
 
-**See also:** [ACID vs BASE](/hld/databases-sql), [Distributed Transactions](/hld/distributed-systems), [Database Replication](/hld/databases-sql).
+**See also:** [ACID vs BASE](/hld/sql-databases), [Distributed Transactions](/hld/distributed-systems), [Database Replication](/hld/sql-databases).

@@ -42,4 +42,4 @@ graph TD
 
 **Yaad rakho (Revision):** Scale up (vertical, limited) vs scale out (horizontal, better), stateless architecture needed for scale out, LB + distributed DB + sharding, auto-scaling, database bottleneck read replicas se.
 
-**See also:** [Clustering](/hld/fundamentals), [Load Balancing](/hld/load-balancing), [Sharding](/hld/databases-sql).
+**See also:** [Clustering](/hld/fundamentals), [Load Balancing](/hld/load-balancing), [Sharding](/hld/sql-databases).

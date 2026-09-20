@@ -45,4 +45,4 @@ graph TD
 
 **Yaad rakho (Revision):** RTO (recovery time), RPO (data loss), strategies (backup/restore, pilot light, warm standby, multi-site active-active), test regularly, regional disaster = multi-region.
 
-**See also:** [Availability](/hld/fundamentals), [Clustering](/hld/fundamentals), [Database Replication](/hld/databases-sql).
+**See also:** [Availability](/hld/fundamentals), [Clustering](/hld/fundamentals), [Database Replication](/hld/sql-databases).

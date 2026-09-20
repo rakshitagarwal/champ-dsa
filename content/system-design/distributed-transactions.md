@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** 2PC (prepare+commit, blocking, SPOF), 3PC (non-blocking), Saga pattern (local txns + compensation), choreography vs orchestration, use Saga for microservices.
 
-**See also:** [Transactions](/hld/databases-sql), [ACID vs BASE](/hld/databases-sql), [Event-Driven Architecture](/hld/microservices).
+**See also:** [Transactions](/hld/sql-databases), [ACID vs BASE](/hld/sql-databases), [Event-Driven Architecture](/hld/microservices).

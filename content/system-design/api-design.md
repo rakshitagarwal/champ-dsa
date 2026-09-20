@@ -43,6 +43,9 @@ The gateway is the **north-south edge**: one hostname, TLS termination, authenti
 - **Path-based routing** `/orders/*` → order service; canary by header or weight.
 - **Request size limits** and WAF rules at the edge.
 - Gateway **HA** — active-active behind anycast or DNS failover.
+- **Thin by rule:** no business logic, no cross-service joins, no heavy transforms — route and guard, never decide. A fat gateway becomes untestable shared code deployed on every change.
+- **Failure modes:** single point of failure → HA pairs across zones; every hop adds latency → keep gateway logic O(1) and cacheable; rate-limit misconfig → 429s on launch day, tier limits carefully.
+- **Phrase:** "Single front door — TLS, auth, rate limits, routing. Business logic stays in services."
 
 ## Request Validation and Error Handling
 
@@ -63,6 +66,19 @@ Networks retry — clients, gateways, and load balancers may deliver the same PO
 - **Different payload + same key** → 422 conflict — reject ambiguous replays.
 - Combine with **DB unique constraints** (payment_id) as last line of defense.
 - Webhooks and async workers should also treat delivery as **at-least-once**.
+- **Mechanics:** `SET key result NX EX 24h` — hit returns the stored response, miss executes then stores. Dedup-table alternative: `processed_keys(key PK, response, created_at)` with `INSERT ... IF NOT EXISTS`.
+- **Queue consumers:** dedupe on `msgId` (`SETNX msg:123` → seen, skip) — at-least-once delivery plus idempotent handler equals safe retries.
+- **Phrase:** "Idempotency-Key plus SETNX — seen key returns the stored answer, new key executes once. Exactly-once effect from at-least-once delivery."
+
+```mermaid
+graph LR
+    A[Client<br/>Key=abc] --> B[API]
+    B --> C{Redis<br/>GET abc}
+    C -->|hit| D[Return stored<br/>200]
+    C -->|miss| E[Execute<br/>charge]
+    E --> F[SET abc result<br/>EX 24h]
+    F --> D
+```
 
 ## Webhooks
 

@@ -53,6 +53,9 @@ Real-time updates need a strategy beyond polling. **WebSockets** upgrade an HTTP
 - **Heartbeat/ping** detects dead connections; set **idle timeouts** on LB and app.
 - **Backpressure** — slow clients should not unbounded-buffer the server.
 - Fallback ladder: WebSocket → SSE → long poll → short poll.
+- **Fleet design:** stateless WS servers sharded by user hash; Redis maps `userId → server` with TTL heartbeats for presence; disconnects trigger jittered-backoff reconnects plus sequence-ID catch-up from the message log (Kafka fan-out behind the fleet).
+- **Failure modes:** connection storms on deploy (stagger reconnects); sticky-routing loss on server death (Redis remap + client reconnect); idle timeouts from LB/NAT (heartbeat every ~15–30s); missed-message gaps (sequence IDs + log replay).
+- **Phrase:** "WebSocket is the phone call — upgrade once, shard the fleet, heartbeat presence, replay history on reconnect."
 
 ## REST and gRPC
 

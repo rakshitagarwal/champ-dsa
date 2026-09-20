@@ -111,7 +111,7 @@ graph LR
 
 **Components:**
 - **L1 (in-process Caffeine / Guava):** Per-pod tiny cache (64-128MB, TTL 5-10s) for hottest keys. Eliminates network RTT for 30-40% hits and shields L2 hot shard. Must use short TTL or versioning, because L1 invalidation is hard (pub/sub or TTL only).
-- **L2 (distributed [Redis](/hld/redis) Cluster):** Sharded by consistent hashing. Each shard = primary + 1-2 replicas (async). Data partitioned into 16384 hash slots (Redis Cluster style) mapped to nodes via ring. Client router knows slot→node table, updated via gossip/config.
+- **L2 (distributed [Redis](/hld/caching-strategies) Cluster):** Sharded by consistent hashing. Each shard = primary + 1-2 replicas (async). Data partitioned into 16384 hash slots (Redis Cluster style) mapped to nodes via ring. Client router knows slot→node table, updated via gossip/config.
 - **Client Router / Smart Client:** Library in app server, not a proxy hop (avoids extra latency). Does: `slot = CRC16(key) % 16384`, lookup node, send command to primary (reads may go to replica if stale OK). Handles `MOVED` redirect on topology change, connection pooling, health checks, retry with backoff.
 - **[Load Balancer](/hld/load-balancing) alternative:** Some designs put Twemproxy/McRouter between apps and shards — simpler clients but extra hop and proxy becomes bottleneck/hotspot. Mention both and justify smart client for p95.
 - **Config / Membership Service:** Etcd/Zookeeper or Redis Cluster gossip maintains ring version. On node add/remove, slot migration happens incrementally (one slot at a time, not stop-the-world).
@@ -218,7 +218,7 @@ class VersionedCache {
 
 ## Deep dive — Invalidation is the hard part
 
-TTL alone guarantees **stale reads until expiry** — unacceptable for price/inventory where serving $10 after update to $12 for 5 minutes loses money. So **delete-on-write** is mandatory: transaction `BEGIN; UPDATE db; DELETE cache(k); COMMIT`. But `DELETE` can fail or race (see stale SET above). Defenses: (1) **Version bump** (`k:version++`, readers verify version) handles re-ordered SET after DEL. (2) **Outbox / CDC:** DB change captured via Debezium/[Kafka](/hld/kafka) and async invalidator retries `DEL` until acked — survives process crash between DB commit and cache DEL. (3) **Short TTL as safety net:** Even if DEL lost, key expires in 30-60s. Combine all three; interviewers want you to say "cache invalidation is best-effort + TTL bound". For **L1+L2** coherence, DEL must reach both layers: L2 `DEL` + pub/sub `invalidate L1` to all pods (or L1 TTL 5s so you can skip pub/sub and accept 5s staleness — practical trade-off). Name your choice.
+TTL alone guarantees **stale reads until expiry** — unacceptable for price/inventory where serving $10 after update to $12 for 5 minutes loses money. So **delete-on-write** is mandatory: transaction `BEGIN; UPDATE db; DELETE cache(k); COMMIT`. But `DELETE` can fail or race (see stale SET above). Defenses: (1) **Version bump** (`k:version++`, readers verify version) handles re-ordered SET after DEL. (2) **Outbox / CDC:** DB change captured via Debezium/[Kafka](/hld/message-queue) and async invalidator retries `DEL` until acked — survives process crash between DB commit and cache DEL. (3) **Short TTL as safety net:** Even if DEL lost, key expires in 30-60s. Combine all three; interviewers want you to say "cache invalidation is best-effort + TTL bound". For **L1+L2** coherence, DEL must reach both layers: L2 `DEL` + pub/sub `invalidate L1` to all pods (or L1 TTL 5s so you can skip pub/sub and accept 5s staleness — practical trade-off). Name your choice.
 
 ## Deep dive — Hot keys, stampede and thundering herd on node death
 
@@ -242,7 +242,7 @@ TTL alone guarantees **stale reads until expiry** — unacceptable for price/inv
 
 ## Extra probes / follow-ups
 
-- Compare to [Redis](/hld/redis) Cluster hash slots vs pure consistent hashing — slots allow `MGET` with `{hashtag}` co-location; mention hashtag `key:{user123}:profile` forces same slot.
+- Compare to [Redis](/hld/caching-strategies) Cluster hash slots vs pure consistent hashing — slots allow `MGET` with `{hashtag}` co-location; mention hashtag `key:{user123}:profile` forces same slot.
 - Write-through vs cache-aside — when to use each (through for write-heavy + need cache always warm).
 - Negative caching — cache `404`/`null` with short TTL (30s) to protect against missing-key attacks that would otherwise always hit DB.
 - Bloom filter in front of cache — for huge key space, check Bloom before cache miss to avoid DB lookup for guaranteed-miss keys.

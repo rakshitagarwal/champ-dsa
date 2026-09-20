@@ -41,4 +41,4 @@ graph LR
 
 **Yaad rakho:** Master-slave vs leaderless, async lag → read-your-writes, failover election.
 
-**See also:** [postgresql](/hld/postgresql), [quorum](/hld/distributed-systems), [cap-theorem](/hld/distributed-systems).
+**See also:** [postgresql](/hld/sql-databases), [quorum](/hld/distributed-systems), [cap-theorem](/hld/distributed-systems).

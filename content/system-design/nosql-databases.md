@@ -58,6 +58,40 @@ Replicas apply updates asynchronously; without quorum reads, a client may read a
 - **Monotonic reads:** User never sees time go backward — often enough for feeds with version or timestamp checks.
 - **Strong on demand:** Same cluster can mix `{W:3,R:1}` for likes and `{W:3,R:3}` for wallet — state per API.
 
+## DynamoDB Deep-Dive
+
+Managed key-value: the partition key hashes to a storage partition; an optional sort key orders items within it (`PK=userId`, `SK=order#ts`). Query patterns must match keys — no SQL planner saves a bad model. GSIs are alternate access paths, each billed roughly like another table (project only needed fields). On-demand for spiky traffic, provisioned + autoscaling for steady load, DAX for microsecond hot reads.
+
+- **Keys:** high cardinality (`userId` spreads, `status=ACTIVE` throttles one partition); 400KB item cap — large blobs belong in S3 with pointers here; Query paths by design, never Scan at scale.
+- **Consistency per request:** eventually consistent default (cheaper, feeds and catalogs); strongly consistent when UX needs read-after-write; TransactWrite/ConditionExpression for small multi-item atomicity; Global Tables for active-active with last-writer-wins conflicts.
+- **Failure modes:** hot partitions (split keys `userId#shard` or cache in front); GSI lag and separate billing; throttling under burst (backoff with jitter).
+- **Phrase:** "DynamoDB is the managed locker — partition key in, milliseconds out; spread keys, mind GSI costs."
+
+## MongoDB Deep-Dive
+
+BSON documents in collections — product catalogs, CMS content, evolving startup schemas; new fields appear on write without migrations. **Replica sets** (one primary, secondaries copy, elections promote on failure) give HA with stale-acceptable secondary reads. **Sharding** splits by shard key with `mongos` routers directing queries — the shard key decides everything.
+
+- **Model:** embed one-to-few (read together, bounded); reference unbounded growth (comments → separate collection with `post_id` index) — 16MB document limit. Light `$jsonSchema` validation stops schema sprawl.
+- **Transactions:** multi-document ACID exists but weaker than Postgres — keep money elsewhere; default design stays single-document atomic.
+- **Failure modes:** monotonic ObjectId shard keys hammer one shard (prefer hashed/compound); primary failover pauses writes for seconds (retryable writes on).
+- **Phrase:** "Documents suit flexible schemas — replica sets for HA, shard keys decide scaling, joins and money stay Postgres work."
+
+## Cassandra Deep-Dive
+
+Wide-column store for write firehoses (chat messages, time-series, activity logs): the partition key picks the node on the hash ring; clustering columns sort rows inside the partition. Design **query-first** — one table per query, denormalize freely (chat: `PRIMARY KEY ((chatId), ts, messageId)` makes "latest messages" a sequential read). Consistency tunes per operation (`ONE`, `LOCAL_QUORUM`, `ALL`); `R + W > N` overlaps read and write sets. Hinted handoff + read repair + anti-entropy converge replicas.
+
+- **TTL expiry** beats mass deletes (tombstone storms slow reads); bucket unbounded partitions by time (`chatId + yyyyMM`); lightweight transactions cost ~4 RTTs — off hot paths; schedule repairs or replicas drift.
+- **Multi-region active-active** with `LOCAL_*` levels keeps latency low; conflicts resolve last-write-wins — prefer immutable appends over mutable counters.
+- **Phrase:** "Cassandra is the big diary — think query first, table second; writes cheap, reads fast by known key."
+
+## Elasticsearch for Search
+
+Book index over your data: CDC or queue feeds documents → analyzers tokenize (lowercase, stem, stopwords) → inverted index maps terms → documents. Writes refresh segments on a schedule — **near-real-time (~1s lag accepted)**, not instant. The database stays source of truth; Elasticsearch is its async search copy (read-your-write for authors via primary; deletes must flow through the same pipeline). Product search, facets/aggregations, log analytics, autocomplete.
+
+- **Queries to name:** match/multi-match (relevance), term filters (cheap faceting), aggregations (counts, histograms), completion suggesters, `search_after` for deep pages.
+- **Failure modes:** mapping explosions (explicit mappings, no unbounded dynamic fields); hot tenants (route deliberately, ~20–50GB shards); refresh lag (say it upfront); yellow cluster (replica missing — searchable but not HA).
+- **Phrase:** "Elasticsearch is the book index — async from the database, slight lag accepted, relevance plus facets out of the box."
+
 ```mermaid
 graph TD
     A[Access pattern?] -->|known key, huge scale| B[Key-Value / Wide-Column]

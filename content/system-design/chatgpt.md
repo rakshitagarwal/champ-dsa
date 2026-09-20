@@ -107,9 +107,9 @@ Client (Web/Mobile)
    |  +--> Moderation Service (input/output policy check)
    |  +--> Model Provider (OpenAI-compatible, streaming) -> GPU fleet
    |
- Queue ([Kafka](/hld/kafka) / Redis Stream) for saturated model — enqueues jobs, shows "busy"
+ Queue ([Kafka](/hld/message-queue) / Redis Stream) for saturated model — enqueues jobs, shows "busy"
    |
- [Redis](/hld/redis) (quota counters, run dedup, stream buffers)
+ [Redis](/hld/caching-strategies) (quota counters, run dedup, stream buffers)
    |
  Postgres (threads, messages — source of truth)
 ```
@@ -128,8 +128,8 @@ graph LR
 - **Thread Service:** Owns `threads` + `messages` in Postgres. Every read scopes `WHERE user_id = ?` — tenant isolation at query level.
 - **Orchestrator:** The core. Loads last N messages (or summary + recent), runs moderation, optionally retrieves RAG chunks, builds trimmed prompt, calls model provider with `stream: true`, pipes tokens to client via SSE, persists final assistant message on `done`. Handles retries and timeout.
 - **File / RAG Pipeline:** Async after upload: S3 → chunk (512 tokens, 50 overlap) → embed via embedding model → write to vector DB with `thread_id`/`user_id` ACL. Retrieval: `top_k=5` filtered by `user_id` + `thread_id`.
-- **Queue:** When model concurrency > threshold (e.g., 5k streams), enqueue `GenerateJob` to [Kafka](/hld/kafka)/SQS; worker pool drains with backpressure. Client sees "queued" then stream starts — don't hold 50k HTTP connections in Python threads.
-- **Quota Service:** Counts tokens per user per day in [Redis](/hld/redis) (`INCRBY user:{id}:tokens:2026-08-25`), checked before and after generation; 429 with `Retry-After` when exceeded.
+- **Queue:** When model concurrency > threshold (e.g., 5k streams), enqueue `GenerateJob` to [Kafka](/hld/message-queue)/SQS; worker pool drains with backpressure. Client sees "queued" then stream starts — don't hold 50k HTTP connections in Python threads.
+- **Quota Service:** Counts tokens per user per day in [Redis](/hld/caching-strategies) (`INCRBY user:{id}:tokens:2026-08-25`), checked before and after generation; 429 with `Retry-After` when exceeded.
 
 **Write flow — Send message:**
 1. `POST /threads/{id}/messages` → Gateway checks quota, dedup by `clientMsgId` (UNIQUE).
@@ -245,7 +245,7 @@ class QuotaService:
 - **Idempotency:** `client_msg_id` UNIQUE ensures retrying "send" doesn't spawn two billed completions; return existing stream or cached result.
 - **Tenant isolation:** Every query filters `user_id`; vector search **must** filter by `tenant` (user_id/thread_id) — never search across tenants. ACL on `files` table enforces it.
 
-**Patterns used:** Outbox not needed for streaming but used for file ingest ([Kafka](/hld/kafka) `FileUploaded` → chunk → embed), Cache-aside for quota counters, Circuit breaker around model provider, Queue-based load leveling, Idempotency key, Async summarization.
+**Patterns used:** Outbox not needed for streaming but used for file ingest ([Kafka](/hld/message-queue) `FileUploaded` → chunk → embed), Cache-aside for quota counters, Circuit breaker around model provider, Queue-based load leveling, Idempotency key, Async summarization.
 
 ## Deep dive — context and cost
 
@@ -255,9 +255,9 @@ Context windows are finite. If you send the entire history, cost and latency exp
 
 **Streaming:** First token SLA matters more than total time. SSE from the API pod with immediate flush; don't buffer. Use `Transfer-Encoding: chunked` and disable proxy buffering. On client disconnect, cancel the upstream model call to save cost.
 
-**Quotas:** [Rate limiter](/hld/rate-limiter) on requests (e.g., 20/min) **and** tokens/day (e.g., 100k free, 2M pro) via [Redis](/hld/redis) token bucket. Check before generation (estimate prompt tokens) and after (actual usage). Return `429` with `Retry-After` and `X-Quota-Remaining`. For cost control, also rate limit per-model (pro model stricter).
+**Quotas:** [Rate limiter](/hld/rate-limiter) on requests (e.g., 20/min) **and** tokens/day (e.g., 100k free, 2M pro) via [Redis](/hld/caching-strategies) token bucket. Check before generation (estimate prompt tokens) and after (actual usage). Return `429` with `Retry-After` and `X-Quota-Remaining`. For cost control, also rate limit per-model (pro model stricter).
 
-**Queuing:** If GPUs/provider saturated (concurrency > threshold or p95 latency >2s), enqueue `GenerateJob` to [Kafka](/hld/kafka) / Redis Stream; worker pool with limited concurrency drains it. Client sees `event: queued {position: 12}` then stream starts. Prevents holding 50k HTTP connections stuck in Python threads and gives backpressure. Mention autoscaling and fallback to cheaper model when overloaded.
+**Queuing:** If GPUs/provider saturated (concurrency > threshold or p95 latency >2s), enqueue `GenerateJob` to [Kafka](/hld/message-queue) / Redis Stream; worker pool with limited concurrency drains it. Client sees `event: queued {position: 12}` then stream starts. Prevents holding 50k HTTP connections stuck in Python threads and gives backpressure. Mention autoscaling and fallback to cheaper model when overloaded.
 
 ## Deep dive — RAG and tenancy
 

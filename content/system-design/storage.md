@@ -35,10 +35,14 @@ Managed NFS (EFS, Azure Files, NetApp) exposes a hierarchical path space multipl
 
 S3 buckets are global-name unique; objects hold data, user metadata, and optional object tags for lifecycle and IAM conditions. Storage classes (Standard, IA, One Zone-IA, Glacier Instant/Flexible/Deep Archive) map to access frequency and retrieval time — lifecycle rules automate transition and expiration. Strong consistency on overwrite/list helps build pipelines without custom sync. Event notifications (SNS, SQS, Lambda) fire on `s3:ObjectCreated:*` for virus scan, thumbnail, ETL. Multipart upload, versioning, and MFA delete protect large files and accidental overwrites. Cross-region replication copies to a DR bucket; same-region replication feeds aggregation or compliance copies.
 
+**When S3 fits:** media (presigned URLs, never proxied bytes); backups and archives (versioning + lifecycle); static sites (S3 + CDN, no servers); data lakes (Parquet dumps, query engines above). Pointers in DB, bytes in S3 — never BLOBs in the database.
+
 - Prefix design affects request rate — AWS scales per prefix but extreme hot keys still need sharding tricks.
 - Lifecycle to Glacier saves money; restore minutes-to-hours — not for interactive reads.
 - Bucket policies + IAM + Block Public Access layers prevent accidental public exposure.
 - S3 Select / Glacier Select query subsets without full download — niche but cost-saving at TB scale.
+- **Failure modes:** egress bill shock (storage cheap, outbound bytes not — CDN + lifecycles); presigned URL leaks (short expiries, private buckets); hot-key throttling (hash prefixes into keys); non-atomic renames (copy + delete bills real money); versioning cost creep (expire old versions).
+- **Phrase:** "S3 is the file warehouse — bytes never transit servers, presigned URLs always, versioning plus lifecycle set, CDN out front."
 
 ## Blob Storage and Presigned URLs
 

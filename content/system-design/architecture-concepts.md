@@ -84,6 +84,14 @@ Interactive requests should **enqueue** slow work — email, video transcode, PD
 - **Jump hash / rendezvous** alternatives when you need minimal movement with simpler math — mention as variants.
 - **Interview:** "O(1/N) remapping on node change vs modulo's full shuffle."
 
+## Geospatial Indexing (Geohashing & Quadtrees)
+
+Nearby search turns lat/lon into indexable keys. **Geohashing** encodes coordinates as strings — longer string = smaller area; shared prefix = same neighborhood (`dr5ru` ≈ San Francisco, `dr5r` ≈ broader SF). Query = prefix match on the cell plus neighbors. **Quadtrees** recursively split 2D space into NW/NE/SW/SE quadrants — efficient spatial queries and collision detection. Redis GEO covers simple radius needs; Uber/Yelp scale uses geohash cells.
+
+- **Edge cases:** boundary misses (check neighbor cells — nearby points can sit across a quadrant edge); precision vs fan-out (too precise = many queries); polar distortion skews cells; index churn on frequent location updates.
+- Geohash is approximate — prefix match finds candidates, exact distance gets computed after.
+- **Phrase:** "Lat/lon to strings, prefix match for nearby, quadtrees divide space — approximate first, exact distance after."
+
 ```mermaid
 graph TD
     A[Patterns] --> B[Sync: REST/gRPC<br/>request-response]
@@ -100,3 +108,4 @@ graph TD
 - Batch for nightly volume, streams for continuous processing — latency need decides.
 - Scheduled work needs atomic claims or leader election — never bare cron on many boxes.
 - Consistent hashing underlies scalable caches and shard maps — ~1/N keys move on topology change.
+- Geo search via geohash prefixes or quadtrees — candidates first, exact distance after.

@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** SQL (structured, ACID, joins, vertical) vs NoSQL (flexible, scale, eventual, horizontal), when to choose which, polyglot persistence (use both).
 
-**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [Database Replication](/hld/databases-sql).
+**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [Database Replication](/hld/sql-databases).

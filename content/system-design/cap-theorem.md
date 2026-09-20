@@ -60,4 +60,4 @@ Cassandra/Dynamo me `R + W > N` to strong-ish: `W=QUORUM, R=QUORUM` → majority
 
 **Yaad rakho (Revision):** P hamesha, partition me C=consistent fail ya A=available stale, normal me L vs C, `R+W>N` = strong, Ticket=CP, Likes=AP.
 
-**See also:** [cassandra](/hld/cassandra), [dynamodb](/hld/dynamodb), [postgresql](/hld/postgresql), [zookeeper](/hld/distributed-systems).
+**See also:** [cassandra](/hld/nosql-databases), [dynamodb](/hld/nosql-databases), [postgresql](/hld/sql-databases), [zookeeper](/hld/distributed-systems).

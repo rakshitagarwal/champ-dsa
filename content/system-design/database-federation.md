@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** Query federation (single query), data federation (virtual layer), sharding (split by key), polyglot persistence, cross-shard queries slow, rebalancing painful, operational complexity.
 
-**See also:** [Sharding](/hld/databases-sql), [Consistent Hashing](/hld/load-balancing), [Partitioning](/hld/databases-sql).
+**See also:** [Sharding](/hld/sql-databases), [Consistent Hashing](/hld/load-balancing), [Partitioning](/hld/sql-databases).

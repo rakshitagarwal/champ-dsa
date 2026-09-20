@@ -76,6 +76,14 @@ The **leader** (primary) accepts writes and ships WAL/binlog to **followers** (r
 - **Replica roles:** Analytics and reports on replicas; never run heavy migrations only on replicas without understanding replay load.
 - **Semi-sync:** Middle ground — wait for one replica ack — common compromise in MySQL setups.
 
+## PostgreSQL: The Default
+
+Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GIN, GiST), and `jsonb` for flexible corners. Correct indexes serve 10k QPS from one node. **Scaling ladder:** vertical first (bigger box) → read replicas for read-heavy loads → partitioning by time or range → sharding (Citus, logical shards) for write scale — each step on measured pain, never before. Connection pooling (PgBouncer) is mandatory from day one: connections are expensive, requests are many.
+
+- **Leave only for:** write firehoses (Cassandra), flexible documents at scale (MongoDB), full-text search (Elasticsearch) — pair, don't replace.
+- **Failure modes:** missing indexes (EXPLAIN every slow query); connection exhaustion (pool everything — one connection per request kills); long transactions (bloat and lock contention); replica lag (read-your-writes from primary when UX needs it).
+- **Phrase:** "Postgres is the default diary — index right, pool always, shard only on proof."
+
 ## Partitioning, Sharding, Connection Pooling
 
 **Partitioning** splits one logical table into physical chunks (range by date, hash by id, list by region) on one server — easier archival and partition pruning. **Sharding** spreads partitions across many servers keyed by **shard key** — scale writes when a single primary caps out (~ tens of k writes/s depending on hardware). Cross-shard queries and distributed transactions are expensive; co-locate data accessed together (`user_id` shards user, orders, and settings). **Connection pools** (PgBouncer, HikariCP) bound open connections — Postgres dies around hundreds of idle connections per instance; pool size ≈ `(cores * 2) + spindle` per app tier, not "one connection per request."
@@ -84,6 +92,30 @@ The **leader** (primary) accepts writes and ships WAL/binlog to **followers** (r
 - **Rebalancing:** Consistent hashing or virtual shards ease moving load when nodes join — plan before keys cement.
 - **Global tables:** Small reference data replicated to every shard avoids cross-shard joins for lookups.
 - **Pool modes:** Transaction pooling (PgBouncer) saves connections but breaks session-level features — know what your ORM needs.
+- **Sharding strategies:** **hash** (`hash(userId) % N` — even spread, but range queries fan out to all shards); **range** (`1–1M → shard1` — range-friendly, but append-only writes hotspot the last shard); **directory/lookup** (map table `userId → shard` — flexible, one extra hop); **geo** (by `cityId` — Uber-style locality).
+- **Shard key rules:** high cardinality (`userId` yes, `country` no); even distribution (`hash(userId)` yes, `created_at` no); match the dominant query pattern.
+- **Cross-shard joins/transactions:** fan out in app code and merge, denormalize, or co-locate (`user` + `orders` on the same `userId` shard). Cross-shard transfer → outbox + saga, not 2PC.
+- **Hot shard:** celebrity key at 10k QPS → split the key (`userId#1..N`) or cache + write-behind.
+- **Shard vs partition vs replica:** shard = different data per node; replica = same data copied for reads/failover; partition = table chunks (often one node, or Cassandra-style ring shards).
+
+```mermaid
+graph LR
+    A[App<br/>hash userId %4] --> B[Shard 0]
+    A --> C[Shard 1]
+    A --> D[Shard 2]
+    A --> E[Shard 3]
+    B --> F[Replica]
+    C --> F
+```
+
+## Real-Time Analytics with ClickHouse
+
+OLTP rows vs OLAP columns: a `SUM(revenue)` over billions of rows reads only the revenue column, touching nothing else. ClickHouse is append-only batch writes (from Kafka), MergeTree parts compacted in background merges, ordering key chosen from query patterns, materialized views serving precomputed answers. Dashboards, ad-tech aggregates, log analytics live here — transactions, frequent UPDATE/DELETE, and heavy JOINs do not (denormalize instead).
+
+- **Write in batches:** trickle inserts pile parts endlessly — use async inserts; monthly partitioning keeps merges sane.
+- **Failure modes:** high-cardinality GROUP BY explodes memory (pre-aggregate or approximate with HLL); wrong ordering key forces full scans; mutations rewrite parts (design append-only).
+- **Pairs with:** Flink (streams compute) → ClickHouse (stores + serves). Small data stays in Postgres; text relevance belongs to Elasticsearch.
+- **Phrase:** "ClickHouse reads columns, not rows — order keys right, write in batches, never ask for joins."
 
 ```mermaid
 graph LR

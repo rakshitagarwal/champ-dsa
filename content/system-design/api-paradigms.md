@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** REST GET cache, GraphQL 1 call DataLoader, gRPC HTTP/2 stream, hybrid common.
 
-**See also:** [api-gateway](/hld/api-gateway), [websocket](/hld/api-design), [load-balancer](/hld/load-balancing).
+**See also:** [api-gateway](/hld/api-design), [websocket](/hld/api-design), [load-balancer](/hld/load-balancing).

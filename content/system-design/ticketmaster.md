@@ -118,11 +118,11 @@ Client (Web/Mobile)
   |
  API Gateway (auth, [rate limiter](/hld/rate-limiter), WAF, bot check)
   |
- +-- Catalog Service (events, venues — Postgres + [Redis](/hld/redis) cache)
+ +-- Catalog Service (events, venues — Postgres + [Redis](/hld/caching-strategies) cache)
  |
  +-- Inventory Service (holds, seats — Postgres primary per event shard + Redis fast-hold)
  |        |--> Postgres (seat rows, holds, orders) — sharded by event_id
- |        |--> [Redis](/hld/redis) (optional fast hold: SET seat NX EX 600)
+ |        |--> [Redis](/hld/caching-strategies) (optional fast hold: SET seat NX EX 600)
  |        `--> Expiry Worker (sweeper + lazy check)
  |
  +-- Order Service (checkout, tickets — Postgres, idempotency)
@@ -141,8 +141,8 @@ graph LR
 ```
 
 **Component roles:**
-- **Waiting Room:** At on-sale second, 50k users don't hit DB. Queue issues `queueToken` with position, admits N users/s (e.g., 500/s) to Inventory Service. FIFO or random — prevents thundering herd. This is an [API gateway](/hld/api-gateway) + Redis sorted set, not a bigger DB.
-- **Catalog Service:** event/venue/seat map metadata — barely changes, heavily cached in [Redis](/hld/redis) + CDN. Reads from replicas/Cache, not primary.
+- **Waiting Room:** At on-sale second, 50k users don't hit DB. Queue issues `queueToken` with position, admits N users/s (e.g., 500/s) to Inventory Service. FIFO or random — prevents thundering herd. This is an [API gateway](/hld/api-design) + Redis sorted set, not a bigger DB.
+- **Catalog Service:** event/venue/seat map metadata — barely changes, heavily cached in [Redis](/hld/caching-strategies) + CDN. Reads from replicas/Cache, not primary.
 - **Inventory Service:** the critical path. Owns `seats(event_id, seat_id, status)` and `holds`. All writes go to **primary** of the event's shard. Implements `hold` and `hold→sold` transactions.
 - **Order Service:** owns checkout, idempotency key table, ticket issuance (signed barcodes). Calls Payment Service; on success, marks hold sold in same transaction.
 - **Expiry Worker:** frees `hold_until < now()` via periodic sweeper + lazy check on read. Publishes `HoldExpired`.
@@ -299,7 +299,7 @@ class ExpiryWorker:
 
 **Why queue?** Without it, 50k connections hit Postgres at 10:00:00 — connection pool exhausted, timeouts, retries amplify. Queue absorbs spike and admits controlled QPS (e.g., 500 holds/s) so DB stays healthy.
 
-**Implementation:** [Redis](/hld/redis) sorted set `queue:{eventId}` with `score = enqueue_time` (or random for lottery). On admission, `ZPOPMIN` N tokens and issue signed `queueToken` (JWT with `eventId, position, admittedAt`). API Gateway validates token before allowing `POST /holds`. Clients poll `GET /queue/token → { position: 1243, etaSeconds: 150 }` or via WebSocket.
+**Implementation:** [Redis](/hld/caching-strategies) sorted set `queue:{eventId}` with `score = enqueue_time` (or random for lottery). On admission, `ZPOPMIN` N tokens and issue signed `queueToken` (JWT with `eventId, position, admittedAt`). API Gateway validates token before allowing `POST /holds`. Clients poll `GET /queue/token → { position: 1243, etaSeconds: 150 }` or via WebSocket.
 
 **Fairness:** FIFO is perceived fair but bots that poll fastest win. Lottery (random shuffle at on-sale) is fairer for hype drops — mention both and ask interviewer preference. Add CAPTCHA/device attestation + [rate limiter](/hld/rate-limiter) (10 `POST /holds`/min per user) to damp bots.
 
@@ -307,7 +307,7 @@ class ExpiryWorker:
 
 **Shard by `event_id`:** One hot event (Taylor Swift) hashes to one shard — that's desired. All seats/holds/orders for that event co-located, so transactions stay local. Shard count ≈ `num_events / shard_capacity` (e.g., 10 shards). Consistent hashing for growth.
 
-**Read scaling:** Seat map reads go to **replicas** or [Redis](/hld/redis) cache (`event:{id}:seatmap → JSON`). Invalidate on `hold`/`sold` via pub/sub or short TTL (5s) — slight staleness OK because `POST /holds` validates against primary. Browsing never contends with checkout writes.
+**Read scaling:** Seat map reads go to **replicas** or [Redis](/hld/caching-strategies) cache (`event:{id}:seatmap → JSON`). Invalidate on `hold`/`sold` via pub/sub or short TTL (5s) — slight staleness OK because `POST /holds` validates against primary. Browsing never contends with checkout writes.
 
 **Payment idempotency:** Store `idempotency_key` unique per checkout attempt. On retry, return existing `orderId` if key seen. Authorize before DB commit, capture after. If capture fails after DB sold, run reconciler: refund or mark `payment_pending` and retry.
 
@@ -329,7 +329,7 @@ class ExpiryWorker:
 
 1. **Transfers / resale:** Transfer creates new `hold` for recipient, invalidates old barcode (`tickets.status='transferred'`), issues new signed barcode.
 2. **Waitlist:** When `sold out`, enqueue `waitlist(eventId, userId)` in Redis; on hold expiry, auto-offer to waitlist head via push.
-3. **Analytics:** [Kafka](/hld/kafka) → `seat hold rate`, `conversion funnel`, `bot score` dashboards.
+3. **Analytics:** [Kafka](/hld/message-queue) → `seat hold rate`, `conversion funnel`, `bot score` dashboards.
 4. **Multi-venue:** Venue service owns physical seat map; Event references it — don't duplicate venue geometry per event.
 5. **Idempotent holds:** `POST /holds` with `Idempotency-Key` — if same key+same seats retried, return same `holdId` instead of double-holding.
 

@@ -42,4 +42,4 @@ OR-Set me vector se pata chale `add` aur `remove` concurrent to add jeete.
 
 **Yaad rakho:** No global clock, `VC1<VC2` all <=, mixed = concurrent, Dynamo sibling.
 
-**See also:** [replication](/hld/distributed-systems), [eventual-consistency](/hld/distributed-systems), [dynamodb](/hld/dynamodb).
+**See also:** [replication](/hld/distributed-systems), [eventual-consistency](/hld/distributed-systems), [dynamodb](/hld/nosql-databases).

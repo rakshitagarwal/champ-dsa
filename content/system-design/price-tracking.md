@@ -36,7 +36,7 @@ Design a price tracker where users paste an Amazon (or multi-store) product URL,
 | **Storage — price points** | 100k products × 48 points/day (30 min) × 365 days × 32 bytes | ~56 GB/year raw; with indexes ~120 GB |
 | **Downsampled** | Keep raw 14 days, then daily min/max for history | Long-term: 100k × 365 × 32 ≈ 1.2 GB/year |
 | **Alert QPS** | Assume 5% of fetches trigger a drop | ~3 alerts/sec avg, bursty on sale events |
-| **Cache** | Latest price per product in [Redis](/hld/redis) | 100k × 200 bytes ≈ 20 MB |
+| **Cache** | Latest price per product in [Redis](/hld/caching-strategies) | 100k × 200 bytes ≈ 20 MB |
 
 Dedup is the entire cost story: without it, 5M watches × 48 fetches/day = 240M fetches/day (2777 rps) — 50x more.
 
@@ -101,8 +101,8 @@ Client (Web / Extension)
  [Job Scheduler](/hld/job-scheduler)  <-->  Fetcher Fleet (per-host polite queues)
    |                                              |
    +--> Postgres (watches, products)              +--> Parser (site adapters, JSON-LD)
-   +--> Time-Series Store (price points)          +--> Alert Service -> [Kafka](/hld/kafka) -> [notification system](/hld/notification-system)
-   +--> [Redis](/hld/redis) (latest price cache, per-host rate limiter)
+   +--> Time-Series Store (price points)          +--> Alert Service -> [Kafka](/hld/message-queue) -> [notification system](/hld/notification-system)
+   +--> [Redis](/hld/caching-strategies) (latest price cache, per-host rate limiter)
    +--> S3 (raw HTML snapshots for debugging/reparse)
 ```
 
@@ -129,7 +129,7 @@ graph LR
 
 **Write flow — Fetch & alert:**
 1. Scheduler enqueues `FetchJob` → Fetcher dequeues per-host (polite) → fetch HTML/API → Parser extracts price.
-2. Validate → write `price_points` → update `products.current_price` + `Redis` → publish `PriceUpdated` to [Kafka](/hld/kafka).
+2. Validate → write `price_points` → update `products.current_price` + `Redis` → publish `PriceUpdated` to [Kafka](/hld/message-queue).
 3. Alert Service consumes `PriceUpdated` → for each watch on product where `price <= target`, check dedup → enqueue email/push via [notification system](/hld/notification-system).
 
 **Read flow — History chart:**
@@ -225,15 +225,15 @@ class AlertService:
 
 **Concurrency & algorithms:**
 - **Dedup by product:** `canonical_url` UNIQUE ensures one `productId` per SKU. All watches share one `next_fetch_at` and one price history — the core scaling win.
-- **Per-host politeness:** Token bucket per domain in [Redis](/hld/redis): `INCR` with sliding window or `SET` with TTL. Global cap per domain (e.g., 5 rps for amazon.com) shared across fetcher replicas. On 429, set `COOLDOWN` and jitter retry.
+- **Per-host politeness:** Token bucket per domain in [Redis](/hld/caching-strategies): `INCR` with sliding window or `SET` with TTL. Global cap per domain (e.g., 5 rps for amazon.com) shared across fetcher replicas. On 429, set `COOLDOWN` and jitter retry.
 - **Downsampling:** Raw points for 14 days; continuous aggregate (Timescale) or cron job computes `SELECT product_id, date_trunc('day', ts), MIN(price), MAX(price) FROM price_points GROUP BY 1,2` for older data. Chart queries pick granularity by `from/to` range.
 - **Alert idempotency:** `idempotency_key = watchId + pricePoint + day` UNIQUE prevents 50 emails for one drop. Also guard: only alert when price *crosses* target downward (track `last_alerted_price`; if last alert was at $80 and price stays $79, don't re-alert until price goes above target then drops again).
 
-**Patterns used:** Shared polling / Flyweight (one fetch per product), Adapter (per-site parsers), Token bucket rate limiting, Time-series partitioning, Idempotency key, Outbox ([Kafka](/hld/kafka) `PriceUpdated`).
+**Patterns used:** Shared polling / Flyweight (one fetch per product), Adapter (per-site parsers), Token bucket rate limiting, Time-series partitioning, Idempotency key, Outbox ([Kafka](/hld/message-queue) `PriceUpdated`).
 
 ## Deep dive — shared watches and ban avoidance
 
-10k users watching 200 unique products → 200 fetch jobs, not 10k. That's the win. Without dedup, you'd need 10k × 48 fetches/day = 480k fetches for those products alone; with dedup, 200 × 48 = 9.6k (50× reduction). For **burst after a viral deal** (e.g., tweet "PS5 $399"), still one fetch per SKU — cache the latest price in [Redis](/hld/redis) with 30s TTL and serve watch-list reads from cache. For **bans**: mention official APIs first (Amazon PA-API, Best Buy API), scrape only as fallback with `robots.txt` respect, `User-Agent` identifying your bot, and exponential backoff on 403. Adding random jitter and respecting `Crawl-Delay` signals maturity.
+10k users watching 200 unique products → 200 fetch jobs, not 10k. That's the win. Without dedup, you'd need 10k × 48 fetches/day = 480k fetches for those products alone; with dedup, 200 × 48 = 9.6k (50× reduction). For **burst after a viral deal** (e.g., tweet "PS5 $399"), still one fetch per SKU — cache the latest price in [Redis](/hld/caching-strategies) with 30s TTL and serve watch-list reads from cache. For **bans**: mention official APIs first (Amazon PA-API, Best Buy API), scrape only as fallback with `robots.txt` respect, `User-Agent` identifying your bot, and exponential backoff on 403. Adding random jitter and respecting `Crawl-Delay` signals maturity.
 
 ## Deep dive — wrong parses and price semantics
 

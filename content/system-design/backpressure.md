@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** Queue 1000, drop vs block vs 429, Flink credit, Kafka lag.
 
-**See also:** [flink](/hld/flink), [kafka](/hld/kafka), [circuit-breaker](/hld/reliability-fault-tolerance).
+**See also:** [flink](/hld/message-queue), [kafka](/hld/message-queue), [circuit-breaker](/hld/reliability-fault-tolerance).

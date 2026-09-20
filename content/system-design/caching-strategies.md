@@ -96,12 +96,18 @@ Scale-out uses **consistent hashing**: keys map to ring slots; adding/removing a
 
 ## Redis
 
-De facto distributed cache: strings, hashes, lists, sets, sorted sets (leaderboards), HyperLogLog (UV), streams (light queue), pub/sub (not durable). Sub-ms LAN latency; optional RDB snapshots and AOF for restart recovery — still not your system of record. Use for sessions, rate limiting (`INCR` + EXPIRE), distributed locks (with fencing caveats), and ephemeral coordination.
+De facto distributed cache: strings, hashes, lists, sets, sorted sets (leaderboards), HyperLogLog (UV), streams (light queue), pub/sub (not durable). Sub-ms LAN latency; optional RDB snapshots and AOF for restart recovery — still not your system of truth. Use for sessions, rate limiting (`INCR` + EXPIRE), distributed locks (with fencing caveats), and ephemeral coordination.
 
 - **Data structures match use case:** Sorted set for rank; hash for object fields; set for unique tags.
 - **Single-threaded model:** One big command blocks others — avoid `KEYS *`, use `SCAN`, keep values small.
 - **Cluster limits:** Multi-key transactions only in same hash slot — design key names with hash tags `{user}:session:1`.
 - **Memory:** `allkeys-lru` vs `volatile-lru` — align with whether every cached key has TTL.
+
+**When Redis fits:** hot keys that would melt Postgres (sessions, feed page 1, short URL lookups); counters and sliding windows for rate limiting; pub/sub or presence heartbeats for chat; distributed locks (`SET key nx ex`) with leases plus fencing; small job lists — big backlogs belong in a message queue. **Don't store:** large blobs, full search indexes, or years of analytics — RAM is expensive and eviction surprises.
+
+**Redis failure modes:** eviction — treat Redis as possibly empty; failover — replica promotes with seconds of stale or lost writes; persistence — AOF vs RDB is acceptable because caches rebuild from the database.
+
+**Phrase:** "Redis is the hot path, Postgres is the source of truth — TTL plus delete-on-write, stampede protection on the hottest keys."
 
 ```mermaid
 graph LR
@@ -112,6 +118,16 @@ graph LR
     A -->|write| C
     C -->|DEL k| B
 ```
+
+## Bloom Filters
+
+A Bloom filter answers "definitely not in set vs probably in set" in tiny memory — `m` bits plus `k` hash functions. Adding sets `k` bits; checking finds any `0` → definitely absent, all `1` → probably present (false positive). Tuning rule: `m/n ≈ 10` gives ~1% false positives with `k ≈ 7` — 1M keys at 1% fits ~1.2MB. No deletes (a shared bit may belong to another key) — need deletes → counting Bloom or Cuckoo filter.
+
+- **Cache/DB guard:** Bloom says No → skip the DB; Yes → check the DB (1% extra hits acceptable) — never on money paths.
+- **Crawler dedup:** "URL seen?" without a database lookup per URL.
+- **SSTable skip:** Cassandra/LevelDB keep a Bloom per file to avoid opening files that cannot match.
+
+**Phrase:** "Bloom No is definitely No, Yes is maybe — 1% at m/n 10, a guard before disk, never for money."
 
 ## Keep in mind
 

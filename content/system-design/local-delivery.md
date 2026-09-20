@@ -10,7 +10,7 @@
 
 **What the interviewer really tests:**
 - Can you model an **order state machine** durably while keeping **location updates** cheap and ephemeral?
-- How you do **geo matching** (geohash / [Redis](/hld/redis) GEO / S2) and avoid **double-assigning** the same courier?
+- How you do **geo matching** (geohash / [Redis](/hld/caching-strategies) GEO / S2) and avoid **double-assigning** the same courier?
 - Whether you can deliver **live tracking** (WebSocket) and accurate **ETAs** without polling the DB.
 - How you handle **peak dinner rush** — surge, widening search radius, queueing.
 
@@ -57,7 +57,7 @@
 | Bandwidth (location) | 16k pings * 200B | 16k * 200B | ~3.2 MB/s per city |
 | WebSocket connections | 30k active orders * 2 (customer+ courier) | 60k | ~60k concurrent WS — fits on ~6-10 nodes |
 
-**Insight:** order QPS is modest — DB handles it. Location QPS is high but ephemeral — keep out of Postgres, use [Redis](/hld/redis) GEO.
+**Insight:** order QPS is modest — DB handles it. Location QPS is high but ephemeral — keep out of Postgres, use [Redis](/hld/caching-strategies) GEO.
 
 ## API Design
 
@@ -125,7 +125,7 @@ Customer App  Courier App  Store App
            |
      +-----+-----+
      |           |
-  Postgres   Redis Cluster  [Kafka](/hld/kafka) → ETA Service, Notifications, Analytics
+  Postgres   Redis Cluster  [Kafka](/hld/message-queue) → ETA Service, Notifications, Analytics
   (orders,   (courier pos,  → Maps API (OSRM) cache
    couriers)  offers, locks)
            |
@@ -145,7 +145,7 @@ graph LR
 
 **Component roles:**
 - **Order Service:** owns order state machine (`created → dispatched → picked_up → delivered → rated` + `cancelled`). Writes to Postgres. Publishes `OrderCreated`, `OrderDispatched` to Kafka.
-- **Dispatch Service:** triggered on `OrderCreated`. Queries `GEORADIUS` on [Redis](/hld/redis) GEO index for idle couriers within radius (e.g., 2km), ranks by ETA/distance/rating, creates offers. Manages offer TTL (15s) and widening logic.
+- **Dispatch Service:** triggered on `OrderCreated`. Queries `GEORADIUS` on [Redis](/hld/caching-strategies) GEO index for idle couriers within radius (e.g., 2km), ranks by ETA/distance/rating, creates offers. Manages offer TTL (15s) and widening logic.
 - **Location Service:** ingests courier pings (HTTP or WS), writes to Redis GEO (`GEOADD couriers:nyc lng lat courierId`), updates `courier:{id} → { lat, lng, ts, status }`. Publishes to WebSocket Gateway for subscribed order channels.
 - **ETA Service:** computes `store→customer` and `courier→store` ETAs via Haversine initially, then OSRM/Maps API. Caches `store→neighborhood` ETAs in Redis. Updates when courier moves significantly (>50m).
 - **WebSocket Gateway:** holds `orderId → { customerConn, courierConn }`. Pushes location + status diffs. Stateless behind LB with sticky or Redis pub/sub for cross-node fan-out.
@@ -255,7 +255,7 @@ class WebSocketGateway:
 ```
 
 **Algorithms / concurrency:**
-- **Geo index:** [Redis](/hld/redis) `GEOADD couriers:{city} lng lat courierId` + `GEORADIUS couriers:nyc lng lat 2 km WITHDIST COUNT 20 ASC`. Alternative: geohash prefix scan (e.g., `geohash: "dr5ru"` → neighbors). S2 cells for finer control.
+- **Geo index:** [Redis](/hld/caching-strategies) `GEOADD couriers:{city} lng lat courierId` + `GEORADIUS couriers:nyc lng lat 2 km WITHDIST COUNT 20 ASC`. Alternative: geohash prefix scan (e.g., `geohash: "dr5ru"` → neighbors). S2 cells for finer control.
 - **Atomic assign:** `UPDATE orders SET courier_id=:cid, status='dispatched' WHERE id=:oid AND status='created'` — `rowcount==1` wins; else `409`. Or Redis lock `SET courier:{id}:lock NX EX 15` before offer.
 - **Ranking:** `score = 0.6*distance + 0.2*eta + 0.1*rating + 0.1*load`. Prefer idle > returning. Filter by vehicle capability.
 
@@ -274,7 +274,7 @@ class WebSocketGateway:
 
 ## Deep dive — live location and ETA
 
-**Why not Postgres per ping?** 16k writes/s per city would saturate DB and be pointless — location is ephemeral. Keep in [Redis](/hld/redis) GEO + `courier:{id} → last point` with TTL 30s (if no ping, mark offline). WebSocket gateway subscribes to `courier:{id}` channel via Redis pub/sub.
+**Why not Postgres per ping?** 16k writes/s per city would saturate DB and be pointless — location is ephemeral. Keep in [Redis](/hld/caching-strategies) GEO + `courier:{id} → last point` with TTL 30s (if no ping, mark offline). WebSocket gateway subscribes to `courier:{id}` channel via Redis pub/sub.
 
 **ETA:** Initial ETA = `store prep time (12m) + courier→store (Maps API) + store→customer`. Cache `store→neighborhood` (geohash prefix) ETAs for 1h. Update ETA when courier moves >50m or every 30s — don't recompute per ping. Haversine is fallback if Maps API down: `distance = 2R*asin(...)`, `time = distance / avg_speed(25 km/h bike)`.
 

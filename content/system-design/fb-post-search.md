@@ -6,7 +6,7 @@
 
 ## What they ask
 
-Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees posts from friends, groups, and public pages they have access to, ranked in <200ms. There are 3B users and 100s of billions of posts." If you propose a single [Elasticsearch](/hld/elasticsearch) index of every post and filter in the UI, you fail privacy.
+Interviewer: "Design Facebook Post Search — user types 'birthday photos', sees posts from friends, groups, and public pages they have access to, ranked in <200ms. There are 3B users and 100s of billions of posts." If you propose a single [Elasticsearch](/hld/nosql-databases) index of every post and filter in the UI, you fail privacy.
 
 **What they really test:** (1) Privacy-aware indexing — ACL as first-class, not afterthought. (2) How to avoid stuffing 4000 friend IDs into every query. (3) Index is derived, not source of truth — hydration + re-check ACL. (4) Handling unfriend/block with near-real-time invalidation. (5) Ranking signals beyond BM25 (affinity, recency, social proof).
 
@@ -108,11 +108,11 @@ graph LR
 ```
 
 **Components:**
-- **Post Service + DB:** MySQL/Cassandra sharded by `postId`. Source of truth for post content + audience. Emits CDC events to [Kafka](/hld/kafka) on every mutation. Never queried per search fan-out directly — via cache.
-- **[Kafka](/hld/kafka):** `post_events` topic, 100+ partitions, retention 7 days. Carries `{ postId, authorId, text, audience, op: create|update|delete|audienceChange, ts }`. Ordering per `postId` matters.
+- **Post Service + DB:** MySQL/Cassandra sharded by `postId`. Source of truth for post content + audience. Emits CDC events to [Kafka](/hld/message-queue) on every mutation. Never queried per search fan-out directly — via cache.
+- **[Kafka](/hld/message-queue):** `post_events` topic, 100+ partitions, retention 7 days. Carries `{ postId, authorId, text, audience, op: create|update|delete|audienceChange, ts }`. Ordering per `postId` matters.
 - **Indexer Workers:** Stateless consumers, batch 100 docs or 1 sec. Build ES document: `{ postId, authorId, text, tokens, createdAt, audienceType, visibilitySet?, groupId? }`. For friends-only posts, store `authorId` + `audience=friends` rather than expanding 4000 friend IDs into doc (that would bloat index and stale on unfriend). Update is upsert; delete is hard delete.
-- **[Elasticsearch](/hld/elasticsearch):** Sharded by `postId` hash (not author — avoids hot shards for celebrities). 2000 shards across 600+ nodes, 1 replica. Index mapping includes `text` (BM25), `authorId` (keyword), `createdAt` (date), `audienceType` (keyword), `groupId`. Refresh interval 5-10s for near-real-time.
-- **Social Graph Service / TAO Cache:** [Redis](/hld/redis) + TAO-like cache for `friendList(viewer)` and `groupMembership(viewer)`. Precomputed "searchable author set" — not raw 5000 IDs per query, but a cached bitset/roaring bitmap of authors you interact with most plus tiered expansion. Hit rate critical.
+- **[Elasticsearch](/hld/nosql-databases):** Sharded by `postId` hash (not author — avoids hot shards for celebrities). 2000 shards across 600+ nodes, 1 replica. Index mapping includes `text` (BM25), `authorId` (keyword), `createdAt` (date), `audienceType` (keyword), `groupId`. Refresh interval 5-10s for near-real-time.
+- **Social Graph Service / TAO Cache:** [Redis](/hld/caching-strategies) + TAO-like cache for `friendList(viewer)` and `groupMembership(viewer)`. Precomputed "searchable author set" — not raw 5000 IDs per query, but a cached bitset/roaring bitmap of authors you interact with most plus tiered expansion. Hit rate critical.
 - **Search Service:** Stateless. Steps: (1) resolve viewerId, (2) fetch constrained author set from graph cache, (3) build ES query: `text match + filter(authors in set OR audience=public OR groupId in memberGroups)`, (4) ES returns top 100 IDs, (5) hydrate from Post Service via Memcached bulk get, (6) re-check ACL via Post Service (source of truth) and drop any leaked hit, (7) rank.
 - **Ranker:** BM25 + recency decay (`exp(-age/30days)`) + author affinity (interaction count) + social proof (likes/comments). Not Google quality — simple weighted sum. Optional second-stage ML re-rank for top 50.
 
@@ -200,7 +200,7 @@ class Ranker {
 
 **Concurrency handling / algorithms:**
 - **Indexing order:** Kafka partition key = `postId` guarantees per-post ordering (create before edit). Indexer uses `updatedAt` version check — ignore stale events (`if e.ts < doc.updatedAt skip`).
-- **Friends-only at scale:** Naive `authorId IN (4000 ids)` makes every query heavy and ES `terms` query hits `maxClauseCount`. Instead: **tiered author constraint**. Maintain per-viewer "searchable set" = top ~500 interacted authors + public posts (no author filter) + group posts. For friends-only posts, ES filter is `audienceType=friends AND authorId IN (searchableFriendsSubset)` — much smaller clause. Full 4000 expansion only if user explicitly filters `from:friends`. Cache this set in [Redis](/hld/redis) 5 min with invalidation on friend change.
+- **Friends-only at scale:** Naive `authorId IN (4000 ids)` makes every query heavy and ES `terms` query hits `maxClauseCount`. Instead: **tiered author constraint**. Maintain per-viewer "searchable set" = top ~500 interacted authors + public posts (no author filter) + group posts. For friends-only posts, ES filter is `audienceType=friends AND authorId IN (searchableFriendsSubset)` — much smaller clause. Full 4000 expansion only if user explicitly filters `from:friends`. Cache this set in [Redis](/hld/caching-strategies) 5 min with invalidation on friend change.
 - **ACL re-check (read-time):** Even if ES returns a hit, hydrator calls `canView(viewer, post)` against DB/cache — ES is a hint, not ACL. Drop leaked hits (log for auditing). This guards against stale index windows after unfriend/block.
 - **Near-dup detection:** SimHash on post text to collapse reposts in ranking (demote duplicates).
 - **Pagination:** Cursor = `sort=[score, postId]` with `search_after` (ES deep pagination without `from` overhead). Cursor is opaque base64 of last sort values.
@@ -217,7 +217,7 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 
 ## Deep dive — Unfriend, block, edits and ranking
 
-**Unfriend/block propagation:** Friendship change emits event to `graph_events` Kafka. Graph cache entry for both users invalidated (delete key, next read rebuilds). In-flight ES queries may still use stale friend list for ~5s — mitigated by read-time ACL re-check (block is checked hydrator-side, so even if ES returned blocked user's post, hydrator drops it). For immediate block enforcement (<1s), also maintain a short-lived `blocked:{viewer}:{author}` denylist in [Redis](/hld/redis) checked on hydration. **Edits/deletes:** Edit → indexer upserts doc (version bump); delete → hard delete + tombstone in hydrator cache (negative cache 1h to avoid rehydrating ghosts). Audience change from public→friends triggers doc update (`audienceType` change) — no full reindex. **Ranking:** Start with ES BM25, then multiply by `recencyBoost = exp(-hoursSincePost/72)` and `affinityBoost = 1 + log(1+interactionCount(viewer,author))`. Don't promise learning-to-rank; mention second-stage ranker as v2. For typeahead, separate edge-ngram index with lower latency SLA.
+**Unfriend/block propagation:** Friendship change emits event to `graph_events` Kafka. Graph cache entry for both users invalidated (delete key, next read rebuilds). In-flight ES queries may still use stale friend list for ~5s — mitigated by read-time ACL re-check (block is checked hydrator-side, so even if ES returned blocked user's post, hydrator drops it). For immediate block enforcement (<1s), also maintain a short-lived `blocked:{viewer}:{author}` denylist in [Redis](/hld/caching-strategies) checked on hydration. **Edits/deletes:** Edit → indexer upserts doc (version bump); delete → hard delete + tombstone in hydrator cache (negative cache 1h to avoid rehydrating ghosts). Audience change from public→friends triggers doc update (`audienceType` change) — no full reindex. **Ranking:** Start with ES BM25, then multiply by `recencyBoost = exp(-hoursSincePost/72)` and `affinityBoost = 1 + log(1+interactionCount(viewer,author))`. Don't promise learning-to-rank; mention second-stage ranker as v2. For typeahead, separate edge-ngram index with lower latency SLA.
 
 ## Common mistakes
 
@@ -241,7 +241,7 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 - Multilingual — per-language analyzer (standard + ICU) + language field routing.
 - Security audit — log every ES hit that was dropped at hydration (ACL violation attempt) for anomaly detection.
 - Why not filter in UI? — Demonstrate leak scenario and fix via three-layer defense.
-- Compare to [Elasticsearch](/hld/elasticsearch) vs Vespa/Typesense — same privacy pattern applies regardless of engine.
+- Compare to [Elasticsearch](/hld/nosql-databases) vs Vespa/Typesense — same privacy pattern applies regardless of engine.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

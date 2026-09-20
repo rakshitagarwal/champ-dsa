@@ -2,8 +2,19 @@ import type { SdDocumentMeta, SdGroup } from "@/types/system-design";
 
 export const SD_GROUPS: SdGroup[] = [
   { id: "intro", title: "Start here" },
-  { id: "tech", title: "Key Technologies" },
-  { id: "concepts", title: "Key Concepts" },
+  { id: "foundations", title: "Foundations" },
+  { id: "network", title: "Networking & APIs" },
+  { id: "traffic", title: "Traffic & CDN" },
+  { id: "data", title: "Databases" },
+  { id: "caching", title: "Caching" },
+  { id: "messaging", title: "Messaging & Streaming" },
+  { id: "distributed", title: "Distributed Systems" },
+  { id: "resilience", title: "Resilience" },
+  { id: "storage", title: "Storage" },
+  { id: "architecture", title: "Architecture" },
+  { id: "security", title: "Security" },
+  { id: "observability", title: "Observability" },
+  { id: "cloud", title: "Cloud" },
   { id: "questions", title: "Question Breakdowns" },
 ];
 
@@ -17,279 +28,138 @@ export const SD_CATALOG: SdDocumentMeta[] = [
   },
 
   {
-    slug: "redis",
-    title: "Redis",
-    description:
-      "In-memory store for cache, sessions, rate limits, and presence — not a replacement for your source of truth.",
-    group: "tech",
-  },
-  {
-    slug: "elasticsearch",
-    title: "Elasticsearch",
-    description:
-      "Full-text search and aggregations. Async index from your database; accept a little lag.",
-    group: "tech",
-  },
-  {
-    slug: "kafka",
-    title: "Kafka",
-    description:
-      "Durable ordered event log. Fan-out many consumers, replay history, buffer spikes.",
-    group: "tech",
-  },
-  {
-    slug: "api-gateway",
-    title: "API Gateway",
-    description:
-      "Single front door: TLS, auth, rate limits, routing. Keep business logic out of it.",
-    group: "tech",
-  },
-  {
-    slug: "cassandra",
-    title: "Cassandra",
-    description:
-      "Wide-column store for huge write volume and known keys. Model around queries, not relations.",
-    group: "tech",
-  },
-  {
-    slug: "dynamodb",
-    title: "DynamoDB",
-    description:
-      "Managed key-value at scale. Partition keys, GSIs, and avoiding hot partitions.",
-    group: "tech",
-  },
-  {
-    slug: "postgresql",
-    title: "PostgreSQL",
-    description:
-      "Default relational database. Transactions, joins, and indexes — start here unless scale forces you out.",
-    group: "tech",
-  },
-  {
-    slug: "flink",
-    title: "Flink",
-    description:
-      "Stream processing: windows, watermarks, and exactly-once jobs over Kafka.",
-    group: "tech",
-  },
-  {
-    slug: "zookeeper",
-    title: "ZooKeeper",
-    description:
-      "Coordination: leader election, distributed locks, and config. Kafka used to need it; you still should know it.",
-    group: "tech",
-  },
-  {
-    slug: "websocket",
-    title: "WebSocket",
-    description:
-      "Persistent 2-way pipe — handshake, fleet sharding, and catch-up on reconnect.",
-    group: "tech",
-  },
-  {
-    slug: "rabbitmq",
-    title: "RabbitMQ",
-    description:
-      "Smart broker with exchanges and routing keys — flexible routing, per-message acks, and task queues.",
-    group: "tech",
-  },
-  {
-    slug: "nats-jetstream",
-    title: "NATS (JetStream)",
-    description:
-      "Lightweight messaging plus persistence — streams, consumers, and replay with simpler ops than Kafka.",
-    group: "tech",
-  },
-  {
-    slug: "mongodb",
-    title: "MongoDB",
-    description:
-      "Document database with flexible schema — collections, replica sets, and sharding for product data.",
-    group: "tech",
-  },
-  {
-    slug: "s3",
-    title: "S3 (Object Storage)",
-    description:
-      "Object storage for media, backups, and static files — presigned URLs, versioning, and lifecycle tiers.",
-    group: "tech",
-  },
-  {
-    slug: "clickhouse",
-    title: "ClickHouse",
-    description:
-      "Columnar OLAP for real-time analytics — MergeTree, ordering keys, and dashboards over billions of rows.",
-    group: "tech",
-  },
-  {
     slug: "fundamentals",
     title: "System Design Fundamentals",
     description:
       "Functional vs non-functional requirements, scalability, availability, consistency and the core trade-offs.",
-    group: "concepts",
+    group: "foundations",
   },
   {
     slug: "capacity-estimation",
     title: "Capacity Estimation",
     description:
       "QPS, DAU, storage and bandwidth math — back-of-the-envelope calculations with a worked example.",
-    group: "concepts",
+    group: "foundations",
   },
   {
     slug: "networking",
     title: "Networking",
     description:
       "HTTP versions, TCP vs UDP, DNS, TLS, WebSockets, SSE, REST, gRPC and connection reuse.",
-    group: "concepts",
+    group: "network",
   },
   {
     slug: "api-design",
     title: "API Design",
     description:
-      "REST design, versioning, pagination, validation, errors, idempotency and webhooks.",
-    group: "concepts",
+      "REST design, versioning, pagination, gateway, validation, errors, idempotency and webhooks.",
+    group: "network",
   },
   {
     slug: "load-balancing",
     title: "Load Balancing",
     description:
       "L4 vs L7, algorithms, consistent hashing, health checks, failover and sticky sessions.",
-    group: "concepts",
+    group: "traffic",
   },
   {
     slug: "sql-databases",
     title: "SQL Databases",
     description:
-      "Tables, keys, indexes, transactions, ACID, isolation, replication and sharding.",
-    group: "concepts",
+      "Postgres as default, indexes, transactions, sharding, and ClickHouse for analytics.",
+    group: "data",
   },
   {
     slug: "nosql-databases",
     title: "NoSQL Databases",
     description:
-      "Key-value, document and wide-column stores, modeling, replication and eventual consistency.",
-    group: "concepts",
+      "DynamoDB, MongoDB, Cassandra deep-dives, Elasticsearch for search, modeling and consistency.",
+    group: "data",
   },
   {
     slug: "caching-strategies",
     title: "Caching",
     description:
-      "Cache patterns, TTL, eviction, stampede, penetration, distributed cache and Redis.",
-    group: "concepts",
+      "Cache patterns, TTL, eviction, stampede, Redis deep-dive and Bloom filters.",
+    group: "caching",
   },
   {
     slug: "message-queue",
     title: "Message Queues",
     description:
-      "Producers, consumers, pub/sub, delivery guarantees, ordering, retries, DLQ and Kafka/RabbitMQ/NATS.",
-    group: "concepts",
+      "Delivery guarantees, ordering, retries, DLQ, Kafka/RabbitMQ/NATS deep-dives and Flink.",
+    group: "messaging",
   },
   {
     slug: "distributed-systems",
     title: "Distributed Systems",
     description:
-      "CAP, consistency models, replication, quorum, locks, transactions, retries and backoff.",
-    group: "concepts",
+      "CAP, quorum, replication, locks, ZooKeeper coordination, sagas and retries.",
+    group: "distributed",
   },
   {
     slug: "microservices",
     title: "Microservices",
     description:
       "Monolith to microservices, boundaries, discovery, sync vs async, saga, outbox, CQRS and tracing.",
-    group: "concepts",
+    group: "architecture",
   },
   {
     slug: "cdn",
     title: "CDN",
     description:
       "Edge locations, origin, static caching, cache-control, invalidation and providers.",
-    group: "concepts",
+    group: "traffic",
   },
   {
     slug: "storage",
     title: "Storage",
     description:
       "Object, block and file storage, S3, presigned URLs, multipart upload and lifecycle.",
-    group: "concepts",
+    group: "storage",
   },
   {
     slug: "rate-limiting",
     title: "Rate Limiting",
     description:
       "Fixed and sliding windows, token and leaky buckets, distributed limits with Redis.",
-    group: "concepts",
+    group: "resilience",
   },
   {
     slug: "reliability-fault-tolerance",
     title: "Reliability & Fault Tolerance",
     description:
       "Health checks, retries, timeouts, circuit breaker, bulkhead, failover and RPO/RTO.",
-    group: "concepts",
+    group: "resilience",
   },
   {
     slug: "security",
     title: "Security",
     description:
       "AuthN vs AuthZ, JWT, OAuth 2.0, RBAC, encryption, CORS/CSRF/XSS/SQL injection and secrets.",
-    group: "concepts",
+    group: "security",
   },
   {
     slug: "observability",
     title: "Observability",
     description:
       "Logs, metrics, traces, correlation IDs, alerting, Prometheus and Grafana.",
-    group: "concepts",
+    group: "observability",
   },
   {
     slug: "cloud-architecture",
     title: "Cloud Architecture",
     description:
       "EC2, ECS/EKS, Lambda, RDS, DynamoDB, ElastiCache, SQS/SNS, CloudFront, Route 53, ALB and CloudWatch.",
-    group: "concepts",
+    group: "cloud",
   },
   {
     slug: "architecture-concepts",
     title: "Important Architecture Concepts",
     description:
-      "Reverse proxy, service mesh, webhooks, polling vs push, batch vs stream, queues, workers and schedulers.",
-    group: "concepts",
+      "Reverse proxy, service mesh, webhooks, polling vs push, batch vs stream, schedulers and geo indexing.",
+    group: "architecture",
   },
-  {
-    slug: "sharding",
-    title: "Sharding",
-    description:
-      "Split data across databases by key — hash vs range vs geo, hot shards, and rebalancing.",
-    group: "concepts",
-  },
-  {
-    slug: "circuit-breaker",
-    title: "Circuit Breaker",
-    description:
-      "Fail fast when a dependency is down — open / half-open / closed, retries vs fallbacks.",
-    group: "concepts",
-  },
-  {
-    slug: "idempotency",
-    title: "Idempotency",
-    description:
-      "Safe retries — idempotency keys, exactly-once effects from at-least-once delivery.",
-    group: "concepts",
-  },
-  {
-    slug: "bloom-filter",
-    title: "Bloom Filter",
-    description:
-      "Probabilistic set membership — catch misses cheaply before hitting disk or cache.",
-    group: "concepts",
-  },
-  {
-    slug: "geohashing-and-quadtrees",
-    title: "Geohashing & Quadtrees",
-    description:
-      "Nearby search — geohash prefixes, quadtrees, and when Redis GEO is enough.",
-    group: "concepts",
-  },
-
   {
     slug: "bitly",
     title: "Bitly",

@@ -54,7 +54,7 @@
 | Reads (redirects) | 100:1 read:write | 38 * 100 | ~3.8k reads/s avg, ~40k/s peak |
 | If 1B redirects/month | — | 1B / 2.6M sec/month | ~385 reads/s per 100M? Actually ~12k/s avg |
 | Storage per mapping | `code(7) + longUrl(avg 200) + metadata ~500B` | 100M * 500B | ~50 GB/month, ~600 GB/year, ~3 TB / 5 years |
-| Cache needed | Hot 20% links serve 80% traffic | 20M * 500B | ~10 GB hot set — fits in [Redis](/hld/redis) cluster |
+| Cache needed | Hot 20% links serve 80% traffic | 20M * 500B | ~10 GB hot set — fits in [Redis](/hld/caching-strategies) cluster |
 | Bandwidth (redirect) | 500B response headers + 302 | 40k * 500B | ~20 MB/s egress at peak |
 
 **Reasoning:** metadata only — not the destination page. Even at 1B links, storage is single-digit TBs. Bottleneck is QPS, not bytes. Show you can do this math in 60 seconds.
@@ -111,9 +111,9 @@ Client (Browser/App)
    |
   +---> Link Service (create + redirect)
    |        |--> ID / Code Generator Service
-   |        |--> Cache ([Redis](/hld/redis) Cluster)
+   |        |--> Cache ([Redis](/hld/caching-strategies) Cluster)
    |        |--> DB (Postgres / DynamoDB)
-   |        `--> [Kafka](/hld/kafka) → Analytics Workers → ClickHouse / Druid
+   |        `--> [Kafka](/hld/message-queue) → Analytics Workers → ClickHouse / Druid
    |
    `--> Analytics Service (reads from OLAP)
 ```
@@ -132,9 +132,9 @@ graph LR
 - **CDN:** offloads hot redirects if using 301; even with 302, absorbs DDoS and TLS termination.
 - **API Gateway:** authenticates creation, rate-limits per API key/IP, validates URLs.
 - **Link Service:** stateless app servers (auto-scaled). Handles both write (allocate code → persist → cache) and read (cache → DB → redirect).
-- **Cache ([Redis](/hld/redis)):** `code → { longUrl, expiresAt, ownerId }`. TTL-aware. Clustered, replicated. Hot path for 90%+ reads.
+- **Cache ([Redis](/hld/caching-strategies)):** `code → { longUrl, expiresAt, ownerId }`. TTL-aware. Clustered, replicated. Hot path for 90%+ reads.
 - **DB (Postgres with read replicas or DynamoDB PK=`code`):** source of truth. Shard by `code` prefix when needed.
-- **[Kafka](/hld/kafka):** decouples analytics — redirect publishes `LinkClicked{ code, timestamp, ip, ua }` asynchronously.
+- **[Kafka](/hld/message-queue):** decouples analytics — redirect publishes `LinkClicked{ code, timestamp, ip, ua }` asynchronously.
 
 **Write flow (create):** Validate URL → check custom alias uniqueness → allocate code (via generator) → `INSERT INTO links` → `SET` in Redis → publish creation event → return `shortUrl`.
 
@@ -230,7 +230,7 @@ class AnalyticsPublisher:
 
 ## Deep dive — analytics off the hot path
 
-Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: publish to [Kafka](/hld/kafka) `topic=link-clicks` with `{ code, ts, ip, ua, referrer }`. Consumers batch-write to ClickHouse/Cassandra and increment Redis counters. This keeps redirect latency flat under spike. Mention idempotency: consumers dedup via `(code, requestId)` if needed. For GDPR, hash IPs.
+Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: publish to [Kafka](/hld/message-queue) `topic=link-clicks` with `{ code, ts, ip, ua, referrer }`. Consumers batch-write to ClickHouse/Cassandra and increment Redis counters. This keeps redirect latency flat under spike. Mention idempotency: consumers dedup via `(code, requestId)` if needed. For GDPR, hash IPs.
 
 ## Common mistakes
 

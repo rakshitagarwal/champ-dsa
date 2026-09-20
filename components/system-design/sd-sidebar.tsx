@@ -2,7 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lightbulb, MapPin, Zap } from "lucide-react";
+import {
+  Activity,
+  BookOpen,
+  Boxes,
+  Cloud,
+  Database,
+  Globe,
+  HardDrive,
+  Layers,
+  Lightbulb,
+  Lock,
+  MapPin,
+  Network,
+  Radio,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 import { SD_GROUPS } from "@/data/system-design/catalog";
 import type { SdDocumentMeta, SdGroupId } from "@/types/system-design";
 import { cn } from "@/lib/utils";
@@ -12,9 +28,20 @@ type Props = {
   className?: string;
 };
 
-const GROUP_ICON: Record<Exclude<SdGroupId, "intro">, typeof Zap> = {
-  tech: Zap,
-  concepts: Lightbulb,
+const GROUP_ICON: Partial<Record<SdGroupId, typeof Zap>> = {
+  foundations: BookOpen,
+  network: Globe,
+  traffic: Zap,
+  data: Database,
+  caching: Layers,
+  messaging: Radio,
+  distributed: Network,
+  resilience: ShieldCheck,
+  storage: HardDrive,
+  architecture: Boxes,
+  security: Lock,
+  observability: Activity,
+  cloud: Cloud,
   questions: MapPin,
 };
 
@@ -43,7 +70,7 @@ export function SdSidebar({ docs, className }: Props) {
         {SD_GROUPS.map((group) => {
           const items = docs.filter((d) => d.group === group.id);
           if (items.length === 0) return null;
-          const Icon = group.id === "tech" ? GROUP_ICON.tech : group.id === "questions" ? GROUP_ICON.questions : null;
+          const Icon = GROUP_ICON[group.id] ?? null;
           return (
             <section key={group.id} className="mb-5">
               <p className="mb-2 flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">

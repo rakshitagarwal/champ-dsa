@@ -67,6 +67,15 @@ Coordinate exclusive work across nodes (cron leader, inventory hold) with locks 
 - **Split-brain writer:** Lock without fencing → two writers both think they won — storage must reject lower fence token.
 - **Alternatives:** DB `UPDATE ... WHERE status=pending` row claim — lock-free pattern for job queues.
 
+## Coordination with ZooKeeper (and etcd)
+
+Tiny strongly-consistent metadata store (znodes in a tree) that systems use to agree: who leads, who holds the lock, what the config says. Clients create **ephemeral** znodes (vanish on session loss) and set **watches** for change notifications. Odd-sized ensembles (3 or 5) order writes through a leader (Zab consensus); reads can be local, writes need a quorum. CP by design — the minority stops serving during partitions rather than risk two leaders. Coordination only — never application payloads, queues, or high-throughput reads.
+
+- **Recipes** (locks, elections, barriers) compose from sequential ephemeral nodes + watches; locks still need fencing tokens.
+- **Failure modes:** herd effect (everyone watching one node thunders on change — hierarchical watches); session expiry from long GC pauses (tune timeouts to pause times); write bottleneck through the leader (keep data tiny).
+- **etcd / Consul** fill the same role in Kubernetes-native stacks — same interview ideas apply.
+- **Phrase:** "ZooKeeper is the agreement box — leaders elected, locks fenced, config watched, all strongly consistent."
+
 ## Distributed Transactions
 
 **Two-phase commit (2PC):** Coordinator prepares all participants, then commits — blocking if coordinator dies after prepare; not ideal across microservices. **Three-phase** reduces some blocking but rarely used in apps. **Saga:** Sequence of local transactions with **compensating actions** (cancel reservation, refund payment) — **choreography** via events or **orchestration** via central coordinator. Accept ** eventual consistency** between steps; design visible intermediate states and idempotent compensations.

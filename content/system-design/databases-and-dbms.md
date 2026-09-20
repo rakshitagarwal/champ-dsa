@@ -39,4 +39,4 @@ graph TD
 
 **Yaad rakho (Revision):** SQL vs NoSQL, ACID properties, relational (Postgres/MySQL) vs NoSQL (Mongo/Cassandra/Redis), schema rigidity vs flexibility, choose based on needs.
 
-**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [PostgreSQL](/hld/postgresql).
+**See also:** [SQL databases](/hld/sql-databases), [NoSQL databases](/hld/nosql-databases), [PostgreSQL](/hld/sql-databases).

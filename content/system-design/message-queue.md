@@ -94,7 +94,41 @@ A **consumer group** is one logical subscriber: partitions assign exclusively to
 - **Static assignment:** Advanced — manual partition map avoids rebalance for fixed topology.
 - **One slow consumer:** Same partition stuck on poison message blocks that partition's order — fix with DLQ and parallel processing only across partitions.
 
-## Kafka, RabbitMQ, NATS, SQS/SNS
+## Kafka in Depth
+
+Durable partitioned commit log: topics split into **partitions** (the parallelism unit); producers key messages so **same key → same partition → order preserved**; each **consumer group** reads the full topic independently and commits **offsets**; retention (hours → forever) bounds replay. Replication factor 3 with `acks=all` and `min.insync.replicas ≥ 2` gives durability without a single point of failure. It is a log, not a queue — nothing deletes on read.
+
+- **Interview defaults:** partitions ≥ peak consumer parallelism; key by entity id (`orderId`, `userId`); never key everything to `null` if order matters.
+- **Delivery:** at-most-once (commit before process), at-least-once (commit after — the default, consumers idempotent), exactly-once only via idempotent producer + transactions in one cluster.
+- **Failure modes:** consumer lag (autoscale consumers up to partition count); rebalance storms (sticky assignor, stable membership); unclean leader election (keep min ISR honest); hot partitions (fix key design, shard the key); poison messages (skip/DLQ after N retries with alert).
+- **Don't use for:** simple task queues with routing, request-reply RPC, or tiny throughput (SQS suffices).
+- **Phrase:** "Kafka is the durable train — partitions for order and scale, groups read independently, offsets track progress."
+
+## RabbitMQ in Depth
+
+Smart broker: **Producer → Exchange → (bindings) → Queue → Consumer.** Producers know only the exchange plus routing key, never queues. Queues push to consumers; each message needs an ack — unacked ones requeue or dead-letter. Exchange types: direct (exact key), topic (`order.*` patterns), fanout (copy to all), headers (attribute match). Durability requires durable queues plus durable messages; publisher confirms tell producers the broker persisted.
+
+- **RabbitMQ vs Kafka:** smart broker + queue (consumed messages leave) vs dumb log (offsets, replayable); exchanges decide routing here, app routes there; 10–50k msgs/s with rich routing vs 100k+ msgs/s durable log.
+- **Failure modes:** unacked pile-up (prefetch limits + alerts + autoscale); poison messages (DLQ policy mandatory); split brain (quorum queues, not legacy mirrored); memory alarms (lazy queues, TTLs, max-length).
+- **Phrase:** "Smart broker — exchanges route, queues push, acks delete. Routing needs RabbitMQ, log needs Kafka."
+
+## NATS JetStream in Depth
+
+Featherweight messaging: core NATS is at-most-once fire-and-forget (offline subscribers miss out); **JetStream** adds the durable layer — streams store messages, consumers read at their pace, ack, and replay. Flow: **Publisher → Subject → Stream → Consumer (push/pull) → Ack.** Subjects use dots (`orders.created.eu`) with wildcards (`*` one level, `>` all levels). Retention policies: limits (size/age), workqueue (delete on ack), interest (delete when all consumers read). Durable consumers survive restarts; pull consumers give natural backpressure.
+
+- **JetStream vs Kafka:** single-binary clustering in minutes vs KRaft + tuning; tens of thousands msgs/s vs 100k+; Kafka's ecosystem (Connect, Streams, Flink) runs deeper. JetStream wins edges, IoT, and small teams.
+- **Failure modes:** slow consumers fill streams (size retention + pull); ack expiry → redelivery (keep consumers idempotent); interest-policy surprise (no consumers = instant deletion); memory streams wipe on restart (file storage for durability).
+- **Phrase:** "NATS core is fast pub-sub, JetStream the durable layer — streams store, consumers ack. Light ops, moderate throughput."
+
+## Stream Processing with Flink
+
+Queues move events; Flink **computes over the stream**: events key into windows (tumbling, sliding, session); watermarks (max event time minus lateness bound) trigger computation and forgive late arrivals; state backends (RocksDB) persist with TTL; checkpoints snapshot progress to durable storage (e.g., S3) every ~30s; sinks must be idempotent for exactly-once effect. Realtime aggregations (click counts, trending, fraud windows), CEP patterns across streams.
+
+- **Failure modes:** watermarks too tight drop real events (size lateness from data); unbounded keyed state OOMs (TTL + alerts); slow checkpoints stall pipelines (monitor duration); skewed keys overload subtasks (salt keys).
+- **Pairs with:** Kafka (durable log in) → Flink (compute) → ClickHouse/warehouse (serve results). Not for batch analytics or tiny throughput.
+- **Phrase:** "Flink catches the river — windows group, watermarks forgive lateness, checkpoints survive crashes."
+
+## Brokers at a Glance
 
 **Kafka:** Durable partitioned commit log, high throughput (100k+ msg/s per cluster), retention for replay, stream processing (Flink, ksqlDB) — event backbone and analytics pipelines. **RabbitMQ:** Exchanges (direct, topic, fanout) route to queues, per-message acks, classic task queues and RPC-over-mq patterns. **NATS JetStream:** Lightweight ops, pub/sub with persistence and at-least-once — good for edge and microservice mesh signals. **SQS/SNS:** Fully managed, moderate throughput, visibility timeout semantics — AWS-native decoupling with minimal ops.
 

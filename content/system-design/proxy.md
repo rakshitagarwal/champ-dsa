@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho (Revision):** Forward proxy (client, privacy), reverse proxy (server, LB+SSL+cache), Nginx/HAProxy examples, HA pairs for reverse proxy, caching + rate limiting features.
 
-**See also:** [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn), [API Gateway](/hld/api-gateway).
+**See also:** [Load Balancing](/hld/load-balancing), [CDN](/hld/cdn), [API Gateway](/hld/api-design).

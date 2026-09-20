@@ -62,12 +62,12 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/notes/message-brokers",
-        destination: "/hld/kafka",
+        destination: "/hld/message-queue",
         permanent: false,
       },
       {
         source: "/notes/data-stores",
-        destination: "/hld/redis",
+        destination: "/hld/caching-strategies",
         permanent: false,
       },
       {

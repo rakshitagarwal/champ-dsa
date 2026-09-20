@@ -43,4 +43,4 @@ graph TD
 
 **Yaad rakho (Revision):** 1NF (atomic), 2NF (no partial dep), 3NF (no transitive dep), denormalization (duplicate for speed), OLTP = normalized, OLAP = denormalized, update anomaly risk.
 
-**See also:** [Databases and DBMS](/hld/databases-sql), [SQL Databases](/hld/sql-databases), [Database Indexing](/hld/databases-sql).
+**See also:** [Databases and DBMS](/hld/sql-databases), [SQL Databases](/hld/sql-databases), [Database Indexing](/hld/sql-databases).

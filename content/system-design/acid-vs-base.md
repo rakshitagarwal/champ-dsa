@@ -13,7 +13,7 @@ DB choose karte time yahi puchte hain.
 - **I Isolation:** 2 transactions ek saath to jaise ek ke baad ek — `SERIALIZABLE` ya `SELECT FOR UPDATE` se.
 - **D Durability:** commit ke baad bijli gayi bhi to data safe — WAL/disk.
 
-**Kahan:** [PostgreSQL](/hld/postgresql), MySQL — payment, tickets.
+**Kahan:** [PostgreSQL](/hld/sql-databases), MySQL — payment, tickets.
 
 ## BASE
 
@@ -21,7 +21,7 @@ DB choose karte time yahi puchte hain.
 - **S Soft state:** background me converge hote rahe.
 - **E Eventual consistency:** thodi der baad sab ek — 100ms-1 sec.
 
-**Kahan:** [Cassandra](/hld/cassandra), [DynamoDB](/hld/dynamodb) eventual mode, DNS, CDN.
+**Kahan:** [Cassandra](/hld/nosql-databases), [DynamoDB](/hld/nosql-databases) eventual mode, DNS, CDN.
 
 ```mermaid
 graph LR
@@ -44,4 +44,4 @@ graph LR
 
 **Yaad rakho:** ACID = pura ya zero + strong, BASE = available + eventual, payment ACID, likes BASE.
 
-**See also:** [cap-theorem](/hld/distributed-systems), [eventual-consistency](/hld/distributed-systems), [postgresql](/hld/postgresql).
+**See also:** [cap-theorem](/hld/distributed-systems), [eventual-consistency](/hld/distributed-systems), [postgresql](/hld/sql-databases).

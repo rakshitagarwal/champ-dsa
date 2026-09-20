@@ -46,4 +46,4 @@ graph LR
 
 **Yaad rakho:** Herd = expiry, singleflight 1 DB, jitter random, stale 5 sec.
 
-**See also:** [caching-strategies](/hld/caching-strategies), [distributed-cache](/hld/distributed-cache), [redis](/hld/redis).
+**See also:** [caching-strategies](/hld/caching-strategies), [distributed-cache](/hld/distributed-cache), [redis](/hld/caching-strategies).

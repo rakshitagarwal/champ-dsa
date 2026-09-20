@@ -48,4 +48,4 @@ graph LR
 
 **Yaad rakho (Revision):** ESB central hub, SOA pattern, message routing + transformation + protocol conversion, ESB vs API Gateway, SPOF + bottleneck, less popular in microservices era.
 
-**See also:** [API Gateway](/hld/api-gateway), [Microservices](/hld/microservices), [Message Brokers](/hld/message-queues).
+**See also:** [API Gateway](/hld/api-design), [Microservices](/hld/microservices), [Message Brokers](/hld/message-queue).

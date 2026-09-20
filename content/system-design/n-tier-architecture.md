@@ -40,4 +40,4 @@ graph TD
 
 **Yaad rakho (Revision):** Presentation, application logic, data layers. 2-tier vs 3-tier vs N-tier, layers separate = scalable/maintainable, not same as microservices.
 
-**See also:** [Microservices](/hld/microservices), [API Gateway](/hld/api-gateway), [Message Queue](/hld/message-queue).
+**See also:** [Microservices](/hld/microservices), [API Gateway](/hld/api-design), [Message Queue](/hld/message-queue).

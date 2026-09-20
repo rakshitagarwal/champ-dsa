@@ -1,4 +1,19 @@
-export type SdGroupId = "intro" | "tech" | "concepts" | "questions";
+export type SdGroupId =
+  | "intro"
+  | "foundations"
+  | "network"
+  | "traffic"
+  | "data"
+  | "caching"
+  | "messaging"
+  | "distributed"
+  | "resilience"
+  | "storage"
+  | "architecture"
+  | "security"
+  | "observability"
+  | "cloud"
+  | "questions";
 
 export type SdDocumentMeta = {
   slug: string;

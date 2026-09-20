@@ -318,7 +318,7 @@ class Leaderboard:
 
 1. **Custom checkers:** compile checker binary per problem, run outside sandbox with `actual` vs `expected` + `input`.
 2. **Large sources:** if `source > 64KB`, store in S3 `sources/{hash}.txt`, DB holds `source_key`; worker fetches via pre-signed URL.
-3. **Leaderboard:** [Redis](/hld/redis) `ZADD contest:{id}:board score userId`; score = `solved*100 - time_penalty`; update on each `accepted`.
+3. **Leaderboard:** [Redis](/hld/caching-strategies) `ZADD contest:{id}:board score userId`; score = `solved*100 - time_penalty`; update on each `accepted`.
 4. **Partial credit:** for problems with subtasks, return `passed=7/10 → score 70`.
 5. **Security audit:** log all syscalls via gVisor trace, alert on `socket` attempts, quarantine user after 3 violations.
 

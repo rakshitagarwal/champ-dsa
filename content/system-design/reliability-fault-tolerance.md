@@ -30,6 +30,10 @@ When a dependency error rate crosses threshold, open the circuit: fail fast loca
 - Half-open probe count is small (1–5 requests) to limit blast radius while testing recovery.
 - Monitor state transitions — flapping open/closed signals misconfigured thresholds.
 - Bulkheads plus breakers: breaker stops calls; bulkhead limits threads even when breaker is slow to open.
+- **Thresholds that trip:** ~50% failures over a window (or ~10 consecutive) or p95 latency breaching budget → open for a cooldown (~30s) → half-open probes → close on success, reopen on failure. Libraries: Hystrix / Resilience4j.
+- **Retry vs breaker:** retry helps transient slowness; a dead downstream turns retries into a storm — the breaker stops calling and fails fast with a fallback.
+- **Placement:** every sync call (`Order → Payment`); not on queues — the backlog already absorbs.
+- **Phrase:** "Circuit MCB-style — fail fast on open, probe half-open, retry only idempotent calls with backoff."
 
 ## Bulkhead Pattern
 
