@@ -52,7 +52,7 @@
 |--------|-----------|------|--------|
 | Writes (new links) | 100M / month | 100M / 30 / 86400 | ~38 writes/s avg, ~400/s peak (10x) |
 | Reads (redirects) | 100:1 read:write | 38 * 100 | ~3.8k reads/s avg, ~40k/s peak |
-| If 1B redirects/month | — | 1B / 2.6M sec/month | ~385 reads/s per 100M? Actually ~12k/s avg |
+| If 10B redirects/month | — | 10B / 2.6M sec/month | ~3.8k reads/s avg |
 | Storage per mapping | `code(7) + longUrl(avg 200) + metadata ~500B` | 100M * 500B | ~50 GB/month, ~600 GB/year, ~3 TB / 5 years |
 | Cache needed | Hot 20% links serve 80% traffic | 20M * 500B | ~10 GB hot set — fits in [Redis](/hld/caching-strategies) cluster |
 | Bandwidth (redirect) | 500B response headers + 302 | 40k * 500B | ~20 MB/s egress at peak |

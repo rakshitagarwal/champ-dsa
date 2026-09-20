@@ -83,3 +83,5 @@ graph LR
 - Alert on user-facing symptoms and SLO burn with runbooks — unactionable alerts get ignored.
 - Bound metric label cardinality; sample traces aggressively at high QPS.
 - OpenTelemetry to instrument, Prometheus to store metrics, Grafana to view and drill down.
+
+**Practice next:** [Design Metrics Monitoring](/hld/metrics-monitoring) applies cardinality control, downsampling, TSDB sharding, SLO burn-rate alerts, and Alertmanager grouping end to end.

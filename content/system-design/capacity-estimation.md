@@ -17,13 +17,13 @@ Start from product assumptions and derive **QPS**, **storage**, and **bandwidth*
 - **Peak QPS** ≈ (daily events / 86400) × peak factor; use 2× minimum for consumer apps.
 - **MAU/DAU** ratio hints stickiness; low DAU/MAU means burstier marketing traffic.
 - Separate **API QPS** from **background jobs** (fan-out, indexing) — both need capacity.
-- If peak QPS < ~1–2K on one core, a single service may suffice; above that, plan sharding or pools.
+- Do not memorize a universal "QPS per server" number — benchmark your handler, payload, database calls, and latency target, then size replicas with headroom.
 
 ## Storage Estimation
 
 Storage is **objects × size × retention**. Text metadata is cheap until volume explodes; photos and video dominate bytes and belong on **object storage (S3)** with lifecycle rules, not in row stores. Compute **daily ingest** and **total retained** — compliance may require 7 years of logs while messages expire in 90 days. One back-of-envelope line often eliminates a technology: multi-TB per day on a single Postgres primary is the wrong tool; Cassandra, DynamoDB, or sharded SQL fits better.
 
-Multiply count by size by retention. 500M users posting 30 messages a day at 300 bytes: 500M × 30 × 300 bytes ≈ 4.5 TB per day, ~1.6 PB per year. That single line kills single-node Postgres and mandates Cassandra or DynamoDB. Media dominates bytes — 10% of messages with 1 MB photos is ~147 TB per day, which belongs on object storage, never in a database.
+Multiply count by size by retention. 500M users posting 30 messages a day at 300 bytes: 500M × 30 × 300 bytes ≈ 4.5 TB per day, ~1.6 PB per year before indexes and replicas. That volume rules out one unpartitioned database node, but the final store still depends on queries and consistency needs. Media dominates bytes — if 10% of those 15B daily messages carried a 1 MB object, the upper bound would be roughly **1.5 PB/day**, which makes compression, realistic attachment rates, lifecycle policy, and object storage central design decisions.
 
 - Include **overhead**: indexes, replicas, and metadata often add **2–3×** raw payload.
 - **Hot vs cold** tiers — recent data on SSD/Redis; archives to cheaper storage.
@@ -53,7 +53,7 @@ Assume 500M DAU, 30 messages per user per day, 20% in groups.
 |---|---|---|
 | Message QPS | 500M × 30 / 86400 | ~173K avg, ~350K peak |
 | Text storage | 173K × 300 bytes | ~4.5 TB/day → 1.6 PB/year |
-| Media storage | 10% × 1 MB photos | ~147 TB/day → object storage |
+| Media storage (deliberately high upper bound) | 10% of 15B × 1 MB | ~1.5 PB/day → revisit assumption, compress, use object storage |
 | Connections | 10% concurrent | ~50M sockets → sharded WS fleet |
 
 Key insight: message count is high but each message is tiny — optimize for write throughput and fan-out, not payload size.

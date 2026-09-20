@@ -4,6 +4,8 @@
 
 > Agents → Kafka → Flink downsample → Cassandra/ClickHouse, alert on SLO, retention tiers.
 
+> **Theory first:** [Observability](/hld/observability) explains logs vs metrics vs traces, RED/USE, SLOs, OpenTelemetry, Prometheus, and Grafana. This page applies that vocabulary to a complete monitoring platform.
+
 ## What they ask
 
 Interviewer: *"Design a metrics platform — services emit CPU, latency, QPS; you store them, graph them, and page a human when `p99 latency > 300ms` for 5 minutes. Millions of series, cheap storage for a year."*

@@ -13,7 +13,7 @@ Design an online auction platform like eBay where sellers list items with a star
 **What interviewer tests:**
 - Strong consistency vs. eventual consistency trade-offs (who decides the winner?)
 - Serializing contended writes without killing throughput for uncontended auctions
-- Real-time fan-out ([WebSockets](/hld/api-design) / SSE) decoupled from the transaction
+- Real-time fan-out ([WebSockets / SSE](/hld/networking)) decoupled from the transaction
 - Idempotency, clock correctness, and idempotent close/settlement
 
 ## Requirements

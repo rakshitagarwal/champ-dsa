@@ -4,6 +4,8 @@
 
 > Token bucket / sliding window Redis Lua se atomic. Har region me local check, headers me limit bhejo, fail-open ya fail-closed decide karo.
 
+> **Theory first:** Review the algorithm trade-offs in [Rate Limiting](/hld/rate-limiting), then use this page to design the distributed service.
+
 ## What they ask
 
 Design a rate limiter as a **service**: `allow(key) → { allowed, remaining, retryAfter }`. It sits in-line on **every request** at the [API Gateway](/hld/api-design) and enforces rules like `100 req/min per user`, `10K req/min per API key`, or `5 req/s per IP` on expensive endpoints (login, search, LLM).

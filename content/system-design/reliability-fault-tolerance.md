@@ -64,7 +64,7 @@ When load or dependency loss exceeds capacity, shed work deliberately instead of
 
 ## Replication, Backup, Disaster Recovery
 
-Replication keeps live copies for read scaling and failover — sync replicas minimize RPO on commit ( higher latency ), async replicas lag seconds but survive primary loss with bounded data loss. Backups (snapshots, logical dumps) protect against operator error and corruption replication propagates. DR strategies span regions: backup-and-restore (highest RTO), pilot light (minimal infra running), warm standby (scaled-down stack), active-active (full dual region, lowest RTO, highest cost). Runbooks cover promote replica, repoint DNS, validate data, and traffic shift — automation reduces human error at 3 AM.
+Replication keeps live copies for read scaling and failover — synchronous replicas minimize RPO on commit at higher latency; asynchronous replicas may lag and can lose the newest acknowledged-to-primary writes during failover. Backups (snapshots, logical dumps) protect against operator error and corruption that replication would faithfully copy. DR strategies span regions: backup-and-restore (highest RTO), pilot light (minimal infra running), warm standby (scaled-down stack), active-active (full dual region, lowest RTO, highest cost). Runbooks cover promoting a replica, repointing DNS, validating data, and shifting traffic — automation reduces human error at 3 AM.
 
 - Replication ≠ backup — deleted table replicates delete unless versioning/ PITR exists.
 - Test restore to isolated env — validates backup integrity and documents time to recover.

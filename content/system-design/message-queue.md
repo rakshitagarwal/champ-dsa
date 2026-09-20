@@ -108,7 +108,7 @@ Durable partitioned commit log: topics split into **partitions** (the parallelis
 
 Smart broker: **Producer → Exchange → (bindings) → Queue → Consumer.** Producers know only the exchange plus routing key, never queues. Queues push to consumers; each message needs an ack — unacked ones requeue or dead-letter. Exchange types: direct (exact key), topic (`order.*` patterns), fanout (copy to all), headers (attribute match). Durability requires durable queues plus durable messages; publisher confirms tell producers the broker persisted.
 
-- **RabbitMQ vs Kafka:** smart broker + queue (consumed messages leave) vs dumb log (offsets, replayable); exchanges decide routing here, app routes there; 10–50k msgs/s with rich routing vs 100k+ msgs/s durable log.
+- **RabbitMQ vs Kafka:** smart broker + queue (acks remove work from the queue) vs durable log (offsets and replay); exchanges provide rich routing in RabbitMQ while Kafka partitions provide scalable ordered logs. Benchmark both under your payload, confirms, replication, and durability settings instead of quoting universal throughput.
 - **Failure modes:** unacked pile-up (prefetch limits + alerts + autoscale); poison messages (DLQ policy mandatory); split brain (quorum queues, not legacy mirrored); memory alarms (lazy queues, TTLs, max-length).
 - **Phrase:** "Smart broker — exchanges route, queues push, acks delete. Routing needs RabbitMQ, log needs Kafka."
 
@@ -116,13 +116,13 @@ Smart broker: **Producer → Exchange → (bindings) → Queue → Consumer.** P
 
 Featherweight messaging: core NATS is at-most-once fire-and-forget (offline subscribers miss out); **JetStream** adds the durable layer — streams store messages, consumers read at their pace, ack, and replay. Flow: **Publisher → Subject → Stream → Consumer (push/pull) → Ack.** Subjects use dots (`orders.created.eu`) with wildcards (`*` one level, `>` all levels). Retention policies: limits (size/age), workqueue (delete on ack), interest (delete when all consumers read). Durable consumers survive restarts; pull consumers give natural backpressure.
 
-- **JetStream vs Kafka:** single-binary clustering in minutes vs KRaft + tuning; tens of thousands msgs/s vs 100k+; Kafka's ecosystem (Connect, Streams, Flink) runs deeper. JetStream wins edges, IoT, and small teams.
+- **JetStream vs Kafka:** JetStream is usually simpler to operate and fits request/reply, edge, IoT, and smaller teams; Kafka has a deeper log/connector/stream-processing ecosystem. Benchmark your message size, durability, replication, and consumer pattern instead of memorizing universal throughput numbers.
 - **Failure modes:** slow consumers fill streams (size retention + pull); ack expiry → redelivery (keep consumers idempotent); interest-policy surprise (no consumers = instant deletion); memory streams wipe on restart (file storage for durability).
 - **Phrase:** "NATS core is fast pub-sub, JetStream the durable layer — streams store, consumers ack. Light ops, moderate throughput."
 
 ## Stream Processing with Flink
 
-Queues move events; Flink **computes over the stream**: events key into windows (tumbling, sliding, session); watermarks (max event time minus lateness bound) trigger computation and forgive late arrivals; state backends (RocksDB) persist with TTL; checkpoints snapshot progress to durable storage (e.g., S3) every ~30s; sinks must be idempotent for exactly-once effect. Realtime aggregations (click counts, trending, fraud windows), CEP patterns across streams.
+Queues move events; Flink **computes over the stream**: events key into windows (tumbling, sliding, session); watermarks (max event time minus lateness bound) trigger computation and account for late arrivals; state backends persist state with TTL; checkpoints snapshot progress to durable storage (e.g., S3). End-to-end exactly-once requires replayable sources plus transactional or idempotent sinks—it is not created by checkpointing alone. Realtime aggregations (click counts, trending, fraud windows) and CEP patterns across streams fit here.
 
 - **Failure modes:** watermarks too tight drop real events (size lateness from data); unbounded keyed state OOMs (TTL + alerts); slow checkpoints stall pipelines (monitor duration); skewed keys overload subtasks (salt keys).
 - **Pairs with:** Kafka (durable log in) → Flink (compute) → ClickHouse/warehouse (serve results). Not for batch analytics or tiny throughput.
@@ -130,7 +130,7 @@ Queues move events; Flink **computes over the stream**: events key into windows 
 
 ## Brokers at a Glance
 
-**Kafka:** Durable partitioned commit log, high throughput (100k+ msg/s per cluster), retention for replay, stream processing (Flink, ksqlDB) — event backbone and analytics pipelines. **RabbitMQ:** Exchanges (direct, topic, fanout) route to queues, per-message acks, classic task queues and RPC-over-mq patterns. **NATS JetStream:** Lightweight ops, pub/sub with persistence and at-least-once — good for edge and microservice mesh signals. **SQS/SNS:** Fully managed, moderate throughput, visibility timeout semantics — AWS-native decoupling with minimal ops.
+**Kafka:** Durable partitioned commit log, retention for replay, and a deep stream ecosystem — event backbone and analytics pipelines. **RabbitMQ:** Exchanges (direct, topic, fanout) route to queues, per-message acks, classic task queues and RPC-over-mq patterns. **NATS JetStream:** Lightweight operations, pub/sub with persistence and at-least-once delivery — good for edge and microservice signals. **SQS/SNS:** Fully managed, visibility-timeout semantics — AWS-native decoupling with minimal ops.
 
 - **Kafka:** Log compaction for changelog topics (`KTable` state); not a job queue unless you add delay/retry topics.
 - **RabbitMQ:** Dead-letter exchanges built-in; clustering differs from Kafka — know quorum queues for durability.

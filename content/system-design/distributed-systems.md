@@ -51,10 +51,10 @@ When **no partition**, systems still trade **Latency (L)** vs **Consistency (C)*
 
 ## Quorum
 
-With **N** replicas, require **W** nodes to ack writes and **R** nodes for reads; if **R + W > N**, read and write sets overlap, so at least one node has latest committed value (for last-writer-wins semantics). Example N=3: W=2, R=2 gives strong read; W=1, R=1 is fast and stale. Dynamo-style tunable quorums let one cluster serve mixed SLAs — `LOCAL_QUORUM` vs `ONE` in Cassandra terminology.
+With **N** replicas, require **W** nodes to ack writes and **R** nodes for reads; if **R + W > N**, read and write sets overlap, so at least one read replica participated in the latest acknowledged write. This improves freshness, but it is not by itself a universal linearizability proof when writes race, clocks resolve conflicts, or sloppy quorums use fallback nodes. Example N=3: W=2, R=2 overlaps; W=1, R=1 is faster and more likely stale. Dynamo-style stores expose tunable levels such as `LOCAL_QUORUM` vs `ONE`.
 
 - **Sloppy quorum + hinted handoff:** Writes temporarily on fallback nodes during partition — know repair path.
-- **W=ALL:** Strongest durability, vulnerable to one slow node — use for small critical metadata only.
+- **Strict invariants:** Use conditional writes / consensus / a transactional leader for uniqueness, balances, and inventory rather than relying on quorum arithmetic alone.
 - **Read repair:** Read path fixes stale replicas — reduces drift without full anti-entropy scan load.
 - **Math check:** Interview quick calc — N=5, W=3, R=3 → overlap 1 node minimum; adjust for desired staleness.
 
@@ -78,7 +78,7 @@ Tiny strongly-consistent metadata store (znodes in a tree) that systems use to a
 
 ## Distributed Transactions
 
-**Two-phase commit (2PC):** Coordinator prepares all participants, then commits — blocking if coordinator dies after prepare; not ideal across microservices. **Three-phase** reduces some blocking but rarely used in apps. **Saga:** Sequence of local transactions with **compensating actions** (cancel reservation, refund payment) — **choreography** via events or **orchestration** via central coordinator. Accept ** eventual consistency** between steps; design visible intermediate states and idempotent compensations.
+**Two-phase commit (2PC):** Coordinator prepares all participants, then commits — blocking if coordinator dies after prepare; not ideal across microservices. **Three-phase** reduces some blocking but rarely used in apps. **Saga:** Sequence of local transactions with **compensating actions** (cancel reservation, refund payment) — **choreography** via events or **orchestration** via central coordinator. Accept **eventual consistency** between steps; design visible intermediate states and idempotent compensations.
 
 - **2PC when:** Same data center, few participants, homogeneous DB — rare in greenfield microservices.
 - **Saga failure:** Forward recovery vs compensation — business defines which steps are reversible.
@@ -98,7 +98,7 @@ Processing the same logical request twice yields one effect — store **idempote
 
 **Redundancy:** N+1 instances, multi-AZ, replicated data — no single point of failure on critical path. **Failover:** Health checks remove bad nodes; leader election promotes replica — automate, drill regularly. **Retry:** Transient errors only, exponential backoff + jitter, budget total retry volume so one outage does not amplify load. **Timeout:** Every outbound call bounded — default "no timeout" freezes thread pools and cascades failure; set connect vs read timeouts separately.
 
-- **Circuit breaker:** Open after error threshold — fail fast while downstream recovers (Hystery/resilience4j pattern).
+- **Circuit breaker:** Open after an error threshold — fail fast while downstream recovers (Hystrix / Resilience4j pattern).
 - **Bulkhead:** Isolate thread pools per dependency — one slow service cannot exhaust all workers.
 - **Graceful degradation:** Feature flags disable non-core paths under stress — core checkout stays up.
 - **Chaos drills:** Kill leader, partition AZ — validate runbooks before production does it for you.
@@ -126,7 +126,7 @@ graph TD
 
 - Partitions are certain — design CP vs AP per feature, never assume a reliable LAN forever.
 - PACELC covers normal case: latency vs consistency when the network is fine.
-- Quorum (`R + W > N`) buys strong reads on demand in replicated AP stores — do the overlap math.
+- Quorum (`R + W > N`) creates read/write overlap, not magic linearizability — state conflict and conditional-write semantics too.
 - Idempotency keys on every retried or queued mutating operation — consumers and HTTP alike.
 - Retry with backoff, jitter, caps, and timeouts on every remote dependency; use circuit breakers at scale.
 - Prefer lock-free/idempotent designs; if you lock, use leases plus fencing and a consensus-backed store.

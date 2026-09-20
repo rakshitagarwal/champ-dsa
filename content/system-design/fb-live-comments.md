@@ -13,7 +13,7 @@ What the interviewer tests:
 - Can you avoid the naive `poll GET /comments` and the naive `one WS server for 2M viewers`?
 - Can you separate the **write log** (durable, ordered per stream) from the **read fan-out** (sampled, partitioned, pub/sub)?
 - Do you have a story for **backpressure, sampling, and catch-up** when the UI cannot render 1K comments/s?
-- Do you reuse pieces from [Rate Limiter](/hld/rate-limiter), [Kafka](/hld/message-queue), [Redis](/hld/caching-strategies), [Cassandra](/hld/nosql-databases), [WebSocket](/hld/api-design)?
+- Do you reuse pieces from [Rate Limiter](/hld/rate-limiter), [Kafka](/hld/message-queue), [Redis](/hld/caching-strategies), [Cassandra](/hld/nosql-databases), [WebSocket](/hld/networking)?
 
 A strong answer: *append to per-stream log → partition viewers across subscriber shards → broadcast via pub/sub → sample if overloaded → catch-up from durable store on join*.
 
@@ -88,7 +88,7 @@ graph LR
 
 - **Comment Service (write):** Validates ([Rate Limiter](/hld/rate-limiter) per user per stream), appends to [Kafka](/hld/message-queue) topic partitioned by `streamId` (order per stream), dual-writes to [Cassandra](/hld/nosql-databases) for catch-up. Returns 201 immediately; moderation is async.
 - **[Kafka](/hld/message-queue) Log:** Single partition per hot stream ensures order without global lock. Retention hours–days. Acts as replay source for new subscriber nodes.
-- **Subscriber Fleet (read):** Holds viewer [WebSocket](/hld/api-design) connections, sharded by `hash(viewerId)` or LB least-connections. Each shard subscribes to a **dispatcher** that fans Kafka → pub/sub channels `live:{streamId}:{shardId}`. Viewers in a shard get a **sampled** feed (e.g., token bucket 20/s per shard) plus `count` and `highlight` out-of-band.
+- **Subscriber Fleet (read):** Holds viewer [WebSocket](/hld/networking) connections, sharded by `hash(viewerId)` or LB least-connections. Each shard subscribes to a **dispatcher** that fans Kafka → pub/sub channels `live:{streamId}:{shardId}`. Viewers in a shard get a **sampled** feed (e.g., token bucket 20/s per shard) plus `count` and `highlight` out-of-band.
 - **Pub/Sub (Redis/NATS):** Regional broadcast. One dispatcher per stream partition publishes to N shard channels; subscriber nodes are simple consumers (no per-viewer Kafka consumer — that would be 2M consumers).
 - **[Cassandra](/hld/nosql-databases) / Dynamo:** Durable store `PK=streamId, SK=ts`. Used for `GET /comments?cursor=` catch-up and replay after disconnect.
 - **Presence:** Viewer count in [Redis](/hld/caching-strategies) (`INCR live:{streamId}:viewers` on WS connect with TTL). Not in Postgres.
@@ -210,7 +210,7 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 2. **Abuse:** Per-user per-stream [Rate Limiter](/hld/rate-limiter) + global IP limiter; shadow-ban by still 201 but not fanning to others.
 3. **Q&A mode:** Separate filtered topic with upvotes, only `top-K` fanned to all, rest on demand — avoids firehose for questions.
 4. **Reactions (likes/hearts):** Aggregated counter per window, not per-comment fan-out — push `count` every 1s, not each heart.
-5. **See also:** [WebSocket](/hld/api-design), [Notification System](/hld/notification-system) for offline highlights.
+5. **See also:** [WebSocket and SSE](/hld/networking), [Notification System](/hld/notification-system) for offline highlights.
 
 **Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
 

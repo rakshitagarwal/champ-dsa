@@ -198,7 +198,7 @@ Strategy (codec choice), State Machine (video lifecycle), Producer-Consumer (Kaf
 
 ## Deep dive — never block on transcode
 
-Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket](/hld/api-design) / SSE events (`processing: 30%`). Poison messages go to a DLQ after N retries.
+Transcode is **minutes** of CPU/GPU, not milliseconds. If `POST /complete` ran FFmpeg inline, the HTTP request would time out, retries would spawn duplicate jobs, and a burst of uploads would OOM the API fleet. The fix: the API only flips a row and publishes an event. Workers scale independently (GPU ASG / K8s HPA on queue depth). Progress is reported via `GET /videos/{id}` polling or [WebSocket / SSE](/hld/networking) events (`processing: 30%`). Poison messages go to a DLQ after N retries.
 
 ## Deep dive — view counts and hot videos
 

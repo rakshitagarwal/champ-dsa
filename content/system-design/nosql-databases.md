@@ -35,7 +35,7 @@ Documents (BSON/JSON) nest arrays and objects — one document often equals one 
 
 Tables are sparse wide rows grouped into **column families** — Cassandra, ScyllaDB, HBase excel at append-heavy writes and time-range reads by partition key. Design is **query-first:** each query pattern gets a table (or materialized view) with partition key matching the mandatory equality filter; clustering columns define sort order within partition. Billions of rows per day (metrics, IoT, activity logs) fit naturally; cross-partition queries are anti-patterns — push them to Spark/Batch jobs.
 
-- **Partition key cardinality:** Too few keys → hot partitions; too many tiny partitions → overhead — aim for 100MB–1GB per partition guideline.
+- **Partition key cardinality:** Too few keys → hot partitions; too many tiny partitions → overhead. Keep partitions bounded (often tens to low hundreds of MB); validate the limit against row size, traffic, and your Cassandra version.
 - **TTL:** Native row TTL for logs and events — automatic compaction without delete storms.
 - **Consistency:** Tunable per query (`LOCAL_QUORUM`, `ONE`) — name consistency per use case in the same cluster.
 - **HBase vs Cassandra:** HBase on HDFS for Hadoop ecosystems; Cassandra for always-on geo-distributed apps without HDFS ops.
@@ -51,12 +51,12 @@ Start from access patterns: list the top 5 reads/writes, draw keys and duplicati
 
 ## Eventual Consistency
 
-Replicas apply updates asynchronously; without quorum reads, a client may read a stale value for milliseconds to seconds depending on load and geography. That is acceptable for social counts, recommendation features, and configuration flags with TTL; it is unacceptable for balances and inventory unless you force linearizable reads/writes on that path. Tune with **quorum**: for N replicas, require W writes and R reads with `R + W > N` to overlap on the latest version; `W=ALL` for critical writes, `R=1` for best-effort dashboards.
+Replicas apply updates asynchronously; without quorum reads, a client may read a stale value for milliseconds to seconds depending on load and geography. That is acceptable for social counts, recommendation features, and configuration flags with TTL; it is unacceptable for balances and inventory unless you use a store and operation that provide the required consistency. With N replicas, `R + W > N` makes read and write quorums overlap, which improves freshness—but overlap alone is not a universal linearizability guarantee under concurrent writes, sloppy quorums, or clock-based conflict resolution.
 
 - **Read repair / anti-entropy:** Background processes fix drift — know your store's repair story for long-tail staleness.
 - **Session consistency:** Sticky routing to a replica improves "feels consistent" UX without full linearizability.
 - **Monotonic reads:** User never sees time go backward — often enough for feeds with version or timestamp checks.
-- **Strong on demand:** Same cluster can mix `{W:3,R:1}` for likes and `{W:3,R:3}` for wallet — state per API.
+- **Strict correctness:** For compare-and-set, uniqueness, balances, or inventory, use conditional writes / lightweight transactions or a transactional database; do not infer safety from quorum arithmetic alone.
 
 ## DynamoDB Deep-Dive
 

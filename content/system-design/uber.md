@@ -22,7 +22,7 @@ A strong answer: *per-city geo index in memory → atomic match → durable trip
 | Category | Details |
 |---|---|
 | **Functional** | Rider: see nearby drivers + ETA, request ride (pickup, dropoff, product=UberX/Pool), cancel, track driver, rate. Driver: go online/offline, accept/reject, update location at ~1–4s, start/complete trip. Trip lifecycle: requested → matched → enroute → in_progress → completed/cancelled |
-| **Non-functional** | Match in < 2s, location freshness < 5s, no double-assign, exactly-once money, trip history durable, 10M+ concurrent drivers globally |
+| **Non-functional** | Match in < 2s, location freshness < 5s, no double-assign, one charge effect under retries, trip history durable, 10M+ concurrent drivers globally |
 | **Clarify** | v1: one rider per car (no Pool), city-sharded, cash + card (call [Payment System](/hld/payment-system) a box), surge pricing yes/no, scheduled rides v2 |
 | **Out of scope v1** | In-car navigation turn-by-turn, driver payroll, fraud/ML ETA, Pool matching optimization |
 
@@ -208,9 +208,9 @@ Naive `WHERE lat BETWEEN ? AND ? AND lng BETWEEN ?` scans an index poorly, canno
 
 Maps is expensive. Cache route + ETA for popular edges (`geohash5:geohash5 → {distance, duration}`) with 60s TTL. Surge computed per geohash cell: `multiplier = f(demand/supply)` where demand = `requested` trips/min, supply = online drivers/min. Computed every 30s by an aggregator consuming Kafka trip events + Redis driver counts; cached in Redis. Rider sees `fareEstimate × surge` before confirming — stale by seconds is acceptable (show "surge").
 
-## Deep dive — exactly-once money
+## Deep dive — exactly-once effect for money
 
-Trip row is the **source of truth for money**, not GPS. `complete` emits `trip.completed` exactly once (outbox pattern: write to `outbox` table in same TX, relay to [Kafka](/hld/message-queue)). Payment service consumes idempotently (`tripId` deduped). If driver app is offline in a tunnel, `complete` still succeeds when it reconnects — location was stale but `status` remained `in_progress` in DB. Cancel/no-show are state transitions with fee rules, not location deletes.
+Trip row is the **source of truth for money**, not GPS. `complete` writes the trip transition and an outbox row in one transaction; the relay may publish `trip.completed` more than once, so the payment service consumes idempotently (`tripId` / event ID deduped). At-least-once delivery plus the unique business key produces one charge effect. If the driver app is offline in a tunnel, `complete` still succeeds when it reconnects — location was stale but `status` remained `in_progress` in DB. Cancel/no-show are state transitions with fee rules, not location deletes.
 
 ## Common mistakes
 

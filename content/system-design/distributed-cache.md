@@ -4,6 +4,8 @@
 
 > Consistent hashing se placement, L1 app + L2 Redis, singleflight stampede rokho, hot key split, replication.
 
+> **Theory first:** Review cache-aside, write policies, invalidation, eviction, and stampede prevention in [Caching Strategies](/hld/caching-strategies). This page designs the cache service itself.
+
 ## What they ask
 
 Interviewer: "We have 500 app servers hitting a DB that's melting at 50k QPS. Design a distributed cache layer — or design Redis Cluster itself — that gives 95% hit rate, <5ms p95, and survives nodes dying at 3am without cold-restarting the DB." They will push on consistent hashing, replication, and the thundering herd you caused.

@@ -202,7 +202,7 @@ Publish-Subscribe (Kafka fan-out), Presence with TTL, Cache-Aside (member sets),
 
 A group of 100 cannot wait for 99 sequential WS pushes inside `send()`. The chat node does exactly one durable write, acks the sender, then publishes to [Kafka](/hld/message-queue) topic `chat.events` (partitioned by `chatId` for order). A pool of **Fanout Workers** consumes and for each member looks up `userId→node` in Redis: if online, `PUBLISH node:{id} {message}` (Redis PubSub / NATS) so the recipient's WS node pushes; if offline, batch enqueue to [Notification System](/hld/notification-system) (FCM/APNS). For huge broadcast channels (1M), switch to **pull model** — write once, clients poll `GET /messages` — not 1:1 push per member.
 
-## Deep dive — receipts, ordering, and exactly-once delivery
+## Deep dive — receipts, ordering, and effectively-once delivery
 
 Receipts are two client ACKs: receiver's SDK sends `delivered` on receipt, `read` when the thread is opened. Both upsert `receipts` and are forwarded to sender's WS (if sender offline, stored and delivered on reconnect). Ordering: server-assigned `ts` wins; client `clientMsgId` is only for dedup. At-least-once publish from Kafka is safe because `msgId` dedup on client (already seen → drop). Failed fan-out retries with backoff; poison → DLQ.
 

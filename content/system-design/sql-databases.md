@@ -78,7 +78,7 @@ The **leader** (primary) accepts writes and ships WAL/binlog to **followers** (r
 
 ## PostgreSQL: The Default
 
-Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GIN, GiST), and `jsonb` for flexible corners. Correct indexes serve 10k QPS from one node. **Scaling ladder:** vertical first (bigger box) → read replicas for read-heavy loads → partitioning by time or range → sharding (Citus, logical shards) for write scale — each step on measured pain, never before. Connection pooling (PgBouncer) is mandatory from day one: connections are expensive, requests are many.
+Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GIN, GiST), and `jsonb` for flexible corners. A well-indexed single node can serve substantial traffic, but capacity depends on query cost, working set, writes, hardware, and latency targets—benchmark rather than memorize one QPS number. **Scaling ladder:** vertical first (bigger box) → read replicas for read-heavy loads → partitioning by time or range → sharding (Citus, logical shards) for write scale — each step on measured pain, never before. Connection pooling (PgBouncer) is mandatory from day one: connections are expensive, requests are many.
 
 - **Leave only for:** write firehoses (Cassandra), flexible documents at scale (MongoDB), full-text search (Elasticsearch) — pair, don't replace.
 - **Failure modes:** missing indexes (EXPLAIN every slow query); connection exhaustion (pool everything — one connection per request kills); long transactions (bloat and lock contention); replica lag (read-your-writes from primary when UX needs it).
@@ -86,7 +86,7 @@ Postgres handles structured data with ACID guarantees, rich indexing (B-tree, GI
 
 ## Partitioning, Sharding, Connection Pooling
 
-**Partitioning** splits one logical table into physical chunks (range by date, hash by id, list by region) on one server — easier archival and partition pruning. **Sharding** spreads partitions across many servers keyed by **shard key** — scale writes when a single primary caps out (~ tens of k writes/s depending on hardware). Cross-shard queries and distributed transactions are expensive; co-locate data accessed together (`user_id` shards user, orders, and settings). **Connection pools** (PgBouncer, HikariCP) bound open connections — Postgres dies around hundreds of idle connections per instance; pool size ≈ `(cores * 2) + spindle` per app tier, not "one connection per request."
+**Partitioning** splits one logical table into physical chunks (range by date, hash by id, list by region) on one server — easier archival and partition pruning. **Sharding** spreads partitions across many servers keyed by **shard key** — scale writes when a single primary caps out (often tens of thousands of writes/s, highly workload- and hardware-dependent). Cross-shard queries and distributed transactions are expensive; co-locate data accessed together (`user_id` shards user, orders, and settings). **Connection pools** (PgBouncer, HikariCP) bound expensive database connections; size them from DB capacity and measured query latency, not "one connection per request" or a memorized universal formula.
 
 - **Shard key = WHERE clause:** If 99% of queries filter `tenant_id`, shard by `tenant_id` — not by `user_id` if tenants span users.
 - **Rebalancing:** Consistent hashing or virtual shards ease moving load when nodes join — plan before keys cement.
