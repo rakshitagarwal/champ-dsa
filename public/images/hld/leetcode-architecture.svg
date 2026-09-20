@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="LeetCode — isolate untrusted code, grade tests">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">LeetCode — isolate untrusted code, grade tests</text>
+  <rect x="535" y="30" width="170" height="180" rx="10" fill="none" stroke="rgba(230,237,247,0.28)" stroke-width="1.2" stroke-dasharray="5 4"/><text x="545" y="44" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10">Isolated workers</text>
+  <rect x="16" y="110" width="80" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="56" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Client</text>
+  <rect x="120" y="110" width="100" height="40" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="170" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Gateway</text>
+  <rect x="250" y="110" width="120" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="310" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Judge API</text><text x="310" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">enqueue</text>
+  <rect x="400" y="110" width="120" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="460" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Job queue</text><text x="460" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">Kafka/SQS</text>
+  <rect x="550" y="50" width="140" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="620" y="70" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Sandbox fleet</text><text x="620" y="90" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">cgroup/VM</text>
+  <rect x="550" y="150" width="140" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="620" y="170" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Hidden tests</text><text x="620" y="190" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">S3/DB</text>
+  <rect x="720" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="780" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Results DB</text><text x="780" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">submissions</text>
+  <path d="M96 130L120 130" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M220 130L250 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M370 136L400 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M520 136L550 76" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M690 76L550 176" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M690 76L720 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Queue submissions; warm sandboxes; never trust client results; contest fair scheduling.</text>
+</svg>

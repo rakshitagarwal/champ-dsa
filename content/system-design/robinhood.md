@@ -105,6 +105,8 @@ All money endpoints are **idempotent via `Idempotency-Key`**. Quote endpoints ar
 
 ## High-Level Design (HLD)
 
+![Robinhood: order svc, ledger, venue adapter, reconciler](/images/hld/robinhood-architecture.svg)
+
 ```
 [Mobile/Web] ──▶ [CDN] ──▶ [API Gateway + Auth + Rate Limiter] ──▶ [Quote Service] ──▶ [Redis (last price + 1m candles)]
    │                              │                                      │

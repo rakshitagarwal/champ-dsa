@@ -104,6 +104,8 @@ POST /v1/swipes
 
 ## High-Level Design (HLD)
 
+![Tinder architecture: geo, recs, swipe ledger, matches, chat](/images/hld/tinder-architecture.svg)
+
 ```
 Client (Mobile)
   |

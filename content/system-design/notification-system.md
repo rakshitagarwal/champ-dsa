@@ -103,7 +103,7 @@ All POSTs that create notifications require `Idempotency-Key` header *and* body 
 
 ## High-Level Design (HLD)
 
-![Notification architecture: producers, API, Kafka, prefs, email/push/SMS workers, providers](/images/hld/notification-architecture.svg)
+![Notification architecture: API, Kafka, channel workers, providers](/images/hld/notification-system-architecture.svg)
 
 ```
 [Product Services] ──POST /notifications (202)──▶ [API Gateway + Auth] ──▶ [Notification API]

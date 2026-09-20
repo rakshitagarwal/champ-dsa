@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="Online chess — matchmaking, rooms, clocks">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Online chess — matchmaking, rooms, clocks</text>
+  
+  <rect x="16" y="110" width="80" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="56" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Clients</text>
+  <rect x="120" y="110" width="110" height="40" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="175" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">WS gateway</text>
+  <rect x="260" y="50" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="325" y="70" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Matchmaking</text><text x="325" y="90" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">rating queues</text>
+  <rect x="260" y="140" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="325" y="160" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Game rooms</text><text x="325" y="180" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">authority</text>
+  <rect x="420" y="110" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="485" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Rules/clock</text><text x="485" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">validate</text>
+  <rect x="580" y="110" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="645" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Game store</text><text x="645" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">PG/Redis</text>
+  <rect x="740" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="800" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Anti-cheat</text><text x="800" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">async</text>
+  <path d="M96 130L120 130" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M230 130L260 76" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M230 130L260 166" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 166L420 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 166L580 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 166L740 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Server is authority for moves; WS game rooms; clocks server-side; disconnect resume from persisted state.</text>
+</svg>

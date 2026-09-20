@@ -111,6 +111,8 @@ GET  /v1/users/{id}/activities?cursor=
 
 ## High-Level Design (HLD)
 
+![Strava architecture: GPS pipeline, segments, leaderboards, feed](/images/hld/strava-architecture.svg)
+
 ```
 [ Mobile App — GPS recorder ]
       |

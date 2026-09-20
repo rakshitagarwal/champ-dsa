@@ -87,6 +87,8 @@ Pagination: opaque cursor = `score + clusterId` or `publishedAt`; `limit` defaul
 
 ## High-Level Design (HLD)
 
+![News aggregator: ingest, cluster, rank, feed API](/images/hld/news-aggregator-architecture.svg)
+
 ```
 Publishers (RSS / Sitemap / HTML / Webhook)
    |

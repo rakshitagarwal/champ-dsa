@@ -113,6 +113,8 @@ Scrape alternative: `GET /metrics` on each host (Prometheus pull) — agent expo
 
 ## High-Level Design (HLD)
 
+![Metrics monitoring: collectors, TSDB, alerts, Grafana](/images/hld/metrics-monitoring-architecture.svg)
+
 ```
 [Hosts/Services] ── agents (StatsD/Prometheus exporter) ──┐
                                                           │ push or pull

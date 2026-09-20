@@ -82,6 +82,8 @@ Headers: `Idempotency-Key: <clientBidId>` — retry safe.
 
 ## High-Level Design (HLD)
 
+![Online auction: auction svc, bid store, proxy bids, settle](/images/hld/online-auction-architecture.svg)
+
 ```
 Client (Web/Mobile)
    |  HTTPS/WSS

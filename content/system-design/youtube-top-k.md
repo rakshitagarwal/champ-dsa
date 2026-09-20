@@ -89,6 +89,8 @@ Internal: `GET /internal/counts?videoIds=abc,xyz&window=24h` for hydration. All 
 
 ## High-Level Design (HLD)
 
+![YouTube Top-K architecture: Kafka, window agg, CMS/heaps, trending API](/images/hld/youtube-top-k-architecture.svg)
+
 ```
 Client (player) -> CDN/Edge Collector -> [Kafka] views (partitioned by videoId%N or round-robin)
                                               |

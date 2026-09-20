@@ -89,6 +89,8 @@ Idempotency: `Idempotency-Key` on `POST /watches` prevents duplicate watches on 
 
 ## High-Level Design (HLD)
 
+![Price tracking: watches, scrape schedule, parsers, alerts](/images/hld/price-tracking-architecture.svg)
+
 ```
 Client (Web / Extension)
    |

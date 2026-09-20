@@ -112,6 +112,8 @@ POST /v1/games/{gameId}/abort // before 2 moves, no rating change
 
 ## High-Level Design (HLD)
 
+![Online chess: matchmaking, game rooms, clocks, store](/images/hld/online-chess-architecture.svg)
+
 ```
 [Browser/Mobile] ──HTTPS/WS──▶ [CDN / Edge] ──▶ [API Gateway + Auth + Rate Limiter] ──▶ [Seek Service → Redis]
         │                              │                         │                              │

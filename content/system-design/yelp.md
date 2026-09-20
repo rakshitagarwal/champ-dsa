@@ -112,6 +112,8 @@ Errors: `400` bad filter, `404` business not found, `409` duplicate idempotency 
 
 ## High-Level Design (HLD)
 
+![Yelp architecture: geo + text indexes, hot tiles, autocomplete](/images/hld/yelp-architecture.svg)
+
 ```
 [ Mobile / Web ] 
       |

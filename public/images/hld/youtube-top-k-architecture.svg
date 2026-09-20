@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="YouTube Top-K — trending with late events">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">YouTube Top-K — trending with late events</text>
+  
+  <rect x="16" y="110" width="100" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="66" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">View events</text>
+  <rect x="140" y="110" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="195" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Kafka</text><text x="195" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">views topic</text>
+  <rect x="280" y="110" width="140" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="350" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Flink/agg</text><text x="350" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">windows</text>
+  <rect x="450" y="50" width="140" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="520" y="70" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">CMS / heaps</text><text x="520" y="90" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">approx Top-K</text>
+  <rect x="450" y="150" width="140" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="520" y="170" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Hot store</text><text x="520" y="190" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">Redis ZSET</text>
+  <rect x="620" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="680" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Trending API</text><text x="680" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">read cache</text>
+  <rect x="770" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="830" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">OLAP</text><text x="830" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">exact late</text>
+  <path d="M116 130L140 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M250 136L280 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M420 136L450 76" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M420 136L450 176" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M590 176L620 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M420 136L770 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Stream counts → windowed aggregates; Count-Min / heaps for approx Top-K; exact path for money dashboards.</text>
+</svg>

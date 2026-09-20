@@ -116,6 +116,8 @@ Idempotency: `POST /submissions` with `Idempotency-Key` — retry returns same `
 
 ## High-Level Design (HLD)
 
+![LeetCode architecture: judge API, queue, sandbox fleet, results](/images/hld/leetcode-architecture.svg)
+
 ```
 Client (Web/IDE)
   |

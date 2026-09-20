@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="Web crawler — frontier, robots, dedup, store">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Web crawler — frontier, robots, dedup, store</text>
+  
+  <rect x="16" y="110" width="90" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="61" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Seeds</text>
+  <rect x="130" y="110" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="195" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">URL frontier</text><text x="195" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">prio queue</text>
+  <rect x="290" y="110" width="120" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="350" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Fetchers</text><text x="350" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">polite/host</text>
+  <rect x="440" y="40" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="500" y="60" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">robots.txt</text><text x="500" y="80" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">cache</text>
+  <rect x="440" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="500" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Seen Bloom</text><text x="500" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">URL/content</text>
+  <rect x="440" y="180" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="500" y="200" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Parsers</text><text x="500" y="220" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">extract links</text>
+  <rect x="600" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="660" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Raw store</text><text x="660" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">S3/HDFS</text>
+  <rect x="750" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="810" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Index</text><text x="810" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">optional ES</text>
+  <path d="M106 130L130 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M260 136L290 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M410 136L440 66" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M410 136L440 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M410 136L440 206" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M560 206L130 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M410 136L600 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M720 136L750 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">URL frontier queue; Bloom/seen store; politeness per host; HTML to object store + index.</text>
+</svg>

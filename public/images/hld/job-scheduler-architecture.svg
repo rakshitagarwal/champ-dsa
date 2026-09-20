@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="Job scheduler — durable cron at scale">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Job scheduler — durable cron at scale</text>
+  
+  <rect x="16" y="110" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="71" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Scheduler API</text><text x="71" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">CRUD jobs</text>
+  <rect x="150" y="110" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="215" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Job store</text><text x="215" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">Postgres</text>
+  <rect x="310" y="110" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="375" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Ticker</text><text x="375" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">due scan</text>
+  <rect x="470" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="530" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Work queue</text><text x="530" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">Kafka/SQS</text>
+  <rect x="620" y="110" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="685" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Workers</text><text x="685" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">lease+fence</text>
+  <rect x="780" y="110" width="110" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="835" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">DLQ</text><text x="835" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">poison</text>
+  <path d="M126 136L150 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M280 136L310 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M440 136L470 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M590 136L620 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M750 136L780 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Durable job rows; workers claim with SKIP LOCKED / lease; retries + DLQ; no double-run via fencing.</text>
+</svg>

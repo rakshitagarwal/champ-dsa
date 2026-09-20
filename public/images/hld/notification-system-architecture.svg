@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" role="img" aria-label="Notifications — preferences, per-channel workers">
+  <rect width="980" height="300" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="980" height="300" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Notifications — preferences, per-channel workers</text>
+  <rect x="405" y="95" width="370" height="90" rx="10" fill="none" stroke="rgba(230,237,247,0.28)" stroke-width="1.2" stroke-dasharray="5 4"/><text x="415" y="109" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10">Channel workers + DLQ</text>
+  <rect x="16" y="120" width="100" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="66" y="144" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Producers</text>
+  <rect x="140" y="120" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="195" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Notif API</text><text x="195" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">202 + idemp</text>
+  <rect x="280" y="120" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="335" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Kafka</text><text x="335" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">per channel</text>
+  <rect x="420" y="40" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="485" y="60" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Prefs DB</text><text x="485" y="80" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">templates</text>
+  <rect x="420" y="120" width="100" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="470" y="144" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Email wkrs</text>
+  <rect x="540" y="120" width="100" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="590" y="144" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Push wkrs</text>
+  <rect x="660" y="120" width="100" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="710" y="144" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">SMS wkrs</text>
+  <rect x="800" y="120" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="865" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Providers</text><text x="865" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">SES/FCM/Twilio</text>
+  <path d="M116 140L140 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M250 146L280 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M250 146L420 66" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L420 140" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L540 140" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L660 140" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M520 140L800 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="286" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">202 ingest; Kafka fan-out; idempotency keys; channel workers with DLQ and provider backoff.</text>
+</svg>

@@ -89,6 +89,8 @@ All search requests carry `viewerId` derived from auth token — never trust cli
 
 ## High-Level Design (HLD)
 
+![FB post search: search svc, index, graph ACL, ranker](/images/hld/fb-post-search-architecture.svg)
+
 ```
 Post Service (DB source of truth) -> [Kafka] post_events (create/edit/delete/audienceChange) -> Indexer Workers -> [Elasticsearch] posts index (sharded)
                                                                                                           |

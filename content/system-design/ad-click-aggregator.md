@@ -95,6 +95,8 @@ All ingest endpoints return fast (edge validates and enqueues, never waits for a
 
 ## High-Level Design (HLD)
 
+![Ad click aggregator: ingest, fraud, billing path, OLAP](/images/hld/ad-click-aggregator-architecture.svg)
+
 ```
 Pixel/SDK -> Edge Collector (204 fast) -> [Kafka] raw_clicks / raw_impressions (partitioned by campaignId hash)
                                                   |

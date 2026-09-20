@@ -1,24 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 220" role="img" aria-label="Uber architecture">
-  <rect width="960" height="220" fill="#0f172a"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 300" role="img" aria-label="Uber — geo match, trip state, ETA">
+  <rect width="980" height="300" fill="#0f172a"/>
   <defs>
-    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/></pattern>
-    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8fa1bd"/></marker>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
   </defs>
-  <rect width="960" height="220" fill="url(#g)"/>
-  <text x="16" y="28" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Uber  location stream, geo index, matching, trip state</text>
-  <rect x="20" y="88" width="90" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="65" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Rider/Driver</text>
-  <rect x="140" y="88" width="100" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="190" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">CDN / LB</text>
-  <rect x="270" y="88" width="110" height="44" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="325" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Trip API</text>
-  <rect x="420" y="30" width="140" height="44" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="490" y="57" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Matching</text>
-  <rect x="420" y="88" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="490" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis GEO</text>
-  <rect x="420" y="146" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="490" y="173" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Location Kafka</text>
-  <rect x="600" y="88" width="140" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="670" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Trip DB</text>
-  <rect x="780" y="88" width="150" height="44" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="855" y="115" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Maps / ETA</text>
-  <path d="M110 110H138" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M240 110H268" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M380 100L418 56" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M380 110H418" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M380 120L418 168" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M560 110H598" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
-  <path d="M740 110H778" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <rect width="980" height="300" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Uber — geo match, trip state, ETA</text>
+  
+  <rect x="16" y="120" width="110" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="71" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Rider/Driver</text><text x="71" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">HTTPS/WS</text>
+  <rect x="150" y="120" width="100" height="40" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="200" y="144" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Gateway</text>
+  <rect x="280" y="120" width="110" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="335" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Trip API</text><text x="335" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">state machine</text>
+  <rect x="420" y="40" width="130" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="485" y="60" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Matching</text><text x="485" y="80" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">claim driver</text>
+  <rect x="420" y="120" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="485" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis GEO</text><text x="485" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">live drivers</text>
+  <rect x="420" y="200" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="485" y="220" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Loc Kafka</text><text x="485" y="240" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">GPS stream</text>
+  <rect x="580" y="120" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="640" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Trip DB</text><text x="640" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">durable</text>
+  <rect x="730" y="120" width="130" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="795" y="140" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Maps/ETA</text><text x="795" y="160" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">OSRM/cache</text>
+  <path d="M126 146L150 140" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M250 140L280 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L420 66" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L420 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L420 226" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L580 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M390 146L730 146" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="286" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis GEO for nearby drivers; matching claims trip; location stream updates ETA — not SQL radius scans.</text>
 </svg>

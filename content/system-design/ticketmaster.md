@@ -111,7 +111,7 @@ ETag: "rev-1234"
 
 ## High-Level Design (HLD)
 
-![Ticketmaster architecture: waiting room, ticket API, inventory DB, hold Redis, payment, orders](/images/hld/ticketmaster-architecture.svg)
+![Ticketmaster architecture: waiting room, inventory, holds, payment](/images/hld/ticketmaster-architecture.svg)
 
 ```
 Client (Web/Mobile)

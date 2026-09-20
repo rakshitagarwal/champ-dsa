@@ -108,6 +108,8 @@ POST https://orders.internal/events  (you → orders)
 
 ## High-Level Design (HLD)
 
+![Payment system: payment svc, ledger, processor, webhooks](/images/hld/payment-system-architecture.svg)
+
 ```
 [Browser/App] ── Stripe.js (tokenize PAN → pm_xxx) ──▶ [API Gateway + Auth] ──▶ [Payment Service]
                                                           │    ▲                      │

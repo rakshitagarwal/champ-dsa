@@ -82,7 +82,7 @@ Status: `200` if allowed, `429 Too Many Requests` if not — never `500` for rat
 
 ## High-Level Design (HLD)
 
-![Rate limiter architecture: CDN, gateway, limiter fleet, Redis, config, Kafka, upstream](/images/hld/rate-limiter-architecture.svg)
+![Rate limiter architecture: gateway, limiter fleet, Redis Lua, config, audit](/images/hld/rate-limiter-architecture.svg)
 
 ```
 [ Clients ] --> [ L4 LB ] --> [ API Gateway Fleet (20 nodes) ]

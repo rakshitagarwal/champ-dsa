@@ -92,6 +92,8 @@ Headers: `Idempotency-Key: <clientMsgId>` — retrying "send" must not spawn two
 
 ## High-Level Design (HLD)
 
+![ChatGPT: orchestrator, quota, infer queue, RAG, model fleet](/images/hld/chatgpt-architecture.svg)
+
 ```
 Client (Web/Mobile)
    |

@@ -76,6 +76,8 @@ Headers: `Idempotency-Key` on create; `X-Run-Id` on callbacks.
 
 ## High-Level Design (HLD)
 
+![Job scheduler: job store, ticker, workers, DLQ](/images/hld/job-scheduler-architecture.svg)
+
 ```
 Client / Admin UI
    |

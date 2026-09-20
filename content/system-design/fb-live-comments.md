@@ -63,6 +63,8 @@ Headers: `Idempotency-Key` on POST for retry; `Retry-After` on 429. WS query par
 
 ## High-Level Design (HLD)
 
+![Live comments architecture: comment svc, pub/sub, realtime fleet, SSE](/images/hld/fb-live-comments-architecture.svg)
+
 ```
 [ Comment Authors ] --HTTPS POST--> [ API Gateway ] --> [ Comment Service ] --append--> [ Kafka (topic=live.comments, key=streamId) ]
                                                         |                         \

@@ -96,6 +96,8 @@ All WS messages carry `docId` + `Authorization` on handshake; every op re-valida
 
 ## High-Level Design (HLD)
 
+![Google Docs architecture: gateway, metadata, sticky doc servers, Kafka oplog, presence](/images/hld/google-docs-architecture.svg)
+
 ```
 [Browser/Editor] ──HTTPS/WS──▶ [CDN / Edge] ──▶ [API Gateway + Auth] ──▶ [Doc Metadata Service → Postgres (docs, acl)]
         │                               │                    │
@@ -124,15 +126,6 @@ All WS messages carry `docId` + `Authorization` on handshake; every op re-valida
         │                    └───────────────────┘
         │
         └─────────────── Comments Service (anchors via OT), Search index (optional Elastic)
-```
-
-```mermaid
-graph LR
-  A[Client] --> B[API Gateway]
-  B --> C[Service Fleet]
-  C --> D[Cache Redis]
-  C --> E[DB Postgres]
-  C --> F[Kafka Async]
 ```
 
 **Component roles:**

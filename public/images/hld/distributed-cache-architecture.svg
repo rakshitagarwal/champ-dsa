@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-label="Distributed cache — consistent hash, stampede">
+  <rect width="960" height="280" fill="#0f172a"/>
+  <defs>
+    <pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="rgba(230,237,247,0.06)" stroke-width="1"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#8fa1bd"/>
+    </marker>
+  </defs>
+  <rect width="960" height="280" fill="url(#g)"/>
+  <text x="16" y="24" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12">Distributed cache — consistent hash, stampede</text>
+  <rect x="305" y="25" width="140" height="220" rx="10" fill="none" stroke="rgba(230,237,247,0.28)" stroke-width="1.2" stroke-dasharray="5 4"/><text x="315" y="39" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10">Shard nodes</text>
+  <rect x="16" y="110" width="100" height="40" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="66" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">App fleet</text>
+  <rect x="150" y="110" width="140" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="220" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Hash ring</text><text x="220" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">virtual nodes</text>
+  <rect x="320" y="40" width="110" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="375" y="64" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis A</text>
+  <rect x="320" y="110" width="110" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="375" y="134" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis B</text>
+  <rect x="320" y="180" width="110" height="40" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="375" y="204" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Redis C</text>
+  <rect x="470" y="110" width="120" height="52" rx="8" fill="#10332f" stroke="#38d0b8" stroke-width="1.6"/><text x="530" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">DB truth</text><text x="530" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">on miss</text>
+  <rect x="620" y="110" width="140" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="690" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Singleflight</text><text x="690" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">stampede guard</text>
+  <rect x="790" y="110" width="120" height="52" rx="8" fill="#111c30" stroke="#e6edf7" stroke-width="1.4"/><text x="850" y="130" text-anchor="middle" fill="#e6edf7" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Invalidate</text><text x="850" y="150" text-anchor="middle" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="9">TTL/DEL</text>
+  <path d="M116 130L150 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M290 136L320 60" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M290 136L320 130" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M290 136L320 200" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M116 130L470 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M116 130L620 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <path d="M116 130L790 136" stroke="#8fa1bd" stroke-width="1.4" fill="none" marker-end="url(#ah)"/>
+  <text x="16" y="266" fill="#8fa1bd" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Cache-aside; consistent hashing ring; singleflight on miss; hot keys split or L1; Redis is not truth.</text>
+</svg>

@@ -86,6 +86,8 @@ For cache-in-app usage, the app calls `CacheClient.get(k)` library that handles 
 
 ## High-Level Design (HLD)
 
+![Distributed cache: hash ring, Redis shards, singleflight, DB truth](/images/hld/distributed-cache-architecture.svg)
+
 ```
 App Servers (500 pods, each with Caffeine L1 64MB, 10s TTL)
         |

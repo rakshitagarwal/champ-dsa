@@ -104,6 +104,8 @@ GET  /v1/hashtags/{tag}/posts?cursor=
 
 ## High-Level Design (HLD)
 
+![Instagram architecture: post/graph/feed, media processor, S3, Kafka](/images/hld/instagram-architecture.svg)
+
 ```
 [ Mobile / Web ]
       |

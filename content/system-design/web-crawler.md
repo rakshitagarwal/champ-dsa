@@ -79,6 +79,8 @@ Workers communicate via internal [Kafka](/hld/message-queue) topics, not these R
 
 ## High-Level Design (HLD)
 
+![Web crawler architecture: frontier, fetchers, dedup, store](/images/hld/web-crawler-architecture.svg)
+
 ```
 Seeds -> URL Frontier (priority queue sharded by host) -> Scheduler (per-host queue)
                                                         |
