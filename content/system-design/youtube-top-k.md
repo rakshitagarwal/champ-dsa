@@ -2,7 +2,7 @@
 
 > Trending videos. The interview is **counting at scale** and keeping a **cheap Top-K**, not training YouTube's real recommender.
 
-> Views ko Flink window me count karo, Top-K heap per window, cache me rakho. Late events watermark se handle.
+> Count views in Flink windows, keep a Top-K heap per window, serve from cache. Late events handled with watermarks.
 
 ## What they ask
 
@@ -160,17 +160,18 @@ CREATE TABLE view_events_dedup (
 
 **Key classes & responsibilities**
 
-```java
-class ViewEvent { String eventId, videoId, region; int categoryId; Instant ts; String userId; }
-interface ViewCollector { void acceptBatch(List<ViewEvent> batch); } // -> KafkaProducer
-class DedupeProcessor { boolean isDuplicate(eventId); } // RocksDB + BloomFilter
-class WindowCounter { void add(ViewEvent e); Map<VideoId, Long> windowCounts(SlidingWindow w); }
-class TopKHeap { // min-heap size K per region
-  void offer(VideoId id, long count); List<ScoredVideo> topK();
+```typescript
+interface ViewEvent { eventId: string; videoId: string; region: string; categoryId: number; ts: Date; userId: string; }
+interface ViewCollector { acceptBatch(batch: ViewEvent[]): void; } // -> KafkaProducer
+interface DedupeProcessor { isDuplicate(eventId: string): boolean; } // RocksDB + BloomFilter
+interface WindowCounter { add(e: ViewEvent): void; windowCounts(w: SlidingWindow): Map<string, number>; }
+interface TopKHeap { // min-heap size K per region
+  offer(videoId: string, count: number): void;
+  topK(): ScoredVideo[];
 }
-class TrendingPublisher { void publish(String region, String window, List<ScoredVideo> topK); }
-class TrendingService {
-  TrendingResponse getTrending(String region, String window, int k);
+interface TrendingPublisher { publish(region: string, window: string, topK: ScoredVideo[]): void; }
+interface TrendingService {
+  getTrending(region: string, window: string, k: number): TrendingResponse;
   // reads Redis, hydrates via VideoMetadataCache
 }
 ```
@@ -198,8 +199,8 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -219,6 +220,6 @@ One video hitting 1M views/sec would saturate a single keyed subtask if keyed by
 - Cold start / new video boost — separate "Rising" list ranked by velocity (`views last 10 min / views last hour`).
 - Compare pipeline choice: [Kafka](/hld/message-queue) + [Flink](/hld/message-queue) vs Kinesis + Spark Structured Streaming — same idea, Flink wins on low latency.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Views are events. Flink counts in a sliding window and publishes a Redis list of 100 ids. The website never sorts the whole catalog.

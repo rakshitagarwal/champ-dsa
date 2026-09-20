@@ -2,7 +2,7 @@
 
 > eBay-style bids. The last seconds of a popular lot are a **consistency + burst** problem. Whoever wins must match the ledger.
 
-> Last-sec bids me DB `SERIALIZABLE`, WebSocket se live price, anti-sniping + TTL, throughput vs consistency trade-off.
+> Last-second bids need serializable DB isolation, live prices go over WebSocket, anti-sniping plus TTL — throughput vs consistency is the trade-off.
 
 ## What they ask
 
@@ -178,24 +178,25 @@ CREATE TABLE watchlist (
 ```
 
 **Key classes / responsibilities:**
-```python
-class AuctionService:
-  def create_auction(seller_id, payload): ...
-  def get_auction(id): # cache-aside via Redis
-  def close_auction(id): # idempotent, runs in transaction
-
-class BidService:
-  def place_bid(auction_id, bidder_id, amount, client_bid_id):
-    # dedup check -> enqueue to Kafka
-  def process_bid_event(event):
-    # transactional: SELECT FOR UPDATE -> validate -> insert -> update auction
-
-class AuctionCache:
-  def get_current_price(id): ...
-  def publish_bid_update(auction_id, price): ...
-
-class CloseScheduler:
-  def tick(): # SELECT id FROM auctions WHERE status='OPEN' AND end_at <= now() LIMIT 100 FOR UPDATE SKIP LOCKED
+```typescript
+interface AuctionService {
+  createAuction(sellerId: string, payload: AuctionPayload): Auction;
+  getAuction(id: string): Auction; // cache-aside via Redis
+  closeAuction(id: string): void; // idempotent, runs in transaction
+}
+interface BidService {
+  // dedup check -> enqueue to Kafka
+  placeBid(auctionId: string, bidderId: string, amount: number, clientBidId: string): void;
+  // transactional: SELECT FOR UPDATE -> validate -> insert -> update auction
+  processBidEvent(event: BidPlaced): void;
+}
+interface AuctionCache {
+  getCurrentPrice(id: string): number;
+  publishBidUpdate(auctionId: string, price: number): void;
+}
+interface CloseScheduler {
+  tick(): void; // SELECT id FROM auctions WHERE status='OPEN' AND end_at <= now() LIMIT 100 FOR UPDATE SKIP LOCKED
+}
 ```
 
 **Concurrency & algorithms:**
@@ -224,8 +225,8 @@ Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SE
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -246,6 +247,6 @@ Closing must be **idempotent and exactly-once per auction**: `UPDATE auctions SE
 4. Reserve price not met → `UNSOLD` status, notify seller.
 5. Legal / audit: immutable bid ledger, append-only table, point-in-time recovery.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Bids are serialized per item and committed in Postgres. Redis and WebSockets only show the price. The winner is whoever is on the row when we close — once, idempotently."

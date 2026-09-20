@@ -2,7 +2,7 @@
 
 > Local business search. Combine **text + geo + rating** without scanning the planet. Photos and reviews are the heavy extras.
 
-> ES geo_point + text + rating, distance decay ranking, autocomplete separate index, hot cities cache.
+> ES geo_point + text + rating, distance-decay ranking, separate autocomplete index, hot cities cached.
 
 ## What they ask
 
@@ -226,24 +226,31 @@ CREATE TABLE business_hours_override (
 ```
 
 **Key classes (Search Service, Java-ish pseudocode):**
-```java
+```typescript
 class SearchService {
-  ResultPage search(Query q) {
-    String tileKey = TileKey.of(q.q, q.geohash5(), q.filtersHash(), q.sort);
-    return cache.getOrLoad(tileKey, 45, SECONDS, () -> esClient.search(buildESQuery(q)));
+  search(q: Query): ResultPage {
+    const tileKey: string = TileKey.of(q.q, q.geohash5(), q.filtersHash(), q.sort);
+    return cache.getOrLoad(tileKey, 45_000, () => esClient.search(this.buildESQuery(q)));
   }
-  ESQuery buildESQuery(Query q) {
+  buildESQuery(q: Query): ESQuery {
     // bool: must(match(q)) + filter(geo_distance/bounding_box) + filter(rating, price)
     // + should(distance_decay) + sort by _score or distance
+    throw new Error("unimplemented");
   }
 }
 class BusinessService {
-  Business load(String id) { return cache.get("biz:"+id, () -> repo.findById(id)); }
-  void onReviewCreated(ReviewCreated e) { cache.del("biz:"+e.businessId); indexer.enqueue(e); }
+  load(id: string): Business {
+    return cache.get("biz:" + id, () => repo.findById(id));
+  }
+  onReviewCreated(e: ReviewCreated): void {
+    cache.del("biz:" + e.businessId);
+    indexer.enqueue(e);
+  }
 }
 class ReviewService {
-  @Transactional Review create(CreateReview cmd) {
-    // idempotency check on idempotency_key, insert review, update business rating_sum/count
+  // transactional: idempotency check on idempotency_key, insert review, update business rating_sum/count
+  create(cmd: CreateReview): Review {
+    throw new Error("unimplemented");
   }
 }
 ```
@@ -289,8 +296,8 @@ Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timez
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -311,6 +318,6 @@ Hours are awkward in ES because `mon 22:00 - tue 02:00` spans midnight and timez
 5. **Moderation + photos:** async NSFW scan (Rekognition-style) before marking `photo.status=ready`; S3 lifecycle to delete rejected originals.
 6. **Analytics:** `search_logged` events to [Kafka](/hld/message-queue) → warehouse for CTR / conversion of ranking tweaks.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Postgres owns the business. ES is geo + text. I filter the map viewport, then rank with distance decay. Popular tiles sit in Redis. Reviews can lag in search."

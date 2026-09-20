@@ -2,7 +2,7 @@
 
 > Charges, refunds, a **ledger**. Idempotency and webhooks. You wrap Stripe/Adyen; you still need an internal source of truth.
 
-> Ledger double-entry, idempotent charges via idempotency-key, saga for multi-step, webhooks retry, never double-spend.
+> Double-entry ledger, idempotent charges via idempotency keys, sagas for multi-step flows, webhook retries — never double-spend.
 
 ## What they ask
 
@@ -231,16 +231,18 @@ CREATE TABLE outbox (
 
 **Key classes:**
 
-```text
-PaymentController       — POST /payments: validate, check idempotency, delegate to PaymentService
-PaymentService          — @Transactional create(): insert payment + ledger hold + outbox; call ProcessorAdapter
-ProcessorAdapter        — authorize(), capture(), refund(), retrieveByIdempotency() — handles timeout→retrieve discipline
-WebhookController       — verifySignature(rawBody, header), enqueue to Kafka, return 200
-WebhookConsumer         — dedup on processor_events.event_id, apply StateMachine transition, insert ledger if needed
-LedgerService           — append(entry): insert ledger row, update payments derived amounts, enforce sum(debit)==sum(credit)
-StateMachine            — allowed: created→authorized→capturing→captured→partially_refunded→refunded; guards amount checks
-ReconciliationJob       — nightly: fetch Stripe balance report, compare SUM(captured) vs report, emit mismatch alert
-IdempotencyStore        — SETNX idempotencyKey→paymentId in Redis + DB unique constraint as truth
+```typescript
+interface PaymentSystem {
+  controller: PaymentController; // POST /payments: validate, check idempotency, delegate to PaymentService
+  service: PaymentService; // @Transactional create(): insert payment + ledger hold + outbox; call ProcessorAdapter
+  processor: ProcessorAdapter; // authorize(), capture(), refund(), retrieveByIdempotency() -- timeout->retrieve discipline
+  webhooks: WebhookController; // verifySignature(rawBody, header), enqueue to Kafka, return 200
+  consumer: WebhookConsumer; // dedup on processor_events.event_id, apply state-machine transition, insert ledger if needed
+  ledger: LedgerService; // append(entry): insert ledger row, update derived amounts, enforce sum(debit)==sum(credit)
+  fsm: StateMachine; // created->authorized->capturing->captured->partially_refunded->refunded; amount guards
+  recon: ReconciliationJob; // nightly: fetch processor report, compare SUM(captured), emit mismatch alert
+  idempotency: IdempotencyStore; // SETNX idempotencyKey->paymentId in Redis + DB unique constraint as truth
+}
 ```
 
 **Important algorithms / concurrency:**
@@ -262,8 +264,8 @@ The nastiest bug: user clicks Pay, Stripe charges, but your `POST /payments` tim
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Consistency & multi-region (say this)
 
@@ -300,6 +302,6 @@ Details: [idempotency](/hld/api-design), [distributed systems](/hld/distributed-
 5. **Rate limiter:** Per-user and per-card fingerprint limits to block card testing (10 attempts/min) via [rate limiter](/hld/rate-limiter).
 6. **Related:** [Robinhood](/hld/robinhood) ACH deposits are async T+1 days but reuse same ledger+reconciliation pattern.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Tokenize cards, ledger in Postgres, idempotency keys, and webhook handlers that can run twice. The processor is a flaky colleague — I reconcile, I don't trust a single HTTP timeout."

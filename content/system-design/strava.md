@@ -2,7 +2,7 @@
 
 > Fitness social network. GPS traces are **fat time-series**. Segments and leaderboards are the spicy extra — not just "Instagram for runs."
 
-> Strava already covered
+> GPS traces as time-series, segment matching on bounding boxes, leaderboards in Redis sorted sets, privacy per activity.
 
 ## What they ask
 
@@ -257,42 +257,45 @@ CREATE TABLE comment (
 ```
 
 **Key classes:**
-```java
+```typescript
 class ActivityService {
-  Activity create(String userId, CreateActivity cmd) {
-    Activity a = activityRepo.insert(userId, cmd); // status=processing
+  create(userId: string, cmd: CreateActivity): Activity {
+    const a: Activity = activityRepo.insert(userId, cmd); // status=processing
     kafka.emit(new ActivityUploaded(a.id));
     return a;
   }
-  Activity get(String callerId, String activityId) {
-    Activity a = cache.get("activity:"+activityId, ()->repo.findById(activityId));
+  get(callerId: string, activityId: string): Activity {
+    const a: Activity = cache.get("activity:" + activityId, () => repo.findById(activityId));
     checkPrivacy(callerId, a); // public | followers_only | private
-    return a.withCdnUrls(cdn.sign(a.s3_key_line));
+    return a.withCdnUrls(cdn.sign(a.s3KeyLine));
   }
 }
 class SegmentMatcher {
-  void onActivityReady(ActivityUploaded e) {
-    Activity a = repo.findById(e.activityId);
-    List<Segment> candidates = geoIndex.queryByBbox(a.bbox_json, bufferM=500);
-    for (Segment s : candidates)
-      if (followsCorridor(a.polyline, s.polyline, s.corridor_m))
+  onActivityReady(e: ActivityUploaded): void {
+    const a: Activity = repo.findById(e.activityId);
+    const candidates: Segment[] = geoIndex.queryByBbox(a.bboxJson, 500); // 500m buffer
+    for (const s of candidates) {
+      if (this.followsCorridor(a.polyline, s.polyline, s.corridorM)) {
         effortRepo.insert(s.id, a.id, elapsedOnSegment(a, s));
+      }
+    }
   }
-  boolean followsCorridor(Polyline act, Polyline seg, int corridorM) {
+  followsCorridor(act: Polyline, seg: Polyline, corridorM: number): boolean {
     // 1) start within startRadius, end within endRadius
-    // 2) Frechet-ish: every seg point has an activity point within corridorM (Hausdorff check with spatial index)
+    // 2) Frechet-ish: every seg point has an activity point within corridorM
     // Simplified: sample seg every 50m, check min haversine to act points via R-tree
+    throw new Error("unimplemented");
   }
 }
 class LeaderboardService {
-  void onEffortCreated(Effort eff) {
-    redis.zadd("s:"+eff.segmentId+":overall", eff.elapsedMs, eff.userId+":"+eff.activityId);
-    redis.zadd("s:"+eff.segmentId+":"+year(eff.achievedAt), eff.elapsedMs, eff.userId+":"+eff.activityId);
-    redis.expire("s:"+eff.segmentId+":overall:top100cache", 60); // invalidate cached top-100 page
+  onEffortCreated(eff: Effort): void {
+    redis.zadd("s:" + eff.segmentId + ":overall", eff.elapsedMs, eff.userId + ":" + eff.activityId);
+    redis.zadd("s:" + eff.segmentId + ":" + year(eff.achievedAt), eff.elapsedMs, eff.userId + ":" + eff.activityId);
+    redis.expire("s:" + eff.segmentId + ":overall:top100cache", 60); // invalidate cached top-100 page
   }
-  List<Entry> top(String segmentId, String filter, String cursor) {
-    String key = keyFor(segmentId, filter);
-    return redis.zrange(key, 0, 49, WITHSCORES); // then hydrate user/activity
+  top(segmentId: string, filter: string, cursor: string): Entry[] {
+    const key: string = keyFor(segmentId, filter);
+    return redis.zrange(key, 0, 49, "WITHSCORES"); // then hydrate user/activity
   }
 }
 ```
@@ -336,8 +339,8 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -359,6 +362,6 @@ Privacy nuance: hide start location by **fuzzing** — if activity starts within
 5. **Gear / devices:** FIT file parsing for heart-rate, power; store raw in S3, summarized time-series in a TSDB if needed.
 6. **Analytics:** `segment_effort_created` events to [Kafka](/hld/message-queue) → warehouse for segment popularity, PR notifications via [notification system](/hld/notification-system).
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "S3 for the GPS file, Postgres for the summary, async workers to match nearby segments and update Redis leaderboards. The feed only stores activity ids."

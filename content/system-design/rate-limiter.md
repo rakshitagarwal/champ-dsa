@@ -2,7 +2,7 @@
 
 > Protect an API from abuse. The design is a **fast, shared counter** with a clear algorithm — token bucket or sliding window — not a lecture on Redis internals.
 
-> Token bucket / sliding window Redis Lua se atomic. Har region me local check, headers me limit bhejo, fail-open ya fail-closed decide karo.
+> Atomic check via Redis Lua with token bucket / sliding window. Check locally in every region, send limits in headers, decide fail-open vs fail-closed.
 
 > **Theory first:** Review the algorithm trade-offs in [Rate Limiting](/hld/rate-limiting), then use this page to design the distributed service.
 
@@ -60,10 +60,12 @@ PUT /v1/rules/{key} { "rules":[...] } // from config service / admin
 
 **Gateway plugin alternative (fewer hops):**
 
-```java
+```typescript
 // sidecar / Envoy WASM / Nginx Lua
-RateLimitResult r = limiter.allow("user:"+userId, 1);
-if (!r.allowed) return 429 with headers;
+const r: RateLimitResult = limiter.allow("user:" + userId, 1);
+if (!r.allowed) {
+  return { status: 429, headers }; // RateLimit-Limit / Remaining / Retry-After
+}
 ```
 
 **Headers on every response (IETF):**
@@ -145,21 +147,21 @@ CREATE INDEX idx_rules_principal ON rate_rules(principal);
 
 ### Key classes / responsibilities
 
-```java
+```typescript
 interface RateLimiter {
-  Result allow(String key, int cost);
+  allow(key: string, cost: number): RateLimitResult;
 }
-class RedisSlidingWindowCounter implements RateLimiter {
+interface RedisSlidingWindowCounter extends RateLimiter {
   // Lua: get (prevCount, currCount), compute weighted count, INCR curr if allowed
 }
-class RedisTokenBucket implements RateLimiter {
+interface RedisTokenBucket extends RateLimiter {
   // Lua: refill = (now - lastRefill)*rate, tokens = min(bucketSize, tokens+refill), if tokens>=cost then tokens-=cost
 }
-class RuleResolver {
-  List<Rule> rulesFor(key, route, tier) // cache-aside from Config Service (5s TTL)
+interface RuleResolver {
+  rulesFor(key: string, route: string, tier: string): Rule[]; // cache-aside from Config Service (5s TTL)
 }
-class GatewayFilter {
-  Result enforce(request) // resolve rules → for each rule check limiter → 429 on first deny
+interface GatewayFilter {
+  enforce(request: Request): RateLimitResult; // resolve rules -> check each limiter -> 429 on first deny
 }
 ```
 
@@ -213,8 +215,8 @@ Rate limit at the **first hop that can identify the principal** — usually the 
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -232,7 +234,6 @@ Rate limit at the **first hop that can identify the principal** — usually the 
 4. **Burst vs smooth:** Offer token bucket when interviewer asks about bursts (e.g., "allow 20 at once then 1/s").
 5. **See also:** [API Gateway](/hld/api-design), [Redis](/hld/caching-strategies), [Kafka](/hld/message-queue) for audit.
 
-**Yaad rakho (Revision):** 1) Lua atomic 2) Token bucket vs sliding window 3) Per-region check 4) Headers RateLimit-*.
+**Remember (Revision):** 1) Lua atomic 2) Token bucket vs sliding window 3) Per-region check 4) Headers RateLimit-*.
 
 **Phrase:** Shared Redis token bucket at the gateway, atomic INCR via Lua, 429 + Retry-After. If Redis dies I fail closed on the expensive APIs and keep a small local cap so we don't melt origin.
-

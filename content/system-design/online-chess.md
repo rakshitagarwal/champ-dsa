@@ -2,7 +2,7 @@
 
 > Realtime game. **Authoritative server**, clocks, matchmaking. Cheating and disconnects matter more than drawing a board in React.
 
-> Matchmaking queue, game room per match (state in Redis), clock sync WebSocket, move validation server pe, anti-cheat.
+> Matchmaking queue, one game room per match (state in Redis), clock sync over WebSocket, server-side move validation, anti-cheat.
 
 ## What they ask
 
@@ -236,15 +236,17 @@ CREATE TABLE ratings_history (
 
 **Key classes:**
 
-```text
-SeekService         — addSeek(), removeSeek(), tick(): scan ZSET, pair(), createGame()
-GameServer          — Map<gameId, Game>; onWSConnect(gameId, user): auth, subscribe; onMove(uci): validate, tickClock, broadcast
-Game                — fen: String, clocks: {white,black}, lastMoveAt: Instant, subscribers: Set<WS>, moveList: List
-ChessRules          — isLegal(fen, uci): bool, apply(fen, uci): fen, isCheckmate(fen): bool, isDraw(fen): bool (threefold/fifty)
-ClockService        — deduct(player, elapsed): remaining -= elapsed; addIncrement(player); checkFlag(): if remaining<=0 → flagLoss
-RatingService       — onGameEnd(game): glicko2(white, black, result) → update users.rating + ratings_history
-SpectatorService    — subscribe(gameId, ws): add to fan-out list (cap 10k, else overflow to polling CDN)
-AntiCheatFlagger    — flagIf: move time < 100ms for many moves + engine correlation (defer deep)
+```typescript
+interface ChessPlatform {
+  seeks: SeekService; // addSeek(), removeSeek(), tick(): scan ZSET, pair(), createGame()
+  rooms: GameServer; // Map<gameId, Game>; onWSConnect: auth + subscribe; onMove(uci): validate, tickClock, broadcast
+  game: Game; // fen: string, clocks: {white, black}, lastMoveAt: Date, subscribers: Set<string>, moveList: Move[]
+  rules: ChessRules; // isLegal(fen, uci), apply(fen, uci), isCheckmate(fen), isDraw(fen) -- threefold/fifty
+  clocks: ClockService; // deduct(player, elapsed), addIncrement(player), checkFlag() -> flagLoss at 0
+  ratings: RatingService; // onGameEnd: glicko2(white, black, result) -> update users.rating + history
+  spectators: SpectatorService; // subscribe(gameId, ws): fan-out list (cap 10k, overflow to polling CDN)
+  anticheat: AntiCheatFlagger; // flagIf: sub-100ms moves + engine correlation (defer deep)
+}
 ```
 
 **Important algorithms / concurrency:**
@@ -269,8 +271,8 @@ If client could say "I captured your king," the game is meaningless. Server runs
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -294,6 +296,6 @@ If client could say "I captured your king," the game is meaningless. Server runs
 5. **Variants 960:** Only change is initial FEN generation — same clock + validation path.
 6. **Mobile background:** App may suspend WS — server keeps clock running, push notifies "your move" via [notification system](/hld/notification-system).
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Matchmaking is a rating queue. The game process validates moves and owns the clock. Clients are dumb renderers. Disconnects reload from the server snapshot."

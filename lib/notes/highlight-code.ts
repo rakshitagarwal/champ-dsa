@@ -62,10 +62,213 @@ const HIGHLIGHT_LANGS = new Set([
   "typescript",
   "node",
   "nodejs",
+  "sql",
+  "json",
 ]);
+
+const SQL_KEYWORDS = new Set(
+  [
+    "create",
+    "table",
+    "primary",
+    "key",
+    "foreign",
+    "references",
+    "not",
+    "null",
+    "unique",
+    "default",
+    "check",
+    "constraint",
+    "index",
+    "on",
+    "where",
+    "select",
+    "from",
+    "insert",
+    "into",
+    "values",
+    "update",
+    "delete",
+    "partition",
+    "by",
+    "range",
+    "if",
+    "exists",
+    "cascade",
+    "and",
+    "or",
+    "as",
+    "join",
+    "left",
+    "right",
+    "inner",
+    "outer",
+    "group",
+    "order",
+    "having",
+    "limit",
+    "offset",
+    "for",
+    "skip",
+    "locked",
+    "returning",
+    "conflict",
+    "nothing",
+    "do",
+    "transaction",
+    "begin",
+    "commit",
+    "true",
+    "false",
+    // Postgres column types
+    "bigint",
+    "bigserial",
+    "varchar",
+    "char",
+    "text",
+    "boolean",
+    "bool",
+    "int",
+    "integer",
+    "serial",
+    "timestamp",
+    "timestamptz",
+    "date",
+    "time",
+    "inet",
+    "uuid",
+    "jsonb",
+    "json",
+    "numeric",
+    "double",
+    "real",
+  ].map((w) => w),
+);
+
+/** Minimal SQL highlighting: comments, strings, numbers, keywords, function calls. */
+function highlightSql(code: string): string {
+  const out: string[] = [];
+  let i = 0;
+  const src = code;
+  while (i < src.length) {
+    if (src.slice(i, i + 2) === "--") {
+      const end = src.indexOf("\n", i);
+      const endIdx = end === -1 ? src.length : end;
+      out.push(span(src.slice(i, endIdx), "tok-com"));
+      i = endIdx;
+      continue;
+    }
+    if (src.slice(i, i + 2) === "/*") {
+      const end = src.indexOf("*/", i + 2);
+      const endIdx = end === -1 ? src.length : end + 2;
+      out.push(span(src.slice(i, endIdx), "tok-com"));
+      i = endIdx;
+      continue;
+    }
+    const ch = src[i]!;
+    if (ch === "'" || ch === '"') {
+      let j = i + 1;
+      while (j < src.length) {
+        if (ch === "'" && src[j] === "'" && src[j + 1] === "'") {
+          j += 2;
+          continue;
+        }
+        if (src[j] === "\\") {
+          j += 2;
+          continue;
+        }
+        if (src[j] === ch) {
+          j++;
+          break;
+        }
+        j++;
+      }
+      out.push(span(src.slice(i, j), "tok-str"));
+      i = j;
+      continue;
+    }
+    if (/[0-9]/.test(ch)) {
+      let j = i;
+      while (j < src.length && /[0-9._]/.test(src[j]!)) j++;
+      out.push(span(src.slice(i, j), "tok-num"));
+      i = j;
+      continue;
+    }
+    if (/[a-zA-Z_]/.test(ch)) {
+      let j = i;
+      while (j < src.length && /[\w$]/.test(src[j]!)) j++;
+      const word = src.slice(i, j);
+      if (SQL_KEYWORDS.has(word.toLowerCase())) {
+        out.push(span(word, "tok-kw"));
+      } else if (src[j] === "(") {
+        out.push(span(word, "tok-fn"));
+      } else {
+        out.push(span(word, "tok-id"));
+      }
+      i = j;
+      continue;
+    }
+    out.push(escapeHtml(ch));
+    i++;
+  }
+  return out.join("");
+}
+
+/** Minimal JSON highlighting: strings, numbers, literals. */
+function highlightJson(code: string): string {
+  const out: string[] = [];
+  let i = 0;
+  const src = code;
+  while (i < src.length) {
+    const ch = src[i]!;
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < src.length) {
+        if (src[j] === "\\") {
+          j += 2;
+          continue;
+        }
+        if (src[j] === '"') {
+          j++;
+          break;
+        }
+        j++;
+      }
+      out.push(span(src.slice(i, j), "tok-str"));
+      i = j;
+      continue;
+    }
+    if (ch === "-" || /[0-9]/.test(ch)) {
+      let j = i;
+      if (src[j] === "-") j++;
+      while (j < src.length && /[0-9.eE+-]/.test(src[j]!)) j++;
+      out.push(span(src.slice(i, j), "tok-num"));
+      i = j;
+      continue;
+    }
+    if (/[a-zA-Z_]/.test(ch)) {
+      let j = i;
+      while (j < src.length && /[\w$]/.test(src[j]!)) j++;
+      const word = src.slice(i, j);
+      if (word === "true" || word === "false" || word === "null") {
+        out.push(span(word, "tok-kw"));
+      } else {
+        out.push(escapeHtml(word));
+      }
+      i = j;
+      continue;
+    }
+    out.push(escapeHtml(ch));
+    i++;
+  }
+  return out.join("");
+}
 
 export function highlightCode(code: string, lang?: string): string {
   const l = (lang ?? "javascript").toLowerCase();
+  if (l === "sql") return highlightSql(code);
+  if (l === "json") return highlightJson(code);
   if (!HIGHLIGHT_LANGS.has(l)) {
     return escapeHtml(code);
   }

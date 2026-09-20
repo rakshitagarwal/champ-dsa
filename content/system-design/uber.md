@@ -2,7 +2,7 @@
 
 > Ride hailing. The unique piece is **nearby search on moving drivers**, then a **trip state machine**. Payments and maps are boxes, not the whole hour.
 
-> Trip state Postgres me lock, driver GPS Redis GEO me. Match = GEOSEARCH + CAS assignment, pricing surge Redis me.
+> Lock trip state in Postgres, track driver GPS in Redis GEO. Matching = GEOSEARCH + CAS assignment, surge pricing in Redis.
 
 ## What they ask
 
@@ -169,23 +169,24 @@ CREATE INDEX idx_trips_city_status ON trips(city_id, status);
 
 ### Key classes / responsibilities
 
-```java
-class TripService {
-  Trip requestTrip(riderId, pickup, dropoff, product) // INSERT requested
-  Trip acceptTrip(tripId, driverId) // CAS: UPDATE ... WHERE status='requested'
-  Trip startTrip(tripId, driverId)  // WHERE status='matched'
-  Trip completeTrip(tripId, driverId) // WHERE status='in_progress' → emit payment event
+```typescript
+interface TripService {
+  requestTrip(riderId: string, pickup: LatLng, dropoff: LatLng, product: string): Trip; // INSERT requested
+  acceptTrip(tripId: string, driverId: string): Trip; // CAS: UPDATE ... WHERE status='requested'
+  startTrip(tripId: string, driverId: string): Trip; // WHERE status='matched'
+  completeTrip(tripId: string, driverId: string): Trip; // WHERE status='in_progress' -> emit payment event
 }
-class LocationService {
-  void onLocation(driverId, cityId, lat, lng) // GEOADD + update TTL, pub to trip channel
-  List<Driver> nearby(cityId, lat, lng, radiusM, product) // GEOSEARCH + filter
-  void reapStale(cityId) // periodic scan, ZREM if no ping in 15s (ghost cars)
+interface LocationService {
+  onLocation(driverId: string, cityId: string, lat: number, lng: number): void; // GEOADD + update TTL, pub to trip channel
+  nearby(cityId: string, lat: number, lng: number, radiusM: number, product: string): Driver[]; // GEOSEARCH + filter
+  reapStale(cityId: string): void; // periodic scan, ZREM if no ping in 15s (ghost cars)
 }
-class MatchingService {
-  void dispatch(trip) // nearby() → push to N drivers → race on acceptTrip()
+interface MatchingService {
+  dispatch(trip: Trip): void; // nearby() -> push to N drivers -> race on acceptTrip()
 }
-class WSConnectionRegistry { // backed by Redis hash userId -> nodeId
-  void register(userId, nodeId); void route(tripId, msg)
+interface WSConnectionRegistry { // backed by Redis hash userId -> nodeId
+  register(userId: string, nodeId: string): void;
+  route(tripId: string, msg: WsMessage): void;
 }
 ```
 
@@ -214,8 +215,8 @@ Trip row is the **source of truth for money**, not GPS. `complete` writes the tr
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Consistency & multi-region (say this)
 
@@ -247,7 +248,6 @@ Details: [geohashing & quadtrees](/hld/architecture-concepts), [distributed syst
 4. **Pool / shared rides:** Separate matching optimization (batching by direction) — v2; mention as extension.
 5. **Safety & fraud:** Shadow trip log + async ML; not in critical path.
 
-**Yaad rakho (Revision):** 1) Trip Postgres CAS 2) Location Redis GEO 3) Match = GEOSEARCH 4) City-sharded.
+**Remember (Revision):** 1) Trip Postgres CAS 2) Location Redis GEO 3) Match = GEOSEARCH 4) City-sharded.
 
 **Phrase:** Trips are a durable state machine. Drivers live in a per-city geo index in Redis. Assign is atomic so two riders can't get the same car. GPS never is the source of truth for money.
-

@@ -2,7 +2,7 @@
 
 > File sync. The product is **metadata + chunks**, not "put one blob in a table." Conflict handling and upload resume are the senior bits.
 
-> File ko chunks me kaato, metadata Postgres me, chunks S3 me. Sync me delta + deduplication, conflict me last-write-wins ya version.
+> Split files into chunks, keep metadata in Postgres and chunks in S3. Sync with delta + dedup; on conflict use last-write-wins or versions.
 
 ## What they ask
 
@@ -236,25 +236,26 @@ CREATE TABLE upload_sessions (
 ```
 
 **Key classes:**
-```python
-class BlockService:
-    def begin_upload(self, user_id, name, parent_id, size) -> UploadSession: ...
-    def upload_chunk(self, upload_id, seq, data: bytes) -> str: ... # returns hash, stores to S3
-    def commit(self, upload_id, chunk_hashes, expected_rev) -> File: ... # CAS
-
-class MetadataService:
-    def cas_commit(self, namespace_id, parent_id, name, chunk_hashes, expected_cursor) -> Revision: ...
-    def get_delta(self, namespace_id, cursor, limit) -> DeltaPage: ...
-    def resolve_conflict(self, file_id, rev_a, rev_b) -> Revision: ...
-
-class SyncClient:
-    journal: LocalJournal  # tracks local cursor, pending uploads
-    def push_local_changes(self): ...
-    def pull_remote_delta(self): ...
-
-class NotificationService:
-    def publish(self, namespace_id, new_cursor): ...
-    def subscribe(self, user_id, namespace_id): ... # WebSocket
+```typescript
+interface BlockService {
+  beginUpload(userId: string, name: string, parentId: string, size: number): UploadSession;
+  uploadChunk(uploadId: string, seq: number, data: Uint8Array): string; // returns hash, stores to S3
+  commit(uploadId: string, chunkHashes: string[], expectedRev: number): FileMeta; // CAS
+}
+interface MetadataService {
+  casCommit(namespaceId: string, parentId: string, name: string, chunkHashes: string[], expectedCursor: string): Revision;
+  getDelta(namespaceId: string, cursor: string, limit: number): DeltaPage;
+  resolveConflict(fileId: string, revA: number, revB: number): Revision;
+}
+interface SyncClient {
+  journal: LocalJournal; // tracks local cursor, pending uploads
+  pushLocalChanges(): Promise<void>;
+  pullRemoteDelta(): Promise<void>;
+}
+interface NotificationService {
+  publish(namespaceId: string, newCursor: string): void;
+  subscribe(userId: string, namespaceId: string): void; // WebSocket
+}
 ```
 
 **Algorithms / concurrency:**
@@ -292,8 +293,8 @@ class NotificationService:
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -312,6 +313,6 @@ class NotificationService:
 4. **Preview/thumbnails:** async [Kafka](/hld/message-queue) workers generate via ImageMagick; store in separate S3 prefix, CDN-cached.
 5. **Trash & restore:** soft delete (`is_deleted=true`, `deleted_at`), retain 30 days, then hard delete revisions + decrement chunk `ref_count`.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** S3 stores chunks addressed by hash. Postgres stores the tree and which hashes make a file. Clients sync deltas. Commits are CAS so two offline edits become two versions, not a silent overwrite.

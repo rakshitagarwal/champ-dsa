@@ -2,7 +2,7 @@
 
 > Swipe app. The product is **geo + recs + a cheap deck**, not a full social graph. Don't design Facebook.
 
-> Geo + filters se candidate nikalo, swipe queue, recommendation async. Location Redis GEO, photos S3 + CDN.
+> Pull candidates via geo + filters, queue swipes, rank recommendations async. Locations in Redis GEO, photos in S3 + CDN.
 
 ## What they ask
 
@@ -225,30 +225,31 @@ CREATE TABLE swipes (
 ```
 
 **Key classes:**
-```python
-class RecsService:
-    def get_recs(self, user_id, limit=20) -> List[Profile]: ...
-    def candidates_geo(self, lat, lng, radius_km, filters) -> List[int]: ...
-    def filter_swiped(self, user_id, candidate_ids) -> List[int]: ... # Redis SET or Bloom
-    def rank(self, candidate_profiles) -> List[Profile]: ... # score offline + distance
-    def refill_deck(self, user_id): ... # async
-
-class SwipeService:
-    def swipe(self, user_id, target_id, dir) -> SwipeResult: ...
-    def has_swiped(self, user_id, target_id) -> bool: ...
-    def check_match(self, user_id, target_id) -> Optional[Match]: ...
-
-class MatchService:
-    def create_match(self, user_a, user_b) -> Match: ... # idempotent
-    def list_matches(self, user_id) -> List[Match]: ...
-
-class LocationService:
-    def update(self, user_id, lat, lng): ... # GEOADD + geohash
-    def nearby(self, lat, lng, radius_km, filters, exclude) -> List[int]: ...
-
-class ChatService:
-    def send(self, match_id, sender_id, text): ... # check match active
-    def history(self, match_id, cursor) -> List[Message]: ...
+```typescript
+interface RecsService {
+  getRecs(userId: string, limit?: number): Profile[];
+  candidatesGeo(lat: number, lng: number, radiusKm: number, filters: Filters): string[];
+  filterSwiped(userId: string, candidateIds: string[]): string[]; // Redis SET or Bloom
+  rank(candidates: Profile[]): Profile[]; // score offline + distance
+  refillDeck(userId: string): void; // async
+}
+interface SwipeService {
+  swipe(userId: string, targetId: string, dir: SwipeDir): SwipeResult;
+  hasSwiped(userId: string, targetId: string): boolean;
+  checkMatch(userId: string, targetId: string): Match | null;
+}
+interface MatchService {
+  createMatch(userA: string, userB: string): Match; // idempotent
+  listMatches(userId: string): Match[];
+}
+interface LocationService {
+  update(userId: string, lat: number, lng: number): void; // GEOADD + geohash
+  nearby(lat: number, lng: number, radiusKm: number, filters: Filters, exclude: string[]): string[];
+}
+interface ChatService {
+  send(matchId: string, senderId: string, text: string): void; // check match active
+  history(matchId: string, cursor: string): Message[];
+}
 ```
 
 **Algorithms / concurrency:**
@@ -297,8 +298,8 @@ class ChatService:
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -316,6 +317,6 @@ class ChatService:
 4. **Analytics:** Kafka → Druid for `swipes per metro`, `match rate`, `time to first swipe`.
 5. **Chat auth:** every `WS /chat/{matchId}` message checks `matches` table `status='active' AND (user_a=:me OR user_b=:me)` — no match, no send.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** GEO for candidates, a swipe ledger keyed by pair, match when the reverse swipe is right. Precompute a small deck so the swipe UI never waits on a city-wide query.

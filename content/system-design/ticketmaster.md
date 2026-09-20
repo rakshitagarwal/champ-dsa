@@ -2,7 +2,7 @@
 
 > Flash sale for seats. The system is a **correct inventory lock**, not a pretty map of the arena. If two people can buy seat 12A, you failed.
 
-> Flash sale me inventory Postgres me `FOR UPDATE` se lock, 10 min hold TTL, waiting room queue se spike absorb, shard by eventId.
+> In a flash sale, lock inventory in Postgres with FOR UPDATE, hold seats with a 10-min TTL, absorb spikes with a waiting-room queue, shard by eventId.
 
 ## What they ask
 
@@ -235,26 +235,27 @@ WHERE id=:eid AND ga_remaining >= :qty;
 ```
 
 **Key classes:**
-```python
-class InventoryService:
-    def hold(self, event_id, seat_ids, user_id, ttl=600) -> Hold: ... # txn
-    def release_expired(self): ... # sweeper
-    def available(self, event_id) -> SeatMap: ... # cached
-
-class Hold:
-    id: int; event_id: int; seat_ids: List[str]; user_id: int; expires_at: datetime
-
-class OrderService:
-    def checkout(self, hold_id, user_id, payment_method, idempotency_key) -> Order: ... # hold→sold txn + payment
-    def issue_tickets(self, order_id) -> List[Ticket]: ... # signed barcode
-
-class WaitingRoom:
-    def enqueue(self, user_id, event_id) -> QueueToken: ...
-    def admit(self, event_id, n) -> List[QueueToken]: ...
-    def position(self, token) -> int: ...
-
-class ExpiryWorker:
-    def sweep(self): ... # UPDATE seats SET status='free' WHERE status='held' AND hold_until < now()
+```typescript
+interface Hold {
+  id: number; eventId: number; seatIds: string[]; userId: number; expiresAt: Date;
+}
+interface InventoryService {
+  hold(eventId: number, seatIds: string[], userId: number, ttlSec?: number): Hold; // txn
+  releaseExpired(): void; // sweeper
+  available(eventId: number): SeatMap; // cached
+}
+interface OrderService {
+  checkout(holdId: string, userId: number, paymentMethod: string, idempotencyKey: string): Order; // hold->sold txn + payment
+  issueTickets(orderId: string): Ticket[]; // signed barcode
+}
+interface WaitingRoom {
+  enqueue(userId: string, eventId: number): QueueToken;
+  admit(eventId: number, n: number): QueueToken[];
+  position(token: QueueToken): number;
+}
+interface ExpiryWorker {
+  sweep(): void; // UPDATE seats SET status='free' WHERE status='held' AND hold_until < now()
+}
 ```
 
 **Algorithms / concurrency:**
@@ -313,8 +314,8 @@ class ExpiryWorker:
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -333,6 +334,6 @@ class ExpiryWorker:
 4. **Multi-venue:** Venue service owns physical seat map; Event references it — don't duplicate venue geometry per event.
 5. **Idempotent holds:** `POST /holds` with `Idempotency-Key` — if same key+same seats retried, return same `holdId` instead of double-holding.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Browse is cached. Buying is a transactional seat row: hold with TTL, then sell on payment. A waiting room absorbs the 10:00 spike so inventory isn't the first thing that dies.

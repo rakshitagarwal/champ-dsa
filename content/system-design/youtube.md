@@ -2,7 +2,7 @@
 
 > Video platform. Bytes go through **object storage + CDN + transcoding**. The API only stores metadata and the user never waits on FFmpeg.
 
-> Upload → S3 presign → transcode workers async → HLS ladder S3 + CDN. Views Kafka se batch, metadata Postgres.
+> Upload via S3 presigned URL, transcode in async workers, serve the HLS ladder from S3 + CDN. Views batched through Kafka, metadata in Postgres.
 
 ## What they ask
 
@@ -167,21 +167,21 @@ CREATE TABLE views_daily (
 
 ### Key classes / responsibilities
 
-```java
-class VideoService {
-  Video createVideo(userId, title) // → presigned URL
-  void completeUpload(videoId, checksum) // validate S3 HEAD, set processing, publish event
-  Video getVideo(videoId) // cache-aside Redis → Postgres → signed manifest URL
+```typescript
+interface VideoService {
+  createVideo(userId: string, title: string): Video; // -> presigned URL
+  completeUpload(videoId: string, checksum: string): void; // validate S3 HEAD, set processing, publish event
+  getVideo(videoId: string): Video; // cache-aside Redis -> Postgres -> signed manifest URL
 }
-class TranscodeOrchestrator {
-  void onUploadCompleted(event) // idempotent: INSERT ... ON CONFLICT DO NOTHING (dedupe videoId)
-  void updateRendition(videoId, rendition) // track progress, set ready when ladder complete
+interface TranscodeOrchestrator {
+  onUploadCompleted(event: UploadCompleted): void; // idempotent: INSERT ... ON CONFLICT DO NOTHING (dedupe videoId)
+  updateRendition(videoId: string, rendition: Rendition): void; // track progress, set ready when ladder complete
 }
-class TranscodeWorker { // Kafka consumer
-  void process(Task t) // download → FFmpeg ladder → upload chunks → ack; retry with backoff
+interface TranscodeWorker { // Kafka consumer
+  process(task: TranscodeTask): void; // download -> FFmpeg ladder -> upload chunks -> ack; retry with backoff
 }
-class PlaybackService {
-  String signedManifestUrl(videoId, user) // policy check + sign CDN URL
+interface PlaybackService {
+  signedManifestUrl(videoId: string, user: string): string; // policy check + sign CDN URL
 }
 ```
 
@@ -210,8 +210,8 @@ Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stage
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -230,7 +230,6 @@ Policy checks (virus, CSAM, copyright fingerprint) run as **early pipeline stage
 4. **Dedupe / re-upload:** Content hash (e.g., perceptual hash) to detect re-uploads; optionally reuse existing renditions copy-on-write.
 5. **Analytics:** Kafka → warehouse; never query Postgres for watch-time aggregations.
 
-**Yaad rakho (Revision):** 1) Upload presign S3 2) Transcode async, never block 3) HLS + CDN 4) Views batch via Kafka.
+**Remember (Revision):** 1) Upload presign S3 2) Transcode async, never block 3) HLS + CDN 4) Views batch via Kafka.
 
 **Phrase:** Pre-signed upload to S3, Kafka transcode to an HLS ladder, play from CDN. Postgres holds metadata only. View counts and search are async.
-

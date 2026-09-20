@@ -2,7 +2,7 @@
 
 > Online judge. The scary part is **running stranger's code** without torching your cluster, plus fair queues when a contest starts.
 
-> Untrusted code ko Docker me isolate, queue me daalo, workers grade kare, result Postgres, rate limit + sandbox must.
+> Isolate untrusted code in Docker, queue it, let workers grade, store results in Postgres — rate limits + sandbox mandatory.
 
 ## What they ask
 
@@ -232,32 +232,33 @@ CREATE TABLE contest_submissions (
 ```
 
 **Key classes:**
-```python
-class APIService:
-    def submit(self, user_id, problem_id, lang, source) -> Submission: ... # enqueue
-    def get_result(self, submission_id) -> Submission: ...
-    def idempotency_check(self, key) -> Optional[Submission]: ...
-
-class Queue:
-    def publish(self, lang, job: Job): ...
-    def consume(self, lang) -> Job: ... # long poll
-
-class Worker:
-    def run_job(self, job: Job): ...
-    def fetch_tests(self, problem_id) -> List[TestCase]: ... # internal auth
-    def judge(self, source, tests, checker) -> Result: ...
-
-class Sandbox:
-    def compile(self, source, lang) -> CompileResult: ... # javac, g++ inside sandbox
-    def execute(self, binary, test_input, limits) -> ExecResult: ... # no network
-    def kill_on_timeout(self, pid, wall_ms): ...
-
-class Checker:
-    def compare(self, actual, expected, checker_type) -> bool: ... # exact, float eps, custom binary
-
-class Leaderboard:
-    def update(self, contest_id, user_id, score): ... # Redis ZADD
-    def rank(self, contest_id, user_id) -> int: ...
+```typescript
+interface ApiService {
+  submit(userId: string, problemId: string, lang: string, source: string): Submission; // enqueue
+  getResult(submissionId: string): Submission;
+  idempotencyCheck(key: string): Submission | null;
+}
+interface Queue {
+  publish(lang: string, job: Job): void;
+  consume(lang: string): Job; // long poll
+}
+interface Worker {
+  runJob(job: Job): void;
+  fetchTests(problemId: string): TestCase[]; // internal auth
+  judge(source: string, tests: TestCase[], checker: CheckerType): Result;
+}
+interface Sandbox {
+  compile(source: string, lang: string): CompileResult; // javac, g++ inside sandbox
+  execute(binary: string, testInput: string, limits: Limits): ExecResult; // no network
+  killOnTimeout(pid: number, wallMs: number): void;
+}
+interface Checker {
+  compare(actual: string, expected: string, checkerType: CheckerType): boolean; // exact, float eps, custom binary
+}
+interface Leaderboard {
+  update(contestId: string, userId: string, score: number): void; // Redis ZADD
+  rank(contestId: string, userId: string): number;
+}
 ```
 
 **Algorithms / concurrency:**
@@ -302,8 +303,8 @@ class Leaderboard:
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -322,6 +323,6 @@ class Leaderboard:
 4. **Partial credit:** for problems with subtasks, return `passed=7/10 → score 70`.
 5. **Security audit:** log all syscalls via gVisor trace, alert on `socket` attempts, quarantine user after 3 violations.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** API only enqueues. A sandboxed worker with no network grades against private tests. Contests are a queue + more workers, not a bigger web server.

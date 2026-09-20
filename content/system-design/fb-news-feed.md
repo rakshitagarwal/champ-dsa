@@ -2,7 +2,7 @@
 
 > Home feed for a social graph. The classic deep dive is **fan-out on write vs read**, plus ranking. Same family as Twitter and [Instagram](/hld/instagram).
 
-> Fan-out hybrid — normal users push, celebrity pull. Feed ids time-partitioned, ranking alag, cache aside.
+> Hybrid fan-out — push for normal users, pull for celebrities. Feed ids time-partitioned, ranking separate, cache-aside.
 
 ## What they ask
 
@@ -226,31 +226,32 @@ CREATE TABLE feed_inbox (
 ```
 
 **Key classes:**
-```python
-class PostService:
-    def create_post(self, author_id, text, media_ids) -> Post: ...
-    def get_post(self, post_id) -> Post: ...
-
-class GraphService:
-    def followers(self, user_id, cursor, limit) -> List[int]: ...
-    def followees(self, user_id) -> List[int]: ...
-    def is_following(self, follower, followee) -> bool: ...
-
-class FanoutService:
-    def on_post_created(self, event: PostCreated): ... # push or skip
-    def push_to_followers(self, post_id, follower_ids): ...
-
-class FeedService:
-    def get_feed(self, user_id, cursor, limit) -> FeedPage: ... # merge + rank
-    def merge_candidates(self, inbox_ids, celebrity_ids) -> List[int]: ...
-
-class RankingService:
-    def rank(self, user_id, candidate_posts) -> List[Post]: ... # features → score
-    def features(self, user_id, post) -> dict: ... # affinity, recency, engagement
-
-class CounterService:
-    def incr_like(self, post_id): ... # Redis INCR + async flush to DB
-    def get_count(self, post_id) -> int: ...
+```typescript
+interface PostService {
+  createPost(authorId: string, text: string, mediaIds: string[]): Post;
+  getPost(postId: string): Post;
+}
+interface GraphService {
+  followers(userId: string, cursor: string, limit: number): string[];
+  followees(userId: string): string[];
+  isFollowing(follower: string, followee: string): boolean;
+}
+interface FanoutService {
+  onPostCreated(event: PostCreated): void; // push or skip
+  pushToFollowers(postId: string, followerIds: string[]): void;
+}
+interface FeedService {
+  getFeed(userId: string, cursor: string, limit: number): FeedPage; // merge + rank
+  mergeCandidates(inboxIds: string[], celebrityIds: string[]): string[];
+}
+interface RankingService {
+  rank(userId: string, candidates: Post[]): Post[]; // features -> score
+  features(userId: string, post: Post): Record<string, number>; // affinity, recency, engagement
+}
+interface CounterService {
+  incrLike(postId: string): void; // Redis INCR + async flush to DB
+  getCount(postId: string): number;
+}
 ```
 
 **Algorithms / concurrency:**
@@ -297,8 +298,8 @@ class CounterService:
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -316,6 +317,6 @@ class CounterService:
 4. **Search is not the feed:** Post search is inverted index ([FB post search](/hld/fb-post-search)), separate from timeline merge.
 5. **A/B ranking:** Feature flag ranking weights; shadow-rank and compare engagement lift before rollout.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Precomputed inbox for normal accounts, pull for celebrities. Kafka fans out to cache, search, and notifications. The feed API only ranks a small candidate set.

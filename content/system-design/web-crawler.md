@@ -2,7 +2,7 @@
 
 > Download the web politely. The core is a **URL frontier + dedup + robots.txt**, not a recursive `wget` on one box.
 
-> URL frontier (queue), politeness per domain, dedup via Bloom/Set, fetcher → parser → dedup → store S3 + index.
+> URL frontier (queue), per-domain politeness, dedup via Bloom/set; fetcher -> parser -> dedup -> store in S3 + index.
 
 ## What they ask
 
@@ -168,33 +168,33 @@ CREATE INDEX ON frontier_queue (host, next_fetch_after, priority DESC);
 
 **Key classes & responsibilities**
 
-```java
-class UrlCanonicalizer {
-  String canonicalize(String rawUrl); // lowercase host, strip tracking params, sort query, remove fragment
-  String hash(String canonicalUrl);   // SHA-256
+```typescript
+interface UrlCanonicalizer {
+  canonicalize(rawUrl: string): string; // lowercase host, strip tracking params, sort query, remove fragment
+  hash(canonicalUrl: string): string; // SHA-256
 }
-class RobotsCache {
-  RobotsRules get(String host); // cached 24h, fetch + parse if miss
-  boolean allowed(String host, String path);
+interface RobotsCache {
+  get(host: string): RobotsRules; // cached 24h, fetch + parse on miss
+  allowed(host: string, path: string): boolean;
 }
-class PerHostRateLimiter {
-  boolean tryAcquire(String host); // token bucket per host, e.g. 2 req/sec/host
-  long delayUntilNext(String host);
+interface PerHostRateLimiter {
+  tryAcquire(host: string): boolean; // token bucket per host, e.g. 2 req/sec/host
+  delayUntilNext(host: string): number;
 }
-class Frontier {
-  void enqueue(List<Url> urls, int priority);
-  List<Url> dequeueForHost(String host, int max); // respects next_fetch_after
-  long size();
+interface Frontier {
+  enqueue(urls: Url[], priority: number): void;
+  dequeueForHost(host: string, max: number): Url[]; // respects next_fetch_after
+  size(): number;
 }
-class Fetcher {
-  FetchResult fetch(Url url); // DNS -> robots check -> HTTP GET with timeout/size cap
+interface Fetcher {
+  fetch(url: Url): FetchResult; // DNS -> robots check -> HTTP GET with timeout/size cap
 }
-class DedupService {
-  boolean isSeenUrl(String hash); // Bloom -> Cassandra
-  boolean isDuplicateContent(byte[] body); // SHA256 / SimHash
+interface DedupService {
+  isSeenUrl(hash: string): boolean; // Bloom -> Cassandra
+  isDuplicateContent(body: Uint8Array): boolean; // SHA256 / SimHash
 }
-class Parser {
-  List<String> extractLinks(byte[] html, String baseUrl);
+interface Parser {
+  extractLinks(html: Uint8Array, baseUrl: string): string[];
 }
 ```
 
@@ -222,8 +222,8 @@ Not all pages change equally: homepages hourly, blog posts never. Track `changeF
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -245,6 +245,6 @@ Not all pages change equally: homepages hourly, blog posts never. Track `changeF
 - Alternative queue: Why not [Redis](/hld/caching-strategies) only? — RAM insufficient for 10B URLs; need disk-backed RocksDB/Kafka + Redis cache for hot hosts.
 - Scheduling as [rate limiter](/hld/rate-limiter) per host — exactly the token-bucket pattern applied to crawler politeness.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** A frontier of canonical URLs, fetchers sharded by host with robots and rate limits, and a seen-set so we don't loop. HTML in S3; links go back to the queue.

@@ -2,7 +2,7 @@
 
 > Cron for a whole company. The job is **run exactly once (or retry safely)** across many workers, not `crontab` on one VM.
 
-> Jobs Postgres me durable, workers poll/heartbeats, lease + ZK leader, retry with backoff, exactly-once via idempotent.
+> Jobs durable in Postgres, workers poll with heartbeats, leases + ZK leader, retries with backoff, exactly-once via idempotency.
 
 ## What they ask
 
@@ -165,30 +165,25 @@ CREATE INDEX idx_runs_status ON job_runs(status, lease_expires_at);
 ```
 
 **Key classes / responsibilities:**
-```python
-class JobService:
-  def create_job(payload): # validate cron, compute next_run_at UTC
-  def cancel_job(id): ...
-  def compute_next_run(cron, timezone, after): ...
-
-class Dispatcher:
-  def tick():
-    with db.transaction():
-      rows = db.query("SELECT * FROM jobs WHERE next_run_at <= now() AND status='ACTIVE' ORDER BY next_run_at LIMIT 500 FOR UPDATE SKIP LOCKED")
-      for job in rows:
-        run_id = uuid()
-        db.insert_run(job.id, run_id, status='PENDING')
-        job.next_run_at = compute_next_run(job.cron, job.timezone, after=now())
-        job.locked_by, job.locked_at = self.id, now()
-        queue.enqueue({job_id: job.id, run_id, payload: job.payload})
-
-class Worker:
-  def poll(): # long-poll or Kafka consume
-  def execute(run): # idempotent: check dedup table by run_id before side effects
-  def heartbeat(run_id): # UPDATE job_runs SET lease_expires_at = now()+30s
-
-class RetryPolicy:
-  def next_delay(attempt): return base * 2**attempt + jitter
+```typescript
+interface JobService {
+  createJob(payload: JobPayload): Job; // validate cron, compute next_run_at UTC
+  cancelJob(id: string): void;
+  computeNextRun(cron: string, timezone: string, after: Date): Date;
+}
+interface Dispatcher {
+  // tick: claim due jobs (FOR UPDATE SKIP LOCKED), insert run PENDING,
+  // recompute next_run_at, lock, enqueue {job_id, run_id, payload}
+  tick(): void;
+}
+interface Worker {
+  poll(): JobRun; // long-poll or Kafka consume
+  execute(run: JobRun): void; // idempotent: check dedup table by run_id before side effects
+  heartbeat(runId: string): void; // UPDATE job_runs SET lease_expires_at = now()+30s
+}
+interface RetryPolicy {
+  nextDelay(attempt: number): number; // base * 2^attempt + jitter
+}
 ```
 
 **Concurrency & algorithms:**
@@ -217,8 +212,8 @@ Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. I
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -240,6 +235,6 @@ Delayed jobs ("send reminder in 30 min") are cron with `run_at = now()+delay`. I
 4. Observability — per-queue lag, run latency histogram, DLQ alerts, distributed tracing with `run_id`.
 5. Calendar vs interval scheduling — "every 24h" vs "daily at 2am" behave differently on DST days.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Schedules live in the DB. Dispatch uses SKIP LOCKED and a run id. Workers are at-least-once; the job itself is idempotent. No crontab on random pods."

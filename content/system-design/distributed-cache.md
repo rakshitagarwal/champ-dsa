@@ -2,7 +2,7 @@
 
 > Design the cache **service**, not "I'll add Redis." Interviewers want **placement, invalidation, stampede, and hashing**.
 
-> Consistent hashing se placement, L1 app + L2 Redis, singleflight stampede rokho, hot key split, replication.
+> Placement via consistent hashing, L1 in app + L2 in Redis, singleflight stops stampedes, split hot keys, replicate.
 
 > **Theory first:** Review cache-aside, write policies, invalidation, eviction, and stampede prevention in [Caching Strategies](/hld/caching-strategies). This page designs the cache service itself.
 
@@ -167,39 +167,34 @@ CREATE TABLE cache_stats (
 
 **Key classes & responsibilities**
 
-```java
-class HashRing {
-  // Consistent hashing with virtual nodes (e.g., 150 vnodes per physical)
-  Node getNode(String key); // CRC16(key) % 16384 -> slot -> node
-  void addNode(Node n);     // moves ~1/N keys
-  void removeNode(Node n);
+```typescript
+interface HashRing {
+  // Consistent hashing with virtual nodes (e.g. 150 vnodes per physical)
+  getNode(key: string): Node; // CRC16(key) % 16384 -> slot -> node
+  addNode(n: Node): void; // moves ~1/N keys
+  removeNode(n: Node): void;
 }
-
-class CacheClient {
-  Value get(String key); // L1 -> L2 -> singleflight loader -> DB -> populate
-  void set(String key, Value v, int ttl, boolean nx);
-  void del(String key);  // delete + version bump
-  Map<String,Value> mget(List<String> keys); // scatter-gather to shards
+interface CacheClient {
+  get(key: string): Value; // L1 -> L2 -> singleflight loader -> DB -> populate
+  set(key: string, v: Value, ttlSec: number, nx: boolean): void;
+  del(key: string): void; // delete + version bump
+  mget(keys: string[]): Map<string, Value>; // scatter-gather to shards
 }
-
-class SingleFlight {
+interface SingleFlight {
   // coalesce concurrent misses for same key
-  Value load(String key, Loader loader); // only one thread loads, others wait on future
+  load(key: string, loader: Loader): Value; // only one thread loads, others wait on future
 }
-
-class EvictionPolicy {
-  void onAccess(String key); // LRU linked list / LFU counter
-  String pickVictim();       // evict when memory > maxmemory
+interface EvictionPolicy {
+  onAccess(key: string): void; // LRU linked list / LFU counter
+  pickVictim(): string; // evict when memory > maxmemory
 }
-
-class ReplicationManager {
-  void replicate(Node primary, Node replica, Op op); // async
-  void promoteReplica(Node replica); // on primary failure via failover
+interface ReplicationManager {
+  replicate(primary: Node, replica: Node, op: Op): void; // async
+  promoteReplica(replica: Node): void; // on primary failure via failover
 }
-
-class VersionedCache {
+interface VersionedCache {
   // pattern: SET key value:version, GET returns version, invalidator bumps version
-  long bumpVersion(String key); // used instead of DEL for L1+L2 coherence
+  bumpVersion(key: string): number; // used instead of DEL for L1+L2 coherence
 }
 ```
 
@@ -228,8 +223,8 @@ TTL alone guarantees **stale reads until expiry** — unacceptable for price/inv
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -251,6 +246,6 @@ TTL alone guarantees **stale reads until expiry** — unacceptable for price/inv
 - Why not just enlarge DB? — Caching gives 10x cost reduction, <5ms vs 20-50ms DB, and isolates read scale from write scale.
 - Security: `KEYS *` disabled in prod; use `SCAN` to avoid blocking.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Cache-aside with TTL and delete-on-write. Consistent hashing for the cluster, a lock on miss to stop stampedes, and a plan for hot keys. The DB remains source of truth.

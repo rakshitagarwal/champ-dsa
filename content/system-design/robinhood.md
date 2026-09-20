@@ -2,7 +2,7 @@
 
 > Retail brokerage. **Correctness beats latency.** You are designing order intake + a matching/execution story, not a hedge fund.
 
-> Order matching engine, ledger Postgres, idempotent `clientOrderId`, market hours check, Kafka for audit.
+> Order matching engine, ledger in Postgres, idempotent clientOrderId, market-hours check, Kafka for audit.
 
 ## What they ask
 
@@ -231,15 +231,17 @@ CREATE TABLE venue_callbacks (
 
 **Key classes:**
 
-```text
-QuoteService        — onTick(symbol, price): SET quote:{symbol} + ZADD candles
-OrderController     — POST /orders → idempotency check → OrderService.place()
-OrderService        — @Transactional place(): lock account row, check buyingPower, insert order + ledger hold, publish Kafka
-LedgerService       — hold(), releaseHold(), applyFill(execId): idempotent, double-entry
-VenueAdapter        — route(order): POST to clearing firm, handle timeout via retrieve-by-clientOrderId
-FillHandler         — onWebhook(execId): dedup venue_callbacks, call LedgerService.applyFill(), update Order + Position
-PositionService     — recalc avgCost on buy: newAvg = (oldQty*oldAvg + fillQty*fillPrice)/(oldQty+fillQty)
-RiskService         — check PDT, marketHours, sell qty <= position.qty + holds
+```typescript
+interface BrokerageSystem {
+  quotes: QuoteService; // onTick(symbol, price): SET quote:{symbol} + ZADD candles
+  orders: OrderController; // POST /orders -> idempotency check -> OrderService.place()
+  orderSvc: OrderService; // @Transactional place(): lock account row, check buyingPower, insert order + ledger hold, publish Kafka
+  ledger: LedgerService; // hold(), releaseHold(), applyFill(execId): idempotent, double-entry
+  venue: VenueAdapter; // route(order): POST to clearing firm, timeout via retrieve-by-clientOrderId
+  fills: FillHandler; // onWebhook(execId): dedup venue_callbacks -> applyFill() -> update Order + Position
+  positions: PositionService; // recalc avgCost on buy: newAvg = (oldQty*oldAvg + fillQty*fillPrice)/(oldQty+fillQty)
+  risk: RiskService; // check PDT, marketHours, sell qty <= position.qty + holds
+}
 ```
 
 **Concurrency / algorithms:**
@@ -261,8 +263,8 @@ We do not build an order book — we delegate to a venue. That means: network ti
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -286,6 +288,6 @@ We do not build an order book — we delegate to a venue. That means: network ti
 5. **Tax lots:** FIFO vs specific lot — store lot table `lots(accountId, symbol, qty, costBasis, acquiredAt)` and consume on sells.
 6. **Related systems:** [Rate limiter](/hld/rate-limiter) on order placement (10/min per account), [metrics monitoring](/hld/metrics-monitoring) on fill latency.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Ledger first, per-account serialization, idempotent order ids. Quotes are a cache. A venue box executes; we record fills from it, we don't 'match stocks' on a weekend project."

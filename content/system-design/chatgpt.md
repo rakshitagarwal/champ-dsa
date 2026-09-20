@@ -2,7 +2,7 @@
 
 > LLM product, not "train GPT." The design is **sessions, streaming tokens, rate limits, and optionally RAG**. The model is a billed dependency.
 
-> Threads Postgres, context window trim/summarize, streaming SSE, quota Redis, RAG vector DB me tenant filter, queue for model.
+> Threads in Postgres, trim/summarize context window, stream over SSE, quotas in Redis, RAG vector DB with tenant filter, queue for the model.
 
 ## What they ask
 
@@ -203,40 +203,26 @@ CREATE TABLE thread_summaries (
 ```
 
 **Key classes / responsibilities:**
-```python
-class ThreadService:
-  def create_thread(user_id, title): ...
-  def get_thread(user_id, thread_id): # WHERE user_id=? — tenant guard
-  def list_messages(user_id, thread_id, cursor, limit=50): ...
-
-class Orchestrator:
-  def handle_message(user_id, thread_id, content, client_msg_id, file_ids):
-    if dedup_exists(client_msg_id): return prior_stream
-    user_msg = persist_user_message(...)
-    context = build_context(thread_id) # recent + summary
-    chunks = rag_retrieve(user_id, thread_id, content) if file_ids else []
-    prompt = build_prompt(context, chunks, content)
-    moderate(prompt) # input check
-    stream = model_provider.stream(prompt) # yields deltas
-    for delta in stream:
-      push_sse(delta)
-      buffer += delta
-    moderate(buffer) # output check
-    persist_assistant_message(buffer, usage)
-    increment_quota(user_id, usage)
-
-  def build_context(thread_id):
-    summary = get_summary(thread_id)
-    recent = get_recent_messages(thread_id, limit=20, max_tokens=6000)
-    return trim_to_window(summary, recent, max_tokens=8000)
-
-class RagPipeline:
-  def ingest_file(file_id): # S3 -> chunk -> embed -> vector DB
-  def retrieve(user_id, thread_id, query, top_k=5): # vector search with filter user_id=?
-  def chunk(text): # 512 tokens, overlap 50
-
-class QuotaService:
-  def check_and_increment(user_id, tokens): # Redis INCRBY + TTL, 429 if over
+```typescript
+interface ThreadService {
+  createThread(userId: string, title: string): Thread;
+  getThread(userId: string, threadId: string): Thread; // WHERE user_id=? -- tenant guard
+  listMessages(userId: string, threadId: string, cursor: string, limit?: number): Message[];
+}
+interface Orchestrator {
+  // dedup on client_msg_id -> persist user msg -> build context -> RAG (if files)
+  // -> moderate -> stream deltas over SSE -> moderate output -> persist + quota
+  handleMessage(userId: string, threadId: string, content: string, clientMsgId: string, fileIds: string[]): void;
+  buildContext(threadId: string): PromptContext; // summary + recent 20 msgs trimmed to window
+}
+interface RagPipeline {
+  ingestFile(fileId: string): void; // S3 -> chunk -> embed -> vector DB
+  retrieve(userId: string, threadId: string, query: string, topK?: number): Chunk[]; // vector search, filter user_id=?
+  chunk(text: string): string[]; // 512 tokens, overlap 50
+}
+interface QuotaService {
+  checkAndIncrement(userId: string, tokens: number): void; // Redis INCRBY + TTL, 429 if over
+}
 ```
 
 **Concurrency & algorithms:**
@@ -267,8 +253,8 @@ Context windows are finite. If you send the entire history, cost and latency exp
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -291,6 +277,6 @@ Context windows are finite. If you send the entire history, cost and latency exp
 4. File lifecycle — expiry, max 100 MB per thread, virus scan on upload.
 5. Branching / edit — `POST /threads/{id}/messages/{msgId}/edit` creates a branch (new message list fork).
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "History in Postgres, orchestrator builds a trimmed prompt, model streams tokens, quotas on tokens. RAG is retrieve-then-prompt with tenant filters. The model is a dependency I can queue, not a box I train in this interview."

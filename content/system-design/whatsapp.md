@@ -2,7 +2,7 @@
 
 > Mobile messaging. Online path is **WebSockets**. Offline path is **push + stored messages**. Groups and media are the usual extras.
 
-> Persist pehle Cassandra me, phir deliver — online ko WebSocket, offline ko push. Group fan-out Kafka se async, media S3.
+> Persist to Cassandra first, then deliver — WebSocket for online, push for offline. Group fan-out via Kafka async, media in S3.
 
 ## What they ask
 
@@ -163,27 +163,28 @@ CREATE TABLE receipts (
 
 ### Key classes / responsibilities
 
-```java
-class ConnectionManager {
-  void onConnect(userId, nodeId) // HSET user:node userId nodeId, SET presence online TTL 30s
-  void onHeartbeat(userId)        // EXPIRE presence
-  void onDisconnect(userId)       // DEL mapping, set lastSeen
-  String routeToNode(userId)      // HGET user:node
+```typescript
+interface ConnectionManager {
+  onConnect(userId: string, nodeId: string): void; // HSET user:node, SET presence online TTL 30s
+  onHeartbeat(userId: string): void; // EXPIRE presence
+  onDisconnect(userId: string): void; // DEL mapping, set lastSeen
+  routeToNode(userId: string): string; // HGET user:node
 }
-class MessageService {
-  Message send(chatId, senderId, clientMsgId, body) // dedup by (sender,clientMsgId), assign ts/msgId, persist to Cassandra, publish Kafka
-  List<Message> history(chatId, cursor, limit) // CQL range query
-  void markDelivered(msgId, userId) // upsert receipts, notify sender via WS/push
+interface MessageService {
+  // dedup by (sender, clientMsgId), assign ts/msgId, persist to Cassandra, publish Kafka
+  send(chatId: string, senderId: string, clientMsgId: string, body: string): Message;
+  history(chatId: string, cursor: string, limit: number): Message[]; // CQL range query
+  markDelivered(msgId: string, userId: string): void; // upsert receipts, notify sender via WS/push
 }
-class GroupService {
-  void addMembers(chatId, userIds) // TX on chat_members + user_chats fan-out
-  List<UUID> members(chatId)       // cached in Redis SET chat:{id}:members
+interface GroupService {
+  addMembers(chatId: string, userIds: string[]): void; // TX on chat_members + user_chats fan-out
+  members(chatId: string): string[]; // cached in Redis SET chat:{id}:members
 }
-class FanoutWorker { // Kafka consumer
-  void onMessageCreated(event) // for each member != sender: if online push WS, else enqueue FCM/APNS
+interface FanoutWorker { // Kafka consumer
+  onMessageCreated(event: MessageCreated): void; // per member != sender: online -> push WS, else enqueue FCM/APNS
 }
-class MediaService {
-  PresignedUrl presign(userId, contentType, size) // S3 presign, store media row
+interface MediaService {
+  presign(userId: string, contentType: string, size: number): PresignedUrl; // S3 presign, store media row
 }
 ```
 
@@ -212,8 +213,8 @@ Each device is a separate WS connection (`userId:deviceId → node`). A message 
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Consistency & multi-region (say this)
 
@@ -245,7 +246,6 @@ Details: [distributed systems](/hld/distributed-systems), [idempotency](/hld/api
 4. **Search:** Async [Elasticsearch](/hld/nosql-databases) indexer over Kafka — not inline.
 5. **Rate limit & abuse:** Per-user [Rate Limiter](/hld/rate-limiter) on `send`, plus spam ML async.
 
-**Yaad rakho (Revision):** 1) Persist pehle Cassandra me 2) Group fan-out Kafka async 3) Online WS, offline push 4) Media S3, presence Redis TTL.
+**Remember (Revision):** 1) Persist to Cassandra first 2) Group fan-out via Kafka async 3) Online over WS, offline via push 4) Media in S3, presence in Redis with TTL.
 
 **Phrase:** Persist first, then deliver. WebSocket if online, push if not. Media is S3. Groups fan out asynchronously so send() returns after the log write.
-

@@ -2,7 +2,7 @@
 
 > Google News / Apple News lite. Ingest many publishers, **dedupe stories**, rank a feed. Crawling is a means, not the product.
 
-> Publishers poll/crawl → dedupe (SimHash) → ranking (fresh + personal) → feed per user cache.
+> Poll/crawl publishers -> dedupe (SimHash) -> rank (fresh + personal) -> cache feed per user.
 
 ## What they ask
 
@@ -197,29 +197,30 @@ CREATE TABLE cluster_articles (
 ```
 
 **Key classes / responsibilities:**
-```python
-class Crawler:
-  def fetch(url): # respects per-host rate limiter, robots.txt, ETag/If-Modified-Since
-  def poll_sitemap(publisher): ...
-
-class Parser:
-  def parse(html, url): -> {title, body, published_at, canonical_url, image, topic}
-
-class Canonicalizer:
-  def normalize_url(url): -> canonical
-  def content_hash(body): -> sha256/simhash
-
-class ClusteringService:
-  def blocking_key(article): # e.g., (hour_bucket, topic, geo)
-  def similarity(a, b): # MinHash Jaccard or embedding cosine
-  def assign_cluster(article): # find candidate clusters in block, threshold >0.82
-
-class RankingService:
-  def score(cluster): return w1*recency_decay(cluster) + w2*authority + w3*clicks
-  def personalize(user_id, ranked_list): # blend with user topic_weights
-
-class FeedMaterializer:
-  def rebuild(topic): # SELECT ... ORDER BY score DESC LIMIT 500 -> ZADD to Redis
+```typescript
+interface Crawler {
+  fetch(url: string): RawPage; // respects per-host rate limiter, robots.txt, ETag/If-Modified-Since
+  pollSitemap(publisher: Publisher): void;
+}
+interface Parser {
+  parse(html: string, url: string): Article; // {title, body, published_at, canonical_url, image, topic}
+}
+interface Canonicalizer {
+  normalizeUrl(url: string): string; // canonical
+  contentHash(body: string): string; // sha256/simhash
+}
+interface ClusteringService {
+  blockingKey(article: Article): string; // e.g. (hour_bucket, topic, geo)
+  similarity(a: Article, b: Article): number; // MinHash Jaccard or embedding cosine
+  assignCluster(article: Article): ClusterId; // candidate clusters in block, threshold > 0.82
+}
+interface RankingService {
+  score(cluster: Cluster): number; // w1*recency_decay + w2*authority + w3*clicks
+  personalize(userId: string, ranked: Cluster[]): Cluster[]; // blend with user topic_weights
+}
+interface FeedMaterializer {
+  rebuild(topic: string): void; // SELECT ... ORDER BY score DESC LIMIT 500 -> ZADD to Redis
+}
 ```
 
 **Concurrency & algorithms:**
@@ -246,8 +247,8 @@ Poll important publishers every 60s, long tail every 15 min. Use conditional fet
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -269,6 +270,6 @@ Poll important publishers every 60s, long tail every 15 min. Use conditional fet
 4. De-duplication across languages — multilingual embeddings + translation layer (v2).
 5. Trending topics — `SELECT topic, count(*) FROM clusters WHERE created_at > now()-1h GROUP BY topic`.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Polite ingest, canonicalize URLs, cluster near-duplicates, and serve a precomputed topic feed. The user request never crawls the web."

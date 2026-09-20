@@ -2,7 +2,7 @@
 
 > Datadog / Prometheus-shaped system. Ingest **time series**, downsample, alert when an SLO burns. Dashboards are a read model.
 
-> Agents → Kafka → Flink downsample → Cassandra/ClickHouse, alert on SLO, retention tiers.
+> Agents -> Kafka -> Flink downsample -> Cassandra/ClickHouse, alert on SLOs, tiered retention.
 
 > **Theory first:** [Observability](/hld/observability) explains logs vs metrics vs traces, RED/USE, SLOs, OpenTelemetry, Prometheus, and Grafana. This page applies that vocabulary to a complete monitoring platform.
 
@@ -182,14 +182,22 @@ graph LR
 
 **Data model — TSDB internal (not plain SQL):**
 
-```text
-Series:  { metric: "http.latency", labels: {service:"api", endpoint:"/checkout", status:"200", az:"1a"} } → seriesId (hash)
-Point:   (seriesId, timestampSec, value double)
-Storage layout per shard (LSM):
-  - WAL (write-ahead log) per writer
-  - Memtable (recent 1h, sorted)
-  - SSTables (time-partitioned blocks, 2h chunks) with inverted index: label → seriesIds
-  - Downsampled blocks: 1m rollup {avg,sum,count,min,max, tDigest} and 1h rollup
+```typescript
+interface SeriesKey {
+  metric: string; // e.g. "http.latency"
+  labels: Record<string, string>; // service, endpoint, status, az
+  // -> seriesId = hash(metric + labels)
+}
+interface DataPoint {
+  seriesId: string;
+  timestampSec: number;
+  value: number;
+}
+// Storage layout per shard (LSM):
+// - WAL (write-ahead log) per writer
+// - Memtable (recent 1h, sorted)
+// - SSTables (time-partitioned 2h blocks) + inverted index: label -> seriesIds
+// - Downsampled blocks: 1m rollup {avg,sum,count,min,max,tDigest} + 1h rollup
 ```
 
 **Relational tables (for dashboards/alerts metadata in Postgres):**
@@ -236,16 +244,18 @@ CREATE TABLE series_cardinality (
 
 **Key classes:**
 
-```text
-IngestGateway         — validate(metric): check name regex, label count ≤10, label value length ≤100
-CardinalityLimiter    — incr(seriesId): if metric series_count > 100k → reject with 429 + guidance
-TSDBWriter            — write(seriesId, points): append WAL, insert memtable, flush SSTable every 2h
-Downsampler           — rollup(raw 15s → 1m): avg/sum/count/min/max + tDigest for p99; runs every 1h, backfills cold
-QueryEngine           — plan(query): choose hot/warm/cold shards by time range, fan-out, merge, apply agg
-HistogramStore        — for p99: store pre-aggregated histogram buckets or DDSketch per 1m, merge on query
-RuleEvaluator         — tick(): for each rule, query TSDB, update state machine, emit alertEvent
-AlertManager          — group(alertEvents by labels), inhibit(), silence(), notify()
-DashboardService      — CRUD dashboards, render widget cache key = hash(query+timeRange)
+```typescript
+interface MetricsPipeline {
+  ingest: IngestGateway; // validate(metric): name regex, labels <= 10, values <= 100 chars
+  cardinality: CardinalityLimiter; // incr(seriesId): series_count > 100k -> reject 429 + guidance
+  writer: TSDBWriter; // append WAL, insert memtable, flush SSTable every 2h
+  downsampler: Downsampler; // rollup raw 15s -> 1m (avg/sum/count/min/max + tDigest p99); hourly, backfills cold
+  query: QueryEngine; // plan(query): pick hot/warm/cold shards by time range, fan-out, merge, agg
+  histograms: HistogramStore; // p99 via pre-aggregated buckets or DDSketch per 1m, merged on query
+  rules: RuleEvaluator; // tick(): query TSDB per rule, update state machine, emit alertEvent
+  alerts: AlertManager; // group by labels, inhibit(), silence(), notify()
+  dashboards: DashboardService; // CRUD dashboards, widget cache key = hash(query+timeRange)
+}
 ```
 
 **Important algorithms / concurrency:**
@@ -268,8 +278,8 @@ Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Bett
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -293,6 +303,6 @@ Naive `latency > 300ms → page` fires on every spike and fatigues on-call. Bett
 5. **Derived metrics:** Use [Flink](/hld/message-queue) to compute `rate`/`increase` over Kafka raw stream and feed back into TSDB as recording rules — reduces query-time compute.
 6. **Cost control:** Retention by team — infra team 90d raw, product team 7d — different downsample configs; S3 Intelligent-Tiering for cold.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Agents ingest into a TSDB with downsampling. Alerts evaluate on recorded rules and page through the notification service. I will not put userId on metrics — that's how cardinality melts the cluster."

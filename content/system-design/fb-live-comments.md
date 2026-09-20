@@ -2,7 +2,7 @@
 
 > Comments on a **live** video. The problem is **fan-out of a hot firehose** to millions of viewers without one chat server dying.
 
-> 1M viewers pe polling nahi — sampling + WebSocket fan-out, regional edge, lag acceptable.
+> No polling for 1M viewers — sampling + WebSocket fan-out, regional edge nodes, some lag acceptable.
 
 ## What they ask
 
@@ -145,25 +145,25 @@ CREATE TABLE highlights (
 
 ### Key classes / responsibilities
 
-```java
-class CommentService {
-  Comment post(streamId, userId, text) // rate-limit, validate, persist Cassandra, produce Kafka, return 201
-  List<Comment> catchUp(streamId, cursor, limit) // CQL range query
+```typescript
+interface CommentService {
+  post(streamId: string, userId: string, text: string): Comment; // rate-limit, validate, persist Cassandra, produce Kafka, return 201
+  catchUp(streamId: string, cursor: string, limit: number): Comment[]; // CQL range query
 }
-class Dispatcher { // one per Kafka partition / hot stream
-  void onKafkaMessage(Comment c) // for each shard channel: maybeSample(c, shard) → publish Redis/NATS live:{streamId}:{shard}
-  boolean maybeSample(Comment c, int shard) // token bucket 20/s; always pass highlights / friends
+interface Dispatcher { // one per Kafka partition / hot stream
+  onKafkaMessage(c: Comment): void; // per shard channel: maybeSample(c, shard) -> publish Redis/NATS live:{streamId}:{shard}
+  maybeSample(c: Comment, shard: number): boolean; // token bucket 20/s; always pass highlights / friends
 }
-class SubscriberNode {
-  void onViewerConnect(viewerId, streamId) // assign shard, subscribe to channel, send catch-up + live
-  void onPubSubMessage(Comment c) // push to all local WS conns for that stream; drop if client buffer full
-  void onBackpressure(viewerConn) // drop oldest, increment dropped counter, send {type:"dropped", count: N}
+interface SubscriberNode {
+  onViewerConnect(viewerId: string, streamId: string): void; // assign shard, subscribe channel, send catch-up + live
+  onPubSubMessage(c: Comment): void; // push to all local WS conns for that stream; drop if client buffer full
+  onBackpressure(viewerConn: Conn): void; // drop oldest, increment dropped counter, send {type:"dropped", count: N}
 }
-class ModerationWorker { // Kafka consumer
-  void moderate(Comment c) // async ML → update Cassandra status, publish comment.moderated → dispatcher sends hide
+interface ModerationWorker { // Kafka consumer
+  moderate(c: Comment): void; // async ML -> update Cassandra status, publish comment.moderated -> dispatcher sends hide
 }
-class PresenceService {
-  void heartbeat(streamId, viewerId) // INCR with TTL, publish viewer count every 2s per shard
+interface PresenceService {
+  heartbeat(streamId: string, viewerId: string): void; // INCR with TTL, publish viewer count every 2s per shard
 }
 ```
 
@@ -192,8 +192,8 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -212,7 +212,6 @@ Moderation (toxicity, spam) runs **async** as a Kafka consumer with 200–400ms 
 4. **Reactions (likes/hearts):** Aggregated counter per window, not per-comment fan-out — push `count` every 1s, not each heart.
 5. **See also:** [WebSocket and SSE](/hld/networking), [Notification System](/hld/notification-system) for offline highlights.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Writes go to a per-stream log. Viewers connect to sharded subscriber nodes and get a sampled live feed. We don't try to render every comment for 2 million phones.
-

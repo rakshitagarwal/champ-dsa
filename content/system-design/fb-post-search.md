@@ -2,7 +2,7 @@
 
 > Search **posts you are allowed to see**. Privacy is the product. A naked Elasticsearch cluster of all of Facebook would fail the interview.
 
-> ES se candidate ids, privacy filter Postgres me `hasAccess`. Naive ES dump nahi — hydration + filter.
+> Candidate ids from ES, privacy filter in Postgres via hasAccess. No naive ES dump — hydrate + filter.
 
 ## What they ask
 
@@ -172,29 +172,29 @@ CREATE INDEX ON friendships (user_b, user_a);
 
 **Key classes & responsibilities**
 
-```java
-class Post { String postId, authorId, text; Instant createdAt, updatedAt; Audience audience; }
-class Audience { String type; Set<String> allow; Set<String> deny; String groupId; }
-class Indexer {
-  void onPostEvent(PostEvent e); // upsert/delete ES doc; audience change triggers doc update
-  EsDoc toEsDoc(Post p);         // maps audience to ES fields
+```typescript
+interface Post { postId: string; authorId: string; text: string; createdAt: Date; updatedAt: Date; audience: Audience; }
+interface Audience { type: string; allow: Set<string>; deny: Set<string>; groupId: string; }
+interface Indexer {
+  onPostEvent(e: PostEvent): void; // upsert/delete ES doc; audience change triggers doc update
+  toEsDoc(p: Post): EsDoc; // maps audience to ES fields
 }
-class SocialGraphCache {
-  Set<String> searchableAuthors(String viewerId); // cached, tiered: close friends + public + groups
-  Set<String> memberGroups(String viewerId);
-  boolean isFriend(String viewer, String author);
+interface SocialGraphCache {
+  searchableAuthors(viewerId: string): Set<string>; // cached, tiered: close friends + public + groups
+  memberGroups(viewerId: string): Set<string>;
+  isFriend(viewer: string, author: string): boolean;
 }
-class SearchService {
-  SearchResponse search(String viewerId, String query, Filters f, String cursor);
+interface SearchService {
   // builds ES bool query, hydrates, re-checks ACL, ranks
+  search(viewerId: string, query: string, f: Filters, cursor: string): SearchResponse;
 }
-class Hydrator {
-  List<Post> hydrate(List<String> postIds); // bulk get via Memcached -> DB on miss
-  boolean canView(String viewerId, Post p); // source-of-truth ACL check
+interface Hydrator {
+  hydrate(postIds: string[]): Post[]; // bulk get via Memcached -> DB on miss
+  canView(viewerId: string, p: Post): boolean; // source-of-truth ACL check
 }
-class Ranker {
-  double score(Post p, String query, String viewerId, EsScore bm25);
-  List<Post> rank(List<Post> posts, String viewerId);
+interface Ranker {
+  score(p: Post, query: string, viewerId: string, bm25: number): number;
+  rank(posts: Post[], viewerId: string): Post[];
 }
 ```
 
@@ -221,8 +221,8 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -243,6 +243,6 @@ Interviewers push: "How do you not leak private posts?" Three-layer defense: **i
 - Why not filter in UI? — Demonstrate leak scenario and fix via three-layer defense.
 - Compare to [Elasticsearch](/hld/nosql-databases) vs Vespa/Typesense — same privacy pattern applies regardless of engine.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** ES is a hint, not the ACL. I constrain authors you can see, search that subset, then re-fetch posts and drop anything the viewer shouldn't see.

@@ -2,7 +2,7 @@
 
 > DoorDash / Uber Eats minus the restaurant menu depth. The core is **geo matching + live tracking + ETAs**, like a lighter [Uber](/hld/uber).
 
-> Order aaya → geo-search se paas ke couriers dhoondo (Redis GEO / geohash), ETA nikalo, assignment CAS se lock karo.
+> When an order arrives, find nearby couriers with geo search (Redis GEO / geohash), compute ETA, and lock assignment with CAS.
 
 ## What they ask
 
@@ -231,27 +231,28 @@ CREATE INDEX idx_offers_courier_status ON offers(courier_id, status);
 ```
 
 **Key classes:**
-```python
-class OrderService:
-    def create_order(self, customer_id, store_id, items, dropoff) -> Order: ...
-    def transition(self, order_id, from_status, to_status, actor_id): ... # CAS
-
-class DispatchService:
-    def dispatch(self, order_id): ... # georadius → rank → offer
-    def accept(self, order_id, courier_id) -> bool: ... # atomic assign
-    def expire_offers(self): ... # cron or TTL
-
-class LocationService:
-    def ping(self, courier_id, lat, lng): ... # GEOADD + publish
-    def nearby(self, lat, lng, radius_km, limit=20) -> List[Courier]: ...
-
-class ETAService:
-    def estimate(self, from_latlng, to_latlng) -> int: ... # minutes, cached
-    def update_for_order(self, order_id, courier_latlng): ...
-
-class WebSocketGateway:
-    def subscribe(self, order_id, conn): ...
-    def publish_location(self, order_id, latlng): ...
+```typescript
+interface OrderService {
+  createOrder(customerId: string, storeId: string, items: LineItem[], dropoff: LatLng): Order;
+  transition(orderId: string, from: OrderStatus, to: OrderStatus, actorId: string): void; // CAS
+}
+interface DispatchService {
+  dispatch(orderId: string): void; // georadius -> rank -> offer
+  accept(orderId: string, courierId: string): boolean; // atomic assign
+  expireOffers(): void; // cron or TTL
+}
+interface LocationService {
+  ping(courierId: string, lat: number, lng: number): void; // GEOADD + publish
+  nearby(lat: number, lng: number, radiusKm: number, limit?: number): Courier[];
+}
+interface ETAService {
+  estimate(from: LatLng, to: LatLng): number; // minutes, cached
+  updateForOrder(orderId: string, courierAt: LatLng): void;
+}
+interface WebSocketGateway {
+  subscribe(orderId: string, conn: Conn): void;
+  publishLocation(orderId: string, at: LatLng): void;
+}
 ```
 
 **Algorithms / concurrency:**
@@ -293,8 +294,8 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -313,6 +314,6 @@ Store `order_events(order_id, from_status, to_status, actor_id, at)` for audit. 
 4. **Reassignment:** courier cancels → `UPDATE orders SET status='created', courier_id=NULL` + re-dispatch, notify customer.
 5. **Analytics:** Kafka → clickhouse for `orders per hour`, `avg delivery time`, `courier utilization` dashboards.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** Orders are a state machine in Postgres. Couriers sit in Redis GEO. Match with an optimistic assign so two orders can't grab the same rider. GPS stays in memory; only status changes are durable.

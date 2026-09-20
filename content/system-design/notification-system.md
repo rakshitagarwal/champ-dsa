@@ -2,7 +2,7 @@
 
 > Fan-out "tell the user" across **push, email, SMS, in-app**. Preferences and retries matter more than picking Twilio.
 
-> Ek Kafka topic per channel (email/push/SMS), preference filter, fan-out chunked 10M pe, idempotency + digest window.
+> One Kafka topic per channel (email/push/SMS), preference filter, chunked fan-out at 10M scale, idempotency + digest window.
 
 ## What they ask
 
@@ -234,15 +234,17 @@ CREATE TABLE inbox_items (
 
 **Key classes / responsibilities:**
 
-```text
-NotificationController  — validates, enriches idempotencyKey, calls NotificationService.enqueue()
-NotificationService     — tx: insert notification + outbox event; cache dedupe check
-OutboxPoller            — polls outbox table → publishes to Kafka (exactly-once via tx outbox)
-OrchestratorConsumer    — on message: PreferenceService.canSend(), TemplateRenderer.render(), RateLimiter.check(), emit per-channel
-TemplateRenderer        — Mustache with allowlisted variables, locale fallback, version pin
-ChannelWorker (abstract)→ EmailWorker / PushWorker / SmsWorker — provider adapter + retry with backoff + DLQ
-WebhookHandler          — verify HMAC, idempotent upsert on provider_event_id
-InboxService            — write inbox_items, maintain Redis badge counter
+```typescript
+interface NotificationSystem {
+  controller: NotificationController; // validates, enriches idempotencyKey, calls enqueue()
+  service: NotificationService; // tx: insert notification + outbox event; cache dedupe check
+  outboxPoller: OutboxPoller; // polls outbox table -> publishes to Kafka (exactly-once via tx outbox)
+  orchestrator: OrchestratorConsumer; // PreferenceService.canSend() -> render -> RateLimiter.check() -> emit per-channel
+  renderer: TemplateRenderer; // Mustache with allowlisted variables, locale fallback, version pin
+  workers: ChannelWorker; // EmailWorker / PushWorker / SmsWorker -- provider adapter + retry with backoff + DLQ
+  webhooks: WebhookHandler; // verify HMAC, idempotent upsert on provider_event_id
+  inbox: InboxService; // write inbox_items, maintain Redis badge counter
+}
 ```
 
 **Important algorithms / concurrency:**
@@ -268,8 +270,8 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -293,6 +295,6 @@ Each channel has different failure semantics. **Email (SES):** bounces/complaint
 5. **Scheduling at scale:** How to handle 1M `sendAt` in future? Sorted set in [Redis](/hld/caching-strategies) (ZSET score=timestamp) polled by scheduler or DB table with `WHERE send_at <= now()` indexed scan every second + [job scheduler](/hld/job-scheduler).
 6. **Cross-region:** Providers are global; do you need multi-region Kafka? Mention but keep single region for 45-min interview.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "The product API only enqueues. I respect prefs, send per channel with an idempotency key, and collapse bursts into digests. Providers are workers, not the request path."

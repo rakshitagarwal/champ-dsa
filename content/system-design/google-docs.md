@@ -2,7 +2,7 @@
 
 > Collaborative editing. The puzzle is **concurrent edits on one document**, not storing files (that's [Dropbox](/hld/dropbox)).
 
-> Ek doc ek server (consistent hash), OT/CRDT se merge, presence Redis, ops Kafka log + S3 snapshot, cursor sync.
+> One doc per server (consistent hash), merge with OT/CRDT, presence in Redis, ops in Kafka log + S3 snapshots, cursor sync.
 
 ## What they ask
 
@@ -207,15 +207,17 @@ CREATE INDEX ON comments (doc_id, thread_id);
 
 **Key classes / modules:**
 
-```text
-DocServer           — Map<docId, DocState>; onConnect(docId, user) loads snapshot+ops into memory if not present
-DocState            — text: Rope / PieceTable, revision: int, pendingOps: queue, subscribers: Set<WS>
-OTEngine            — transform(opA, opB): opA' — classic OT; or CRDT: Yjs-style
-Operation           — { retain, insert, delete, attributes } — composable
-PresenceManager     — onCursor(pos): SETEX presence:docId:userId 30s {cursor, color}; publish presence event
-SnapshotManager     — shouldSnapshot(): seq % 500==0; flushToS3() + update docs.snapshot_s3_key
-AclChecker          — canEdit(user, doc): cached from Postgres (5s TTL), re-checked on every op
-HistoryService      — getDiff(fromRev,toRev): replay ops between snapshots
+```typescript
+interface DocsBackend {
+  server: DocServer; // Map<docId, DocState>; onConnect loads snapshot+ops into memory if absent
+  state: DocState; // text: Rope/PieceTable, revision: number, pendingOps: queue, subscribers: Set<string>
+  ot: OTEngine; // transform(opA, opB): opA' -- classic OT; or CRDT (Yjs-style)
+  ops: Operation; // { retain, insert, delete, attributes } -- composable
+  presence: PresenceManager; // onCursor(pos): SETEX presence:docId:userId 30s {cursor, color} + publish event
+  snapshots: SnapshotManager; // every 500 ops: flushToS3() + update docs.snapshot_s3_key
+  acl: AclChecker; // canEdit(user, doc): cached from Postgres (5s TTL), re-checked per op
+  history: HistoryService; // getDiff(fromRev, toRev): replay ops between snapshots
+}
 ```
 
 **Important algorithms:**
@@ -246,8 +248,8 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -271,6 +273,6 @@ Pick OT if you want Google Docs fidelity and can accept a single primary bottlen
 5. **Rate limiting per doc:** Per-user op rate 20/sec via [rate limiter](/hld/rate-limiter) on gateway; large paste counts as 1 op but size-limited (1MB).
 6. **Compare to [Dropbox](/hld/dropbox):** Dropbox does file-level LWW + conflict copies; Docs does character-level merge — explain when each is appropriate.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "One primary per document serializes ops (OT or CRDT), snapshots to storage, and replays from lastSeq on reconnect. Presence is ephemeral. ACL is checked on the socket."

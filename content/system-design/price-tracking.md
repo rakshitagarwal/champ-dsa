@@ -2,7 +2,7 @@
 
 > CamelCamelCamel / Honey without the toolbar politics. Watch a product URL, **poll or scrape**, alert when the price drops.
 
-> Sellers ko poll/scrape → price change Kafka → alert workers, dedup + backoff, chart ke liye time-series DB.
+> Poll/scrape sellers -> price changes into Kafka -> alert workers, with dedup + backoff; time-series DB for charts.
 
 ## What they ask
 
@@ -198,29 +198,28 @@ CREATE UNIQUE INDEX uq_alert_idem ON alert_log(idempotency_key);
 ```
 
 **Key classes / responsibilities:**
-```python
-class WatchService:
-  def add_watch(user_id, url, target_price): # canonicalize, upsert product, insert watch
-  def canonicalize(url): # strip utm_*, lower host, follow redirects, extract SKU
-  def list_watches(user_id): ...
-
-class FetchScheduler:
-  def tick(): # SELECT * FROM products WHERE next_fetch_at <= now() AND fetch_status='OK' ORDER BY next_fetch_at LIMIT 500 FOR UPDATE SKIP LOCKED
-  def compute_next_fetch(product): # adaptive: volatility-based, watcher count
-
-class Fetcher:
-  def fetch(product): # per-host rate limiter, robots check, HTTP GET with timeout
-  def backoff_on_403(domain): # set products.fetch_status='COOLDOWN', next_fetch_at = now()+1h
-
-class Parser:
-  def parse(html, domain): -> {price, currency, in_stock} # site adapter or JSON-LD
-  def validate(price, last_price): # reject 0, outlier >10x
-
-class AlertService:
-  def on_price_update(product_id, price, ts):
-    for watch in watches_for_product(product_id):
-      if price <= watch.target_price and not already_alerted(watch, price, ts):
-        enqueue_notification(watch, price, idempotency_key=f"{watch.id}:{price}:{ts.date()}")
+```typescript
+interface WatchService {
+  addWatch(userId: string, url: string, targetPrice: number): Watch; // canonicalize, upsert product, insert watch
+  canonicalize(url: string): string; // strip utm_*, lower host, follow redirects, extract SKU
+  listWatches(userId: string): Watch[];
+}
+interface FetchScheduler {
+  tick(): void; // claim due products (FOR UPDATE SKIP LOCKED)
+  computeNextFetch(product: Product): Date; // adaptive: volatility-based, watcher count
+}
+interface Fetcher {
+  fetch(product: Product): RawOffer; // per-host rate limiter, robots check, HTTP GET with timeout
+  backoffOn403(domain: string): void; // set COOLDOWN, next_fetch_at = now()+1h
+}
+interface Parser {
+  parse(html: string, domain: string): ParsedOffer; // {price, currency, in_stock} -- site adapter or JSON-LD
+  validate(price: number, lastPrice: number): boolean; // reject 0, outlier >10x
+}
+interface AlertService {
+  // per watch on product: if price <= target and not already alerted -> enqueue notification
+  onPriceUpdate(productId: string, price: number, ts: Date): void; // idempotency_key = watch.id:price:date
+}
 ```
 
 **Concurrency & algorithms:**
@@ -245,8 +244,8 @@ Naively alerting on every `price <= target` point spams on a sustained sale (eve
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -268,6 +267,6 @@ Naively alerting on every `price <= target` point spams on a sustained sale (eve
 4. Price prediction — moving average / volatility-based fetch interval.
 5. Affiliate / legal — mention ToS; prefer official APIs; scrape politely as fallback.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "Dedupe by product, poll on a polite schedule, store a time series, alert once per drop with an idempotency key. Users share fetches."

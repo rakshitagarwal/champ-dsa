@@ -2,7 +2,7 @@
 
 > Count clicks (and impressions) for ads so you can **bill** and show dashboards. The bar is **no lost money** and **late events**, not a fancy UI.
 
-> Clicks Kafka me, Flink window me count, late events watermark, billing exactly-once via checkpoint + idempotent sink.
+> Clicks into Kafka, counted in Flink windows, late events via watermarks, billing exactly-once with checkpoints + idempotent sinks.
 
 ## What they ask
 
@@ -190,27 +190,27 @@ CREATE TABLE agg_day (
 
 **Key classes & responsibilities**
 
-```java
-class AdEvent { String eventId, type, adId, campaignId, userId, region; Instant ts; long costMicros; }
-class EdgeCollector {
-  void handle(AdEvent e); // validate, stamp receivedAt, produce to Kafka
+```typescript
+interface AdEvent { eventId: string; type: string; adId: string; campaignId: string; userId: string; region: string; ts: Date; costMicros: number; }
+interface EdgeCollector {
+  handle(e: AdEvent): void; // validate, stamp receivedAt, produce to Kafka
 }
-class DedupeProcessor {
-  boolean isDuplicate(AdEvent e); // check eventId table TTL 1h + user+ad+minute fallback
-  void markSeen(AdEvent e);
+interface DedupeProcessor {
+  isDuplicate(e: AdEvent): boolean; // eventId table TTL 1h + user+ad+minute fallback
+  markSeen(e: AdEvent): void;
 }
-class WindowAggregator {
+interface WindowAggregator {
   // Flink ReduceFunction + WindowFunction keyed by campaignId+bucket
-  void add(AdEvent e, Window w); // increments count/sum/HLL
-  Aggregate emit(Window w);       // upsert to Cassandra
+  add(e: AdEvent, w: Window): void; // increments count/sum/HLL
+  emit(w: Window): Aggregate; // upsert to Cassandra
 }
-class ServingStore {
-  List<Bucket> query(String campaignId, Instant from, Instant to, Granularity g);
-  void upsert(Aggregate agg); // idempotent upsert keyed by (campaignId, bucket, adId, region)
+interface ServingStore {
+  query(campaignId: string, from: Date, to: Date, g: Granularity): Bucket[];
+  upsert(agg: Aggregate): void; // idempotent upsert keyed by (campaignId, bucket, adId, region)
 }
-class BillingService {
-  void closeDay(LocalDate day); // freeze agg_day, reconcile with S3 replay
-  void adjustLate(LocalDate day, AdEvent late); // side adjustments table
+interface BillingService {
+  closeDay(day: string): void; // freeze agg_day, reconcile with S3 replay
+  adjustLate(day: string, late: AdEvent): void; // side adjustments table
 }
 ```
 
@@ -237,8 +237,8 @@ Not all reads need same accuracy. **Dashboards** can be approximate and laggy: s
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -260,6 +260,6 @@ Not all reads need same accuracy. **Dashboards** can be approximate and laggy: s
 - Exactly-once vs at-least-once + dedup — both valid; interviewers often accept latter as simpler.
 - GDPR/purge — don't put raw PII in Kafka if avoidable; hash early.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** The pixel only publishes to Kafka. Flink counts with event-time windows. Billing uses closed windows and deduped event ids. The advertiser UI reads a serving store, never the firehose.

@@ -2,7 +2,7 @@
 
 > Photo-first social network. Same feed bones as [FB news feed](/hld/fb-news-feed), with **heavier media** and a simpler graph (follow, not friends).
 
-> Photo S3 + CDN, feed hybrid fan-out, stories TTL 24h Redis, Explore async Kafka se.
+> Photos in S3 + CDN, hybrid feed fan-out, stories with 24h TTL in Redis, Explore built async via Kafka.
 
 ## What they ask
 
@@ -245,35 +245,36 @@ CREATE INDEX ON story (author_id, created_at DESC) WHERE expires_at > now();
 ```
 
 **Key classes:**
-```java
+```typescript
 class PostService {
-  Post create(String authorId, CreatePost cmd) {
+  create(authorId: string, cmd: CreatePost): Post {
     validateMediaOwned(authorId, cmd.mediaIds); // status=ready
-    Post p = postRepo.insert(authorId, cmd);     // txn
+    const p: Post = postRepo.insert(authorId, cmd); // txn
     kafka.emit(new PostCreated(p.id, p.authorId, p.createdAt, isCelebrity(authorId)));
     return p;
   }
 }
 class FanoutWorker {
-  void onPostCreated(PostCreated e) {
+  onPostCreated(e: PostCreated): void {
     if (e.isCelebrity) return; // pulled on read
-    List<String> followers = graph_chunked(e.authorId); // paginated scan to avoid OOM
-    for (List<String> chunk : chunks(followers, 1000))
-      redisPipeline.zaddBatch(chunk, e.postId, e.createdAt.toEpochMilli());
+    const followers: string[] = graphChunked(e.authorId); // paginated scan to avoid OOM
+    for (const chunk of chunks(followers, 1000)) {
+      redisPipeline.zaddBatch(chunk, e.postId, e.createdAt.getTime());
+    }
   }
 }
 class FeedService {
-  FeedPage getFeed(String userId, String cursor, int limit) {
-    List<String> pushed = inbox.range(userId, 100);
-    List<String> celebPulled = pullCelebrityPosts(userId, 50); // SELECT ... WHERE author IN (...)
-    List<String> merged = mergeByTime(pushed, celebPulled);
-    List<Post> hydrated = postCache.mget(merged);
-    List<ScoredPost> ranked = ranker.score(userId, hydrated); // recency * affinity * engagement
+  getFeed(userId: string, cursor: string, limit: number): FeedPage {
+    const pushed: string[] = inbox.range(userId, 100);
+    const celebPulled: string[] = pullCelebrityPosts(userId, 50); // SELECT ... WHERE author IN (...)
+    const merged: string[] = mergeByTime(pushed, celebPulled);
+    const hydrated: Post[] = postCache.mget(merged);
+    const ranked: ScoredPost[] = ranker.score(userId, hydrated); // recency * affinity * engagement
     return paginate(ranked, cursor, limit);
   }
 }
 class MediaProcessor {
-  void onMediaUploaded(MediaUploaded e) { // Kafka
+  onMediaUploaded(e: MediaUploaded): void { // Kafka
     if (isImage(e)) generateVariants(e); else transcode(e);
     nsfwScan(e); // async, never blocks ACK
   }
@@ -306,8 +307,8 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -328,6 +329,6 @@ Profile grid is trivial: `SELECT * FROM post WHERE author_id=$1 AND deleted_at I
 5. **Data retention / GDPR:** hard-delete flows purge S3 objects + DB rows + inboxes + search index; story auto-expiry handles most.
 6. **Analytics:** impression + engagement events to [Kafka](/hld/message-queue) → warehouse for ranking experiments.
 
-**Yaad rakho (Revision):** Write durable, read cache, async Kafka/Flink, failure me degrade gracefully.
+**Remember (Revision):** Writes durable, reads cached, async via Kafka/Flink, degrade gracefully on failure.
 
 **Phrase:** "S3 + CDN for bytes, DB for the post, precomputed inboxes for normal users, pull for celebrities. The feed never carries raw photos."

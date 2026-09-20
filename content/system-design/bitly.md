@@ -2,7 +2,7 @@
 
 > URL shortener. The interesting parts are **unique short codes** and a **read-heavy redirect** path. Analytics is extra, not v1.
 
-> Short code range allocator se banao, redirect Redis se 50ms me, analytics Kafka se async. 302 vs 301 ka trade-off yaad rakho.
+> Build short codes with a range allocator, serve redirects from Redis in ~50ms, push analytics to Kafka async. Remember the 302 vs 301 trade-off.
 
 ## What they ask
 
@@ -180,26 +180,27 @@ CREATE TABLE click_events (
 **Sharding note:** when single Postgres saturates, shard by `hash(code) % N` or `code[0]` prefix. Dynamo alternative: `PK=code`, GSI on `owner_id`.
 
 **Key classes / responsibilities:**
-```python
-class LinkService:
-    def create_link(self, user_id, long_url, custom_alias=None, expires_at=None) -> Link: ...
-    def resolve(self, code: str) -> str: ...  # returns long_url or raises NotFound
-    def delete(self, code: str, user_id: str): ...
-
-class CodeGenerator:
-    # Range allocator: each app host reserves [start, end) from ZK/etcd/Redis INCR
-    def next_code(self) -> str: ...  # Base62(counter)
-
-class KeyGenerationService:  # alternative: precomputed pool
-    def pop_unused_code(self) -> str: ...
-    def refill_async(self): ...
-
-class Cache:
-    def get(self, code): ...
-    def set(self, code, value, ttl): ...
-
-class AnalyticsPublisher:
-    def publish_click(self, code, request_meta): ...  # -> Kafka
+```typescript
+interface LinkService {
+  createLink(userId: string, longUrl: string, opts?: { customAlias?: string; expiresAt?: Date }): Link;
+  resolve(code: string): string; // long_url or throws NotFound
+  delete(code: string, userId: string): void;
+}
+interface CodeGenerator {
+  // Range allocator: each app host reserves [start, end) from ZK/etcd/Redis INCR
+  nextCode(): string; // Base62(counter)
+}
+interface KeyGenerationService { // alternative: precomputed pool
+  popUnusedCode(): string;
+  refillAsync(): Promise<void>;
+}
+interface Cache {
+  get(code: string): string | null;
+  set(code: string, value: string, ttlSec: number): void;
+}
+interface AnalyticsPublisher {
+  publishClick(code: string, meta: RequestMeta): void; // -> Kafka
+}
 ```
 
 **Important algorithms / concurrency:**
@@ -234,8 +235,8 @@ Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: pub
 
 ## Common mistakes
 
-**🔴 Galti:** Hot path pe DB direct without cache/queue.
-**✅ Sahi:** Cache/queue beech me, DB source of truth.
+**🔴 Mistake:** Hitting the database directly on the hot path — no cache or queue in between.
+**✅ Correct:** Cache/queue sits in between; the database stays the source of truth.
 
 ## Handling failures and scale
 
@@ -254,6 +255,6 @@ Redirect should **never** do a synchronous DB `UPDATE click_count`. Instead: pub
 4. How to prevent **enumeration** of all links? Use 7+ chars, non-sequential codes, rate-limit `GET /{code}` guessing, don't expose list API publicly.
 5. **Data retention:** archive cold links (no clicks in 1 year) to S3/Parquet, keep DB lean; lazy restore on access.
 
-**Yaad rakho (Revision):** 1) Code = range allocator Base62 2) Redirect = Redis → DB 3) 302 for analytics 4) Clicks Kafka async.
+**Remember (Revision):** 1) Code = range allocator Base62 2) Redirect = Redis → DB 3) 302 for analytics 4) Clicks Kafka async.
 
 **Phrase:** Redirect is cache then DB. Codes come from a range allocator so we never collide. 302 if we care about click counts; Kafka for analytics off the hot path.
