@@ -1,10 +1,28 @@
 # Graphs
 
+*Nodes + edges -- when connections are the whole point.*
+
 **Definition:** A graph is **nodes (vertices) + edges (neighbors)**. Representation: adjacency list, matrix, or an implicit grid (each cell’s 4 neighbors). Two core traversals: **DFS** (go deep — components, paths, cycles) and **BFS** (level by level — unweighted shortest steps). Without `visited`, you loop forever.
 
 **When to use:** “Can I reach?”, “how many islands/components?”, “fewest steps?” (BFS), multi-source spread (Rotting Oranges), course order → [Topological Sort](/patterns/topological-sort). A grid is also a graph.
 
 **How it works:** Build `graph[node] = [neighbors]`. DFS recurse/stack on unvisited; BFS queue level-by-level. Multi-source: enqueue all sources together. Time `O(V+E)`, space `O(V)`.
+
+**Structure:** Nodes + edges. Adjacency list (`map node → neighbors`) for sparse graphs; matrix for dense; implicit grid (each cell's 4 neighbors). Directed (one-way) vs undirected (two-way); optionally weighted edges.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| BFS traversal | `O(V+E)` | Level by level |
+| DFS traversal | `O(V+E)` | Deep first |
+| Dijkstra | `O(E log V)` | Weighted |
+| Cycle detection | `O(V+E)` | DFS + colors |
+| Topological sort | `O(V+E)` | DAG only |
+
+**Catch:** Graphs can be cyclic, disconnected, weighted, negatively weighted, directed -- or all of the above. You always need a `visited` set to avoid infinite loops. Weighted paths need Dijkstra; negatives need Bellman-Ford. Disconnected graphs need an outer loop; recursive DFS overflows on big grids.
+
+**Keywords:** network, connection, path, route, islands, components, cycle, dependencies.
 
 ## Study order (this family)
 

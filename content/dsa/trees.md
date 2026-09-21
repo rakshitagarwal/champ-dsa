@@ -1,10 +1,28 @@
 # Trees (DFS/BFS)
 
+*When hierarchy is the shape.*
+
 **Definition:** A tree is a connected acyclic graph with a root; each node has `left`/`right` (or children) pointers. Two traversals: **DFS** (depth-first, recursion/stack — go deep) and **BFS** (breadth-first, queue — level by level).
 
 **When to use:** “Look left, look right, combine” (max depth, path sum, invert, diameter) → DFS recursion. “Level”, “closest to root”, “right side view”, “fewest unweighted steps” → BFS, draining `queue.length` per level.
 
 **How it works:** DFS returns `combine(node, dfs(left), dfs(right))` with `null → base`. BFS pushes root, then while the queue is non-empty processes `n = queue.length` nodes as one level. Time `O(n)`, space `O(h)` DFS / `O(w)` BFS.
+
+**Structure:** Nodes with `left`/`right` (or children) plus a root; height `h`, width `w`. DFS borrows the call stack; BFS borrows a queue. A degenerate tree is a linked list.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Traverse all nodes | `O(n)` | Visit each once |
+| DFS space | `O(h)` | Call stack depth |
+| BFS space | `O(w)` | Widest level in queue |
+| Inorder walk | `O(n)` | Visit every node |
+| Height | `O(n)` | Worst (skewed) |
+
+**Catch:** A plain BST degrades to `O(n)` if inserts arrive sorted (becomes a linked list) -- balanced variants (AVL, Red-Black) fix this but add rotation logic. Tree nodes scatter in memory, so cache locality suffers. Deep recursion overflows the call stack.
+
+**Keywords:** hierarchy, parent, depth, recursion, DFS, inorder, preorder, postorder.
 
 ## Study notes
 

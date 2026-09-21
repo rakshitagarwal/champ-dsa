@@ -2,6 +2,8 @@
 
 **Definition:** This section is the home for DSA patterns. Instead of solving problems at random, learn to recognize patterns — interviews recycle roughly these ~20 families. Each pattern page has theory, JS templates, and grouped questions. Below: a roadmap plus a **time / space complexity** cheatsheet.
 
+**Start with the [Data Structures](/patterns/data-structures) theory hub** — 9 cards (what, structure, big-O, catch, keywords) — then work the revision list below. Algorithms get their own hub next.
+
 ## Your revision list (cover these)
 
 1. **Arrays & Hashing** — Arrays page + Hashing page (methods cheatsheet on both)

@@ -1,10 +1,28 @@
 # Trie
 
+*Prefix tree -- the specialist for strings.*
+
 **Definition:** A trie (prefix tree) is a rooted tree where each edge is a character and every root-to-node path is a prefix. Nodes share prefixes — `"app"` and `"apple"` share `a-p-p`. Each node has a `children` map and an `isEnd` flag ("word ends here").
 
 **When to use:** Prefix search, autocomplete, dictionary with `.` wildcards, or counting words that start with a given prefix. Faster than hashing for prefix ops — `O(L)` per word (`L` = length).
 
 **How it works:** `insert(word)` walks/creates a node per character; `search(word)` needs `isEnd`; `startsWith(prefix)` only needs a successful walk. Board search DFS follows trie edges and collects words. Time `O(L)` per op; space `O(total chars)`.
+
+**Structure:** A rooted tree where edges are characters — every root-to-node path is a prefix. Nodes share prefixes (`"app"`, `"apple"` share `a-p-p`). Each node: a `children` map plus an `isEnd` flag. Root is empty.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Insert word | `O(m)` | Walk / create m nodes |
+| Search word | `O(m)` | Walk m nodes |
+| Prefix exists? | `O(m)` | Walk m nodes |
+| List by prefix | `O(p+k)` | p walk + k results |
+| Delete | `O(m)` | Walk + unmark |
+
+**Catch:** High memory -- every character can spawn its own node, one branch per possible letter. Naive tries waste huge space on sparse alphabets. More complex than a hash map -- and for one-shot lookups a hash map is usually faster.
+
+**Keywords:** prefix, autocomplete, suggest, starts with, dictionary, word, longest prefix, word break, XOR.
 
 ## Study notes
 

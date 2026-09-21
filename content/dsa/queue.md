@@ -1,10 +1,28 @@
 # Queue
 
+*FIFO -- order in is order out.*
+
 **Definition:** A queue is **FIFO** (first-in, first-out) — a line: enqueue at the back, dequeue from the front, ideally `O(1)`. It preserves order and levels — BFS, task order, sliding time windows. A **deque** (double-ended queue) adds/removes at both ends — used for sliding window maximum and monotonic queues.
 
 **When to use:** BFS by levels, time windows (e.g. recent calls), task scheduling, stack-via-queues, circular buffers. For window max/min, use a **deque of indices**.
 
 **How it works:** In JS, `push` + `shift` acts as a queue (`shift` is `O(n)` — for large n prefer a head index or a real deque). Circular queue: `head + count` with `% k`. Deque: push growing candidates at the back; drop stale/smaller from the front.
+
+**Structure:** A line with two ends -- enqueue at the back, dequeue from the front. First in, first out: whoever arrives first gets served first.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Enqueue (back) | `O(1)` | Add to tail |
+| Dequeue (front) | `O(1)` | Remove head |
+| Peek front | `O(1)` | Look at head |
+| Search | `O(n)` | Scan all |
+| Size | `O(1)` | Track count |
+
+**Catch:** No random access -- only front and back are reachable. If array-backed, you either shift on dequeue (`O(n)`) or use a circular buffer with fixed capacity. That is why real implementations use deques or linked lists. JS `shift()` is `O(n)` -- use a head index for large n.
+
+**Keywords:** BFS, level order, shortest path, by level, schedule, sliding window.
 
 ## Study notes
 

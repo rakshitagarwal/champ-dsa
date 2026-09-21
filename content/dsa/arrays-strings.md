@@ -1,10 +1,28 @@
 # Arrays
 
+*The default starting point for every problem.*
+
 **Definition:** An array is a contiguous memory structure — elements sit in a line and index access is `O(1)`. A string is basically an array of characters. For **Arrays & Hashing**, read this page first (in-place / scan), then the Hashing page (Map/Set).
 
 **When to use:** You need to rewrite an array in place — reverse, rotate, strip zeroes/duplicates, or find a best subarray with a running sum / Kadane. If you need to remember values by key, use the Hashing page instead.
 
 **How it works:** A read/write pointer or left–right two-pointer scan finishes the job in one pass; each element is visited 1–2 times. Time `O(n)`, extra space `O(1)`.
+
+**Structure:** Contiguous memory slots -- a row of numbered boxes starting at index 0. `a[i]` lives at base + i x element size, so you jump directly to any box in one step. JS strings are immutable (every edit copies); arrays resize by allocating a bigger block and copying.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Read by index | `O(1)` | Direct memory jump |
+| Search (unsorted) | `O(n)` | Must scan all |
+| Insert at end | `O(1)` | Append to tail |
+| Insert at middle | `O(n)` | Shifts elements after |
+| Delete | `O(n)` | Shifts to fill gap |
+
+**Catch:** Inserting or deleting anywhere except the end forces every element after it to shift -- that is `O(n)`. No built-in concept of "what came last" or "what arrived first". You are always thinking in positions, not patterns. JS `+=` on strings in a loop is `O(n^2)` -- collect in an array and `join`.
+
+**Keywords:** in-place, two pointers, subarray, running sum, Kadane, rotate, reverse, majority, best window, prefix, read/write pointer.
 
 ## Study notes
 

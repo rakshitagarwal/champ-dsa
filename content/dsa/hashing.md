@@ -1,10 +1,28 @@
 # Hashing
 
-**Definition:** Hashing (hash map `Map` / hash set `Set` / plain `Object`) gives average `O(1)` lookup, insert, and delete — keys hash into buckets. Trade space for time: remember what you have already seen. This is the other half of **Arrays & Hashing**.
+*Instant key -> value lookup -- the interview MVP.*
+
+**Definition:** Hashing (hash map `Map` / hash set `Set` / plain `Object`) gives average `O(1)` lookup, insert, and delete — keys hash into buckets. Trade space for time: remember what you have already seen. This is the other half of **Arrays & Hashing**. Turns "nested loop O(n^2)" into "one pass O(n)".
 
 **When to use:** Whenever you think “I wish I remembered what I saw earlier” — find a complement (Two Sum), group by signature (anagrams), count frequencies, dedupe, or the longest consecutive trick (only start a streak at a left edge).
 
 **How it works:** One pass: check whether the partner/group already exists, then store the current element. For grouping, build a canonical key (e.g. sorted string). Time `O(n)` average, space `O(n)`.
+
+**Structure:** A bucket array. `hash(key) % capacity` picks the bucket; collisions share a bucket via chaining (small list per bucket) or open addressing (probe next slot). When load factor grows, the table resizes and rehashes everything.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Insert (put) | `O(1)` avg | Hash to bucket |
+| Lookup (get) | `O(1)` avg | Hash to bucket |
+| Delete | `O(1)` avg | Hash to bucket |
+| Contains key | `O(1)` avg | Hash to bucket |
+| Worst case | `O(n)` | All keys collide |
+
+**Catch:** No ordering — cannot iterate sorted or insertion order without extra work (`Map` keeps insertion, not sorted). Collisions degrade to `O(n)` worst case. Extra memory for the bucket array. Keys must be hashable (`Map` object keys compare by reference).
+
+**Keywords:** frequency, count, seen, visited, memoize, cache, group by, anagram, complement, duplicate, two sum.
 
 ## Study notes
 

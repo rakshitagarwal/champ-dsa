@@ -1,10 +1,28 @@
 # Linked List
 
+*When you need dynamic size + cheap rewiring.*
+
 **Definition:** A linked list is a chain of nodes — each holds a value and a `next` pointer (sometimes also `random`) to the next node. No random access: reaching the i-th node takes i steps. Upside: with a pointer you can splice in or out in `O(1)`.
 
 **When to use:** Reverse pointers, detect a cycle, find the middle, merge sorted lists, or delete the N-th from the end — all by rewiring `next` with `O(1)` extra space.
 
 **How it works:** Core tricks: (1) **Dummy node** `dummy.next = head` when the head may change; (2) **Fast/slow** — fast moves 2 steps, slow 1 — for middle/cycle; (3) **Gap of n** between two pointers for N-th from end. Time `O(n)`, space `O(1)`.
+
+**Structure:** A chain of nodes -- each `[value | pointer to next]`. Nodes live anywhere in memory; the pointer connects them. `head` points at the first node, the last points at `null`.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Access by index | `O(n)` | Walk the chain |
+| Search | `O(n)` | Scan node by node |
+| Insert (with ref) | `O(1)` | Rewire two pointers |
+| Delete (with ref) | `O(1)` | Rewire prev.next |
+| Prepend / Append* | `O(1)` | *if tail known |
+
+**Catch:** No random access -- `arr[7]` is instant, `ll.get(7)` walks 7 nodes. Every node carries an extra pointer, so memory overhead is real. Cache-unfriendly compared to arrays -- nodes scatter across RAM. Lose `next` before rewiring and the list is gone.
+
+**Keywords:** reverse, cycle, fast slow, two pointers, middle, merge, dummy head.
 
 ## Study notes
 

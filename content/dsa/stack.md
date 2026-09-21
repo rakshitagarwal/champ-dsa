@@ -1,10 +1,28 @@
 # Stack
 
+*When order matters -- and "last" is what you need.*
+
 **Definition:** A stack is LIFO (last-in, first-out) — like a pile of plates: push and pop from one end only, `O(1)`. Nesting, undo, and “remember the previous unresolved item” are classic stack jobs.
 
 **When to use:** Valid brackets, min-so-far, RPN evaluation, DFS recursion, monotonic next-greater (separate page), or building a queue from two stacks.
 
 **How it works:** Push openers; on a closer, pop and match. Check empty/mismatch. For a min-stack, keep a parallel stack of running minima. Time `O(n)`, space `O(n)`.
+
+**Structure:** A one-ended pile -- push and pop at the top only. An array plus a top pointer underneath; `bottom` at one end, `top` at the other.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Push | `O(1)` | Add to top |
+| Pop | `O(1)` | Remove top |
+| Peek / Top | `O(1)` | Look at top |
+| Search | `O(n)` | Scan from top |
+| Size | `O(1)` | Track count |
+
+**Catch:** You can ONLY touch the top. No random access -- no way to peek at the third element without popping the two above. You must respect the order -- that constraint is exactly what makes it useful.
+
+**Keywords:** undo, balanced, brackets, reverse, backtrack, DFS, call stack, monotonic, next greater.
 
 ## Study notes
 

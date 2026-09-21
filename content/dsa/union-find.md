@@ -6,6 +6,19 @@
 
 **How it works:** `find(x)` walks to the root and flattens the path. `union(a,b)` links roots (lower rank under higher). If `find(a)===find(b)` already, same set → undirected cycle / redundant. Space `O(n)`.
 
+**Structure:** A `parent[]` forest — each node points upward; the root is the set representative. `rank[]`/`size[]` keeps trees shallow; path compression flattens on every find.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Find / union | `α(n)` ≈ `O(1)` | Compression + rank |
+| Init | `O(n)` | `parent[i] = i` |
+
+**Catch:** Undirected only — directed "prereq" graphs need topo sort. Cannot recover the actual path (use BFS/DFS for routes). Union must use roots, not raw nodes. Recursive find without compression degrades; 0-vs-1 indexing bugs are classic.
+
+**Keywords:** connected, components, redundant edge, cycle undirected, merge accounts, provinces, Kruskal, dynamic islands, equations satisfiability, regions cut by slashes, friend circles.
+
 **See also:** Kruskal uses this → [MST](/patterns/mst). Components via DFS → [Graphs](/patterns/graphs).
 
 ## Active revision

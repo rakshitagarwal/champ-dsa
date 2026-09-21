@@ -1,10 +1,28 @@
 # Heap
 
+*Instant access to min OR max -- the priority machine.*
+
 **Definition:** A heap (priority queue) is a complete binary tree where parent ≤ children (min-heap) or ≥ (max-heap), so the extreme value is available in `O(1)` peek and `O(log n)` push/pop. JS has no built-in heap — the helpers below are copy-paste ready.
 
 **When to use:** “Top K”, “K-th largest/smallest”, “always need the current best”, or “merge K sorted lists/arrays”. Keep heap size = K and drop what falls outside the top K.
 
 **How it works:** Array binary heap with `heapPush` (bubble up) and `heapPop` (bubble down). For top-K smallest use a max-heap of size K. Merging K lists: push each head, pop the smallest, push its `next`. Time `O(n log K)`, space `O(K)`.
+
+**Structure:** A complete binary tree with a partial ordering -- in a min-heap every parent <= children, so the minimum sits at the root. Stored as an array: parent `i` has kids `2i+1, 2i+2`.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Peek (min/max) | `O(1)` | Root of heap |
+| Insert | `O(log n)` | Bubble up |
+| Extract (pop) | `O(log n)` | Sift down |
+| Heapify | `O(n)` | Build from array |
+| Search arbitrary | `O(n)` | Not sorted! |
+
+**Catch:** Only the root is guaranteed to be the min (or max). You CANNOT search for an arbitrary element quickly -- a heap is not fully sorted. You cannot swap between min-heap and max-heap on the fly -- pick one at creation. JS has no built-in heap.
+
+**Keywords:** top K, kth largest, kth smallest, priority, median, stream, merge k.
 
 ## Study notes
 

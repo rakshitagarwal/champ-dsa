@@ -1,10 +1,28 @@
 # BST
 
+*Sorted data with fast search.*
+
 **Definition:** In a Binary Search Tree, every node’s left subtree holds smaller values and the right subtree holds larger ones (`left < node < right`). Search/insert/delete are `O(log n)` when balanced, and inorder traversal yields sorted order.
 
 **When to use:** You need sorted data plus insert/delete (resorting an array each time is expensive), BST validation, kth smallest, or LCA in a BST.
 
 **How it works:** Compare and go left/right — smaller → left, larger → right. To validate, carry min/max bounds (`lo < node.val < hi`). Inorder (left-node-right) is always sorted. Time `O(h)`; balanced → `O(log n)`.
+
+**Structure:** An ordered binary tree — every left subtree < node < every right subtree. Balanced variants (AVL, red-black) rotate to keep height `O(log n)`. Inorder traversal reads the keys sorted.
+
+**Big-O:**
+
+| Operation | Time | Why |
+| --- | --- | --- |
+| Search (BST) | `O(log n)` | Halve each step |
+| Insert | `O(log n)` | Walk + attach |
+| Delete | `O(log n)` | Complex cases |
+| Inorder walk | `O(n)` | Visit every node |
+| Height | `O(n)` | Worst (skewed) |
+
+**Catch:** A plain BST degrades to `O(n)` on sorted input -- say "self-balancing" aloud (AVL/Red-Black fix it with rotations). Duplicates need an explicit policy. Wrong tool for prefix search (trie) or `O(1)` lookup (hash). Heap knows only the extreme; BST knows order. Nodes scatter, so cache locality suffers.
+
+**Keywords:** validate, kth smallest, LCA, sorted, inorder, successor, predecessor, ceil, floor, range sum, delete node, balance, sorted array to BST.
 
 ## Study notes
 
