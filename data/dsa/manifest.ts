@@ -23,6 +23,13 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     tier: "foundation",
   },
   {
+    slug: "algorithms",
+    title: "Algorithms",
+    description:
+      "Theory hub: 22 essential algorithm patterns — what, how, big-O, catch, keywords.",
+    tier: "foundation",
+  },
+  {
     slug: "arrays-strings",
     title: "Arrays",
     description: "In-place scans + JS array methods. Pair with Hashing for Arrays & Hashing.",
