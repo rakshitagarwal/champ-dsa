@@ -83,7 +83,7 @@ export function AccordionTrigger({
       type="button"
       onClick={() => ctx.setOpen(isOpen ? null : id)}
       className={cn(
-        "flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/40",
+        "flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/40",
         className,
       )}
       aria-expanded={isOpen}
@@ -91,7 +91,7 @@ export function AccordionTrigger({
       {children}
       <ChevronDown
         className={cn(
-          "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+          "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
           isOpen && "rotate-180",
         )}
       />

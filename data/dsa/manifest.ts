@@ -19,14 +19,14 @@ export const DSA_CATALOG: DsaNoteMeta[] = [
     slug: "data-structures",
     title: "Data Structures",
     description:
-      "Theory hub: 9 core data structures — what, structure, big-O, catch, keywords.",
+      "Cheatsheet: 9 structures — what, structure, Big-O, catch, keywords, JS, top 5.",
     tier: "foundation",
   },
   {
     slug: "algorithms",
     title: "Algorithms",
     description:
-      "Theory hub: 22 essential algorithm patterns — what, how, big-O, catch, keywords.",
+      "Cheatsheet: 22 patterns — what, how, Big-O, catch, keywords, JS, top 5.",
     tier: "foundation",
   },
   {

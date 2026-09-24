@@ -216,19 +216,35 @@ export function SheetAccordion() {
                   {group.subsections.map((sub) => (
                     <AccordionItem key={sub.id} id={sub.id}>
                       <AccordionTrigger id={sub.id}>
-                        <div className="flex flex-1 items-center justify-between gap-2 pr-2">
-                          <span className="font-medium">{sub.title}</span>
-                          <Badge variant="outline">{sub.problems.length}</Badge>
+                        <div className="flex flex-1 items-center justify-between gap-3 pr-2 text-left">
+                          <div className="min-w-0">
+                            <span className="font-medium">{sub.title}</span>
+                            {sub.hint ? (
+                              <p className="mt-0.5 text-xs font-normal leading-snug text-muted-foreground">
+                                {sub.hint}
+                              </p>
+                            ) : null}
+                          </div>
+                          <Badge variant="outline" className="shrink-0">
+                            {sub.problems.length}
+                          </Badge>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent id={sub.id}>
-                        <ul className="space-y-2">
-                          {sub.problems.map((problem) => (
-                            <li key={`${sub.id}-${problem.slug}`}>
-                              <ProblemRow problem={problem} />
-                            </li>
-                          ))}
-                        </ul>
+                        {sub.problems.length === 0 ? (
+                          <p className="px-1 py-2 text-sm text-muted-foreground">
+                            No LeetCode links in this bucket yet — the pattern
+                            name and hint still apply (often GFG-only drills).
+                          </p>
+                        ) : (
+                          <ul className="space-y-2">
+                            {sub.problems.map((problem) => (
+                              <li key={`${sub.id}-${problem.slug}`}>
+                                <ProblemRow problem={problem} />
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
