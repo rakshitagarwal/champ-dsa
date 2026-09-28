@@ -12,9 +12,14 @@ const SECTIONS = [
     description: "LeetCode problems with AlgoJS video solutions.",
   },
   {
+    href: "/algojs",
+    title: "AlgoJS",
+    description: "LeetCode solutions aligned with the AlgoJS YouTube channel.",
+  },
+  {
     href: "/solutions",
     title: "Solutions",
-    description: "161 LeetCode solutions in JavaScript with comments.",
+    description: "Personal DSA sheet — ~150 problems across 20 topics.",
   },
   {
     href: "/notes",

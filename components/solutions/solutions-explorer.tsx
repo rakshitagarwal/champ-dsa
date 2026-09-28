@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils";
 type Props = {
   groups: SolutionGroup[];
   total: number;
+  brandLabel?: string;
+  sidebarTitle?: string;
+  introTitle?: string;
+  introBlurb?: string;
 };
 
 const DIFF_CLASS: Record<string, string> = {
@@ -18,13 +22,19 @@ const DIFF_CLASS: Record<string, string> = {
   Hard: "text-rose-500",
 };
 
-function SolutionCard({ entry }: { entry: SolutionEntry }) {
+function SolutionCard({
+  entry,
+  anchorId,
+}: {
+  entry: SolutionEntry;
+  anchorId: string;
+}) {
   const segments = useMemo(
     () => parseNoteSegments(entry.body, { enableRunnable: false }),
     [entry.body],
   );
   return (
-    <article id={entry.lcSlug} className="scroll-mt-20 border-t border-border pt-6">
+    <article id={anchorId} className="scroll-mt-20 border-t border-border pt-6">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-mono text-sm tabular-nums text-muted-foreground">
           #{entry.id}
@@ -66,25 +76,26 @@ function IntroPanel({
   medium,
   hard,
   premium,
+  brandLabel,
+  introTitle,
+  introBlurb,
 }: {
   total: number;
   easy: number;
   medium: number;
   hard: number;
   premium: number;
+  brandLabel: string;
+  introTitle: string;
+  introBlurb: string;
 }) {
   return (
     <div className="max-w-3xl">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-        ChampDSA · Solutions
+        {brandLabel}
       </p>
-      <h2 className="mt-2 text-3xl font-bold tracking-tight">Introduction</h2>
-      <p className="mt-4 leading-relaxed text-muted-foreground">
-        {total} high-value LeetCode problems grouped by the pattern to
-        recognize — not just by LeetCode&apos;s tags. Every question has its
-        name, a link to open it on LeetCode, and a JavaScript solution with
-        Hinglish comments.
-      </p>
+      <h2 className="mt-2 text-3xl font-bold tracking-tight">{introTitle}</h2>
+      <p className="mt-4 leading-relaxed text-muted-foreground">{introBlurb}</p>
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-xl border border-border bg-card/90 px-3 py-4 text-center">
           <p className="text-2xl font-bold tabular-nums text-primary sm:text-3xl">
@@ -114,16 +125,16 @@ function IntroPanel({
       <h3 className="mt-8 text-lg font-semibold">How to use this page</h3>
       <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
         <li>
-          Pick a topic on the left to filter — each group matches one problem
-          family (arrays, graphs, DP, and so on).
+          Pick a topic on the left — each group is one pattern family, split into
+          Foundation / Medium / Advanced.
         </li>
         <li>
           Use search for a problem name, slug, or number, and the difficulty
           dropdown to narrow further.
         </li>
         <li>
-          Don&apos;t memorize solutions — learn the trigger, the invariant,
-          and the template behind each pattern.
+          Repeated problems appear under more than one topic — study the
+          solution for that topic&apos;s pattern (e.g. Islands as BFS vs DFS).
         </li>
         <li>
           {premium} questions need LeetCode premium to open — their solutions
@@ -134,7 +145,14 @@ function IntroPanel({
   );
 }
 
-export function SolutionsExplorer({ groups, total }: Props) {
+export function SolutionsExplorer({
+  groups,
+  total,
+  brandLabel = "ChampDSA · Solutions",
+  sidebarTitle = "Solutions",
+  introTitle = "Introduction",
+  introBlurb = `${total} high-value LeetCode problems grouped by the pattern to recognize — not just by LeetCode's tags. Every question has its name, a link to open it on LeetCode, and a JavaScript solution with Hinglish comments.`,
+}: Props) {
   const [topicId, setTopicId] = useState<string>("intro");
   const [query, setQuery] = useState("");
   const [diff, setDiff] = useState("");
@@ -192,7 +210,7 @@ export function SolutionsExplorer({ groups, total }: Props) {
     <div className="relative h-full min-h-0 w-full overflow-hidden">
       <aside className="absolute bottom-0 left-0 top-0 z-10 hidden w-60 flex-col overflow-hidden border-r border-border bg-panel/50 lg:flex">
         <div className="border-b border-border px-4 py-4">
-          <p className="text-sm font-semibold text-foreground">Solutions</p>
+          <p className="text-sm font-semibold text-foreground">{sidebarTitle}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Filter by topic to revise
           </p>
@@ -334,6 +352,9 @@ export function SolutionsExplorer({ groups, total }: Props) {
                 medium={stats.medium}
                 hard={stats.hard}
                 premium={stats.premium}
+                brandLabel={brandLabel}
+                introTitle={introTitle}
+                introBlurb={introBlurb}
               />
             ) : (
               <>
@@ -358,7 +379,11 @@ export function SolutionsExplorer({ groups, total }: Props) {
                           </h3>
                           <div className="mt-2 space-y-8">
                             {s.topics.map((t) => (
-                              <SolutionCard key={t.lcSlug} entry={t} />
+                              <SolutionCard
+                                key={`${g.id}-${s.title}-${t.lcSlug}`}
+                                entry={t}
+                                anchorId={`${g.id}-${t.lcSlug}`}
+                              />
                             ))}
                           </div>
                         </div>
