@@ -305,11 +305,41 @@ Check TTFB (RSC payload), Client JS bundle size, `next/image`, caching strategy,
 
 ---
 
-## 18. Related notes
+## 18. Next.js Full Stack JD — extra Q&A (2–3 YOE)
+
+**Q: How would you build a full-stack feature in Next (e.g. user profile)?**  
+A: Server Component page fetches profile from DB/API with cookies; Client Component for the edit form; Server Action or route handler for `PATCH`; validate with Zod; revalidate tag/path after mutate. Keep secrets server-only.
+
+**Q: App Router route handlers vs separate Node Express API?**  
+A: Route handlers are great for BFF / same-deploy fullstack. Separate Express/Nest service when you need independent scaling, many consumers (mobile), or heavier background workers. Many teams use Next for UI + Node API — both are valid; explain your choice.
+
+**Q: How do you call your Node API from Next?**  
+A: From Server Components: `fetch` to internal URL with forwarded cookies/auth header. From client: call same-origin Next proxy/route handler to avoid exposing secrets and to simplify CORS. Cache deliberately (`no-store` for private user data).
+
+**Q: SSR vs SSG vs CSR — pick for a dashboard?**  
+A: Private dashboard → dynamic SSR or client fetch with auth (`no-store`). Marketing blog → SSG/ISR. Highly interactive widgets → Client Components islands.
+
+**Q: How do you handle env vars across local / staging / prod?**  
+A: `.env.local` locally; hosting provider / [AWS SSM](/notes/aws) in deploy. `NEXT_PUBLIC_*` only for non-secrets. Document required vars; fail fast if missing at startup.
+
+**Q: Image uploads in a Next + Node stack?**  
+A: Prefer **S3 pre-signed URL** from the API ([AWS](/notes/aws)); don't stream multi‑MB files through Next serverless if avoidable. Use `next/image` for display.
+
+**Q: Middleware use cases?**  
+A: Auth gate, redirects, geo/locale, A/B headers — keep it **fast** and edge-safe (no heavy DB). Full authz still checked in server handlers.
+
+**Q: How do you deploy Next?**  
+A: Vercel is common; or Docker → Node server / ECS on [AWS](/notes/aws); or static export when no server features. Mention CI: lint, test, build, then promote.
+
+---
+
+## 19. Related notes
 
 - React fundamentals → [React js](/notes/react)
 - Node runtime, Express → [Node js](/notes/node)
+- Databases → [Databases](/notes/databases)
+- Cloud → [AWS](/notes/aws)
 - Caching at scale → [Redis](/system-design/redis) and [distributed cache](/system-design/distributed-cache)
 - Core Web Vitals → [Performance optimization](/notes/performance)
-- Docker & CI/CD → [production notes](/notes/advanced-topics)
+- Docker & CI/CD → [DevOps](/notes/devops) / [production notes](/notes/advanced-topics)
 - TypeScript → [TypeScript notes](/notes/typescript)

@@ -412,3 +412,36 @@ Full React behavior → [React notes](/notes/react).
 **Phrase:** *"I keep domain types strict, validate at the edges, and use discriminated unions so illegal states cannot be represented."*
 
 **Related:** [JavaScript](/notes/javascript) (runtime), [Node](/notes/node) (Zod, APIs), [React](/notes/react).
+
+---
+
+## TypeScript Full Stack JD — interview Q&A
+
+**Q: Why TypeScript in a Node + React stack?**  
+A: Catch contract bugs before runtime, safer refactors, shared DTO types between API and UI, better IDE help. Compile-time only — still validate untrusted input at runtime (Zod).
+
+**Q: How do you type an Express request handler?**  
+A: Type `req.params` / `body` with generics or validated Zod output types after middleware. Don't cast `as any`. Prefer `Request`, `Response`, `NextFunction` from Express with a custom `AuthRequest` extending `Request` for `req.user`.
+
+**Q: any vs unknown?**  
+A: `any` disables checking — avoid. `unknown` forces narrowing before use — prefer for `catch (err)` and external JSON.
+
+**Q: How do you share types between frontend and backend?**  
+A: Shared package / `types` folder, or OpenAPI → generated client. Never trust the client alone — server re-validates.
+
+**Q: interface vs type?**  
+A: Both fine. `interface` for object shapes that may be extended; `type` for unions, intersections, mapped types. Be consistent in the repo.
+
+**Q: What is a discriminated union — example?**  
+A: `type Result = { ok: true; data: User } | { ok: false; error: string }` — `if (result.ok)` narrows. Great for API results and UI state machines.
+
+**Q: Generics — one practical example?**  
+A: `function first<T>(arr: T[]): T | undefined` or `ApiResponse<T> = { data: T; meta: Meta }` so list/detail endpoints reuse the wrapper.
+
+**Q: How do you type `process.env`?**  
+A: Values are `string | undefined`. Validate at startup into a typed `config` object; don't sprinkle `process.env.X!` everywhere.
+
+**Q: Utility types you use weekly?**  
+A: `Partial`, `Pick`, `Omit`, `Record`, `Required`, `ReturnType`, `Awaited`. Example: `CreateUserDto = Omit<User, 'id' | 'createdAt'>`.
+
+---

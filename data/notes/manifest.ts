@@ -35,10 +35,28 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Interview revision — event loop, streams, modules, Express, and the Node runtime.",
   },
   {
+    slug: "python",
+    title: "Python & FastAPI",
+    description:
+      "Python for JS developers — syntax mapping, must-know concepts, and FastAPI APIs with examples.",
+  },
+  {
     slug: "sql",
     title: "SQL & DBMS",
     description:
       "Interview revision — SQL queries, joins, indexes, transactions, normalization, and DBMS FAQs.",
+  },
+  {
+    slug: "databases",
+    title: "Databases",
+    description:
+      "MongoDB, MySQL, and PostgreSQL — frequently asked interview questions in one place.",
+  },
+  {
+    slug: "angular",
+    title: "Angular JS",
+    description:
+      "Interview revision — components, DI, RxJS, forms, change detection, routing, and Angular vs React.",
   },
   {
     slug: "html-css",
@@ -57,6 +75,18 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
     title: "Web Optimisation",
     description:
       "Web-focused revision — CRP, Core Web Vitals, bundling, images, fonts, caching, CDN, and RUM.",
+  },
+  {
+    slug: "devops",
+    title: "DevOps",
+    description:
+      "Interview revision — CI/CD, Docker, Kubernetes, IaC, cloud, observability, and DORA metrics.",
+  },
+  {
+    slug: "aws",
+    title: "AWS",
+    description:
+      "Full-stack interview revision — EC2, S3, RDS, IAM, VPC, Lambda, ALB, CloudWatch, and deploy stories.",
   },
   {
     slug: "advanced-topics",

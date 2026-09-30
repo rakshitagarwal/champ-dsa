@@ -729,3 +729,191 @@ This is the standard React pattern for component communication before reaching f
 - When a callback captures an old value of state/prop — fix by adding it to deps array or using functional update
 
 ---
+
+## 38. React Router (SPA routing)
+
+For Vite/CRA SPAs (Next has its own router — see [Next.js](/notes/next)).
+
+```jsx
+import { BrowserRouter, Routes, Route, Link, Navigate, useParams, useNavigate } from "react-router-dom";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav><Link to="/">Home</Link> <Link to="/users/1">User</Link></nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/users/:id" element={<UserPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={isAuthed ? <Dashboard /> : <Navigate to="/login" replace />}
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+function UserPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  return <button onClick={() => navigate(-1)}>Back ({id})</button>;
+}
+```
+
+**Must-know:**
+- `Link` / `NavLink` — client navigation (no full reload)
+- Nested routes + `<Outlet />` for layouts
+- Protected routes = auth check that redirects (server must still enforce auth on APIs)
+- `useSearchParams` for query strings
+
+---
+
+## 39. Client state: Zustand vs Redux Toolkit
+
+**When Context is enough:** theme, locale, current user profile (rarely changes).
+
+**When you need a store:** lots of components write the same client UI state (cart, multi-step wizard, complex filters) and prop-drilling/Context re-renders hurt.
+
+### Zustand (simple — prefer for most mid-size apps)
+
+```js
+import { create } from "zustand";
+
+const useCart = create((set) => ({
+  items: [],
+  add: (item) => set((s) => ({ items: [...s.items, item] })),
+  clear: () => set({ items: [] }),
+}));
+
+// in component
+const items = useCart((s) => s.items); // selects slice → fewer re-renders
+```
+
+### Redux Toolkit (RTK) — interview classic
+
+```js
+import { createSlice, configureStore } from "@reduxjs/toolkit";
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: { items: [] },
+  reducers: {
+    add(state, action) {
+      state.items.push(action.payload); // Immer — "mutate" safely
+    },
+    clear(state) {
+      state.items = [];
+    },
+  },
+});
+
+export const { add, clear } = cartSlice.actions;
+export const store = configureStore({ reducer: { cart: cartSlice.reducer } });
+```
+
+**Flow to say in interviews:** UI dispatches **action** → **reducer** updates state immutably → subscribers re-render. RTK Query exists for server cache, but many teams use React Query instead.
+
+**Pick:** Zustand for speed/simplicity; RTK when the team already standardized on Redux or needs strong DevTools/middleware conventions.
+
+---
+
+## 40. Server state: React Query (TanStack Query)
+
+**Server state** (API data) ≠ **client state** (modal open, draft form). Don't dump API lists into Redux by default.
+
+```js
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+function Users() {
+  const qc = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => fetch("/api/users").then((r) => r.json()),
+  });
+
+  const mutation = useMutation({
+    mutationFn: (body) =>
+      fetch("/api/users", { method: "POST", body: JSON.stringify(body) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  if (isLoading) return <p>Loading…</p>;
+  if (error) return <p>Failed</p>;
+  return <ul>{data.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
+}
+```
+
+**Why interviewers like it:** caching, deduping, retries, stale-while-revalidate, less manual `useEffect` boilerplate. SWR is the lighter alternative — same idea.
+
+---
+
+## 41. Testing React (Jest + Testing Library)
+
+```jsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import Counter from "./Counter";
+
+test("increments count", () => {
+  render(<Counter />);
+  fireEvent.click(screen.getByRole("button", { name: /increment/i }));
+  expect(screen.getByText("1")).toBeInTheDocument();
+});
+```
+
+**Rules of thumb:**
+- Query like a user: `getByRole`, `getByLabelText` — not by CSS class / test ids first
+- Test behavior, not implementation details
+- Wrap with providers (Router, QueryClient) in a test `wrapper` when needed
+- Mock network with MSW or `jest.mock` — don't hit real APIs in unit tests
+
+Backend HTTP tests → [Node testing](/notes/node) (Jest + Supertest).
+
+---
+
+## 42. React Full Stack JD — interview Q&A (2–3 YOE)
+
+For JDs asking **React.js or Next.js** + Node APIs.
+
+**Q: How do you fetch data from a Node REST API in React?**  
+A: Prefer Server Components / loader in Next when possible. In CSR React: `fetch`/`axios` in `useEffect` or React Query/SWR — handle loading, error, empty states; cancel/ignore stale responses; never store tokens in `localStorage` if XSS is a concern (prefer httpOnly cookies).
+
+**Q: Controlled vs uncontrolled inputs?**  
+A: Controlled = React state is source of truth (`value` + `onChange`) — forms, validation. Uncontrolled = ref/`defaultValue` — simple or file inputs. Most app forms are controlled.
+
+**Q: How do you manage auth state on the frontend?**  
+A: Login API sets httpOnly cookie (or returns JWT). React holds lightweight user profile from `/me`. Route guards redirect unauthenticated users. On 401, clear state and send to login. Don't duplicate sensitive permissions only on the client — **server must enforce**.
+
+**Q: Context vs Redux vs React Query?**  
+A: Context for infrequent theme/auth user object. Zustand/Redux for complex **client** UI state. React Query/SWR for **server cache** (API data, retries, dedupe). Don't put all API data in Redux by default. Details → sections 39–40 above.
+
+**Q: How do you route in a React SPA vs Next?**  
+A: SPA → React Router (`Routes`/`Route`, protected routes with `Navigate`). Next → file-based App Router. Don't mix mental models.
+
+**Q: How do you make UI responsive?**  
+A: Mobile-first CSS (Flex/Grid), relative units, media/container queries, touch-friendly targets. Related: [HTML & CSS](/notes/html-css). Test narrow viewports.
+
+**Q: How do you optimize React performance?**  
+A: Measure first (Profiler). Then: split code (`lazy`/`Suspense`), memoize expensive pure children, virtualize long lists, avoid inline unstable props into memo children, compress images, keep state local.
+
+**Q: What is the Virtual DOM / reconciliation?**  
+A: React compares element trees, finds minimal DOM updates. Keys help list reconciliation — stable ids, not array index if order changes.
+
+**Q: Class vs function components?**  
+A: Modern code = functions + hooks. Classes still appear in legacy codebases — know lifecycle mapping (`componentDidMount` ≈ `useEffect(() => {}, [])`).
+
+**Q: How do you reuse UI logic?**  
+A: Custom hooks (`useAuth`, `useDebounce`), shared presentational components, composition over deep inheritance.
+
+**Q: Error boundaries — what do they catch?**  
+A: Render errors in the tree below them — not async/event handler errors (handle those with try/catch + local state). Use with a fallback UI.
+
+**Q: How do you collaborate with backend on APIs?**  
+A: Shared TypeScript types / OpenAPI client, agree pagination & error format, mock APIs for parallel work, flag breaking changes early.
+
+**Q: React vs Next.js — when each?**  
+A: React (Vite/CRA-style) = SPA/client app. Next = routing, SSR/RSC, SEO, API routes/server actions — default for many full-stack product UIs. See [Next.js](/notes/next).
+
+---
+

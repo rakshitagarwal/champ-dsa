@@ -902,3 +902,46 @@ A **BFC** is an isolated region of the page where block boxes are laid out. Elem
 - Reflow is more expensive than repaint.
 
 ---
+
+## 36. HTML/CSS Full Stack JD — interview Q&A
+
+JDs that list **HTML, CSS, and responsive web design** — these are the usual asks.
+
+**Q: What makes a page responsive?**  
+A: Fluid layouts (Flex/Grid/%), relative units (`rem`, `%`, `clamp`), media or container queries, flexible images (`max-width: 100%`), mobile-first breakpoints, test on real narrow widths.
+
+**Q: Mobile-first vs desktop-first?**  
+A: Mobile-first = base styles for small screens, then `min-width` media queries up. Matches most traffic and progressive enhancement.
+
+**Q: Flexbox vs Grid — when?**  
+A: Flex = one-dimensional alignment (nav, toolbars, card rows). Grid = two-dimensional page/sections. Often Grid for page shell, Flex inside components.
+
+**Q: Semantic HTML — why care?**  
+A: Accessibility, SEO, clearer structure (`header`, `main`, `nav`, `button` vs clickable `div`). Screen readers and keyboard users depend on it.
+
+**Q: Forms — accessibility basics?**  
+A: `<label for>`, `input` types, `required`/`aria-*`, focus states visible, don't remove outlines without a replacement, error text tied to fields.
+
+**Q: CSS specificity conflict — how do you debug?**  
+A: DevTools computed styles; remember inline > IDs > classes > elements; prefer classes over `!important`; modern: `@layer` / reduce selector wars.
+
+**Q: Box model — content-box vs border-box?**  
+A: With `border-box`, width includes padding+border — predictable layouts. Most resets set `* { box-sizing: border-box; }`.
+
+**Q: How do you center a div?**  
+A: Flex/Grid `place-items: center` / `margin: auto` on flex child; absolute + transform for overlays. Know one solid modern way.
+
+**Q: rem vs em vs px?**  
+A: `rem` from root — consistent type scale. `em` relative to parent — compounds. `px` for hairlines/borders when needed.
+
+**Q: Critical CSS / performance angle?**  
+A: Block rendering CSS carefully; avoid huge unused frameworks; prefer transform/opacity animations; compress images; see [Performance](/notes/performance) / [Web Optimisation](/notes/web-optimisation).
+
+**Q: How do you structure CSS in a React app?**  
+A: CSS Modules, Tailwind, or styled-components — pick team standard. Avoid global leaks; keep component styles colocated.
+
+**Q: Cross-browser issues?**  
+A: Stick to well-supported features; check caniuse; progressive enhancement; verify Flex/Grid gaps and form controls on Safari.
+
+---
+

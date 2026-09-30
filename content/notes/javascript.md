@@ -764,3 +764,41 @@ console.log(bound("Rakshit"));
 `bind` creates a permanent `this` binding. Arrow functions cannot have `this` overridden by these methods.
 
 ---
+
+## 36. JavaScript Full Stack JD — interview Q&A
+
+**Q: var vs let vs const — what do you use?**  
+A: `const` by default, `let` when reassignment needed, avoid `var` (function scope + hoisting surprises).
+
+**Q: Explain closures with a real backend/UI example.**  
+A: Middleware factory `rateLimit(max)` closes over `max` and a counter Map. Debounce in search input closes over timer id. Event handlers close over props/state (watch stale closures).
+
+**Q: Event loop — why does it matter for Node APIs?**  
+A: JS is single-threaded. Slow CPU work or `fs.readFileSync` in a request blocks **all** requests. Prefer async I/O; offload CPU to workers.
+
+**Q: Promise.all vs allSettled vs race?**  
+A: `all` — fail fast parallel. `allSettled` — wait all outcomes (partial success UIs). `race` — first settled (timeouts). `any` — first fulfilled.
+
+**Q: == vs ===?**  
+A: Always `===` / `!==` in app code. `==` coerces types and hides bugs.
+
+**Q: How does `this` behave in callbacks?**  
+A: Function `this` depends on call site; arrow functions inherit lexical `this`. In React class handlers you bind or use arrows; in Node prefer arrows or explicit bind for methods passed as callbacks.
+
+**Q: Debounce vs throttle — where used?**  
+A: Debounce search-as-you-type API calls; throttle scroll/resize handlers. Saves backend load.
+
+**Q: Deep copy vs shallow copy?**  
+A: Spread/`Object.assign` = shallow. Nested objects still shared. Use `structuredClone` or careful immutable updates. JSON parse/stringify drops functions/dates quirks.
+
+**Q: Optional chaining / nullish coalescing?**  
+A: `user?.address?.city`, `value ?? default` (only null/undefined — not `0` or `''`).
+
+**Q: ESM vs CommonJS in Node?**  
+A: CJS `require`/`module.exports` still common; ESM `import`/`export` is modern default (`"type":"module"`). Know both for existing codebases.
+
+**Q: How do you handle async errors?**  
+A: `try/catch` with async/await; `.catch` on promises; Express async wrapper or catch in middleware; listen for `unhandledRejection` in ops but still fix root causes.
+
+---
+

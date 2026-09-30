@@ -1,6 +1,6 @@
 # Node.js Interview Notes
 
-> Runtime, event loop, Express, and production Node. Types → [TypeScript](/notes/typescript). Cache and sessions → [Redis](/system-design/redis). Shipping → [Docker & CI/CD](/notes/advanced-topics).
+> Runtime, event loop, Express, and production Node. Types → [TypeScript](/notes/typescript). DBs → [Databases](/notes/databases). Cache → [Redis](/system-design/redis). Cloud → [AWS](/notes/aws). Shipping → [DevOps](/notes/devops) / [Docker & CI/CD](/notes/advanced-topics).
 
 ---
 
@@ -633,19 +633,46 @@ app.post("/upload", (req, res) => {
 
 ## 25. Database Interaction
 
-**MongoDB with Mongoose:**
+**MongoDB with Mongoose (MERN default):**
 ```js
 const mongoose = require("mongoose");
 await mongoose.connect(process.env.MONGO_URI);
 
-const UserSchema = new mongoose.Schema({ name: String, email: { type: String, unique: true } });
-const User = mongoose.model("User", UserSchema);
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  },
+  { timestamps: true }
+);
+
+// Hash password before save (pre hook)
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+const User = mongoose.model("User", userSchema);
 
 await User.create({ name: "Alice", email: "a@a.com" });
-await User.findById(id);
-await User.findByIdAndUpdate(id, { name: "Bob" }, { new: true });
+await User.findById(id).select("-password").lean(); // lean = plain objects, faster reads
+await User.findByIdAndUpdate(id, { name: "Bob" }, { new: true, runValidators: true });
 await User.findByIdAndDelete(id);
+
+// Populate references (watch N+1 — don't populate blindly in lists)
+const user = await User.findById(id).populate("posts", "title createdAt");
 ```
+
+**Mongoose interview bits:**
+- **Schema + model** — structure + collection binding
+- **`ref` + `populate`** — relationships; prefer embedding when data is always co-read and bounded
+- **Middleware (`pre`/`post`)** — hashing, audit fields
+- **`lean()`** — skip Mongoose document overhead for read-only APIs
+- Validation at schema + API layer (Joi/Zod) — don't rely on one alone
+
+More Mongo design → [Databases](/notes/databases).
 
 **PostgreSQL with pg:**
 ```js
@@ -656,7 +683,7 @@ const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
 result.rows; // array of row objects
 ```
 
-**Connection pooling:** Reuse a pool of database connections instead of opening a new connection per request. Reduces overhead and limits max connections.
+**Connection pooling:** Reuse a pool of database connections instead of opening a new connection per request. Reduces overhead and limits max connections. Same idea for `mysql2` createPool.
 
 ---
 
@@ -848,3 +875,65 @@ process.on("SIGTERM", () => {
 - Reuse DB connections → connection pooling
 
 ---
+
+## 33. Node.js Full Stack JD — interview Q&A (2–3 YOE)
+
+Use this section for roles like: *Node.js Full Stack Developer — React/Next, REST APIs, Mongo/MySQL/Postgres*.
+
+**Q: Explain your typical Node backend folder structure.**  
+A: `routes` → `controllers` → `services` → `models`/`repos`, plus `middleware` (auth, validate, error), `config`, `utils`. Keep HTTP concerns out of business logic so handlers stay thin.
+
+**Q: How do you design a RESTful API?**  
+A: Resource nouns (`/users`, `/users/:id/orders`), correct verbs (`GET/POST/PATCH/DELETE`), proper status codes (`201` create, `204` delete, `400` validation, `401/403` auth, `404`, `409` conflict, `500`), pagination (`limit`/`cursor`), versioning (`/api/v1`), and consistent error JSON `{ "error": { "code", "message" } }`.
+
+**Q: How do you integrate a third-party API?**  
+A: Wrap it in a service client with timeout, retries (idempotent GETs), circuit breaker/backoff, map their errors to our domain, never expose their raw secrets/keys to the frontend, and cache where safe. Store keys in env / Secrets Manager ([AWS](/notes/aws)).
+
+**Q: Middleware order in Express — why does it matter?**  
+A: Request flows top → bottom. Typical: `helmet` → `cors` → `express.json` → logger → auth → routes → 404 → error handler. Auth after body parser; error handler **last** with `(err, req, res, next)`.
+
+**Q: How do you validate request input?**  
+A: Validate at the boundary with Joi / Zod / express-validator before hitting the DB. Never trust `req.body`. Return `400` with field-level messages.
+
+**Q: JWT vs session cookies — what would you use?**  
+A: Browser apps: prefer **httpOnly Secure SameSite cookie** (session ID or short JWT). Mobile / SPA talking cross-domain: Bearer JWT with refresh rotation. Always plan **logout/revocation** (blocklist or server session store).
+
+**Q: How do you prevent common API security issues?**  
+A: Parameterized queries / ORM (no string-built SQL), helmet, CORS allowlist, rate limit login, hash passwords (`bcrypt`/`argon2`), sanitize uploads, least-privilege DB user, HTTPS, no secrets in logs/Git.
+
+**Q: How do you debug a slow API endpoint?**  
+A: Reproduce → check logs/`requestId` → measure DB time (`EXPLAIN`, slow query log) → look for N+1 → check external API latency → profile CPU if compute-heavy → add indexes/cache/pool size — don't guess.
+
+**Q: How do you handle DB connections in Node?**  
+A: One shared **pool** (pg Pool / mysql2 pool / Mongoose connection). Never open a new connection per request. Cap pool size; set statement/query timeouts.
+
+**Q: MongoDB vs MySQL vs PostgreSQL for a feature — how do you choose?**  
+A: See [Databases](/notes/databases). Short: relational + transactions/joins → MySQL/Postgres; flexible nested documents → Mongo. Say tradeoffs, not "Mongo is modern."
+
+**Q: How do you write clean, reusable Node code?**  
+A: Pure-ish services, shared error class, config module, DRY middleware, TypeScript types at boundaries, no god-files, small PRs, consistent lint/format.
+
+**Q: Walk through deploy of a Node API.**  
+A: CI runs lint/tests → build artifact/image → deploy staging → smoke test → prod with rollback. Prefer Docker + [AWS ECS/EC2/Beanstalk](/notes/aws) or similar. Env-specific config; migrations before/with release carefully.
+
+**Q: What is clustering / PM2 and when do you need it?**  
+A: One Node process = one thread for JS. PM2/cluster uses multiple processes to use all CPU cores for concurrent I/O-bound traffic. Still put a load balancer in front in production.
+
+**Q: How do you test a Node API?**  
+A: Unit test services; integration test routes with supertest + test DB; mock third parties; keep a few e2e happy paths. CI must run tests on every PR.
+
+**Q: Tell me about a production bug you fixed.**  
+A: Use STAR: Situation → Task → Action (logs, root cause, fix, guardrail) → Result (metric). Practice one story: N+1, memory leak, unhandled rejection, wrong index, race on inventory, etc.
+
+---
+
+## 34. Full-stack collaboration answers (soft but asked)
+
+**Q: How do you work with designers / frontend?**  
+A: Agree API contract early (OpenAPI / shared types), paginate consistently, provide loading/error shapes, don't break fields without versioning, join standup blockers early.
+
+**Q: Code review — what do you look for?**  
+A: Correctness, edge cases, security (authz on every route), performance (N+1), tests, naming, unnecessary complexity, secret leaks.
+
+---
+
