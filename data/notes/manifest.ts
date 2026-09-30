@@ -89,6 +89,12 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
       "Full-stack interview revision — EC2, S3, RDS, IAM, VPC, Lambda, ALB, CloudWatch, and deploy stories.",
   },
   {
+    slug: "microservices",
+    title: "Microservices",
+    description:
+      "Interview revision — service design, API Gateway, Node wiring, multi-DB, GraphQL, Kafka/NATS, sagas.",
+  },
+  {
     slug: "advanced-topics",
     title: "Docker, CI/CD & production",
     description:
@@ -99,5 +105,11 @@ export const NOTE_CATALOG: NoteDocumentMeta[] = [
     title: "AI & ML for engineers",
     description:
       "Product-engineer depth — LLMs, embeddings, RAG, integrations, and interview talking points.",
+  },
+  {
+    slug: "interview-revision",
+    title: "Interview Revision",
+    description:
+      "Question checklist with hints and links into the notes that cover each answer.",
   },
 ];
